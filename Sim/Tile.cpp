@@ -1,14 +1,16 @@
 #include "Tile.h"
 
 
-Tile::Tile(){
-
+Tile::Tile()
+{
 }
 
-Tile::Tile(Graphics* graphics, SDL_Texture* tileset, int offsetX, int offsetY, int width, int height, bool walkable){
-	m_graphics = graphics;
+Tile::Tile(SDL_Texture* tileset, SDL_Rect* clip, int posX, int posY, bool walkable)
+{
 	m_tileset = tileset;
-	m_rect = new SDL_Rect({ offsetX, offsetY, width, height });
+	m_rect = clip;
+	m_posX = posX;
+	m_posY = posY;
 	m_walkable = walkable;
 }
 
@@ -17,9 +19,14 @@ Tile::~Tile()
 {
 }
 
-void Tile::draw(int x, int y)
+void Tile::update(float delta)
 {
-	m_graphics->renderTexture(m_tileset, x, y, m_rect);
+
+}
+
+void Tile::draw(Graphics& graphics)
+{
+	graphics.renderTexture(m_tileset, m_posX, m_posY, m_rect);
 }
 
 bool Tile::isWalkable()

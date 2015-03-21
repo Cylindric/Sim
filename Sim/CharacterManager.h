@@ -1,23 +1,22 @@
 #pragma once
 
-#include "World.h"
 #include "Character.h"
 #include "Graphics.h"
+
+// Forward declaration for the World object.
+class World;
 
 class CharacterManager
 {
 public:
-	CharacterManager(Graphics* graphics, World* world);
+	CharacterManager(Graphics& graphics);
 	~CharacterManager();
-	void update(float delta);
-	void draw();
+	void update(float delta, World* world);
+	void draw(Graphics& graphics);
 	void handleKeyboardInput(const Uint8* keysHeld);
 
 private:
-	void loadCharacters();
-
-	Graphics* m_graphics;
-	World* m_world;
+	void loadCharacters(Graphics& graphics);
 	std::vector<Character*> m_characters;
 
 };

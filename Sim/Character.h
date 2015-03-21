@@ -8,7 +8,7 @@
 class Character
 {
 public:
-	Character(Graphics* graphics, SDL_Texture* spritesheet, int frames, int w, int h, std::string name);
+	Character(Graphics& graphics, SDL_Texture* spritesheet, int frames, int w, int h, std::string name);
 	~Character();
 	void addFrame(int x, int y);
 	void setIdleFrames(std::vector<int> idleUp, std::vector<int> idleDown, std::vector<int> idleLeft, std::vector<int> idleRight);
@@ -22,7 +22,7 @@ public:
 	void setPosition(int x, int y);
 
 	void update(float delta);
-	void draw();
+	void draw(Graphics& graphics);
 
 	// Accessors
 	std::string getName(){ return m_name; }

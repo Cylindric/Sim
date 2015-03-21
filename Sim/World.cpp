@@ -4,53 +4,53 @@
 #include <string>
 #include <fstream>
 
+#include "res_path.h"
+
 using namespace std;
 
-World::World(Graphics* graphics)
+World::World(Graphics& graphics) 
+	:m_characterManager(graphics), 
+	m_tileSize(40)
 {
-	m_tileSize = 40;
-	m_graphics = graphics;
-	this->loadTiles();
-	this->loadSprites();
+	this->loadTiles(graphics);
 }
 
 World::~World()
 {
-	m_graphics->closeTexture(m_tileset);
+	//m_graphicsComp->closeTexture(m_tileset);
 }
 
 
-void World::loadSprites()
+SDL_Rect* World::getSpriteRect(int spriteId)
 {
-	int numTiles = 14;
-	m_sprites = new vector < Tile >();
-	m_sprites->reserve(numTiles);
-	
-	// The basic demo spritesheet has the tiles all over the place
-	m_sprites->emplace_back(m_graphics, m_tileset, 40, 81, 40, 40, true);
-	m_sprites->emplace_back(m_graphics, m_tileset, 120, 81, 40, 40, false);
-	m_sprites->emplace_back(m_graphics, m_tileset, 200, 81, 40, 40, true);
-	m_sprites->emplace_back(m_graphics, m_tileset, 280, 81, 40, 40, true);
+	SDL_Rect* rect = new SDL_Rect();
+	switch (spriteId)
+	{
+	case 0: *rect = { 40, 81, 40, 40 }; break;
+	case 1: *rect = { 120, 81, 40, 40 }; break;
+	case 2: *rect = { 200, 81, 40, 40 }; break;
+	case 3: *rect = { 280, 81, 40, 40 }; break;
 
-	m_sprites->emplace_back(m_graphics, m_tileset, 40, 161, 40, 40, false);
-	m_sprites->emplace_back(m_graphics, m_tileset, 120, 161, 40, 40, false);
-	m_sprites->emplace_back(m_graphics, m_tileset, 200, 161, 40, 40, true);
-	m_sprites->emplace_back(m_graphics, m_tileset, 280, 161, 40, 40, false);
-	m_sprites->emplace_back(m_graphics, m_tileset, 360, 161, 40, 40, false);
+	case 4: *rect = { 40, 161, 40, 40 }; break;
+	case 5: *rect = { 120, 161, 40, 40 }; break;
+	case 6: *rect = { 200, 161, 40, 40 }; break;
+	case 7: *rect = { 280, 161, 40, 40 }; break;
+	case 8: *rect = { 360, 161, 40, 40 }; break;
 
-	m_sprites->emplace_back(m_graphics, m_tileset, 40, 241, 40, 40, false);
-	m_sprites->emplace_back(m_graphics, m_tileset, 120, 241, 40, 40, false);
-	m_sprites->emplace_back(m_graphics, m_tileset, 200, 241, 40, 40, true);
-	m_sprites->emplace_back(m_graphics, m_tileset, 280, 241, 40, 40, false);
-	m_sprites->emplace_back(m_graphics, m_tileset, 360, 241, 40, 40, false);
+	case 9: *rect = { 40, 241, 40, 40 }; break;
+	case 10: *rect = { 120, 241, 40, 40 }; break;
+	case 11: *rect = { 200, 241, 40, 40 }; break;
+	case 12: *rect = { 280, 241, 40, 40 }; break;
+	case 13: *rect = { 360, 241, 40, 40 }; break;
 
-	// Debug markers
-	m_sprites->emplace_back(m_graphics, m_tileset, 40, 321, 40, 40, false); // 14
-	m_sprites->emplace_back(m_graphics, m_tileset, 40, 321, 40, 40, false); // 15
-
+		// Debug markers
+	case 14: *rect = { 40, 321, 40, 40 }; break;
+	case 15: *rect = { 40, 321, 40, 40 }; break;
+	}
+	return rect;
 }
 
-void World::loadTiles()
+void World::loadTiles(Graphics& graphics)
 {
 	// Read data from the file
 	ifstream fin;
@@ -68,7 +68,7 @@ void World::loadTiles()
 	string height = "";
 
 	fin >> word >> tilefilename;
-	m_tileset = m_graphics->loadTexture(Resource::getResourcePath("Tiles") + tilefilename);
+	m_tileset = graphics.loadTexture(Resource::getResourcePath("Tiles") + tilefilename);
 	if (m_tileset == NULL)
 	{
 		cout << "Error loading texture " << tilefilename;
@@ -93,31 +93,48 @@ void World::loadTiles()
 
 	// Get the bulk of the data
 	int tileCount = m_tileColumns * m_tileRows;
-	m_tiles = new vector < int >();
-	m_tiles->reserve(tileCount);
+	m_tiles.reserve(tileCount);
 
-	int spriteToUse;
+	int spriteToUse = 0;
+	int tileNum = 0;
 	while (fin >> word)
 	{
+		int xPos = m_tileSize * (tileNum % m_tileColumns);
+		int yPos = m_tileSize * (tileNum / m_tileColumns);
 		spriteToUse = atoi(word.c_str());
-		m_tiles->push_back(spriteToUse);
+		bool walkable = (spriteToUse == 0 || spriteToUse == 2 || spriteToUse == 3 || spriteToUse == 6 || spriteToUse == 11);
+		m_tiles.emplace_back(m_tileset, this->getSpriteRect(spriteToUse), xPos, yPos, walkable);
+		tileNum++;
 	}
 	fin.close();
 }
 
-void World::draw()
+void World::update(float delta)
 {
-	int xPos, yPos, tileNum, sprite;
+	m_characterManager.update(delta, this);
+
+	for (Tile& tile : m_tiles)
+	{
+		tile.update(delta);
+	}
+}
+
+void World::draw(Graphics& graphics)
+{
+	int xPos, yPos, tileNum;
+	Tile* tile;
 	for (int row = 0; row < m_tileRows; row++){
 		for (int col = 0; col < m_tileColumns; col++)
 		{
 			xPos = col * m_tileSize;
 			yPos = row * m_tileSize;
 			tileNum = (row * m_tileColumns) + col;
-			sprite = m_tiles->at(tileNum);
-			m_sprites->at(sprite).draw(xPos, yPos);
+			tile = &m_tiles.at(tileNum);
+			tile->draw(graphics);
 		}
 	}
+
+	m_characterManager.draw(graphics);
 }
 
 bool World::isWalkable(int x, int y)
@@ -133,8 +150,7 @@ bool World::isWalkable(int x, int y)
 	{
 		return false;
 	}
-	int sprite = m_tiles->at((row*m_tileColumns)+col);
-	return m_sprites->at(sprite).isWalkable();
+	int tileId = (row*m_tileColumns) + col;
+	Tile* tile = &m_tiles.at(tileId);
+	return tile->isWalkable();
 }
-
-

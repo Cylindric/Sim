@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Character.h"
+#include "Sprite.h"
 #include "Graphics.h"
 
 class GraphicsComponent
@@ -9,5 +9,5 @@ public:
 	GraphicsComponent();
 	~GraphicsComponent();
 
-	void update(Character& character, Graphics& graphics);
+	void draw(Sprite& sprite, int x, int y, Graphics& graphics);
 };

@@ -1,11 +1,12 @@
 #include "CharacterManager.h"
+
+#include "res_path.h"
+
 using namespace std;
 
-CharacterManager::CharacterManager(Graphics* graphics, World* world)
+CharacterManager::CharacterManager(Graphics& graphics)
 {
-	m_graphics = graphics;
-	m_world = world;
-	this->loadCharacters();
+	this->loadCharacters(graphics);
 }
 
 
@@ -15,19 +16,19 @@ CharacterManager::~CharacterManager()
 }
 
 
-void CharacterManager::loadCharacters()
+void CharacterManager::loadCharacters(Graphics& graphics)
 {
 	// Load the character sprite texture sheet
-	SDL_Texture *spritesheet = m_graphics->loadTexture(Resource::getResourcePath("Sprites") + "people.png");
+	SDL_Texture *spritesheet = graphics.loadTexture(Resource::getResourcePath("Sprites") + "people.png");
 
 	// Create a sprite for the old man
-	Character* man = new Character(m_graphics, spritesheet, 12, 32, 32, "Man");
+	Character* man = new Character(graphics, spritesheet, 12, 32, 32, "Man");
 	for (int row = 4; row <= 7; row++){
 		for (int col = 3; col <= 5; col++){
 			man->addFrame(col * 32, row * 32);
 		}
 	}
-	Character* girl = new Character(m_graphics, spritesheet, 12, 32, 32, "Girl");
+	Character* girl = new Character(graphics, spritesheet, 12, 32, 32, "Girl");
 	for (int row = 4; row <= 7; row++){
 		for (int col = 6; col <= 8; col++){
 			girl->addFrame(col * 32, row * 32);
@@ -44,16 +45,16 @@ void CharacterManager::loadCharacters()
 
 	man->setIdleFrames(idleUpFrames, idleDownFrames, idleLeftFrames, idleRightFrames);
 	man->setWalkFrames(walkUpFrames, walkDownFrames, walkLeftFrames, walkRightFrames);
-	man->setPosition(2*(m_world->getWidth() / 3), m_world->getHeight()/ 2);
+	man->setPosition(100, 100);
 	girl->setIdleFrames(idleUpFrames, idleDownFrames, idleLeftFrames, idleRightFrames);
 	girl->setWalkFrames(walkUpFrames, walkDownFrames, walkLeftFrames, walkRightFrames);
-	girl->setPosition(m_world->getWidth() / 3, m_world->getHeight() / 2);
+	girl->setPosition(150, 150);
 
 	m_characters.push_back(man);
 	m_characters.push_back(girl);
 }
 
-void CharacterManager::update(float delta)
+void CharacterManager::update(float delta, World* world)
 {
 	for (const auto &character : m_characters) // access by reference to avoid copying
 	{
@@ -61,11 +62,11 @@ void CharacterManager::update(float delta)
 	}
 }
 
-void CharacterManager::draw()
+void CharacterManager::draw(Graphics& graphics)
 {
 	for (const auto &character: m_characters) // access by reference to avoid copying
 	{
-		character->draw();
+		character->draw(graphics);
 	}
 }
 

@@ -3,9 +3,9 @@
 
 using namespace std;
 
-Character::Character(Graphics* graphics, SDL_Texture* spritesheet, int frames, int w, int h, string name)
+Character::Character(Graphics& graphics, SDL_Texture* spritesheet, int frames, int w, int h, string name)
 {
-	m_sprite = new Sprite(graphics, spritesheet, frames, w, h);
+	m_sprite = new Sprite(&graphics, spritesheet, frames, w, h);
 	m_name = name;
 	m_maxSpeed = 100;
 	m_frame = 0;
@@ -141,7 +141,7 @@ void Character::update(float delta)
 }
 
 
-void Character::draw()
+void Character::draw(Graphics& graphics)
 {
 	m_sprite->setFrame(m_frame);
 	m_sprite->draw(int(m_posX), int(m_posY));

@@ -4,16 +4,15 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
-#include "res_path.h"
-#include "cleanup.h"
+//#include "res_path.h"
+//#include "cleanup.h"
 #include "Graphics.h"
 #include "Input.h"
-#include "Tile.h"
-#include "Sprite.h"
-#include "Character.h"
+//#include "Tile.h"
+//#include "Sprite.h"
+//#include "Character.h"
 #include "Timer.h"
 #include "World.h"
-#include "CharacterManager.h"
 
 const int WINDOW_WIDTH = 800;
 const int WINDOW_HEIGHT = 400;
@@ -28,7 +27,6 @@ Graphics* g_graphics = NULL;
 Timer* g_timer = NULL;
 Input* g_input = NULL;
 World* g_world = NULL;
-CharacterManager* g_charman = NULL;
 
 void handleKeyboardInput();
 
@@ -38,8 +36,7 @@ int main(int, char**)
 	g_graphics = new Graphics(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE, BACKGROUND_RED, BACKGROUND_GREEN, BACKGROUND_BLUE);
 	g_timer = new Timer();
 	g_input = new Input();
-	g_world = new World(g_graphics);
-	g_charman = new CharacterManager(g_graphics, g_world);
+	g_world = new World(*g_graphics);
 	bool updateText = true;
 
 	const int hist = 60;
@@ -80,17 +77,16 @@ int main(int, char**)
 
 		handleKeyboardInput();
 
-		g_charman->update(deltaTime);
+		g_world->update(deltaTime);
+
 		g_graphics->beginScene();
-		g_world->draw();
-		g_charman->draw();
+		g_world->draw(*g_graphics);
 		g_graphics->renderText(buffer, 20, 10, WINDOW_HEIGHT-30);
 		g_graphics->endScene();
 	}
 
 
 	delete g_timer;
-	delete g_charman;
 	delete g_world;
 	delete g_input;
 	delete g_graphics;
@@ -105,6 +101,4 @@ void handleKeyboardInput()
 	{
 		g_gameIsRunning = false;
 	}
-
-	g_charman->handleKeyboardInput(keysHeld);
 }

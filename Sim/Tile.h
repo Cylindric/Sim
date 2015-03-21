@@ -3,22 +3,26 @@
 
 #include <SDL.h>
 #include "Graphics.h"
+#include "GraphicsComponent.h"
 
 class Tile
 {
 public:
 	Tile();
-	Tile(Graphics* graphics, SDL_Texture* tileset, int offsetX, int offsetY, int width, int height, bool walkable);
+	Tile(SDL_Texture* tileset, SDL_Rect* clip, int posX, int posY, bool walkable);
 	~Tile();
 
 	bool isWalkable();
-	void draw(int x, int y);
+	void update(float delta);
+	void draw(Graphics& graphics);
 
 private:
-	Graphics* m_graphics;
+	GraphicsComponent m_graphicsComponent;
 	SDL_Texture* m_tileset;
 	SDL_Rect* m_rect;
 	bool m_walkable;
+	int m_posX;
+	int m_posY;
 };
 
 #endif

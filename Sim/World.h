@@ -3,31 +3,37 @@
 #include <vector>
 #include "SDL.h"
 #include "Graphics.h"
-#include "res_path.h"
+#include "GraphicsComponent.h"
 #include "Tile.h"
-#include "Character.h"
+#include "CharacterManager.h"
 
 class World
 {
 public:
-	World(Graphics* graphics);
+	// Constructors
+	World(Graphics& graphics);
 	~World();
-	void draw();
+
+	// Public Methods
+	void update(float delta);
+	void draw(Graphics& graphics);
 	bool isWalkable(int x, int y);
 
 	// Accessors
 	int getWidth() { return m_tileColumns * m_tileSize; }
-	int getHeight(){ return m_tileRows * m_tileSize; }
+	int getHeight() { return m_tileRows * m_tileSize; }
 
 private:
-	void loadSprites();
-	void loadTiles();
-	void loadCharacters();
+	// Private Methods
+	void loadTiles(Graphics& graphics);
 
-	Graphics* m_graphics;
+	SDL_Rect* getSpriteRect(int spriteId);
+
+	// Private objects
+	GraphicsComponent m_graphicsComp;
 	SDL_Texture* m_tileset;
-	std::vector<int>* m_tiles;
-	std::vector<Tile>* m_sprites;
+	std::vector<Tile> m_tiles;
+	CharacterManager m_characterManager;
 	int m_tileSize;
 	int m_tileColumns;
 	int m_tileRows;
