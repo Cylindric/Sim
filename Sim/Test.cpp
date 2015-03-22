@@ -33,6 +33,8 @@ int main(int, char**)
 {
 
 	g_graphics = new Graphics(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE, BACKGROUND_RED, BACKGROUND_GREEN, BACKGROUND_BLUE);
+	g_graphics->loadFont(20);
+
 	g_timer = new Timer();
 	g_input = new Input();
 	g_world = new World(*g_graphics);
@@ -46,7 +48,7 @@ int main(int, char**)
 	}
 	int fpsptr = 0;
 
-
+	SDL_Texture* fps;
 	while (g_gameIsRunning)
 	{
 		SDL_PumpEvents();
@@ -65,6 +67,7 @@ int main(int, char**)
 
 		char buffer[50];
 		sprintf_s(buffer, "FPS: %0.2f", avg);
+		fps = g_graphics->createText(buffer, { 255, 255, 255, 255 });
 
 		if (g_input->windowClosed())
 		{
@@ -77,8 +80,9 @@ int main(int, char**)
 
 		g_graphics->beginScene();
 		g_world->draw(*g_graphics);
-		g_graphics->renderText(buffer, 20, 10, WINDOW_HEIGHT - 30);
+		g_graphics->renderTexture(fps, 10, WINDOW_HEIGHT - 30);
 		g_graphics->endScene();
+		SDL_DestroyTexture(fps);
 
 		if (g_input->windowClosed())
 		{

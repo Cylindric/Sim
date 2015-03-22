@@ -34,7 +34,7 @@ public:
 
 private:
 	Input m_input;
-	Sprite* m_sprite;
+	Sprite m_sprite;
 	std::string m_name;
 	int m_frame;
 	int m_cycle;
@@ -46,7 +46,7 @@ private:
 	float m_speedY;
 	int m_footOffsetX;
 	int m_footOffsetY;
-	std::shared_ptr<SDL_Rect> m_hitbox;
+	SDL_Rect m_hitbox;
 
 	std::vector<int>* m_frames;
 	std::vector<int> m_idleUpFrames;

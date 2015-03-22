@@ -7,8 +7,8 @@
 using namespace std;
 
 Character::Character(Graphics& graphics, SDL_Texture* spritesheet, int frames, int w, int h, string name)
+	:m_sprite(&graphics, spritesheet, frames, w, h)
 {
-	m_sprite = new Sprite(&graphics, spritesheet, frames, w, h);
 	m_name = name;
 	m_maxSpeed = 100;
 	m_frame = 0;
@@ -18,23 +18,21 @@ Character::Character(Graphics& graphics, SDL_Texture* spritesheet, int frames, i
 	m_footOffsetX = w / 2;
 	m_footOffsetY = h;
 	
-	m_hitbox = make_shared<SDL_Rect>();
-	m_hitbox->x = 0; 
-	m_hitbox->y = 0;
-	m_hitbox->w = w;
-	m_hitbox->h = h;
+	m_hitbox.x = 0; 
+	m_hitbox.y = 0;
+	m_hitbox.w = w;
+	m_hitbox.h = h;
 }
 
 
 Character::~Character()
 {
-	delete m_sprite;
 }
 
 
 void Character::addFrame(int x, int y)
 {
-	m_sprite->addFrame(x, y);
+	m_sprite.addFrame(x, y);
 }
 
 
@@ -60,8 +58,8 @@ void Character::setPosition(float x, float y)
 {
 	m_posX = float(x);
 	m_posY = float(y);
-	m_hitbox->x = int(m_posX);
-	m_hitbox->y = int(m_posY);
+	m_hitbox.x = int(m_posX);
+	m_hitbox.y = int(m_posY);
 }
 
 
@@ -133,8 +131,8 @@ void Character::update(float delta, World* world)
 		SDL_Rect newHitbox;
 		newHitbox.x = int(newPosX);
 		newHitbox.y = int(newPosY);
-		newHitbox.w = m_hitbox->w;
-		newHitbox.h = m_hitbox->h;
+		newHitbox.w = m_hitbox.w;
+		newHitbox.h = m_hitbox.h;
 		if (world->checkCollision(&newHitbox) == false)
 		{
 			this->setPosition(newPosX, newPosY);
@@ -158,8 +156,8 @@ void Character::update(float delta, World* world)
 
 void Character::draw(Graphics& graphics)
 {
-	m_sprite->setFrame(m_frame);
-	m_sprite->draw(int(m_posX), int(m_posY));
+	m_sprite.setFrame(m_frame);
+	m_sprite.draw(int(m_posX), int(m_posY));
 
 #if DEBUG_DRAW_SPRITEHITBOX
 	graphics.renderRect(m_hitbox);

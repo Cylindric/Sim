@@ -21,6 +21,7 @@ Graphics::Graphics(
 
 Graphics::~Graphics()
 {
+	TTF_CloseFont(font_);
 	TTF_Quit();
 	SDL_Quit();
 }
@@ -45,20 +46,16 @@ SDL_Texture* Graphics::loadTexture(const std::string &filename)
 	return texture;
 }
 
-SDL_Texture* Graphics::createText(const std::string &message, const std::string &fontfile, SDL_Color colour, int fontSize)
+SDL_Texture* Graphics::createText(const std::string &message, SDL_Color colour)
 {
-	TTF_Font* font = TTF_OpenFont(fontfile.c_str(), fontSize);
-
-	SDL_Surface* surf = TTF_RenderText_Blended(font, message.c_str(), colour);
+	SDL_Surface* surf = TTF_RenderText_Blended(&*font_, message.c_str(), colour);
 	if (surf == nullptr){
-		TTF_CloseFont(font);
 		return nullptr;
 	}
 
 	auto texture = SDL_CreateTextureFromSurface(&*renderer_, &*surf);
 
-	SDL_FreeSurface(&*surf);
-	TTF_CloseFont(&*font);
+	SDL_FreeSurface(surf);
 	return texture;
 }
 
@@ -83,24 +80,13 @@ void Graphics::renderTexture(SDL_Texture* texture, int x, int y, SDL_Rect *clip)
 	this->renderTexture(texture, dst, clip);
 }
 
-void Graphics::renderText(const std::string &text, int size, int x, int y)
+void Graphics::loadFont(int size)
 {
-	TTF_Font* font = TTF_OpenFont((Resource::getResourcePath("Fonts") + "PoetsenOne-Regular.ttf").c_str(), size);
-	if (font == NULL)
+	font_ = TTF_OpenFont((Resource::getResourcePath("Fonts") + "PoetsenOne-Regular.ttf").c_str(), size);
+	if (font_ == NULL)
 	{
 		std::cout << "ERROR: TTF_OpenFont " << SDL_GetError() << std::endl;
 	}
-	SDL_Color fg = { 0, 0, 0 };
-
-	SDL_Surface* surf = TTF_RenderText_Blended(font, text.c_str(), fg);
-	if (surf == NULL)
-	{
-		std::cout << "ERROR: TTF_RenderText_Shaded " << SDL_GetError() << std::endl;
-	}
-
-	SDL_Texture* texture = SDL_CreateTextureFromSurface(&*renderer_, surf);
-	SDL_FreeSurface(surf);
-	this->renderTexture(texture, x, y, nullptr);
 }
 
 void Graphics::renderRect(const shared_ptr<SDL_Rect> rect, Uint8 r, Uint8 g, Uint8 b, Uint8 a)

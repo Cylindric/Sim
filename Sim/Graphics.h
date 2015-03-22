@@ -25,12 +25,13 @@ public:
 	~Graphics();
 
 	SDL_Texture* loadTexture(const std::string &filename);
-	SDL_Texture* createText(const std::string &message, const std::string &fontfile, SDL_Color colour, int fontSize);
+	void loadFont(int size);
+
+	SDL_Texture* createText(const std::string &message, SDL_Color colour);
 	void closeTexture(SDL_Texture* texture);
 
 	void renderTexture(SDL_Texture* texture, SDL_Rect dst, SDL_Rect *clip = nullptr);
 	void renderTexture(SDL_Texture* texture, int x, int y, SDL_Rect* clip = nullptr);
-	void renderText(const std::string &text, int size, int x, int y);
 	void renderRect(const std::shared_ptr<SDL_Rect> rect, Uint8 r = 255, Uint8 g = 255, Uint8 b = 255, Uint8 a = 255);
 
 	void beginScene();
@@ -43,6 +44,7 @@ private:
 	SDL_Window* createWindow(char const *title, int x, int y, int w, int h, Uint32 flags);
 	SDL_Renderer* createRenderer(int index, Uint32 flags);
 
+	TTF_Font* font_;
 	std::unique_ptr<SDL_Window, sdl_deleter> window_;
 	std::unique_ptr<SDL_Renderer, sdl_deleter> renderer_;
 	int m_backgroundRed;
