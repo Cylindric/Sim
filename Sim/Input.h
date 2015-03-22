@@ -2,13 +2,16 @@
 
 #include "SDL.h"
 
+class Character;
+
 class Input
 {
 public:
 	Input();
 	~Input();
 
-	void readInput();
+	void update();
+	void update(Character& character);
 	const Uint8* getInput();
 	bool windowClosed();
 

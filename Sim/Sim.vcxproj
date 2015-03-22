@@ -47,6 +47,8 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(SolutionDir)\Include\SDL2-2.0.3\include;$(SolutionDir)\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -89,6 +91,7 @@
   <ItemGroup>
     <ClInclude Include="Character.h" />
     <ClInclude Include="CharacterManager.h" />
+    <ClInclude Include="defines.h" />
     <ClInclude Include="GraphicsComponent.h" />
     <ClInclude Include="Include\cleanup.h" />
     <ClInclude Include="Include\res_path.h" />

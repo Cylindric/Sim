@@ -1,6 +1,7 @@
 #ifndef TILE_H
 #define TILE_H
 
+#include <memory>
 #include <SDL.h>
 #include "Graphics.h"
 #include "GraphicsComponent.h"
@@ -18,7 +19,7 @@ public:
 
 private:
 	GraphicsComponent m_graphicsComponent;
-	SDL_Texture* m_tileset;
+	SDL_Texture* tileset_;
 	SDL_Rect* m_rect;
 	bool m_walkable;
 	int m_posX;

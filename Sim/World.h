@@ -17,7 +17,7 @@ public:
 	// Public Methods
 	void update(float delta);
 	void draw(Graphics& graphics);
-	bool isWalkable(int x, int y);
+	bool checkCollision(SDL_Rect* hitbox);
 
 	// Accessors
 	int getWidth() { return m_tileColumns * m_tileSize; }
@@ -31,7 +31,7 @@ private:
 
 	// Private objects
 	GraphicsComponent m_graphicsComp;
-	SDL_Texture* m_tileset;
+	SDL_Texture* tileset_;
 	std::vector<Tile> m_tiles;
 	CharacterManager m_characterManager;
 	int m_tileSize;

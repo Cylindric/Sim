@@ -1,5 +1,6 @@
 #include "Tile.h"
 
+using namespace std;
 
 Tile::Tile()
 {
@@ -7,7 +8,7 @@ Tile::Tile()
 
 Tile::Tile(SDL_Texture* tileset, SDL_Rect* clip, int posX, int posY, bool walkable)
 {
-	m_tileset = tileset;
+	tileset_ = tileset;
 	m_rect = clip;
 	m_posX = posX;
 	m_posY = posY;
@@ -26,7 +27,7 @@ void Tile::update(float delta)
 
 void Tile::draw(Graphics& graphics)
 {
-	graphics.renderTexture(m_tileset, m_posX, m_posY, m_rect);
+	graphics.renderTexture(&*tileset_, m_posX, m_posY, m_rect);
 }
 
 bool Tile::isWalkable()

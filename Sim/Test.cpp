@@ -1,19 +1,18 @@
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+
+
 #include <iostream>
 #include <string>
 #include <vector>
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
-//#include "res_path.h"
-//#include "cleanup.h"
 #include "Graphics.h"
 #include "Input.h"
-//#include "Tile.h"
-//#include "Sprite.h"
-//#include "Character.h"
 #include "Timer.h"
 #include "World.h"
-
 const int WINDOW_WIDTH = 800;
 const int WINDOW_HEIGHT = 400;
 const char* WINDOW_TITLE = "SimTest";
@@ -67,38 +66,33 @@ int main(int, char**)
 		char buffer[50];
 		sprintf_s(buffer, "FPS: %0.2f", avg);
 
-
-		g_input->readInput();
-
 		if (g_input->windowClosed())
 		{
 			g_gameIsRunning = false;
 		}
 
-		handleKeyboardInput();
+		g_input->update();
 
 		g_world->update(deltaTime);
 
 		g_graphics->beginScene();
 		g_world->draw(*g_graphics);
-		g_graphics->renderText(buffer, 20, 10, WINDOW_HEIGHT-30);
+		g_graphics->renderText(buffer, 20, 10, WINDOW_HEIGHT - 30);
 		g_graphics->endScene();
-	}
 
+		if (g_input->windowClosed())
+		{
+			g_gameIsRunning = false;
+		}
+	}
 
 	delete g_timer;
 	delete g_world;
 	delete g_input;
 	delete g_graphics;
+
+	atexit(SDL_Quit);
+
+	_CrtDumpMemoryLeaks();
 	return 0;
-}
-
-void handleKeyboardInput()
-{
-	const Uint8* keysHeld = g_input->getInput();
-
-	if (keysHeld[SDL_SCANCODE_ESCAPE])
-	{
-		g_gameIsRunning = false;
-	}
 }

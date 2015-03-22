@@ -1,5 +1,5 @@
 #include "Input.h"
-
+#include "Character.h"
 
 Input::Input()
 {
@@ -17,31 +17,45 @@ Input::~Input()
 {
 }
 
-void Input::readInput()
-{
-	//if (SDL_PollEvent(&m_event))
-	//{
-	//	if (m_event.type == SDL_QUIT)
-	//	{
-	//		m_windowClosed = true;
-	//	}
-
-	//	if (m_event.type == SDL_KEYDOWN)
-	//	{
-	//		m_keysHeld[m_event.key.keysym.sym] = true;
-	//	}
-
-	//	if (m_event.type == SDL_KEYUP)
-	//	{
-	//		m_keysHeld[m_event.key.keysym.sym] = false;
-	//	}
-	//}
-}
-
 const Uint8* Input::getInput()
 {
 	const Uint8* keys = SDL_GetKeyboardState(NULL);
 	return keys;
+}
+
+void Input::update()
+{
+	const Uint8* keysHeld = this->getInput();
+	if (keysHeld[SDL_SCANCODE_ESCAPE])
+	{
+		m_windowClosed = true;
+	}
+}
+
+void Input::update(Character& character)
+{
+	const Uint8* keysHeld = this->getInput();
+
+	if (keysHeld[SDL_SCANCODE_A])
+	{
+		character.moveLeft();
+	}
+	else if (keysHeld[SDL_SCANCODE_D])
+	{
+		character.moveRight();
+	}
+	else if (keysHeld[SDL_SCANCODE_W])
+	{
+		character.moveUp();
+	}
+	else if (keysHeld[SDL_SCANCODE_S])
+	{
+		character.moveDown();
+	}
+	else
+	{
+		character.stopMoving();
+	}
 }
 
 bool Input::windowClosed()

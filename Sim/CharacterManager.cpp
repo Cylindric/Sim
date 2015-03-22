@@ -1,6 +1,7 @@
 #include "CharacterManager.h"
 
 #include "res_path.h"
+#include <memory>
 
 using namespace std;
 
@@ -19,7 +20,7 @@ CharacterManager::~CharacterManager()
 void CharacterManager::loadCharacters(Graphics& graphics)
 {
 	// Load the character sprite texture sheet
-	SDL_Texture *spritesheet = graphics.loadTexture(Resource::getResourcePath("Sprites") + "people.png");
+	auto spritesheet = graphics.loadTexture(Resource::getResourcePath("Sprites") + "people.png");
 
 	// Create a sprite for the old man
 	Character* man = new Character(graphics, spritesheet, 12, 32, 32, "Man");
@@ -56,63 +57,16 @@ void CharacterManager::loadCharacters(Graphics& graphics)
 
 void CharacterManager::update(float delta, World* world)
 {
-	for (const auto &character : m_characters) // access by reference to avoid copying
+	for (const auto &character : m_characters)
 	{
-		character->update(delta);
+		character->update(delta, world);
 	}
 }
 
 void CharacterManager::draw(Graphics& graphics)
 {
-	for (const auto &character: m_characters) // access by reference to avoid copying
+	for (const auto &character: m_characters)
 	{
 		character->draw(graphics);
 	}
-}
-
-void CharacterManager::handleKeyboardInput(const Uint8* keysHeld)
-{
-	if (keysHeld[SDL_SCANCODE_LEFT])
-	{
-		m_characters[0]->moveLeft();
-	}
-	else if (keysHeld[SDL_SCANCODE_RIGHT])
-	{
-		m_characters[0]->moveRight();
-	}
-	else if (keysHeld[SDL_SCANCODE_UP])
-	{
-		m_characters[0]->moveUp();
-	}
-	else if (keysHeld[SDL_SCANCODE_DOWN])
-	{
-		m_characters[0]->moveDown();
-	}
-	else
-	{
-		m_characters[0]->stopMoving();
-	}
-
-
-	if (keysHeld[SDL_SCANCODE_A])
-	{
-		m_characters[1]->moveLeft();
-	}
-	else if (keysHeld[SDL_SCANCODE_D])
-	{
-		m_characters[1]->moveRight();
-	}
-	else if (keysHeld[SDL_SCANCODE_W])
-	{
-		m_characters[1]->moveUp();
-	}
-	else if (keysHeld[SDL_SCANCODE_S])
-	{
-		m_characters[1]->moveDown();
-	}
-	else
-	{
-		m_characters[1]->stopMoving();
-	}
-
 }

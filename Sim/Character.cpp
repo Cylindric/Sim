@@ -1,5 +1,8 @@
+#include "defines.h"
 #include <iostream>
+#include <memory>
 #include "Character.h"
+#include "World.h"
 
 using namespace std;
 
@@ -14,6 +17,12 @@ Character::Character(Graphics& graphics, SDL_Texture* spritesheet, int frames, i
 	m_frames = &m_idleDownFrames;
 	m_footOffsetX = w / 2;
 	m_footOffsetY = h;
+	
+	m_hitbox = make_shared<SDL_Rect>();
+	m_hitbox->x = 0; 
+	m_hitbox->y = 0;
+	m_hitbox->w = w;
+	m_hitbox->h = h;
 }
 
 
@@ -47,10 +56,12 @@ void Character::setWalkFrames(std::vector<int> walkUp, std::vector<int> walkDown
 }
 
 
-void Character::setPosition(int x, int y)
+void Character::setPosition(float x, float y)
 {
 	m_posX = float(x);
 	m_posY = float(y);
+	m_hitbox->x = int(m_posX);
+	m_hitbox->y = int(m_posY);
 }
 
 
@@ -110,23 +121,28 @@ void Character::stopMoving()
 }
 
 
-void Character::update(float delta)
+void Character::update(float delta, World* world)
 {
+	m_input.update(*this);
+
 	float newPosX = m_posX + (m_speedX * delta);
 	float newPosY = m_posY + (m_speedY * delta);
 
 	if (m_speedX != 0 || m_speedY != 0)
 	{
-		//if (m_world->isWalkable(int(newPosX + m_footOffsetX), int(newPosY + m_footOffsetY)))
-		//{
-		m_posX = newPosX;
-		m_posY = newPosY;
-		//}
+		SDL_Rect newHitbox;
+		newHitbox.x = int(newPosX);
+		newHitbox.y = int(newPosY);
+		newHitbox.w = m_hitbox->w;
+		newHitbox.h = m_hitbox->h;
+		if (world->checkCollision(&newHitbox) == false)
+		{
+			this->setPosition(newPosX, newPosY);
+		}
 	}
 	else
 	{
 		this->stopMoving();
-		//}
 	}
 
 	m_age += delta;
@@ -137,7 +153,6 @@ void Character::update(float delta)
 	}
 
 	m_frame = m_frames->at(m_cycle % m_frames->size());
-
 }
 
 
@@ -145,4 +160,8 @@ void Character::draw(Graphics& graphics)
 {
 	m_sprite->setFrame(m_frame);
 	m_sprite->draw(int(m_posX), int(m_posY));
+
+#if DEBUG_DRAW_SPRITEHITBOX
+	graphics.renderRect(m_hitbox);
+#endif
 }

@@ -17,7 +17,7 @@ World::World(Graphics& graphics)
 
 World::~World()
 {
-	//m_graphicsComp->closeTexture(m_tileset);
+	//m_graphicsComp->closeTexture(tileset_);
 }
 
 
@@ -68,8 +68,8 @@ void World::loadTiles(Graphics& graphics)
 	string height = "";
 
 	fin >> word >> tilefilename;
-	m_tileset = graphics.loadTexture(Resource::getResourcePath("Tiles") + tilefilename);
-	if (m_tileset == NULL)
+	tileset_ = graphics.loadTexture(Resource::getResourcePath("Tiles") + tilefilename);
+	if (tileset_ == NULL)
 	{
 		cout << "Error loading texture " << tilefilename;
 		throw;
@@ -102,8 +102,8 @@ void World::loadTiles(Graphics& graphics)
 		int xPos = m_tileSize * (tileNum % m_tileColumns);
 		int yPos = m_tileSize * (tileNum / m_tileColumns);
 		spriteToUse = atoi(word.c_str());
-		bool walkable = (spriteToUse == 0 || spriteToUse == 2 || spriteToUse == 3 || spriteToUse == 6 || spriteToUse == 11);
-		m_tiles.emplace_back(m_tileset, this->getSpriteRect(spriteToUse), xPos, yPos, walkable);
+		bool walkable = (spriteToUse == 3);
+		m_tiles.emplace_back(tileset_, this->getSpriteRect(spriteToUse), xPos, yPos, walkable);
 		tileNum++;
 	}
 	fin.close();
@@ -137,20 +137,32 @@ void World::draw(Graphics& graphics)
 	m_characterManager.draw(graphics);
 }
 
-bool World::isWalkable(int x, int y)
+bool World::checkCollision(SDL_Rect* hitbox)
 {
-	int col = x / m_tileSize;
-	int row = y / m_tileSize;
+	int col1 = hitbox->x / m_tileSize;
+	int row1 = hitbox->y / m_tileSize;
+	int col2 = (hitbox->x + hitbox->w) / m_tileSize;
+	int row2 = (hitbox->y + hitbox->h) / m_tileSize;
 
-	if (col < 0 || row < 0)
+	for (int row = row1; row < row2; row++)
 	{
-		return false;
+		for (int col = col1; col < col2; col++)
+		{
+			if (col < 0)
+			{
+				return true;
+			}
+			if (col > m_tileColumns || row > m_tileRows)
+			{
+				return true;;
+			}
+			int tileId = (row*m_tileColumns) + col;
+			Tile* tile = &m_tiles.at(tileId);
+			if (tile->isWalkable() == false)
+			{
+				return true;
+			}
+		}
 	}
-	if (col > m_tileColumns || row > m_tileRows)
-	{
-		return false;
-	}
-	int tileId = (row*m_tileColumns) + col;
-	Tile* tile = &m_tiles.at(tileId);
-	return tile->isWalkable();
+	return false;
 }

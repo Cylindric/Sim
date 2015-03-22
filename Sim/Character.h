@@ -1,9 +1,14 @@
 #pragma once
 
+#include <memory>
 #include <vector>
 #include "SDL.h"
 #include "Graphics.h"
 #include "Sprite.h"
+#include "Input.h"
+
+// Forward declaration for the World object.
+class World;
 
 class Character
 {
@@ -19,15 +24,16 @@ public:
 	void moveUp();
 	void moveDown();
 	void stopMoving();
-	void setPosition(int x, int y);
+	void setPosition(float x, float y);
 
-	void update(float delta);
+	void update(float delta, World* world);
 	void draw(Graphics& graphics);
 
 	// Accessors
 	std::string getName(){ return m_name; }
 
 private:
+	Input m_input;
 	Sprite* m_sprite;
 	std::string m_name;
 	int m_frame;
@@ -40,6 +46,7 @@ private:
 	float m_speedY;
 	int m_footOffsetX;
 	int m_footOffsetY;
+	std::shared_ptr<SDL_Rect> m_hitbox;
 
 	std::vector<int>* m_frames;
 	std::vector<int> m_idleUpFrames;

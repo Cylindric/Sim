@@ -1,14 +1,22 @@
 #pragma once
-
-#include <string>
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
+
+#include <memory>
+#include <string>
 
 
 class Graphics
 {
 public:
+	struct sdl_deleter
+	{
+		void operator()(SDL_Window *p) const { SDL_DestroyWindow(p); }
+		void operator()(SDL_Renderer *p) const { SDL_DestroyRenderer(p); }
+		void operator()(SDL_Texture *p) const { SDL_DestroyTexture(p); }
+	};
+
 	Graphics(
 		int windowWidth, int WindowHeight, 
 		const char* windowTitle, 
@@ -20,17 +28,23 @@ public:
 	SDL_Texture* createText(const std::string &message, const std::string &fontfile, SDL_Color colour, int fontSize);
 	void closeTexture(SDL_Texture* texture);
 
-	void renderTexture(SDL_Texture *tex, SDL_Rect dst, SDL_Rect *clip = nullptr);
+	void renderTexture(SDL_Texture* texture, SDL_Rect dst, SDL_Rect *clip = nullptr);
 	void renderTexture(SDL_Texture* texture, int x, int y, SDL_Rect* clip = nullptr);
 	void renderText(const std::string &text, int size, int x, int y);
+	void renderRect(const std::shared_ptr<SDL_Rect> rect, Uint8 r = 255, Uint8 g = 255, Uint8 b = 255, Uint8 a = 255);
 
 	void beginScene();
 	void endScene();
 	void getWindowSize(int* w, int* h);
 
 private:
-	SDL_Window* m_window;
-	SDL_Renderer* m_renderer;
+	// SDL Control
+
+	SDL_Window* createWindow(char const *title, int x, int y, int w, int h, Uint32 flags);
+	SDL_Renderer* createRenderer(int index, Uint32 flags);
+
+	std::unique_ptr<SDL_Window, sdl_deleter> window_;
+	std::unique_ptr<SDL_Renderer, sdl_deleter> renderer_;
 	int m_backgroundRed;
 	int m_backgroundGreen;
 	int m_backgroundBlue;
