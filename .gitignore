@@ -10,3 +10,6 @@ Contrib/free_radical_game_sprites__attempt__by_demonhuntrpg-d5tbcs4.png
 Contrib/piskel-0.4.2.zip
 Contrib/poetsen_one.zip
 *.opensdf
+Sim/obj/
+Contrib/OpenTK/
+Sim/bin/
