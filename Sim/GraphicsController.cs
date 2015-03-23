@@ -1,9 +1,8 @@
-﻿using System;
+﻿using OpenTK;
+using OpenTK.Graphics.OpenGL;
+using System;
 using System.Drawing;
 using System.Drawing.Imaging;
-
-using OpenTK;
-using OpenTK.Graphics.OpenGL;
 
 namespace Sim
 {
@@ -87,16 +86,38 @@ namespace Sim
                 var data = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height),
                     ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 
-                Renderer.Call(() => GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, data.Width, data.Height, 0,
-                    OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0));
+                Renderer.Call(
+                    () =>
+                        GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, data.Width, data.Height, 0,
+                            OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0));
 
                 bitmap.UnlockBits(data);
 
                 // Setup filtering
-                Renderer.Call(() => GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, isRepeated ? Convert.ToInt32(TextureWrapMode.Repeat) : Convert.ToInt32(TextureWrapMode.ClampToEdge)));
-                Renderer.Call(() => GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, isRepeated ? Convert.ToInt32(TextureWrapMode.Repeat) : Convert.ToInt32(TextureWrapMode.ClampToEdge)));
-                Renderer.Call(() => GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, isSmooth ? Convert.ToInt32(TextureMagFilter.Linear) : Convert.ToInt32(TextureMagFilter.Nearest)));
-                Renderer.Call(() => GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, isSmooth ? Convert.ToInt32(TextureMinFilter.Linear) : Convert.ToInt32(TextureMinFilter.Nearest)));
+                Renderer.Call(
+                    () =>
+                        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS,
+                            isRepeated
+                                ? Convert.ToInt32(TextureWrapMode.Repeat)
+                                : Convert.ToInt32(TextureWrapMode.ClampToEdge)));
+                Renderer.Call(
+                    () =>
+                        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT,
+                            isRepeated
+                                ? Convert.ToInt32(TextureWrapMode.Repeat)
+                                : Convert.ToInt32(TextureWrapMode.ClampToEdge)));
+                Renderer.Call(
+                    () =>
+                        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter,
+                            isSmooth
+                                ? Convert.ToInt32(TextureMagFilter.Linear)
+                                : Convert.ToInt32(TextureMagFilter.Nearest)));
+                Renderer.Call(
+                    () =>
+                        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter,
+                            isSmooth
+                                ? Convert.ToInt32(TextureMinFilter.Linear)
+                                : Convert.ToInt32(TextureMinFilter.Nearest)));
 
                 return textureId;
             }
@@ -105,31 +126,6 @@ namespace Sim
                 Console.WriteLine("Error creating new Texture:" + Environment.NewLine + ex.Message, "Error");
                 return 0;
             }
-        }
-
-        public Shader LoadFragmentShader(string filename)
-        {
-            return LoadShader(filename, Shader.Type.Fragment);
-        }
-
-        public Shader LoadVertexShader(string filename)
-        {
-            return LoadShader(filename, Shader.Type.Vertex);
-        }
-
-        public Shader LoadShader(string vertexFile, string fragmentFile)
-        {
-            var vertex = System.IO.File.ReadAllText(System.IO.Path.Combine("Resources", "Shaders", vertexFile));
-            var fragment = System.IO.File.ReadAllText(System.IO.Path.Combine("Resources", "Shaders", fragmentFile));
-            var shader = new Shader(vertex, fragment);
-            return shader;
-        }
-
-        private Shader LoadShader(string filename, Shader.Type type)
-        {
-            var code = System.IO.File.ReadAllText(System.IO.Path.Combine("Resources", "Shaders", filename));
-            var shader = new Shader(code, type);
-            return shader;
         }
 
     }
