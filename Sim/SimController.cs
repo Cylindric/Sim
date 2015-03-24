@@ -11,7 +11,10 @@ namespace Sim
         readonly GraphicsController _graphics = new GraphicsController();
         private MapController _map;
         private Character _character;
+        private Character[] _characters;
         private readonly Timer _timer = new Timer();
+        private Random _random = new Random();
+
 
         public SimController()
             : base(800, 600, GraphicsMode.Default, "Sim", GameWindowFlags.Default)
@@ -25,8 +28,15 @@ namespace Sim
 
             _graphics.Load(Color.White);
 
+            _characters = new Character[100];
+            for (var i = 0; i < _characters.Length; i++)
+            {
+                _characters[i] = new Character(_random.NextDouble() >= 0.5 ? "beardman" : "oldman", this, _graphics);
+                _characters[i].SetPosition(new Vector2(_random.Next(20, Width-20), _random.Next(20, Height-20)));
+            }
              _map = new MapController(_graphics);
-             _character = new Character("beardman", this, _graphics);
+             
+            //_character = new Character("beardman", this, _graphics);
         }
 
         protected override void OnResize(EventArgs e)
@@ -41,7 +51,7 @@ namespace Sim
 
             Timer.Update();
 
-            _character.Update(Timer.ElapsedSeconds);
+            //_character.Update(Timer.ElapsedSeconds);
 
         }
 
@@ -51,7 +61,12 @@ namespace Sim
 
             _graphics.BeginRender();
             _map.Render(_graphics);
-            _character.Render();
+            //_character.Render();
+            foreach (var c in _characters)
+            {
+                c.Render();
+            }
+
             _graphics.EndRender(this);
         }
 

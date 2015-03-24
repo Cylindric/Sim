@@ -1,2 +1,5 @@
-bitmap=people.png
-spriteSize=32
+<?xml version="1.0"?>
+<SpritesheetDatafile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <BitmapFile>people.png</BitmapFile>
+  <SpriteSize>32</SpriteSize>
+</SpritesheetDatafile>

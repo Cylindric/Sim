@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using OpenTK;
+using Sim.DataFormats;
 
 namespace Sim
 {
@@ -12,7 +13,6 @@ namespace Sim
         protected int TextureColumns;
         protected int TextureRows;
 
-        private string _datafile;
         private float _spriteDx;
         private float _spriteDy;
         private float _spriteWidth;
@@ -22,13 +22,13 @@ namespace Sim
 
         public SpritesheetController(string filename, GraphicsController graphics)
         {
-            _datafile = ResourceController.GetDataFile(filename);
-            var datafileBitmap = "people.png";
-            var datafileSize = 32;
+            var data =
+                ResourceController.Load<SpritesheetDatafile>(
+                    ResourceController.GetDataFilename("spritesheet.{0}.txt", filename));
 
-            SpriteSize = datafileSize;
+            SpriteSize = data.SpriteSize;
 
-            var bitmap = new Bitmap(Image.FromFile(System.IO.Path.Combine("Resources", "Sprites", datafileBitmap)));
+            var bitmap = new Bitmap(ResourceController.GetSpriteFilename(data.BitmapFile));
             TextureWidth = bitmap.Width;
             TextureHeight = bitmap.Height;
             TextureColumns = TextureWidth / SpriteSize;

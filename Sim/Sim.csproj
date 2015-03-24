@@ -45,6 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataFormats\CharacterDatafile.cs" />
     <Compile Include="MapController.cs" />
     <Compile Include="Character.cs" />
     <Compile Include="ResourceController.cs" />
@@ -54,6 +55,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Renderer.cs" />
     <Compile Include="SpritesheetController.cs" />
+    <Compile Include="DataFormats\SpritesheetDatafile.cs" />
     <Compile Include="Timer.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -61,6 +63,15 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Resources\Data\character.beardman.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Data\character.oldman.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Data\spritesheet.people.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Resources\Sprites\grass_and_rock.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

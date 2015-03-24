@@ -2,39 +2,39 @@
 <CharacterDatafile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <SpritesheetName>people</SpritesheetName>
   <WalkDownFrames>
-    <int>0</int>
-    <int>1</int>
-    <int>2</int>
-    <int>1</int>
+    <int>51</int>
+    <int>52</int>
+    <int>53</int>
+    <int>52</int>
   </WalkDownFrames>
   <WalkLeftFrames>
-    <int>12</int>
-    <int>13</int>
-    <int>14</int>
-    <int>13</int>
+    <int>63</int>
+    <int>64</int>
+    <int>65</int>
+    <int>64</int>
   </WalkLeftFrames>
   <WalkRightFrames>
-    <int>24</int>
-    <int>25</int>
-    <int>26</int>
-    <int>25</int>
+    <int>75</int>
+    <int>76</int>
+    <int>77</int>
+    <int>76</int>
   </WalkRightFrames>
   <WalkUpFrames>
-    <int>36</int>
-    <int>37</int>
-    <int>38</int>
-    <int>37</int>
+    <int>87</int>
+    <int>88</int>
+    <int>89</int>
+    <int>88</int>
   </WalkUpFrames>
   <IdleDownFrames>
-    <int>1</int>
+    <int>52</int>
   </IdleDownFrames>
   <IdleLeftFrames>
-    <int>13</int>
+    <int>64</int>
   </IdleLeftFrames>
   <IdleRightFrames>
-    <int>25</int>
+    <int>76</int>
   </IdleRightFrames>
   <IdleUpFrames>
-    <int>37</int>
+    <int>88</int>
   </IdleUpFrames>
 </CharacterDatafile>

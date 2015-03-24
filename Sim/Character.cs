@@ -1,13 +1,14 @@
 ﻿using System.ComponentModel;
+using System.Runtime.Hosting;
 using OpenTK;
 using OpenTK.Input;
 using System.Linq;
+using Sim.DataFormats;
 
 namespace Sim
 {
     class Character
     {
-        private readonly string _datafile;
         private readonly SpritesheetController _spritesheet;
         private Vector2 _position;
         private Vector2 _velocity;
@@ -47,30 +48,37 @@ namespace Sim
 
         public Character(string name, SimController sim, GraphicsController graphics)
         {
-            _datafile = ResourceController.GetDataFile(string.Format("character.{0}.txt", name));
-            var datafileSpritesheet = "people";
-            _walkDownFrames = new int[4] { 0, 1, 2, 1 };
-            _walkLeftFrames = new int[4] { 12, 13, 14, 13 };
-            _walkRightFrames = new int[4] { 24, 25, 26, 25 };
-            _walkUpFrames = new int[4] { 36, 37, 38, 37 };
-            _idleDownFrames = new int[1] { 1 };
-            _idleLeftFrames = new int[1] { 13 };
-            _idleRightFrames = new int[1] { 25 };
-            _idleUpFrames = new int[1] { 37 };
-
+            var data = ResourceController.Load<CharacterDatafile>(ResourceController.GetDataFilename("character.{0}.txt", name));
+            
+            _walkDownFrames = data.WalkDownFrames;
+            _walkLeftFrames = data.WalkLeftFrames;
+            _walkRightFrames = data.WalkRightFrames;
+            _walkUpFrames = data.WalkUpFrames;
+            _idleDownFrames = data.IdleDownFrames;
+            _idleLeftFrames = data.IdleLeftFrames;
+            _idleRightFrames = data.IdleRightFrames;
+            _idleUpFrames = data.IdleUpFrames;
+            
             _sim = sim;
             _graphics = graphics;
 
-            _spritesheet = new SpritesheetController(string.Format("spritesheet.{0}.txt", datafileSpritesheet), graphics);
+            _spritesheet = new SpritesheetController(data.SpritesheetName, graphics);
             _position = new Vector2(0, 0);
-            _thisFrame = 0;
-            _nextFrame = 0;
+            _thisFrame = _idleDownFrames[0];
+            _nextFrame = _thisFrame;
             _frameNum = 0;
+        }
+
+        public void SetPosition(Vector2 position)
+        {
+            _position = position;
         }
 
         public void Update(float timeDelta)
         {
             _frameTime += timeDelta;
+
+            var originalVelocity = _velocity;
 
             var state = Keyboard.GetState();
             if (state[Key.Right])
