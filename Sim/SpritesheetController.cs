@@ -2,6 +2,7 @@
 using System.Drawing;
 using OpenTK;
 using Sim.DataFormats;
+using System.Collections.Generic;
 
 namespace Sim
 {
@@ -18,28 +19,68 @@ namespace Sim
         private float _spriteWidth;
         private float _spriteHeight;
 
+        public struct SpritesheetData
+        {
+            public string filename;
+            public int textureId;
+            public int width;
+            public int height;
+            public int columns;
+            public int rows;
+
+            public int spriteSize;
+            public float spriteDx;
+            public float spriteDy;
+            public float spriteWidth;
+            public float spriteHeight;
+        }
+
         public int SpriteSize { get; protected set; }
+
+        private static readonly Dictionary<string, SpritesheetData> TextureIds = new Dictionary<string, SpritesheetData>();
 
         public SpritesheetController(string filename, GraphicsController graphics)
         {
-            var data =
-                ResourceController.Load<SpritesheetDatafile>(
-                    ResourceController.GetDataFilename("spritesheet.{0}.txt", filename));
+            if (!SpritesheetController.TextureIds.ContainsKey(filename))
+            {
+                Console.WriteLine("Loading new Spritesheet {0}", filename);
+                var spritesheetData = new SpritesheetData();
+                spritesheetData.filename = filename;
 
-            SpriteSize = data.SpriteSize;
+                var data =
+                    ResourceController.Load<SpritesheetDatafile>(
+                        ResourceController.GetDataFilename("spritesheet.{0}.txt", filename));
 
-            var bitmap = new Bitmap(ResourceController.GetSpriteFilename(data.BitmapFile));
-            TextureWidth = bitmap.Width;
-            TextureHeight = bitmap.Height;
-            TextureColumns = TextureWidth / SpriteSize;
-            TextureRows = TextureHeight / SpriteSize;
- 
-            _spriteDx = 1.0f/TextureColumns;
-            _spriteDy = 1.0f/TextureRows;
-            _spriteWidth = (1.0f/TextureWidth)*SpriteSize;
-            _spriteHeight = (1.0f/TextureHeight)*SpriteSize;
+                spritesheetData.spriteSize = data.SpriteSize;
 
-            Texture = graphics.LoadSpritesheet(bitmap);
+                var bitmap = new Bitmap(ResourceController.GetSpriteFilename(data.BitmapFile));
+
+                spritesheetData.width = bitmap.Width;
+                spritesheetData.height = bitmap.Height;
+                spritesheetData.columns = spritesheetData.width / spritesheetData.spriteSize;
+                spritesheetData.rows = spritesheetData.height / spritesheetData.spriteSize;
+
+                spritesheetData.spriteDx = 1.0f / spritesheetData.columns;
+                spritesheetData.spriteDy = 1.0f / spritesheetData.rows;
+                spritesheetData.spriteWidth = (1.0f / spritesheetData.width) * spritesheetData.spriteSize;
+                spritesheetData.spriteHeight = (1.0f / spritesheetData.height) * spritesheetData.spriteSize;
+
+                spritesheetData.textureId = graphics.LoadSpritesheet(bitmap);
+                SpritesheetController.TextureIds.Add(filename, spritesheetData);
+            }
+
+            var cachedData = SpritesheetController.TextureIds[filename];
+            SpriteSize = cachedData.spriteSize;
+            Texture = cachedData.textureId;
+            TextureWidth = cachedData.width;
+            TextureHeight = cachedData.height;
+            TextureColumns = cachedData.columns;
+            TextureRows = cachedData.rows;
+
+            _spriteDx = cachedData.spriteDx;
+            _spriteDy = cachedData.spriteDy;
+            _spriteWidth = cachedData.spriteWidth;
+            _spriteHeight = cachedData.spriteHeight;
         }
 
         public void Render(int sprite, Vector2 position, GraphicsController graphics)

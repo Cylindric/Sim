@@ -9,17 +9,17 @@ namespace Sim
     {
         public static string GetDataFilename(string format, params object[] args)
         {
-            return Path.Combine("Resources", "Data", string.Format(format, args));
+            return Path.Combine("Data", string.Format(format, args));
         }
 
         public static string GetDataFilename(string name)
         {
-            return Path.Combine("Resources", "Data", name);
+            return Path.Combine("Data", name);
         }
 
         public static string GetSpriteFilename(string name)
         {
-            return Path.Combine("Resources", "Sprites", name);
+            return Path.Combine("Sprites", name);
         }
 
         public static void Save<T>(T obj, string filename)
@@ -34,7 +34,6 @@ namespace Sim
                     stream.Position = 0;
                     document.Load(stream);
                     document.Save(filename);
-                    stream.Close();
                 }
             }
             catch (Exception e)
@@ -57,15 +56,11 @@ namespace Sim
                 using (var read = new StringReader(xml))
                 {
                     var outType = typeof(T);
-
                     var serializer = new XmlSerializer(outType);
                     using (XmlReader reader = new XmlTextReader(read))
                     {
-                        obj = (T)serializer.Deserialize(reader);
-                        reader.Close();
+                        obj = (T)serializer.Deserialize(reader);;
                     }
-
-                    read.Close();
                 }
             }
             catch (Exception e)
