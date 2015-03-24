@@ -1,32 +1,41 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using OpenTK;
 
 namespace Sim
 {
-    internal abstract class SpriteController
+    class SpritesheetController
     {
         protected int Texture;
         protected int TextureWidth;
         protected int TextureHeight;
         protected int TextureColumns;
-        protected int SpriteSize;
+        protected int TextureRows;
 
+        private string _datafile;
         private float _spriteDx;
         private float _spriteDy;
         private float _spriteWidth;
         private float _spriteHeight;
 
-        protected void LoadBitmap(string filename, int spriteSize, GraphicsController graphics)
-        {
-            SpriteSize = spriteSize;
+        public int SpriteSize { get; protected set; }
 
-            var bitmap = new Bitmap(Image.FromFile(System.IO.Path.Combine("Resources", "Sprites", filename)));
+        public SpritesheetController(string filename, GraphicsController graphics)
+        {
+            _datafile = ResourceController.GetDataFile(filename);
+            var datafileBitmap = "people.png";
+            var datafileSize = 32;
+
+            SpriteSize = datafileSize;
+
+            var bitmap = new Bitmap(Image.FromFile(System.IO.Path.Combine("Resources", "Sprites", datafileBitmap)));
             TextureWidth = bitmap.Width;
             TextureHeight = bitmap.Height;
-            TextureColumns = TextureWidth/spriteSize;
+            TextureColumns = TextureWidth / SpriteSize;
+            TextureRows = TextureHeight / SpriteSize;
  
             _spriteDx = 1.0f/TextureColumns;
-            _spriteDy = 1.0f%TextureColumns;
+            _spriteDy = 1.0f/TextureRows;
             _spriteWidth = (1.0f/TextureWidth)*SpriteSize;
             _spriteHeight = (1.0f/TextureHeight)*SpriteSize;
 

@@ -1,0 +1,2 @@
+bitmap=people.png
+spriteSize=32

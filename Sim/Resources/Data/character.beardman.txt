@@ -1,0 +1,9 @@
+spritesheet=people
+walkframesDown  =  0,  1,  2,  1
+walkframesLeft  = 12, 13, 14, 13
+walkframesRight = 24, 25, 26, 25
+walkframesUp    = 36, 37, 38, 37
+idleframesDown  =  1
+idleframesLeft  = 13
+idleframesRight = 25
+idleframesUp    = 33
