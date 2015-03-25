@@ -13,3 +13,5 @@ Contrib/poetsen_one.zip
 Sim/obj/
 Contrib/OpenTK/
 Sim/bin/
+ShaderTest/bin/
+ShaderTest/obj/

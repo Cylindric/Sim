@@ -2,7 +2,7 @@
 
 namespace Sim
 {
-    class Timer
+    public class Timer
     {
         private static Stopwatch _globalStopwatch = Stopwatch.StartNew();
         private static Stopwatch _stopwatch = Stopwatch.StartNew();
