@@ -44,11 +44,10 @@ namespace Sim
 
         public static T Load<T>(string filename)
         {
-            var obj = default(T);
+            T obj;
 
             try
             {
-                var attributeXml = string.Empty;
                 var document = new XmlDocument();
                 document.Load(filename);
                 var xml = document.OuterXml;

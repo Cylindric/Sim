@@ -61,9 +61,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AiController.cs" />
     <Compile Include="DataFormats\CharacterDatafile.cs" />
     <Compile Include="MapController.cs" />
     <Compile Include="Character.cs" />
+    <Compile Include="Random.cs" />
     <Compile Include="ResourceController.cs" />
     <Compile Include="SimController.cs" />
     <Compile Include="Sim.cs" />
