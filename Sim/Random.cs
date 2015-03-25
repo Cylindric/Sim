@@ -10,7 +10,7 @@ namespace Sim
         private static volatile Random _instance;
         private static readonly object SyncRoot = new Object();
 
-        private readonly System.Random _random = new System.Random(Guid.NewGuid().GetHashCode());
+        private readonly System.Random _random = new System.Random(1); // Guid.NewGuid().GetHashCode()
 
         private Random() { }
 

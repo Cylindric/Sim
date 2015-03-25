@@ -29,13 +29,15 @@ namespace Sim
             _graphics.Load(Color.White);
 
             _map = new MapController(_graphics);
-            _characters = new Character[50];
+            _characters = new Character[100];
             for (var i = 0; i < _characters.Length; i++)
             {
                 _characters[i] = new Character(Random.Instance.Next<string>(_availableCharList), this, _graphics);
                 while (_map.CheckCollision(_characters[i].Hitbox))
                 {
+                    Console.WriteLine("Moving character {0} due to being in the wall ({1},{2}).", i, _characters[i].Position.X, _characters[i].Position.Y);
                     _characters[i].Position = new Vector2(Random.Instance.Next(20, Width - 20), Random.Instance.Next(20, Height - 20));
+                    Console.WriteLine("New position is ({0},{1}).", _characters[i].Position.X, _characters[i].Position.Y);
                 }
                 _characters[i].State = Random.Instance.Next<Character.CharacterState>();
                 _characters[i].Direction= Random.Instance.Next<Character.CharacterDirection>();
@@ -56,7 +58,7 @@ namespace Sim
 
             Timer.Update();
 
-            _ai.Update();
+            _ai.Update(Timer.ElapsedSeconds);
 
             foreach (var c in _characters)
             {
@@ -85,6 +87,22 @@ namespace Sim
             if (e.Key == Key.Escape)
             {
                 Exit();
+            }
+        }
+
+        protected override void OnKeyPress(KeyPressEventArgs e)
+        {
+            base.OnKeyPress(e);
+
+            _ai.OnKeyPress(e);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            if (disposing)
+            {
+                _graphics.Dispose();
             }
         }
     }

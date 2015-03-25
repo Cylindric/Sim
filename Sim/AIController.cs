@@ -1,4 +1,7 @@
-﻿namespace Sim
+﻿using OpenTK;
+using OpenTK.Input;
+using System;
+namespace Sim
 {
     class AiController
     {
@@ -16,15 +19,37 @@
             _characters = characters;
         }
 
-        public void Update()
+        public void OnKeyPress(KeyPressEventArgs e)
         {
-            foreach (var character in _characters)
+            switch (e.KeyChar)
             {
-                UpdateCharacter(character);
+                case 'h':
+                    Console.WriteLine("Toggling Hitboxes.");
+                    foreach (var character in _characters)
+                    {
+                        character.DebugShowHitbox = !character.DebugShowHitbox;
+                    }
+                    break;
+
+                case 'v':
+                    Console.WriteLine("Toggling Velocities.");
+                    foreach (var character in _characters)
+                    {
+                        character.DebugShowVelocity = !character.DebugShowVelocity;
+                    }
+                    break;
             }
         }
 
-        private void UpdateCharacter(Character character)
+        public void Update(float timeDelta)
+        {
+            foreach (var character in _characters)
+            {
+                UpdateCharacter(character, timeDelta);
+            }
+        }
+
+        private void UpdateCharacter(Character character, float timeDelta)
         {
             // Decide wether to change what the Char is doing
             if (character.TimeInState > MinTimeInState && Random.Instance.NextDouble() <= StateChangeChance)
@@ -42,7 +67,7 @@
             // If the character is moving, check for map collisions
             if (character.State == Character.CharacterState.Walking)
             {
-                var nextLocation = character.Position + character.Velocity;
+                var nextLocation = character.Position + character.Velocity * timeDelta;
                 var newHitbox = character.Hitbox;
                 newHitbox.X = nextLocation.X;
                 newHitbox.Y = nextLocation.Y;

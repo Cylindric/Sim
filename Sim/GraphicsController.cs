@@ -6,10 +6,15 @@ using System.Drawing.Imaging;
 
 namespace Sim
 {
-    class GraphicsController
+    class GraphicsController:IDisposable
     {
         private int _width;
         private int _height;
+
+        private TextRenderer _textRenderer;
+        private Font _serif = new Font(FontFamily.GenericSerif, 24);
+        private Font _sans = new Font(FontFamily.GenericSansSerif, 24);
+        private Font _mono = new Font(FontFamily.GenericMonospace, 24);
 
         public void Load(Color clearColor)
         {
@@ -22,7 +27,6 @@ namespace Sim
             Renderer.Call(() => GL.GetInteger(GetPName.Viewport, viewPort));
             Renderer.Call(() => GL.Enable(EnableCap.Blend));
 
-            Renderer.Call(() => GL.Enable(EnableCap.Blend));
             Renderer.Call(() => GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha));
 
             Renderer.Call(() => GL.MatrixMode(MatrixMode.Projection));
@@ -36,6 +40,8 @@ namespace Sim
             _height = height;
             Renderer.Call(() => GL.Ortho(0, _width, _height, 0, -1, 1));
             Renderer.Call(() => GL.Viewport(0, 0, _width, _height));
+
+            _textRenderer = new TextRenderer(_width, _height);
         }
 
         public void BeginRender()
@@ -48,6 +54,18 @@ namespace Sim
 
         public void EndRender(GameWindow window)
         {
+            PointF position = PointF.Empty;
+            _textRenderer.Clear(Color.Transparent);
+            _textRenderer.DrawString("The quick brown fox jumps over the lazy dog", _sans, Brushes.White, position);
+            Renderer.Call(() => GL.BindTexture(TextureTarget.Texture2D, _textRenderer.Texture));
+            Renderer.Call(() => GL.BlendFunc(BlendingFactorSrc.One, BlendingFactorDest.OneMinusSrcAlpha));
+            GL.Begin(PrimitiveType.Quads);
+            GL.TexCoord2(0.0f, 0.0f); GL.Vertex2(0, 0);
+            GL.TexCoord2(1.0f, 0.0f); GL.Vertex2(_width, 0);
+            GL.TexCoord2(1.0f, 1.0f); GL.Vertex2(_width, _height);
+            GL.TexCoord2(0.0f, 1.0f); GL.Vertex2(0, _height);
+            GL.End();
+
             window.SwapBuffers();
         }
 
@@ -56,11 +74,44 @@ namespace Sim
             Renderer.Call(() => GL.BindTexture(TextureTarget.Texture2D, textureId));
         }
 
+        public void SetColour(Vector4 c)
+        {
+            Renderer.Call(() => GL.Color4(c));
+        }
+
+        public void ClearColour()
+        {
+            Renderer.Call(() => GL.Color4(new Vector4(1)));
+        }
+
+        public void RenderLine(Vector2 p1, Vector2 p2)
+        {
+            GL.Begin(PrimitiveType.Lines);
+            GL.Vertex2(p1);
+            GL.Vertex2(p2);
+            GL.End();
+        }
+
+        public void RenderRectangle(Vector4 p)
+        {
+            RenderRectangle(new Vector2(p.X, p.Y), new Vector2(p.Z, p.W));
+        }
+
+        public void RenderRectangle(Vector2 p1, Vector2 p2)
+        {
+            GL.Begin(PrimitiveType.LineLoop);
+            GL.Vertex2(p1);
+            GL.Vertex2(p2.X, p1.Y);
+            GL.Vertex2(p2);
+            GL.Vertex2(p1.X, p2.Y);
+            GL.End();
+        }
+
         public void RenderQuad(Vector2[] p, Vector2[] t)
         {
             if (p.Length != 4 || p.Length != 4)
             {
-                throw new ArgumentException("Exactly four elements must be passed in both p and t.");
+                throw new ArgumentException("Exactly four Vector2 elements must be passed in both p and t.");
             }
 
             GL.Begin(PrimitiveType.Quads);
@@ -128,5 +179,12 @@ namespace Sim
             }
         }
 
+        public void Dispose()
+        {
+            _textRenderer.Dispose();
+            _serif.Dispose();
+            _sans.Dispose();
+            _mono.Dispose();
+        }
     }
 }

@@ -63,6 +63,7 @@
   <ItemGroup>
     <Compile Include="AiController.cs" />
     <Compile Include="DataFormats\CharacterDatafile.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="MapController.cs" />
     <Compile Include="Character.cs" />
     <Compile Include="Random.cs" />
@@ -74,6 +75,7 @@
     <Compile Include="Renderer.cs" />
     <Compile Include="SpritesheetController.cs" />
     <Compile Include="DataFormats\SpritesheetDatafile.cs" />
+    <Compile Include="TextRenderer.cs" />
     <Compile Include="Timer.cs" />
   </ItemGroup>
   <ItemGroup>

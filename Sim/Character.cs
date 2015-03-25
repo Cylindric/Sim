@@ -88,6 +88,9 @@ namespace Sim
         private long _lastStateChange;
         private Vector2 _position;
 
+        public bool DebugShowHitbox {get; set; }
+        public bool DebugShowVelocity { get; set; }
+
         public Character(string name, SimController sim, GraphicsController graphics)
         {
             var data = ResourceController.Load<CharacterDatafile>(ResourceController.GetDataFilename("character.{0}.txt", name));
@@ -235,6 +238,25 @@ namespace Sim
         public void Render()
         {
             _spritesheet.Render(_thisFrame, Position, _graphics);
+            
+            // render the hitbox
+            if (DebugShowHitbox)
+            {
+                _graphics.SetColour(new Vector4(1, 0, 0, 1));
+                _graphics.RenderRectangle(new Vector4(Hitbox.X, Hitbox.Y, Hitbox.X + Hitbox.Z, Hitbox.Y + Hitbox.W));
+                _graphics.ClearColour();
+            }
+
+            // render the direction
+            if (DebugShowVelocity)
+            {
+                _graphics.SetColour(new Vector4(0, 0, 1, 1));
+                var centre = new Vector2(Hitbox.X + Hitbox.Z / 2, Hitbox.Y + Hitbox.W / 2);
+                _graphics.RenderLine(centre, new Vector2(centre.X + Velocity.X, centre.Y + Velocity.Y));
+            }
+
+            _graphics.ClearColour();
+
         }
 
     }

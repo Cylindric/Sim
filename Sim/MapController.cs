@@ -47,6 +47,15 @@ namespace Sim
 
         public bool CheckCollision(Vector4 hitbox)
         {
+            if (hitbox.X < 0 || hitbox.X > Width * _sprites.SpriteSize)
+            {
+                return true;
+            }
+            if (hitbox.Y < 0 || hitbox.Y > Height * _sprites.SpriteSize)
+            {
+                return true;
+            }
+
             try
             {
                 // The only walkable tile is currently #3. Anything else is a wall
@@ -61,7 +70,7 @@ namespace Sim
                 }
                 return collision;
             }
-            catch (IndexOutOfRangeException e)
+            catch (IndexOutOfRangeException)
             {
                 Console.WriteLine("Invalid location provided for collision detection!");
                 return true;
