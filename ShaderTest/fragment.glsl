@@ -1,9 +1,9 @@
 uniform sampler2D texture;
-uniform float pixel_threshold;
 uniform vec2 TextureSize;
- 
+uniform vec2 TextureOffset;
+
 void main()
 {
-	vec2 pos = vec2(gl_TexCoord[0].x * TextureSize.x, gl_TexCoord[0].y * TextureSize.y);
+	vec2 pos = vec2(gl_TexCoord[0].xy * TextureSize.xy) + TextureOffset;
 	gl_FragColor = texture2D(texture, pos) * gl_Color;	
 }

@@ -19,7 +19,6 @@ namespace ShaderTest
          * Shader Test
          */
         string vs, fs;
-        //Shader fsShader;
         Shader vsShader;
 
         int texture;
@@ -65,7 +64,6 @@ namespace ShaderTest
             texture = LoadBitmap(new Bitmap(Image.FromFile("shadertest.png")));
             vs = System.IO.File.ReadAllText("vertex.glsl");
             fs = System.IO.File.ReadAllText("fragment.glsl");
-            //vsShader = new Shader(vs, fs);
             vsShader = new Shader(fs, Shader.Type.Fragment);
         }
 
@@ -82,7 +80,7 @@ namespace ShaderTest
 
             timeInFrame += Timer.ElapsedSeconds;
 
-            if(timeInFrame >= 5)
+            if(timeInFrame >= 0.2)
             {
                 // flip
                 frameNumber++;
@@ -91,16 +89,9 @@ namespace ShaderTest
                 Console.WriteLine("Flipping to {0}", frameNumber);
             }
 
-            vsShader.SetVariable("TextureSize", (float)32/384, (float)32/256);
+            vsShader.SetVariable("TextureSize", (float)32 / 384, (float)32 / 256);
+            vsShader.SetVariable("TextureOffset", ((float)32 / 384)*frameNumber, 0);
             
-            //vsShader.SetVariable("TextureCoord", new Vector2((float)(frameNumber * 32) / 384, 0));
-
-            //vsShader.SetVariable("PointSize", (float)1 / 384);
-            //vsShader.SetVariable("TextureCoordPointSize", (float)32 / 384);
-            //vsShader.SetVariable("TextureCoordIn", new Vector2((float)(frameNumber * 32) / 384, 0));
-            
-            //vsShader.SetVariable("pixel_threshold", (((float)Mouse.X / (float)this.Width) + ((float)Mouse.Y / (float)this.Height)) / 30);
-
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)

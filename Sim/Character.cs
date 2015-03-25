@@ -22,7 +22,6 @@ namespace Sim
             Right
         }
 
-        
         public CharacterState State
         {
             get { return _state; }
@@ -148,42 +147,6 @@ namespace Sim
             {
                 Velocity = new Vector2(0);
             }
-
-            //var state = Keyboard.GetState();
-            //if (state[Key.Right])
-            //{
-            //    _velocity.X = MaxSpeed;
-            //    _velocity.Y = 0;
-            //    State = CharacterState.Walking;
-            //    Direction = CharacterDirection.Right;
-            // }
-            //else if (state[Key.Left])
-            //{
-            //    _velocity.X = -MaxSpeed;
-            //    _velocity.Y = 0;
-            //    State = CharacterState.Walking;
-            //    Direction = CharacterDirection.Left;
-            //}
-            //else if (state[Key.Up])
-            //{
-            //    _velocity.X = 0;
-            //    _velocity.Y = -MaxSpeed;
-            //    State = CharacterState.Walking;
-            //    Direction = CharacterDirection.Up;
-            //}
-            //else if (state[Key.Down])
-            //{
-            //    _velocity.X = 0;
-            //    _velocity.Y = MaxSpeed;
-            //    State = CharacterState.Walking;
-            //    Direction = CharacterDirection.Down;
-            //}
-            //else
-            //{
-            //    _velocity.X = 0;
-            //    _velocity.Y = 0;
-            //    State = CharacterState.Standing;
-            //}
 
             if (_frameTime > 1.0f/4)
             {
