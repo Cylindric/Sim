@@ -40,18 +40,18 @@ namespace Sim
                 for (var col = 0; col < Width; col++)
                 {
                     _sprites.Render(_tiles[row*Width + col],
-                        new Vector2(col*_sprites.SpriteSize, row*_sprites.SpriteSize), graphics);
+                        new Vector2(col*_sprites.SpriteWidth, row*_sprites.SpriteWidth), graphics);
                 }
             }
         }
 
         public bool CheckCollision(Vector4 hitbox)
         {
-            if (hitbox.X < 0 || hitbox.X > Width * _sprites.SpriteSize)
+            if (hitbox.X < 0 || hitbox.X > Width * _sprites.SpriteWidth)
             {
                 return true;
             }
-            if (hitbox.Y < 0 || hitbox.Y > Height * _sprites.SpriteSize)
+            if (hitbox.Y < 0 || hitbox.Y > Height * _sprites.SpriteWidth)
             {
                 return true;
             }
@@ -79,17 +79,17 @@ namespace Sim
 
         private int TileFromCoord(Vector2 location)
         {
-            var col = (int) location.X/_sprites.SpriteSize;
-            var row = (int) location.Y/_sprites.SpriteSize;
+            var col = (int) location.X/_sprites.SpriteWidth;
+            var row = (int) location.Y/_sprites.SpriteWidth;
             return (row*Width) + col;
         }
 
         private IEnumerable<int> TilesInHitbox(Vector4 hitbox)
         {
-            var left = (int) hitbox.X/_sprites.SpriteSize;
-            var top = (int) hitbox.Y/_sprites.SpriteSize;
-            var right = (int) (hitbox.X + hitbox.Z)/_sprites.SpriteSize;
-            var bottom = (int) (hitbox.Y + hitbox.W)/_sprites.SpriteSize;
+            var left = (int) hitbox.X/_sprites.SpriteWidth;
+            var top = (int) hitbox.Y/_sprites.SpriteWidth;
+            var right = (int) (hitbox.X + hitbox.Z)/_sprites.SpriteWidth;
+            var bottom = (int) (hitbox.Y + hitbox.W)/_sprites.SpriteWidth;
 
             var tiles = new List<int>();
             for (var row = top; row <= bottom; row++)

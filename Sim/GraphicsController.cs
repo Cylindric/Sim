@@ -6,15 +6,15 @@ using System.Drawing.Imaging;
 
 namespace Sim
 {
-    class GraphicsController:IDisposable
+    public class GraphicsController : IDisposable
     {
         private int _width;
         private int _height;
 
-        private TextRenderer _textRenderer;
-        private Font _serif = new Font(FontFamily.GenericSerif, 24);
-        private Font _sans = new Font(FontFamily.GenericSansSerif, 24);
-        private Font _mono = new Font(FontFamily.GenericMonospace, 24);
+        //private TextRenderer _textRenderer;
+        //private Font _serif = new Font(FontFamily.GenericSerif, 24);
+        //private Font _sans = new Font(FontFamily.GenericSansSerif, 24);
+        //private Font _mono = new Font(FontFamily.GenericMonospace, 24);
 
         public void Load(Color clearColor)
         {
@@ -41,7 +41,7 @@ namespace Sim
             Renderer.Call(() => GL.Ortho(0, _width, _height, 0, -1, 1));
             Renderer.Call(() => GL.Viewport(0, 0, _width, _height));
 
-            _textRenderer = new TextRenderer(_width, _height);
+            //_textRenderer = new TextRenderer(_width, _height);
         }
 
         public void BeginRender()
@@ -54,17 +54,17 @@ namespace Sim
 
         public void EndRender(GameWindow window)
         {
-            PointF position = PointF.Empty;
-            _textRenderer.Clear(Color.Transparent);
-            _textRenderer.DrawString("The quick brown fox jumps over the lazy dog", _sans, Brushes.White, position);
-            Renderer.Call(() => GL.BindTexture(TextureTarget.Texture2D, _textRenderer.Texture));
-            Renderer.Call(() => GL.BlendFunc(BlendingFactorSrc.One, BlendingFactorDest.OneMinusSrcAlpha));
-            GL.Begin(PrimitiveType.Quads);
-            GL.TexCoord2(0.0f, 0.0f); GL.Vertex2(0, 0);
-            GL.TexCoord2(1.0f, 0.0f); GL.Vertex2(_width, 0);
-            GL.TexCoord2(1.0f, 1.0f); GL.Vertex2(_width, _height);
-            GL.TexCoord2(0.0f, 1.0f); GL.Vertex2(0, _height);
-            GL.End();
+            //PointF position = PointF.Empty;
+            //_textRenderer.Clear(Color.Transparent);
+            //_textRenderer.DrawString("The quick brown fox jumps over the lazy dog", _sans, Brushes.White, position);
+            //Renderer.Call(() => GL.BindTexture(TextureTarget.Texture2D, _textRenderer.Texture));
+            //Renderer.Call(() => GL.BlendFunc(BlendingFactorSrc.One, BlendingFactorDest.OneMinusSrcAlpha));
+            //GL.Begin(PrimitiveType.Quads);
+            //GL.TexCoord2(0.0f, 0.0f); GL.Vertex2(0, 0);
+            //GL.TexCoord2(1.0f, 0.0f); GL.Vertex2(_width, 0);
+            //GL.TexCoord2(1.0f, 1.0f); GL.Vertex2(_width, _height);
+            //GL.TexCoord2(0.0f, 1.0f); GL.Vertex2(0, _height);
+            //GL.End();
 
             window.SwapBuffers();
         }
@@ -181,10 +181,19 @@ namespace Sim
 
         public void Dispose()
         {
-            _textRenderer.Dispose();
-            _serif.Dispose();
-            _sans.Dispose();
-            _mono.Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                //_textRenderer.Dispose();
+                //_serif.Dispose();
+                //_sans.Dispose();
+                //_mono.Dispose();
+            }
         }
     }
 }

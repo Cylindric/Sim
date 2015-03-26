@@ -22,6 +22,16 @@ namespace Sim
             return Path.Combine("Sprites", name);
         }
 
+        public static string GetShaderFilename(string name)
+        {
+            return Path.Combine("Shaders", name);
+        }
+
+        public static string LoadShader(string name)
+        {
+            return File.ReadAllText(GetShaderFilename(name));
+        }
+
         public static void Save<T>(T obj, string filename)
         {
             try

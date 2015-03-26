@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Input;
@@ -13,8 +14,7 @@ namespace Sim
         private MapController _map;
         private Character[] _characters;
         private AiController _ai;
-        private readonly Timer _timer = new Timer();
-        private List<string> _availableCharList = new List<string>() {"beardman", "oldman", "redgirl", "blueboy"};
+        private readonly List<string> _availableCharList = new List<string>() {"beardman", "oldman", "redgirl", "blueboy"};
         public SimController()
             : base(800, 600, GraphicsMode.Default, "Sim", GameWindowFlags.Default)
         {
@@ -27,9 +27,8 @@ namespace Sim
             base.OnLoad(e);
 
             _graphics.Load(Color.White);
-
             _map = new MapController(_graphics);
-            _characters = new Character[100];
+            _characters = new Character[40];
             for (var i = 0; i < _characters.Length; i++)
             {
                 _characters[i] = new Character(Random.Instance.Next<string>(_availableCharList), this, _graphics);
@@ -41,6 +40,7 @@ namespace Sim
                 }
                 _characters[i].State = Random.Instance.Next<Character.CharacterState>();
                 _characters[i].Direction= Random.Instance.Next<Character.CharacterDirection>();
+                _characters[i].Name = i.ToString(CultureInfo.InvariantCulture);
             }
 
             _ai = new AiController(_map, _characters);
@@ -59,7 +59,6 @@ namespace Sim
             Timer.Update();
 
             _ai.Update(Timer.ElapsedSeconds);
-
             foreach (var c in _characters)
             {
                 c.Update(Timer.ElapsedSeconds);

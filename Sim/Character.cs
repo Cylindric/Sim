@@ -54,7 +54,7 @@ namespace Sim
             set
             {
                 _position = value;
-                Hitbox = new Vector4(_position.X, _position.Y, _spritesheet.SpriteSize, _spritesheet.SpriteSize);
+                Hitbox = new Vector4(_position.X, _position.Y, _spritesheet.SpriteWidth, _spritesheet.SpriteWidth);
             }
         }
 
@@ -62,6 +62,7 @@ namespace Sim
         public long TimeInState { get; private set; }
         public long TimeInDirection { get; private set; }
         public Vector2 Velocity { get; set; }
+        public string Name { get; set; }
 
         private readonly SpritesheetController _spritesheet;
         private const float MaxSpeed = 50.0f;
@@ -71,6 +72,7 @@ namespace Sim
         private int _thisFrame;
         private int _nextFrame;
         private int _frameNum;
+        private Font _font;
 
         private readonly int[] _walkDownFrames = { 0 };
         private readonly int[] _walkLeftFrames = { 0 };
@@ -89,6 +91,7 @@ namespace Sim
 
         public bool DebugShowHitbox {get; set; }
         public bool DebugShowVelocity { get; set; }
+        public bool DebugShowPosition { get; set; }
 
         public Character(string name, SimController sim, GraphicsController graphics)
         {
@@ -108,6 +111,7 @@ namespace Sim
 
             _spritesheet = new SpritesheetController(data.SpritesheetName, graphics);
             Position = new Vector2(0, 0);
+            _font = new Font(graphics);
             _thisFrame = _idleDownFrames[0];
             _nextFrame = _thisFrame;
             _frameNum = 0;
@@ -195,6 +199,14 @@ namespace Sim
             }
 
             Position += (Velocity * timeDelta);
+
+            // render the hitbox
+            if (DebugShowHitbox)
+            {
+                _font.Position = Position - new Vector2(0, 12);
+                _font.Size = 16;
+                _font.Text = Name;
+            }
         }
 
 
@@ -205,17 +217,26 @@ namespace Sim
             // render the hitbox
             if (DebugShowHitbox)
             {
-                _graphics.SetColour(new Vector4(1, 0, 0, 1));
+                _graphics.SetColour(new Vector4(1, 0, 0, 0.5f));
                 _graphics.RenderRectangle(new Vector4(Hitbox.X, Hitbox.Y, Hitbox.X + Hitbox.Z, Hitbox.Y + Hitbox.W));
                 _graphics.ClearColour();
+                _font.Render();
             }
 
             // render the direction
             if (DebugShowVelocity)
             {
-                _graphics.SetColour(new Vector4(0, 0, 1, 1));
+                _graphics.SetColour(new Vector4(0, 0, 1, 0.5f));
                 var centre = new Vector2(Hitbox.X + Hitbox.Z / 2, Hitbox.Y + Hitbox.W / 2);
                 _graphics.RenderLine(centre, new Vector2(centre.X + Velocity.X, centre.Y + Velocity.Y));
+            }
+
+            // render the position
+            if (DebugShowPosition)
+            {
+                _graphics.SetColour(new Vector4(0, 1, 0, 0.5f));
+                _graphics.RenderLine(Position + new Vector2(-5, 0), Position + new Vector2(5, 0));
+                _graphics.RenderLine(Position + new Vector2(0, -5), Position + new Vector2(0, 5));
             }
 
             _graphics.ClearColour();

@@ -13,6 +13,7 @@ namespace Sim
         private readonly MapController _map;
         private readonly Character[] _characters;
 
+
         public AiController(MapController map, Character[] characters)
         {
             _map = map;
@@ -36,6 +37,14 @@ namespace Sim
                     foreach (var character in _characters)
                     {
                         character.DebugShowVelocity = !character.DebugShowVelocity;
+                    }
+                    break;
+
+                case 'p':
+                    Console.WriteLine("Toggling Positions.");
+                    foreach (var character in _characters)
+                    {
+                        character.DebugShowPosition = !character.DebugShowPosition;
                     }
                     break;
             }
