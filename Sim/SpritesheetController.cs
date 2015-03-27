@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Sim
 {
-    class SpritesheetController
+    public class SpritesheetController
     {
         protected int Texture;
         protected int TextureWidth;

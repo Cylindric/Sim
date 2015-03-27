@@ -4,6 +4,7 @@ using OpenTK.Graphics.OpenGL;
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
+using OpenTK.Graphics;
 
 namespace Sim
 {
@@ -75,7 +76,7 @@ namespace Sim
             Renderer.Call(() => GL.BindTexture(TextureTarget.Texture2D, textureId));
         }
 
-        public void SetColour(Vector4 c)
+        public void SetColour(Color4 c)
         {
             Renderer.Call(() => GL.Color4(c));
         }
@@ -135,7 +136,7 @@ namespace Sim
 
                 Renderer.Call(() => GL.BindTexture(TextureTarget.Texture2D, textureId));
 
-                var data = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height),
+                var data = bitmap.LockBits(new System.Drawing.Rectangle(0, 0, bitmap.Width, bitmap.Height),
                     ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 
                 Renderer.Call(

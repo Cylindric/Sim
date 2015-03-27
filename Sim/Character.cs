@@ -3,6 +3,7 @@ using OpenTK;
 using OpenTK.Input;
 using System.Linq;
 using Sim.DataFormats;
+using System.Drawing;
 
 namespace Sim
 {
@@ -48,26 +49,15 @@ namespace Sim
             }
         }
 
-        public Vector2 Position
-        {
-            get { return _position; }
-            set
-            {
-                _position = value;
-                Hitbox = new Vector4(_position.X, _position.Y, _spritesheet.SpriteWidth, _spritesheet.SpriteWidth);
-            }
-        }
-
-        public Vector4 Hitbox { get; private set; }
         public long TimeInState { get; private set; }
         public long TimeInDirection { get; private set; }
         public Vector2 Velocity { get; set; }
         public string Name { get; set; }
+        private Vector2 Destination { get; set; }
 
-        private readonly SpritesheetController _spritesheet;
         private const float MaxSpeed = 50.0f;
         private SimController _sim;
-        private float _frameTime;
+        private double _frameTime;
         private int _thisFrame;
         private int _nextFrame;
         private int _frameNum;
@@ -86,7 +76,6 @@ namespace Sim
         private long _lastDirectionChange;
         private CharacterState _state;
         private long _lastStateChange;
-        private Vector2 _position;
 
         public bool DebugShowHitbox {get; set; }
         public bool DebugShowVelocity { get; set; }
@@ -106,24 +95,31 @@ namespace Sim
             _idleRightFrames = data.IdleRightFrames;
             _idleUpFrames = data.IdleUpFrames;
             
+            LoadSpritesheet(data.SpritesheetName);
+            
             _sim = sim;
-
-            _spritesheet = new SpritesheetController(data.SpritesheetName, Graphics);
-            Position = new Vector2(0, 0);
             _font = new Font(Graphics);
+            Position = new Vector2(0, 0);
             _thisFrame = _idleDownFrames[0];
             _nextFrame = _thisFrame;
             _frameNum = 0;
         }
 
-        public override void Update(float timeDelta)
+        public void Stop()
         {
-            // Update timing data
+            //Console.WriteLine("Character.cs:Stop Character stopped!");
+            Velocity = new Vector2(0);
+            State = CharacterState.Standing;
+        }
+
+        public void Update(double timeDelta, Map map)
+        {
+            base.Update(timeDelta);
+
+             // Update timing data
             _frameTime += timeDelta;
             TimeInState = Timer.GetTime() - _lastStateChange;
             TimeInDirection = Timer.GetTime() - _lastDirectionChange;
-
-            var originalVelocity = Velocity;
 
             if (_state == CharacterState.Walking)
             {
@@ -148,7 +144,11 @@ namespace Sim
             }
             else
             {
-                Velocity = new Vector2(0);
+                if (Velocity.Length > 0)
+                {
+                    //Console.WriteLine("Character.cs:Update {0:###.0},{1:###.0} Character stopped.", Position.X, Position.Y);
+                    Velocity = new Vector2(0);
+                }
             }
 
             if (_frameTime > 1.0f/4)
@@ -197,17 +197,34 @@ namespace Sim
                 _frameTime = 0;
             }
 
-            Position += (Velocity * timeDelta);
+            if(Velocity.X != 0 || Velocity.Y != 0)
+            {
+                Vector2 newPos = Position + (Velocity * (float)timeDelta);
+                //var nextLocation = character.Position + (character.Velocity * (float)timeDelta);
+                //Console.WriteLine("AI:UC Moving character to {0:###.0}, {1:###.0}.", nextLocation.X, nextLocation.Y);
+                var newHitbox = new Vector4(Hitbox);
+                newHitbox.X = newPos.X;
+                newHitbox.Y = newPos.Y;
+                if (map.CheckCollision(newHitbox))
+                {
+                    //Console.WriteLine("C:U Move cancelled, character collided with the map.");
+                    Stop();
+                }
+                else
+                {
+                    //Console.WriteLine("C:U {0:###.0},{1:###.0} > {2:###.0},{3:###.0} Character moving.", Position.X, Position.Y, newPos.X, newPos.Y);
+                    Position = newPos;
+                }
+            }
 
             // render the hitbox
             if (DebugShowHitbox)
             {
                 _font.Position = Position - new Vector2(0, 12);
-                _font.Size = 16;
+                _font.FontSize = 16;
                 _font.Text = Name;
             }
         }
-
 
         public override void Render()
         {
@@ -216,7 +233,7 @@ namespace Sim
             // render the hitbox
             if (DebugShowHitbox)
             {
-                Graphics.SetColour(new Vector4(1, 0, 0, 0.5f));
+                Graphics.SetColour(Color.Red);
                 Graphics.RenderRectangle(new Vector4(Hitbox.X, Hitbox.Y, Hitbox.X + Hitbox.Z, Hitbox.Y + Hitbox.W));
                 Graphics.ClearColour();
                 _font.Render();
@@ -225,15 +242,19 @@ namespace Sim
             // render the direction
             if (DebugShowVelocity)
             {
-                Graphics.SetColour(new Vector4(0, 0, 1, 0.5f));
+                Graphics.SetColour(Color.Blue);
                 var centre = new Vector2(Hitbox.X + Hitbox.Z / 2, Hitbox.Y + Hitbox.W / 2);
                 Graphics.RenderLine(centre, new Vector2(centre.X + Velocity.X, centre.Y + Velocity.Y));
+                if ((Destination - centre).LengthFast > 1 && Destination.Length != 0)
+                {
+                    Graphics.RenderLine(centre, Destination);
+                }
             }
 
             // render the position
             if (DebugShowPosition)
             {
-                Graphics.SetColour(new Vector4(0, 1, 0, 0.5f));
+                Graphics.SetColour(Color.Green);
                 Graphics.RenderLine(Position + new Vector2(-5, 0), Position + new Vector2(5, 0));
                 Graphics.RenderLine(Position + new Vector2(0, -5), Position + new Vector2(0, 5));
             }

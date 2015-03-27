@@ -19,16 +19,17 @@ namespace Sim
         public SimController()
             : base(800, 600, GraphicsMode.Default, "Sim", GameWindowFlags.Default)
         {
-            this.VSync = VSyncMode.Off;
+            this.VSync = VSyncMode.Adaptive;
         }
 
         protected override void OnLoad(EventArgs e)
         {
+            Console.WriteLine("OnLoad");
             base.OnLoad(e);
 
             _graphics.Load(Color.White);
-            _map = new Map(_graphics);
-            _characters = new Character[80];
+            _map = new Map("test", _graphics);
+            _characters = new Character[20];
             for (var i = 0; i < _characters.Length; i++)
             {
                 _characters[i] = new Character(Random.Instance.Next<string>(_availableCharList), this, _graphics);
@@ -48,25 +49,32 @@ namespace Sim
 
         protected override void OnResize(EventArgs e)
         {
+            Console.WriteLine("OnResize");
             base.OnResize(e);
             _graphics.ResetDisplay(Width, Height);
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
+//          Console.WriteLine("OnUpdateFrame");
             base.OnUpdateFrame(e);
 
             Timer.Update();
 
+            _map.Update(Timer.ElapsedSeconds);
+            
             _ai.Update(Timer.ElapsedSeconds);
+            
             foreach (var c in _characters)
             {
-                c.Update(Timer.ElapsedSeconds);
+                c.Update(Timer.ElapsedSeconds, _map);
             }
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
+//            Console.WriteLine("OnRenderFrame");
+
             base.OnRenderFrame(e);
 
             _graphics.BeginRender();
@@ -82,11 +90,16 @@ namespace Sim
         protected override void OnKeyDown(KeyboardKeyEventArgs e)
         {
             base.OnKeyDown(e);
- 
+
             if (e.Key == Key.Escape)
             {
                 Exit();
             }
+        }
+
+        protected override void OnKeyUp(KeyboardKeyEventArgs e)
+        {
+            base.OnKeyUp(e);
         }
 
         protected override void OnKeyPress(KeyPressEventArgs e)

@@ -12,15 +12,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-
-namespace FontTest
+namespace MapTest
 {
-    class Program : GameWindow
+    class MapTest : GameWindow
     {
         /*
         * Test
         */
-        private Sim.Font _font;
+        Map _map;
         /**/
 
         private GraphicsController _graphics;
@@ -29,15 +28,15 @@ namespace FontTest
         int frameNumber;
 
 
-        public Program()
-            : base(800, 600, GraphicsMode.Default, "FontTest", GameWindowFlags.Default)
+        public MapTest()
+            : base(600, 320, GraphicsMode.Default, "Test", GameWindowFlags.Default)
         {
             this.VSync = VSyncMode.Off;
         }
 
         static void Main(string[] args)
         {
-            using (var game = new Program())
+            using (var game = new MapTest())
                 game.Run();
         }
 
@@ -60,11 +59,11 @@ namespace FontTest
             Renderer.Call(() => GL.Ortho(viewPort[0], viewPort[0] + viewPort[2], viewPort[1] + viewPort[3], viewPort[1], -1, 1));
 
             _graphics = new Sim.GraphicsController();
+
             /*
              * Test
              */
-            _font = new Sim.Font(_graphics);
-            _font.Position = new Vector2(Width/2, Height/2);
+            _map = new Map("maptest", _graphics);
             /**/
 
         }
@@ -88,9 +87,6 @@ namespace FontTest
                 frameNumber++;
                 frameNumber = frameNumber % 999;
                 timeInFrame = 0;
-                Console.WriteLine("Flipping to {0}", frameNumber);
-                _font.Text = string.Format("Test {0}", frameNumber);
-                _font.FontSize = 10;        
             }
 
             /*
@@ -113,10 +109,9 @@ namespace FontTest
             /*
             * Test
             */
-            _font.Render();
+            _map.Render();
             /**/
-
-
+            
             SwapBuffers();
         }
 

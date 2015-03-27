@@ -12,15 +12,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-
-namespace FontTest
+namespace WalkTest
 {
     class Program : GameWindow
     {
         /*
         * Test
         */
-        private Sim.Font _font;
         /**/
 
         private GraphicsController _graphics;
@@ -30,7 +28,7 @@ namespace FontTest
 
 
         public Program()
-            : base(800, 600, GraphicsMode.Default, "FontTest", GameWindowFlags.Default)
+            : base(800, 600, GraphicsMode.Default, "Test", GameWindowFlags.Default)
         {
             this.VSync = VSyncMode.Off;
         }
@@ -63,8 +61,6 @@ namespace FontTest
             /*
              * Test
              */
-            _font = new Sim.Font(_graphics);
-            _font.Position = new Vector2(Width/2, Height/2);
             /**/
 
         }
@@ -88,9 +84,6 @@ namespace FontTest
                 frameNumber++;
                 frameNumber = frameNumber % 999;
                 timeInFrame = 0;
-                Console.WriteLine("Flipping to {0}", frameNumber);
-                _font.Text = string.Format("Test {0}", frameNumber);
-                _font.FontSize = 10;        
             }
 
             /*
@@ -113,7 +106,6 @@ namespace FontTest
             /*
             * Test
             */
-            _font.Render();
             /**/
 
 

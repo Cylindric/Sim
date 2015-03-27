@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 
 namespace Sim
 {
@@ -6,9 +7,8 @@ namespace Sim
     {
         private static Stopwatch _globalStopwatch = Stopwatch.StartNew();
         private static Stopwatch _stopwatch = Stopwatch.StartNew();
-        private static long elapsedMs;
 
-        public static float ElapsedSeconds { get; private set; }
+        public static double ElapsedSeconds { get; private set; }
 
         public static long GetTime()
         {
@@ -16,9 +16,8 @@ namespace Sim
         }
 
         public static void Update()
-        {
-            elapsedMs = _stopwatch.ElapsedTicks;
-            ElapsedSeconds = ((float)elapsedMs/1000000);
+        {        
+            ElapsedSeconds = _stopwatch.Elapsed.TotalSeconds;// ((float)elapsedMs / 1000000);
             _stopwatch.Restart();
         }
     }

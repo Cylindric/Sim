@@ -23,7 +23,7 @@ namespace ShaderTest
 
         int texture;
         Timer timer = new Timer();
-        float timeInFrame = 0;
+        double timeInFrame = 0;
         int frameNumber;
 
 

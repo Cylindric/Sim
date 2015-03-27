@@ -12,32 +12,29 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-
-namespace FontTest
+namespace ParticleTest
 {
-    class Program : GameWindow
+    class ParticleTest : GameWindow
     {
         /*
         * Test
         */
-        private Sim.Font _font;
+        private Particle _particle;
+        private List<Particle> _particleList = new List<Particle>();
         /**/
 
         private GraphicsController _graphics;
         Timer timer = new Timer();
-        double timeInFrame = 0;
-        int frameNumber;
 
-
-        public Program()
-            : base(800, 600, GraphicsMode.Default, "FontTest", GameWindowFlags.Default)
+        public ParticleTest()
+            : base(800, 600, GraphicsMode.Default, "Test", GameWindowFlags.Default)
         {
             this.VSync = VSyncMode.Off;
         }
 
         static void Main(string[] args)
         {
-            using (var game = new Program())
+            using (var game = new ParticleTest())
                 game.Run();
         }
 
@@ -60,11 +57,14 @@ namespace FontTest
             Renderer.Call(() => GL.Ortho(viewPort[0], viewPort[0] + viewPort[2], viewPort[1] + viewPort[3], viewPort[1], -1, 1));
 
             _graphics = new Sim.GraphicsController();
+            
             /*
              * Test
              */
-            _font = new Sim.Font(_graphics);
-            _font.Position = new Vector2(Width/2, Height/2);
+            _particle = new Particle(_graphics);
+            _particle.Position = new Vector2(Width / 2, Height / 2);
+            _particle.TimeToLive = 5;
+            _particleList.Add(_particle);
             /**/
 
         }
@@ -79,23 +79,17 @@ namespace FontTest
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
             base.OnUpdateFrame(e);
-
-            timeInFrame += Timer.ElapsedSeconds;
-
-            if (timeInFrame >= 0.5)
-            {
-                // flip
-                frameNumber++;
-                frameNumber = frameNumber % 999;
-                timeInFrame = 0;
-                Console.WriteLine("Flipping to {0}", frameNumber);
-                _font.Text = string.Format("Test {0}", frameNumber);
-                _font.FontSize = 10;        
-            }
+            Timer.Update();
 
             /*
              * Test
              */
+            foreach(var obj in _particleList)
+            {
+                obj.Update(Timer.ElapsedSeconds);
+            }
+
+            _particleList.RemoveAll(p => p.TimeToLive <= 0);
             /**/
 
         }
@@ -108,12 +102,13 @@ namespace FontTest
             Renderer.Call(GL.LoadIdentity);
             Renderer.Call(() => GL.Ortho(0, Width, Height, 0, -1, 1));
 
-            Timer.Update();
-
             /*
             * Test
             */
-            _font.Render();
+            foreach (var obj in _particleList)
+            {
+                obj.Render();
+            }
             /**/
 
 

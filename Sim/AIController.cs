@@ -5,14 +5,13 @@ namespace Sim
 {
     class AiController
     {
-        private const long MinTimeInState = 1000;
-        private const long MinTimeInDirection = 1000;
-        private const double StateChangeChance = 0.2;
-        private const double DirectionChangeChance = 0.1;
+        private const long MinTimeInState = 100;
+        private const long MinTimeInDirection = 100;
+        private const double StateChangeChance = 0.002;
+        private const double DirectionChangeChance = 0.001;
 
         private readonly Map _map;
         private readonly Character[] _characters;
-
 
         public AiController(Map map, Character[] characters)
         {
@@ -51,21 +50,54 @@ namespace Sim
             }
         }
 
-        public void Update(float timeDelta)
+        private void HandleKeyboardState()
         {
+            var state = Input.GetState;
+
+            if (state[Key.Right])
+            {
+                _characters[0].Direction = Character.CharacterDirection.Right;
+                _characters[0].State = Character.CharacterState.Walking;
+            }
+            else if (state[Key.Left])
+            {
+                _characters[0].Direction = Character.CharacterDirection.Left;
+                _characters[0].State = Character.CharacterState.Walking;
+            }
+            else if (state[Key.Down])
+            {
+                _characters[0].Direction = Character.CharacterDirection.Down;
+                _characters[0].State = Character.CharacterState.Walking;
+            }
+            else if (state[Key.Up])
+            {
+                _characters[0].Direction = Character.CharacterDirection.Up;
+                _characters[0].State = Character.CharacterState.Walking;
+            }
+            else
+            {
+                _characters[0].State = Character.CharacterState.Standing;
+            }
+        }
+
+
+        public void Update(double timeDelta)
+        {
+            HandleKeyboardState();
+
             foreach (var character in _characters)
             {
                 UpdateCharacter(character, timeDelta);
             }
         }
 
-        private void UpdateCharacter(Character character, float timeDelta)
+        private void UpdateCharacter(Character character, double timeDelta)
         {
             // Decide wether to change what the Char is doing
             if (character.TimeInState > MinTimeInState && Random.Instance.NextDouble() <= StateChangeChance)
             {
                 // Randomly flip to a different state
-                character.State = Random.Instance.Next<Character.CharacterState>();
+                character.State = Character.CharacterState.Walking;// Random.Instance.Next<Character.CharacterState>();
             }
 
             if (character.TimeInDirection > MinTimeInDirection && Random.Instance.NextDouble() <= DirectionChangeChance)
@@ -75,19 +107,19 @@ namespace Sim
             }
 
             // If the character is moving, check for map collisions
-            if (character.State == Character.CharacterState.Walking && character.Velocity.Length > 0)
-            {
-                var nextLocation = character.Position + character.Velocity * timeDelta;
-                //Console.WriteLine("Char at {0},{1} checking for move to {2},{3}.", character.Position.X, character.Position.Y, nextLocation.X, nextLocation.Y);
-                var newHitbox = character.Hitbox;
-                newHitbox.X = nextLocation.X;
-                newHitbox.Y = nextLocation.Y;
-                if (_map.CheckCollision(newHitbox))
-                {
-                    //Console.WriteLine("Move cancelled, character collided with the map.");
-                    character.State = Character.CharacterState.Standing;
-                }
-            }
+            //if (character.State == Character.CharacterState.Walking)
+            //{
+            //    var nextLocation = character.Position + (character.Velocity * (float)timeDelta);
+            //    Console.WriteLine("AI:UC Moving character to {0:###.0}, {1:###.0}.", nextLocation.X, nextLocation.Y);
+            //    var newHitbox = character.Hitbox;
+            //    newHitbox.X = nextLocation.X;
+            //    newHitbox.Y = nextLocation.Y;
+            //    if (!_forceMove && _map.CheckCollision(newHitbox))
+            //    {
+            //        Console.WriteLine("AI.cs:UpdateCharacter Move cancelled, character collided with the map.");
+            //        character.Stop();
+            //    }
+            //}
         }
     }
 }
