@@ -6,7 +6,7 @@ using Sim.DataFormats;
 
 namespace Sim
 {
-    class Character
+    class Character : GameObject
     {
         public enum CharacterState
         {
@@ -67,12 +67,11 @@ namespace Sim
         private readonly SpritesheetController _spritesheet;
         private const float MaxSpeed = 50.0f;
         private SimController _sim;
-        private readonly GraphicsController _graphics;
         private float _frameTime;
         private int _thisFrame;
         private int _nextFrame;
         private int _frameNum;
-        private Font _font;
+        private readonly Font _font;
 
         private readonly int[] _walkDownFrames = { 0 };
         private readonly int[] _walkLeftFrames = { 0 };
@@ -93,7 +92,8 @@ namespace Sim
         public bool DebugShowVelocity { get; set; }
         public bool DebugShowPosition { get; set; }
 
-        public Character(string name, SimController sim, GraphicsController graphics)
+        public Character(string name, SimController sim, GraphicsController graphics) : 
+            base(graphics)
         {
             var data = ResourceController.Load<CharacterDatafile>(ResourceController.GetDataFilename("character.{0}.txt", name));
             
@@ -107,17 +107,16 @@ namespace Sim
             _idleUpFrames = data.IdleUpFrames;
             
             _sim = sim;
-            _graphics = graphics;
 
-            _spritesheet = new SpritesheetController(data.SpritesheetName, graphics);
+            _spritesheet = new SpritesheetController(data.SpritesheetName, Graphics);
             Position = new Vector2(0, 0);
-            _font = new Font(graphics);
+            _font = new Font(Graphics);
             _thisFrame = _idleDownFrames[0];
             _nextFrame = _thisFrame;
             _frameNum = 0;
         }
 
-        public void Update(float timeDelta)
+        public override void Update(float timeDelta)
         {
             // Update timing data
             _frameTime += timeDelta;
@@ -210,36 +209,36 @@ namespace Sim
         }
 
 
-        public void Render()
+        public override void Render()
         {
-            _spritesheet.Render(_thisFrame, Position, _graphics);
+            _spritesheet.Render(_thisFrame, Position, Graphics);
             
             // render the hitbox
             if (DebugShowHitbox)
             {
-                _graphics.SetColour(new Vector4(1, 0, 0, 0.5f));
-                _graphics.RenderRectangle(new Vector4(Hitbox.X, Hitbox.Y, Hitbox.X + Hitbox.Z, Hitbox.Y + Hitbox.W));
-                _graphics.ClearColour();
+                Graphics.SetColour(new Vector4(1, 0, 0, 0.5f));
+                Graphics.RenderRectangle(new Vector4(Hitbox.X, Hitbox.Y, Hitbox.X + Hitbox.Z, Hitbox.Y + Hitbox.W));
+                Graphics.ClearColour();
                 _font.Render();
             }
 
             // render the direction
             if (DebugShowVelocity)
             {
-                _graphics.SetColour(new Vector4(0, 0, 1, 0.5f));
+                Graphics.SetColour(new Vector4(0, 0, 1, 0.5f));
                 var centre = new Vector2(Hitbox.X + Hitbox.Z / 2, Hitbox.Y + Hitbox.W / 2);
-                _graphics.RenderLine(centre, new Vector2(centre.X + Velocity.X, centre.Y + Velocity.Y));
+                Graphics.RenderLine(centre, new Vector2(centre.X + Velocity.X, centre.Y + Velocity.Y));
             }
 
             // render the position
             if (DebugShowPosition)
             {
-                _graphics.SetColour(new Vector4(0, 1, 0, 0.5f));
-                _graphics.RenderLine(Position + new Vector2(-5, 0), Position + new Vector2(5, 0));
-                _graphics.RenderLine(Position + new Vector2(0, -5), Position + new Vector2(0, 5));
+                Graphics.SetColour(new Vector4(0, 1, 0, 0.5f));
+                Graphics.RenderLine(Position + new Vector2(-5, 0), Position + new Vector2(5, 0));
+                Graphics.RenderLine(Position + new Vector2(0, -5), Position + new Vector2(0, 5));
             }
 
-            _graphics.ClearColour();
+            Graphics.ClearColour();
 
         }
 

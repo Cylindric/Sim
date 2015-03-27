@@ -18,7 +18,7 @@ namespace Sim
         public static void Update()
         {
             elapsedMs = _stopwatch.ElapsedTicks;
-            ElapsedSeconds = (float)elapsedMs/1000000;
+            ElapsedSeconds = ((float)elapsedMs/1000000);
             _stopwatch.Restart();
         }
     }

@@ -5,16 +5,16 @@ namespace Sim
 {
     class AiController
     {
-        private const long MinTimeInState = 2000;
-        private const long MinTimeInDirection = 2000;
-        private const double StateChangeChance = 0.01;
-        private const double DirectionChangeChance = 0.04;
+        private const long MinTimeInState = 1000;
+        private const long MinTimeInDirection = 1000;
+        private const double StateChangeChance = 0.2;
+        private const double DirectionChangeChance = 0.1;
 
-        private readonly MapController _map;
+        private readonly Map _map;
         private readonly Character[] _characters;
 
 
-        public AiController(MapController map, Character[] characters)
+        public AiController(Map map, Character[] characters)
         {
             _map = map;
             _characters = characters;
@@ -26,6 +26,7 @@ namespace Sim
             {
                 case 'h':
                     Console.WriteLine("Toggling Hitboxes.");
+                    _map.DebugShowHitbox = !_map.DebugShowHitbox;
                     foreach (var character in _characters)
                     {
                         character.DebugShowHitbox = !character.DebugShowHitbox;
@@ -74,19 +75,19 @@ namespace Sim
             }
 
             // If the character is moving, check for map collisions
-            if (character.State == Character.CharacterState.Walking)
+            if (character.State == Character.CharacterState.Walking && character.Velocity.Length > 0)
             {
                 var nextLocation = character.Position + character.Velocity * timeDelta;
+                //Console.WriteLine("Char at {0},{1} checking for move to {2},{3}.", character.Position.X, character.Position.Y, nextLocation.X, nextLocation.Y);
                 var newHitbox = character.Hitbox;
                 newHitbox.X = nextLocation.X;
                 newHitbox.Y = nextLocation.Y;
                 if (_map.CheckCollision(newHitbox))
                 {
+                    //Console.WriteLine("Move cancelled, character collided with the map.");
                     character.State = Character.CharacterState.Standing;
                 }
             }
-
         }
-
     }
 }

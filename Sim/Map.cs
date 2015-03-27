@@ -4,16 +4,21 @@ using OpenTK;
 
 namespace Sim
 {
-    internal class MapController
+    class Map : GameObject
     {
+        public bool DebugShowHitbox { get; set; }
+
         private readonly SpritesheetController _sprites;
+        private readonly Font _font;
         private readonly int[] _tiles;
         private const int Width = 800/40;
         private const int Height = 600/40;
 
-        public MapController(GraphicsController graphics)
+        public Map(GraphicsController graphics) : 
+            base(graphics)
         {
-            _sprites = new SpritesheetController("grass", graphics);
+            _font = new Font(Graphics);
+            _sprites = new SpritesheetController("grass", Graphics);
             _tiles = new int[Width*Height];
 
             for (var row = 0; row < Height; row++)
@@ -33,14 +38,31 @@ namespace Sim
             }
         }
 
-        public void Render(GraphicsController graphics)
+        public override void Update(float timeDelta)
+        {
+        }
+
+        public override void Render()
         {
             for (var row = 0; row < Height; row++)
             {
                 for (var col = 0; col < Width; col++)
                 {
                     _sprites.Render(_tiles[row*Width + col],
-                        new Vector2(col*_sprites.SpriteWidth, row*_sprites.SpriteWidth), graphics);
+                        new Vector2(col*_sprites.SpriteWidth, row*_sprites.SpriteWidth), Graphics);
+
+                    // render the hitbox
+                    if (DebugShowHitbox)
+                    {
+                        Graphics.SetColour(new Vector4(1, 0, 0, 0.5f));
+                        Graphics.RenderRectangle(new Vector4(col * _sprites.SpriteWidth, row*_sprites.SpriteWidth, (col + 1) * _sprites.SpriteWidth, (row + 1)*_sprites.SpriteWidth));
+                        Graphics.ClearColour();
+
+                        _font.Position = new Vector2(col * _sprites.SpriteWidth, row * _sprites.SpriteWidth + 16);
+                        _font.Size = 12;
+                        _font.Text = string.Format("{0},{1}", col, row);
+                        _font.Render();
+                    }
                 }
             }
         }

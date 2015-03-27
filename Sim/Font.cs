@@ -9,10 +9,9 @@ using OpenTK;
 
 namespace Sim
 {
-    public class Font
+    public class Font : GameObject
     {
         private readonly SpritesheetController _spritesheet;
-        private readonly GraphicsController _graphics;
         private readonly float _baseScale;
 
         public string Text { get; set; }
@@ -20,23 +19,26 @@ namespace Sim
         public float Size { get; set; }
         public Color Colour { get; set; }
 
-        public Font(GraphicsController graphics)
+        public Font(GraphicsController graphics) : base(graphics)
         {
-            _graphics = graphics;
             _spritesheet = new SpritesheetController("font", graphics);
             Text = "";
             _baseScale = 1.0f / _spritesheet.SpriteHeight;
             Size = 10f;
         }
 
-        public void Render()
+        public override void Update(float timeDelta)
+        {
+        }
+
+        public override void Render()
         {
             var cursor = Position;
             foreach (var c in Text)
             {
-                var sprite = Convert.ToInt32(c) - 48;
+                var sprite = Convert.ToInt32(c) - 38;
                 _spritesheet.TintColour = Colour;
-                _spritesheet.Render(sprite, cursor, new Vector2(Size * _baseScale), _graphics);
+                _spritesheet.Render(sprite, cursor, new Vector2(Size * _baseScale), Graphics);
                 cursor += new Vector2(_spritesheet.SpriteWidth, 0) * Size * _baseScale;
             }
 

@@ -16,8 +16,6 @@ namespace Sim
         
         private readonly float _spriteDx;
         private readonly float _spriteDy;
-        private readonly float _spriteWidth;
-        private readonly float _spriteHeight;
 
         public struct SpritesheetData
         {
