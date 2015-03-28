@@ -3,7 +3,7 @@ using OpenTK.Input;
 using System;
 namespace Sim
 {
-    class AiController
+    public class AiController
     {
         private const long MinTimeInState = 100;
         private const long MinTimeInDirection = 100;
@@ -80,7 +80,6 @@ namespace Sim
             }
         }
 
-
         public void Update(double timeDelta)
         {
             HandleKeyboardState();
@@ -93,33 +92,29 @@ namespace Sim
 
         private void UpdateCharacter(Character character, double timeDelta)
         {
-            // Decide wether to change what the Char is doing
-            if (character.TimeInState > MinTimeInState && Random.Instance.NextDouble() <= StateChangeChance)
+            if (character.State == Character.CharacterState.HeadingToDestination)
             {
-                // Randomly flip to a different state
-                character.State = Character.CharacterState.Walking;// Random.Instance.Next<Character.CharacterState>();
+                // A character heading somewhere should be left to it.
+                return;
             }
 
-            if (character.TimeInDirection > MinTimeInDirection && Random.Instance.NextDouble() <= DirectionChangeChance)
+            if (character.State == Character.CharacterState.Standing)
             {
-                // Randomly flip to a different direction
-                character.Direction = Random.Instance.Next<Character.CharacterDirection>();
+                // A character standing around has a chance of deciding to do something else.
+                if (character.TimeInState > MinTimeInState && Random.Instance.NextDouble() <= StateChangeChance)
+                {
+                    // Randomly flip to a different state
+                    GiveCharacterRandomDestination(character);
+                }
             }
-
-            // If the character is moving, check for map collisions
-            //if (character.State == Character.CharacterState.Walking)
-            //{
-            //    var nextLocation = character.Position + (character.Velocity * (float)timeDelta);
-            //    Console.WriteLine("AI:UC Moving character to {0:###.0}, {1:###.0}.", nextLocation.X, nextLocation.Y);
-            //    var newHitbox = character.Hitbox;
-            //    newHitbox.X = nextLocation.X;
-            //    newHitbox.Y = nextLocation.Y;
-            //    if (!_forceMove && _map.CheckCollision(newHitbox))
-            //    {
-            //        Console.WriteLine("AI.cs:UpdateCharacter Move cancelled, character collided with the map.");
-            //        character.Stop();
-            //    }
-            //}
         }
+
+        private void GiveCharacterRandomDestination(Character character)
+        {
+            // Pick a random place on the map
+            character.Destination = new Vector2(Random.Instance.Next(0, (int)_map.MapSize.X), Random.Instance.Next(0, (int)_map.MapSize.Y));
+            character.State = Character.CharacterState.HeadingToDestination;
+        }
+
     }
 }

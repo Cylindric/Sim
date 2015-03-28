@@ -22,6 +22,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{68A2D9
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParticleTest", "ParticleTest\ParticleTest.csproj", "{AD6F0A62-AC75-4B5A-89D7-5BA7597ADC0F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PathTest", "..\PathTest\PathTest.csproj", "{77376FBF-6937-4416-BFE6-FE5AC13FE528}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -52,6 +54,10 @@ Global
 		{AD6F0A62-AC75-4B5A-89D7-5BA7597ADC0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AD6F0A62-AC75-4B5A-89D7-5BA7597ADC0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AD6F0A62-AC75-4B5A-89D7-5BA7597ADC0F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77376FBF-6937-4416-BFE6-FE5AC13FE528}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77376FBF-6937-4416-BFE6-FE5AC13FE528}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77376FBF-6937-4416-BFE6-FE5AC13FE528}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77376FBF-6937-4416-BFE6-FE5AC13FE528}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -32,14 +32,14 @@ namespace Sim
             _characters = new Character[20];
             for (var i = 0; i < _characters.Length; i++)
             {
-                _characters[i] = new Character(Random.Instance.Next<string>(_availableCharList), this, _graphics);
+                _characters[i] = new Character(Random.Instance.Next<string>(_availableCharList), _graphics);
                 while (_map.CheckCollision(_characters[i].Hitbox))
                 {
-                    Console.WriteLine("Moving character {0} due to being in a wall ({1},{2}).", i, _characters[i].Position.X, _characters[i].Position.Y);
+                    //Console.WriteLine("Moving character {0} due to being in a wall ({1},{2}).", i, _characters[i].Position.X, _characters[i].Position.Y);
                     _characters[i].Position = new Vector2(Random.Instance.Next(20, Width - 20), Random.Instance.Next(20, Height - 20));
-                    Console.WriteLine("New position is ({0},{1}).", _characters[i].Position.X, _characters[i].Position.Y);
+                    //Console.WriteLine("New position is ({0},{1}).", _characters[i].Position.X, _characters[i].Position.Y);
                 }
-                _characters[i].State = Random.Instance.Next<Character.CharacterState>();
+                _characters[i].State = Character.CharacterState.Standing;
                 _characters[i].Direction= Random.Instance.Next<Character.CharacterDirection>();
                 _characters[i].Name = i.ToString(CultureInfo.InvariantCulture);
             }
@@ -56,7 +56,6 @@ namespace Sim
 
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
-//          Console.WriteLine("OnUpdateFrame");
             base.OnUpdateFrame(e);
 
             Timer.Update();
@@ -73,8 +72,6 @@ namespace Sim
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
-//            Console.WriteLine("OnRenderFrame");
-
             base.OnRenderFrame(e);
 
             _graphics.BeginRender();

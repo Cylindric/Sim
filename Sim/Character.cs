@@ -1,18 +1,17 @@
-﻿using System;
-using OpenTK;
-using OpenTK.Input;
-using System.Linq;
+﻿using OpenTK;
 using Sim.DataFormats;
 using System.Drawing;
+using System.Linq;
 
 namespace Sim
 {
-    class Character : GameObject
+    public class Character : GameObject
     {
         public enum CharacterState
         {
             Standing,
-            Walking
+            Walking,
+            HeadingToDestination
         }
 
         public enum CharacterDirection
@@ -53,10 +52,9 @@ namespace Sim
         public long TimeInDirection { get; private set; }
         public Vector2 Velocity { get; set; }
         public string Name { get; set; }
-        private Vector2 Destination { get; set; }
+        public Vector2 Destination { get; set; }
 
         private const float MaxSpeed = 50.0f;
-        private SimController _sim;
         private double _frameTime;
         private int _thisFrame;
         private int _nextFrame;
@@ -81,7 +79,7 @@ namespace Sim
         public bool DebugShowVelocity { get; set; }
         public bool DebugShowPosition { get; set; }
 
-        public Character(string name, SimController sim, GraphicsController graphics) : 
+        public Character(string name, GraphicsController graphics) : 
             base(graphics)
         {
             var data = ResourceController.Load<CharacterDatafile>(ResourceController.GetDataFilename("character.{0}.txt", name));
@@ -97,7 +95,6 @@ namespace Sim
             
             LoadSpritesheet(data.SpritesheetName);
             
-            _sim = sim;
             _font = new Font(Graphics);
             Position = new Vector2(0, 0);
             _thisFrame = _idleDownFrames[0];
@@ -199,12 +196,8 @@ namespace Sim
 
             if(Velocity.X != 0 || Velocity.Y != 0)
             {
-                Vector2 newPos = Position + (Velocity * (float)timeDelta);
-                //var nextLocation = character.Position + (character.Velocity * (float)timeDelta);
-                //Console.WriteLine("AI:UC Moving character to {0:###.0}, {1:###.0}.", nextLocation.X, nextLocation.Y);
-                var newHitbox = new Vector4(Hitbox);
-                newHitbox.X = newPos.X;
-                newHitbox.Y = newPos.Y;
+                var newPos = Position + (Velocity * (float)timeDelta);
+                var newHitbox = new Vector4(Hitbox) {X = newPos.X, Y = newPos.Y};
                 if (map.CheckCollision(newHitbox))
                 {
                     //Console.WriteLine("C:U Move cancelled, character collided with the map.");
@@ -245,7 +238,7 @@ namespace Sim
                 Graphics.SetColour(Color.Blue);
                 var centre = new Vector2(Hitbox.X + Hitbox.Z / 2, Hitbox.Y + Hitbox.W / 2);
                 Graphics.RenderLine(centre, new Vector2(centre.X + Velocity.X, centre.Y + Velocity.Y));
-                if ((Destination - centre).LengthFast > 1 && Destination.Length != 0)
+                if ((Destination - centre).LengthFast > 1 && State == CharacterState.HeadingToDestination)
                 {
                     Graphics.RenderLine(centre, Destination);
                 }

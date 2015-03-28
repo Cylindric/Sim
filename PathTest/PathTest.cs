@@ -5,15 +5,17 @@ using OpenTK.Input;
 using Sim;
 using System;
 
-
-namespace FontTest
+namespace PathTest
 {
-    class Program : GameWindow
+    class MapTest : GameWindow
     {
         /*
         * Test
         */
-        private Sim.Font _font;
+        Map _map;
+        private Astar _astar;
+        private bool _routing = false;
+        private int _astarFrame = 0;
         /**/
 
         private GraphicsController _graphics;
@@ -22,15 +24,15 @@ namespace FontTest
         int frameNumber;
 
 
-        public Program()
-            : base(800, 600, GraphicsMode.Default, "FontTest", GameWindowFlags.Default)
+        public MapTest()
+            : base(20*40, 10*40, GraphicsMode.Default, "Test", GameWindowFlags.Default)
         {
             this.VSync = VSyncMode.Off;
         }
 
         static void Main(string[] args)
         {
-            using (var game = new Program())
+            using (var game = new MapTest())
                 game.Run();
         }
 
@@ -52,12 +54,13 @@ namespace FontTest
             Renderer.Call(() => GL.Viewport(viewPort[0], viewPort[1], viewPort[2], viewPort[3]));
             Renderer.Call(() => GL.Ortho(viewPort[0], viewPort[0] + viewPort[2], viewPort[1] + viewPort[3], viewPort[1], -1, 1));
 
-            _graphics = new Sim.GraphicsController();
+            _graphics = new GraphicsController();
+
             /*
              * Test
              */
-            _font = new Sim.Font(_graphics);
-            _font.Position = new Vector2(Width/2, Height/2);
+            _map = new Map("pathtest", _graphics);
+            _astar = new Astar(_map, _graphics);
             /**/
 
         }
@@ -75,20 +78,35 @@ namespace FontTest
 
             timeInFrame += Timer.ElapsedSeconds;
 
-            if (timeInFrame >= 0.5)
-            {
-                // flip
-                frameNumber++;
-                frameNumber = frameNumber % 999;
-                timeInFrame = 0;
-                Console.WriteLine("Flipping to {0}", frameNumber);
-                _font.Text = string.Format("Test {0}", frameNumber);
-                _font.FontSize = 10;        
-            }
+            //if (timeInFrame >= 0.5)
+            //{
+            //    // flip
+            //    frameNumber++;
+            //    frameNumber = frameNumber % 999;
+            //    timeInFrame = 0;
+            //}
 
             /*
              * Test
              */
+            _map.Update(Timer.ElapsedSeconds);
+            if (!_routing)
+            {
+                var start = new Vector2(453, 251);
+                var end = new Vector2(52, 307);
+                _astar.Navigate(start, end);
+                _routing = true;
+            }
+            else
+            {
+                // update A* one step
+                if (_astar.Calculating && frameNumber <= _astarFrame)
+                {
+                    _astar.Update(Timer.ElapsedSeconds);
+                    frameNumber++;
+                }
+            }
+
             /**/
 
         }
@@ -106,9 +124,9 @@ namespace FontTest
             /*
             * Test
             */
-            _font.Render();
+            _map.Render();
+            _astar.Render();
             /**/
-
 
             SwapBuffers();
         }
@@ -120,6 +138,9 @@ namespace FontTest
             if (e.Key == Key.Escape)
             {
                 Exit();
+            } else if (e.Key == Key.Enter)
+            {
+                _astarFrame++;
             }
         }
 
