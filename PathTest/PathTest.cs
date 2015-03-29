@@ -15,7 +15,8 @@ namespace PathTest
         Map _map;
         private Astar _astar;
         private bool _routing = false;
-        private int _astarFrame = 0;
+        readonly Vector2 _start = new Vector2(453, 251);
+        readonly Vector2 _end = new Vector2(52, 307);
         /**/
 
         private GraphicsController _graphics;
@@ -78,13 +79,6 @@ namespace PathTest
 
             timeInFrame += Timer.ElapsedSeconds;
 
-            //if (timeInFrame >= 0.5)
-            //{
-            //    // flip
-            //    frameNumber++;
-            //    frameNumber = frameNumber % 999;
-            //    timeInFrame = 0;
-            //}
 
             /*
              * Test
@@ -92,21 +86,20 @@ namespace PathTest
             _map.Update(Timer.ElapsedSeconds);
             if (!_routing)
             {
-                var start = new Vector2(453, 251);
-                var end = new Vector2(52, 307);
-                _astar.Navigate(start, end);
+                _astar.Navigate(_start, _end);
                 _routing = true;
             }
             else
             {
                 // update A* one step
-                if (_astar.Calculating && frameNumber <= _astarFrame)
+                if (timeInFrame >= 0.2)
                 {
-                    _astar.Update(Timer.ElapsedSeconds);
+                    // flip
                     frameNumber++;
+                    timeInFrame = 0;
+                    _astar.Step(Timer.ElapsedSeconds);
                 }
             }
-
             /**/
 
         }
@@ -138,10 +131,7 @@ namespace PathTest
             if (e.Key == Key.Escape)
             {
                 Exit();
-            } else if (e.Key == Key.Enter)
-            {
-                _astarFrame++;
-            }
+            } 
         }
 
     }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -11,8 +12,9 @@ namespace Sim.DataFormats
         public string Spritesheet;
         public int Width;
         public int Height;
-        public List<int> TileIds = new List<int>();
-        public Dictionary<char, int> Aliases = new Dictionary<char, int>();
+        //public List<int> TileIds = new List<int>();
+        public List<Map.Tile> Tiles = new List<Map.Tile>();
+        Dictionary<char, int> Aliases = new Dictionary<char, int>();
 
         public MapDatafile()
         {
@@ -56,7 +58,6 @@ namespace Sim.DataFormats
                         if (line.Equals("Tiles"))
                         {
                             // Read all basic tile data
-                            var id = 0;
                             bool keepScanning = true;
                             while (keepScanning && ((line = file.ReadLine()) != null))
                             {
@@ -67,7 +68,9 @@ namespace Sim.DataFormats
                                     break;
                                 }
 
-                                // If we're using aliases, we won't have spaces
+                                // If we're using Aliases, we won't have spaces
+                                var id = 0;
+
                                 if (Aliases.Count == 0)
                                 {
                                     foreach (var value in line.Trim().Split(' '))
@@ -80,7 +83,13 @@ namespace Sim.DataFormats
                                         }
                                         else
                                         {
-                                            TileIds.Add(id);
+                                            var t = new Map.Tile
+                                            {
+                                                SpriteNum = id,
+                                                Column = Tiles.Count%Width,
+                                                Row = Tiles.Count/Width
+                                            };
+                                            Tiles.Add(t);
                                         }
                                     }
                                 }
@@ -96,12 +105,18 @@ namespace Sim.DataFormats
                                         }
                                         else
                                         {
-                                            TileIds.Add(id);
+                                            var t = new Map.Tile
+                                            {
+                                                SpriteNum = id,
+                                                Column = Tiles.Count%Width,
+                                                Row = Tiles.Count/Width
+                                            };
+                                            Tiles.Add(t);
                                         }
                                     }
                                 }
+                                //TileIds.Add(id);
                             }
-                            continue;
                         }
                     }
                 }
@@ -130,7 +145,7 @@ namespace Sim.DataFormats
             if (string.IsNullOrEmpty(Spritesheet)) return false;
             if (Width == 0) return false;
             if (Height == 0) return false;
-            if (TileIds.Count != (Width * Height)) return false;
+            if (Tiles.Count != (Width * Height)) return false;
 
             return true;
         }

@@ -9,6 +9,17 @@ namespace Sim
 {
     public class Map : GameObject
     {
+        public class Tile
+        {
+            public Vector2 LocationPx;
+            public Vector2 CentrePx;
+            public Vector2 SizePx;
+            public int Row;
+            public int Column;
+            public bool IsWalkable;
+            public int SpriteNum;
+        }
+
         public bool DebugShowHitbox { get; set; }
 
         /// <summary>
@@ -16,7 +27,10 @@ namespace Sim
         /// </summary>
         public Vector2 MapSize { get; set; }
 
-        private int[] _tiles;
+        private Tile[,] _tiles2;
+  
+        //private int[] _tiles;
+
         private int _columns;
         private int _rows;
 
@@ -39,22 +53,18 @@ namespace Sim
 
         public override void Render()
         {
-            for (var row = 0; row < _rows; row++)
+            foreach (var t in _tiles2)
             {
-                for (var col = 0; col < _columns; col++)
-                {
-                    _spritesheet.Render(_tiles[row*_columns + col],
-                        new Vector2(col*_spritesheet.SpriteWidth, row*_spritesheet.SpriteWidth), Graphics);
+                _spritesheet.Render(t.SpriteNum, t.LocationPx, Graphics);
 
-                    // render the hitbox
-                    if (DebugShowHitbox)
+                // render the hitbox
+                if (DebugShowHitbox)
+                {
+                    foreach (var p in _particleList)
                     {
-                        foreach (var p in _particleList)
-                        {
-                            p.Render();
-                        }
+                        p.Render();
                     }
-                }
+                }                
             }
         }
 
@@ -75,20 +85,18 @@ namespace Sim
                 var collision = false;
                 foreach (var tile in TilesInHitbox(hitbox))
                 {
-                    var tileRow = tile/_columns;
-                    var tileCol = tile%_columns;
+                    //var tileRow = tile/_columns;
+                    //var tileCol = tile%_columns;
 
                     var p =
-                        new Rectangle(
-                            new Vector4(tileCol*Size.X, tileRow*Size.Y, _spritesheet.SpriteWidth,
-                                _spritesheet.SpriteHeight), Graphics)
+                        new Rectangle(tile.LocationPx, tile.SizePx, Graphics)
                         {
                             Color = Color.ForestGreen,
                             TimeToLive = 0.1
                         };
                     _particleList.Add(p);
 
-                    if (IsWalkable(tile))
+                    if (tile.IsWalkable)
                     {
                         p.Color = Color.Red;
                         collision = true;
@@ -110,83 +118,73 @@ namespace Sim
         /// <param name="t">The cell id to check.</param>
         /// <returns>true if cell is walkable; otherwise false.</returns>
         /// <remarks>An invalid passed in id will always return false.</remarks>
-        private bool IsWalkable(int t)
+        //private bool IsWalkable(int t)
+        //{
+        //    if (t < 0) return false;
+        //    if (t > _tiles.Length) return false;
+        //    return _tiles[t] == 3;
+        //}
+
+        public int ManhattanDistance(Tile t1, Tile t2)
         {
-            if (t < 0) return false;
-            if (t > _tiles.Length) return false;
-            return _tiles[t] == 3;
+            return Math.Abs(t2.Column - t1.Column) + Math.Abs(t2.Row - t1.Row);
         }
 
-        public int ManhattanDistance(int t1, int t2)
+        public IEnumerable<Tile> ReachableTiles(Tile start)
         {
-            var c1 = t1 % _columns;
-            var r1 = t1 / _columns;
-
-            var c2 = t2 % _columns;
-            var r2 = t2 / _columns;
-
-            return Math.Abs(c2 - c1) + Math.Abs(r2 - r1);
-        }
-
-        public IEnumerable<int> ReachableTiles(Vector2 start)
-        {
-            return ReachableTiles(GetTileIdFromPosition(start));
-        }
-
-        public IEnumerable<int> ReachableTiles(int start)
-        {
-            var tiles = new List<int>();
+            var tiles = new List<Tile>();
 
             // If the start tile isn't walkable, nothing is.
-            if (!IsWalkable(start))
+            if (!start.IsWalkable)
             {
                 return tiles;
             }
 
             // Check the four adjacent tiles
-            if (IsWalkable(start - 1)) tiles.Add(start - 1); // left
-            if (IsWalkable(start + 1)) tiles.Add(start + 1); // right
-            if (IsWalkable(start - _columns)) tiles.Add(start - _columns); // up
-            if (IsWalkable(start + _columns)) tiles.Add(start + _columns); // down
+            if (start.Column > 0 && _tiles2[start.Row, start.Column - 1].IsWalkable) tiles.Add(_tiles2[start.Row, start.Column - 1]); // left
+            if (start.Column < _columns && _tiles2[start.Row, start.Column + 1].IsWalkable) tiles.Add(_tiles2[start.Row, start.Column + 1]); // right
+            if (start.Row > 0 && _tiles2[start.Row - 1, start.Column].IsWalkable) tiles.Add(_tiles2[start.Row - 1, start.Column]); // up
+            if (start.Row < _columns && _tiles2[start.Row + 1, start.Column].IsWalkable) tiles.Add(_tiles2[start.Row + 1, start.Column]); // down
 
             return tiles;
         }
 
-        private IEnumerable<int> TilesInHitbox(Vector4 hitbox)
+        private IEnumerable<Tile> TilesInHitbox(Vector4 hitbox)
         {
             var left = (int) hitbox.X/_spritesheet.SpriteWidth;
             var top = (int) hitbox.Y/_spritesheet.SpriteHeight;
             var right = (int) (hitbox.X + hitbox.Z)/_spritesheet.SpriteWidth;
             var bottom = (int) (hitbox.Y + hitbox.W)/_spritesheet.SpriteHeight;
 
-            var tiles = new List<int>();
+            var tiles = new List<Tile>();
             for (var row = top; row <= bottom; row++)
             {
                 for (var col = left; col <= right; col++)
                 {
                     if (row >= top && row <= bottom && col >= left && col <= right)
                     {
-                        tiles.Add(row*_columns + col);
+                        tiles.Add(_tiles2[row, col]);
                     }
                 }
             }
             return tiles;
         }
 
-        public int GetTileIdFromPosition(Vector2 p)
+        public Tile GetTileAtPosition(Vector2 p)
         {
             var column = (int)(p.X/Size.X);
             var row = (int)(p.Y/Size.Y);
             var cell = (row*_columns) + column;
-            return cell;
+            var tile = _tiles2[row, column];
+            return _tiles2[row, column];
         }
 
-        public Vector4 GetTileDimFromId(int id)
-        {
-            var column = id%_columns;
-            var row = id/_columns;
-            return new Vector4(column * Size.X, row * Size.Y, column * Size.X + Size.X, row * Size.Y + Size.Y);
-        }
+        //public Vector4 GetTileDimFromId(int id)
+        //{
+        //    var column = id%_columns;
+        //    var row = id/_columns;
+        //    return new Vector4(column * Size.X, row * Size.Y, column * Size.X + Size.X, row * Size.Y + Size.Y);
+        //}
 
 
         private void LoadFromFile(string filename)
@@ -198,8 +196,21 @@ namespace Sim
                 LoadSpritesheet(data.Spritesheet);
                 _columns = data.Width;
                 _rows = data.Height;
-                _tiles = data.TileIds.ToArray();
+                //_tiles = data.TileIds.ToArray();
+                //_tiles2 = data.Tiles;
                 MapSize = new Vector2(_columns * _spritesheet.SpriteWidth, _rows * _spritesheet.SpriteHeight);
+
+                _tiles2 = new Tile[_rows, _columns];
+
+                // Now that we've loaded the spritesheet, we can update the tiles with pixel data
+                foreach (var t in data.Tiles)
+                {
+                    t.LocationPx = new Vector2(t.Column * _spritesheet.SpriteWidth, t.Row * _spritesheet.SpriteHeight);
+                    t.SizePx = new Vector2(_spritesheet.SpriteWidth);
+                    t.CentrePx = new Vector2(t.LocationPx.X + t.SizePx.X / 2, t.LocationPx.Y + t.SizePx.Y / 2);
+                    t.IsWalkable = t.SpriteNum == 3;
+                    _tiles2[t.Row, t.Column] = t;
+                }
             }
             catch (Exception e)
             {

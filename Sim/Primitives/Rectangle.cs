@@ -6,10 +6,18 @@ namespace Sim.Primitives
     class Rectangle : GameObject
     {
 
-        public Rectangle(Vector4 p, GraphicsController graphics) : base(graphics)
+        public Rectangle(Vector4 p, GraphicsController graphics)
+            : base(graphics)
         {
             Size = p.Zw;// new Vector2(p.Z, p.W);
             Position = p.Xy;// new Vector2(p.X, p.Y);
+        }
+
+        public Rectangle(Vector2 p1, Vector2 p2, GraphicsController graphics)
+            : base(graphics)
+        {
+            Size = p1;
+            Position = p2;
         }
 
         public Color Color = Color.White;

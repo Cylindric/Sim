@@ -113,7 +113,7 @@ namespace Sim
         {
             base.Update(timeDelta);
 
-             // Update timing data
+             // Step timing data
             _frameTime += timeDelta;
             TimeInState = Timer.GetTime() - _lastStateChange;
             TimeInDirection = Timer.GetTime() - _lastDirectionChange;
@@ -143,7 +143,7 @@ namespace Sim
             {
                 if (Velocity.Length > 0)
                 {
-                    //Console.WriteLine("Character.cs:Update {0:###.0},{1:###.0} Character stopped.", Position.X, Position.Y);
+                    //Console.WriteLine("Character.cs:Step {0:###.0},{1:###.0} Character stopped.", Position.X, Position.Y);
                     Velocity = new Vector2(0);
                 }
             }
