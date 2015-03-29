@@ -1,14 +1,9 @@
-﻿using System;
+﻿using OpenTK;
+using Sim.Primitives;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OpenTK;
-using OpenTK.Graphics.OpenGL;
-using Sim.Primitives;
-using Rectangle = Sim.Primitives.Rectangle;
 
 namespace Sim
 {
@@ -18,14 +13,14 @@ namespace Sim
         [DebuggerDisplay("id={id} parent={parent} G={startToHereCostG} H={hereToDestCostH} F={F}")]
         private class Node
         {
-            public int id;
-            public int parent;
+            public int Id;
+            public int Parent;
 
             /// <summary>
             /// The movement cost to move from the starting point A to a given
             /// square on the grid, following the path generated to get there. 
             /// </summary>
-            public int startToHereCostG;
+            public int StartToHereCostG;
 
             /// <summary>
             /// the estimated movement cost to move from that given square on 
@@ -35,33 +30,31 @@ namespace Sim
             /// don’t know the actual distance until we find the path, because 
             /// all sorts of things can be in the way (walls, water, etc.).
             /// </summary>
-            public int hereToDestCostH;
+            public int HereToDestCostH;
 
             public int F
             {
-                get { return startToHereCostG + hereToDestCostH; }
+                get { return StartToHereCostG + HereToDestCostH; }
             }
         }
 
-        private Map _map;
-        private GraphicsController _graphics;
+        private readonly Map _map;
+        private readonly GraphicsController _graphics;
         private readonly List<GameObject> _particleList = new List<GameObject>();
         private Vector2 _start;
         private Vector2 _destination;
-        private Vector2 _gridSize;
-        private List<Node> _openList = new List<Node>();
-        private List<Node> _closedList = new List<Node>();
-        private List<Node> _finalRoute = new List<Node>(); 
+        private readonly List<Node> _openList = new List<Node>();
+        private readonly List<Node> _closedList = new List<Node>();
+        private readonly List<Node> _finalRoute = new List<Node>(); 
 
-        private Node startNode;
-        private Node endNode;
+        private Node _startNode;
+        private Node _endNode;
 
         public bool Calculating { get; private set; }
 
         public Astar(Map map, GraphicsController graphics)
         {
             _map = map;
-            _gridSize = _map.Size;
             _graphics = graphics;
             Calculating = false;
         }
@@ -84,8 +77,8 @@ namespace Sim
             };
             _particleList.Add(p);
 
-            startNode = new Node {id = _map.GetTileIdFromPosition(_start), parent = -1};
-            endNode = new Node {id = _map.GetTileIdFromPosition(_destination)};
+            _startNode = new Node {Id = _map.GetTileIdFromPosition(_start), Parent = -1};
+            _endNode = new Node {Id = _map.GetTileIdFromPosition(_destination)};
  
             // Begin at the starting point A and add it to an “open list” of 
             // squares to be considered. The open list is kind of like a 
@@ -93,7 +86,7 @@ namespace Sim
             // we will have more later. It contains squares that might fall 
             // along the path you want to take, but maybe not. Basically, this 
             // is a list of squares that need to be checked out.
-           _openList.Add(startNode);
+           _openList.Add(_startNode);
 
             // Look at all the reachable or walkable squares adjacent to the 
             // starting point, ignoring squares with walls, water, or other 
@@ -101,17 +94,17 @@ namespace Sim
             // these squares, save point A as its “parent square”. This parent 
             // square stuff is important when we want to trace our path. It 
             // will be explained more later.
-            foreach (var t in _map.ReachableTiles(startNode.id))
+            foreach (var t in _map.ReachableTiles(_startNode.Id))
             {
-                var g = startNode.startToHereCostG + 1;
-                var h = _map.ManhattanDistance(t, endNode.id);
+                var g = _startNode.StartToHereCostG + 1;
+                var h = _map.ManhattanDistance(t, _endNode.Id);
 
                 var node = new Node
                 {
-                    id = t,
-                    parent = startNode.id,
-                    startToHereCostG = g,
-                    hereToDestCostH = h
+                    Id = t,
+                    Parent = _startNode.Id,
+                    StartToHereCostG = g,
+                    HereToDestCostH = h
                 };
                 _openList.Add(node);
             }
@@ -119,8 +112,8 @@ namespace Sim
             // Drop the starting square A from your open list, and add it to a 
             // “closed list” of squares that you don’t need to look at again 
             // for now.
-            _openList.Remove(startNode);
-            _closedList.Add(startNode);
+            _openList.Remove(_startNode);
+            _closedList.Add(_startNode);
         }
 
         public void Update(double timeDelta)
@@ -138,14 +131,14 @@ namespace Sim
             // Drop it from the open list and add it to the closed list.
             _openList.Remove(checkNode);
             _closedList.Add(checkNode);
-            if (checkNode.id == endNode.id)
+            if (checkNode.Id == _endNode.Id)
             {
                 // Done!
                 var node = checkNode;
                 _finalRoute.Add(node);
                 while(true)
                 {
-                    node = _closedList.Where(n => n.id == node.parent).FirstOrDefault();
+                    node = _closedList.FirstOrDefault(n => n.Id == node.Parent);
                     if (node == null)
                     {
                         Calculating = false;
@@ -163,14 +156,14 @@ namespace Sim
             // other illegal terrain), add squares to the open list if they 
             // are not on the open list already. Make the selected square the 
             // “parent” of the new squares.
-            foreach (var t in _map.ReachableTiles(checkNode.id))
+            foreach (var t in _map.ReachableTiles(checkNode.Id))
             {
-                if (_closedList.Any(n => n.id == t))
+                if (_closedList.Any(n => n.Id == t))
                 {
                     continue;
                 }
 
-                var existingOpenTile = _openList.FirstOrDefault(n => n.id == t);
+                var existingOpenTile = _openList.FirstOrDefault(n => n.Id == t);
                 if (existingOpenTile != null)
                 {
                     // If an adjacent square is already on the open list, 
@@ -184,35 +177,27 @@ namespace Sim
                     // direction of the pointer to point at the selected 
                     // square). Finally, recalculate both the F and G scores
                     // of that square.
-                    var newG = checkNode.startToHereCostG + 1;
-                    if (newG < existingOpenTile.startToHereCostG)
+                    var newG = checkNode.StartToHereCostG + 1;
+                    if (newG < existingOpenTile.StartToHereCostG)
                     {
-                        existingOpenTile.parent = checkNode.id;
-                        existingOpenTile.startToHereCostG = newG;
+                        existingOpenTile.Parent = checkNode.Id;
+                        existingOpenTile.StartToHereCostG = newG;
                     }
                 }
                 else
                 {
                     var newNode = new Node
                     {
-                        id = t,
-                        parent = checkNode.id,
-                        startToHereCostG= checkNode.startToHereCostG+ 1,
-                        hereToDestCostH = _map.ManhattanDistance(t, endNode.id)
+                        Id = t,
+                        Parent = checkNode.Id,
+                        StartToHereCostG= checkNode.StartToHereCostG+ 1,
+                        HereToDestCostH = _map.ManhattanDistance(t, _endNode.Id)
 
                     };
 
                     _openList.Add(newNode);                    
                 }
-            }
-
-
-            // Update debug particles
-            //foreach (var p in _particleList)
-            //{
-            //    p.Update(timeDelta);
-            //}
-            //_particleList.RemoveAll(p => p.IsDead);           
+            }    
         }
 
         public void Render()
@@ -225,10 +210,10 @@ namespace Sim
             // Render the open list
             foreach (var t in _openList)
             {
-                var dim = _map.GetTileDimFromId(t.id);
+                var dim = _map.GetTileDimFromId(t.Id);
                 var centre = dim.Xy + ((dim.Zw - dim.Xy) / 2.0f);
 
-                var dimParent = _map.GetTileDimFromId((t.parent));
+                var dimParent = _map.GetTileDimFromId((t.Parent));
                 var centreParent = dimParent.Xy + ((dimParent.Zw - dimParent.Xy) / 2.0f);
 
                 var pointToParent = (centreParent - centre).Normalized() * 15f;
@@ -242,10 +227,10 @@ namespace Sim
 
             foreach (var t in _closedList)
             {
-                var dim = _map.GetTileDimFromId(t.id);
+                var dim = _map.GetTileDimFromId(t.Id);
                 var centre = dim.Xy + ((dim.Zw - dim.Xy) / 2.0f);
 
-                var dimParent = _map.GetTileDimFromId((t.parent));
+                var dimParent = _map.GetTileDimFromId((t.Parent));
                 var centreParent = dimParent.Xy + ((dimParent.Zw - dimParent.Xy) / 2.0f);
 
                 var pointToParent = (centreParent - centre).Normalized() * 15f;
@@ -259,10 +244,10 @@ namespace Sim
 
             foreach (var t in _finalRoute)
             {
-                var dim = _map.GetTileDimFromId(t.id);
+                var dim = _map.GetTileDimFromId(t.Id);
                 var centre = dim.Xy + ((dim.Zw - dim.Xy) / 2.0f);
 
-                var dimParent = _map.GetTileDimFromId((t.parent));
+                var dimParent = _map.GetTileDimFromId((t.Parent));
                 var centreParent = dimParent.Xy + ((dimParent.Zw - dimParent.Xy) / 2.0f);
 
                 var pointToParent = (centreParent - centre).Normalized() * 40f;
