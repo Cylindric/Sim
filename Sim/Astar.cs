@@ -88,6 +88,9 @@ namespace Sim
            _openList.Add(_startNode);
         }
 
+        /// <summary>
+        /// Calculate the route loaded into A*.
+        /// </summary>
         public void Calculate()
         {
             while (!Calculating)
@@ -96,6 +99,14 @@ namespace Sim
             }
         }
 
+        /// <summary>
+        /// Perform one step of the A* calculation.
+        /// </summary>
+        /// <remarks>
+        /// Only performs a single iteration of the A* algorithm, so is useful 
+        /// for limiting the run-time of the algorithm within a frame, or 
+        /// displaying/demoing progress.
+        /// </remarks>
         public void Step()
         {
             if (!Calculating)
@@ -129,10 +140,7 @@ namespace Sim
                         Calculating = false;
                         return;
                     }
-                    else
-                    {
-                        _finalRoute.Add(node);
-                    }
+                    _finalRoute.Add(node);
                 }
             }
 

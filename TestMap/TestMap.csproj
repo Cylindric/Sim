@@ -55,7 +55,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Sim.csproj">
+    <ProjectReference Include="..\Sim\Sim.csproj">
       <Project>{3c3bee92-b6ab-43b2-9c17-0ff2ebc4c062}</Project>
       <Name>Sim</Name>
     </ProjectReference>

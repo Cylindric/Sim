@@ -1,0 +1,6 @@
+Amit's excellent Game Programming information
+http://www-cs-students.stanford.edu/~amitp/gameprog.html#paths
+
+Patrick Lester's amazing walkthrough of A*
+http://www.policyalmanac.org/games/aStarTutorial.htm
+

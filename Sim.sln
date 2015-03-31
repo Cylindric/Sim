@@ -3,16 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sim", "Sim.csproj", "{3C3BEE92-B6AB-43B2-9C17-0FF2EBC4C062}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShaderTest", "..\ShaderTest\ShaderTest.csproj", "{BDA61548-36CD-46CB-93AC-B38CA5F45284}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FontTest", "..\FontTest\FontTest.csproj", "{E8CC35DD-101E-467D-B8FC-3325457D007D}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WalkTest", "..\WalkTest\WalkTest.csproj", "{E4BD376B-DD89-4DB5-B910-79D0067E10D0}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapTest", "MapTest\MapTest.csproj", "{A2DD2F86-11EC-4CA8-828D-1D9ED05EFB30}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{68A2D970-B303-4C59-AE58-9A3D888F1A69}"
 	ProjectSection(SolutionItems) = preProject
 		.nuget\NuGet.Config = .nuget\NuGet.Config
@@ -20,9 +10,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{68A2D9
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParticleTest", "ParticleTest\ParticleTest.csproj", "{AD6F0A62-AC75-4B5A-89D7-5BA7597ADC0F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sim", "Sim\Sim.csproj", "{3C3BEE92-B6AB-43B2-9C17-0FF2EBC4C062}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PathTest", "..\PathTest\PathTest.csproj", "{77376FBF-6937-4416-BFE6-FE5AC13FE528}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestShader", "TestShader\TestShader.csproj", "{BDA61548-36CD-46CB-93AC-B38CA5F45284}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestFont", "TestFont\TestFont.csproj", "{E8CC35DD-101E-467D-B8FC-3325457D007D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestWalk", "TestWalk\TestWalk.csproj", "{E4BD376B-DD89-4DB5-B910-79D0067E10D0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestMap", "TestMap\TestMap.csproj", "{A2DD2F86-11EC-4CA8-828D-1D9ED05EFB30}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestParticle", "TestParticle\TestParticle.csproj", "{AD6F0A62-AC75-4B5A-89D7-5BA7597ADC0F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestPath", "TestPath\TestPath.csproj", "{77376FBF-6937-4416-BFE6-FE5AC13FE528}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

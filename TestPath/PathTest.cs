@@ -97,7 +97,7 @@ namespace PathTest
                     // flip
                     frameNumber++;
                     timeInFrame = 0;
-                    _astar.Step(Timer.ElapsedSeconds);
+                    _astar.Step();
                 }
             }
             /**/
