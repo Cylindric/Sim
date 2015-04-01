@@ -21,9 +21,12 @@ namespace Sim.DataFormats
 
         }
 
-        public void LoadFromFile(string filename)
+        public void LoadFromFile(string filename, bool fullFilename = false)
         {
-            filename = ResourceController.GetDataFilename("map.{0}.txt", filename);
+            if (!fullFilename)
+            {
+                filename = ResourceController.GetDataFilename("map.{0}.txt", filename);
+            }
 
             using (var stream = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {

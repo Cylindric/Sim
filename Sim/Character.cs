@@ -221,7 +221,7 @@ namespace Sim
 
         public override void Render()
         {
-            _spritesheet.Render(_thisFrame, Position, Graphics);
+            Spritesheet.Render(_thisFrame, Position, Graphics);
             
             // render the hitbox
             if (DebugShowHitbox)

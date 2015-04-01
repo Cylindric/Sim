@@ -34,7 +34,7 @@
             {
                 return;
             }
-            _spritesheet.Render(10+_frameNumber, Position, Graphics);
+            Spritesheet.Render(10+_frameNumber, Position, Graphics);
         }
 
         private double _timeInFrame;

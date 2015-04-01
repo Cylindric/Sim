@@ -32,15 +32,18 @@ namespace Sim
             public float SpriteDy;
         }
 
+        public string Filename { get; set; }
         public int SpriteWidth { get; protected set; }
         public int SpriteHeight { get; protected set; }
         public Color TintColour { get; set; }
-
+        public int Count { get; private set; }
+ 
         private static readonly Dictionary<string, SpritesheetData> TextureIds = new Dictionary<string, SpritesheetData>();
         private static Shader _shader;
  
         public SpritesheetController(string filename, GraphicsController graphics)
         {
+            Filename = filename;
             _shader = new Shader(ResourceController.LoadShader("sprite.frag.glsl"), Shader.Type.Fragment);
             TintColour = Color.FromArgb(0, 0, 0, 0);
 
@@ -51,7 +54,7 @@ namespace Sim
 
                 var data =
                     ResourceController.Load<SpritesheetDatafile>(
-                        ResourceController.GetDataFilename("spritesheet.{0}.txt", filename));
+                        ResourceController.GetDataFilename("spritesheet.{0}.txt", Filename));
 
                 spritesheetData.SpriteWidth = data.SpriteWidth;
                 spritesheetData.SpriteHeight = data.SpriteHeight;
@@ -78,6 +81,7 @@ namespace Sim
             TextureHeight = cachedData.Height;
             TextureColumns = cachedData.Columns;
             TextureRows = cachedData.Rows;
+            Count = cachedData.Rows*cachedData.Columns;
 
             _spriteDx = cachedData.SpriteDx;
             _spriteDy = cachedData.SpriteDy;
@@ -124,5 +128,6 @@ namespace Sim
             Shader.Bind(null);
         }
 
-    }
+
+   }
 }

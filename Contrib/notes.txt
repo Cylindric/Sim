@@ -4,3 +4,6 @@ http://www-cs-students.stanford.edu/~amitp/gameprog.html#paths
 Patrick Lester's amazing walkthrough of A*
 http://www.policyalmanac.org/games/aStarTutorial.htm
 
+Mark James' FamFamFam Icons
+http://www.famfamfam.com/lab/icons/silk/
+License: http://creativecommons.org/licenses/by/2.5/

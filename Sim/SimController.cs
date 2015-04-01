@@ -51,7 +51,7 @@ namespace Sim
         {
             Console.WriteLine("OnResize");
             base.OnResize(e);
-            _graphics.ResetDisplay(Width, Height);
+            _graphics.ResetDisplay(0, 0, Width, Height);
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)

@@ -31,18 +31,20 @@ namespace Sim
             Renderer.Call(() => GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha));
 
             Renderer.Call(() => GL.MatrixMode(MatrixMode.Projection));
-            Renderer.Call(() => GL.Viewport(viewPort[0], viewPort[1], viewPort[2], viewPort[3]));
-            Renderer.Call(() => GL.Ortho(viewPort[0], viewPort[0] + viewPort[2], viewPort[1] + viewPort[3], viewPort[1], -1, 1));   
+
+            ResetDisplay(viewPort[0], viewPort[1], viewPort[2], viewPort[3]);
         }
 
-        public void ResetDisplay(int width, int height)
+        public void ResetDisplay(int x, int y, int width, int height)
         {
             _width = width;
             _height = height;
-            Renderer.Call(() => GL.Ortho(0, _width, _height, 0, -1, 1));
-            Renderer.Call(() => GL.Viewport(0, 0, _width, _height));
 
-            //_textRenderer = new TextRenderer(_width, _height);
+            Renderer.Call(() => GL.MatrixMode(MatrixMode.Projection));
+            Renderer.Call(GL.LoadIdentity);
+
+            Renderer.Call(() => GL.Ortho(x, _width, _height, y, -1, 1));
+            Renderer.Call(() => GL.Viewport(x, y, _width, _height));
         }
 
         public void BeginRender()
@@ -55,18 +57,6 @@ namespace Sim
 
         public void EndRender(GameWindow window)
         {
-            //PointF position = PointF.Empty;
-            //_textRenderer.Clear(Color.Transparent);
-            //_textRenderer.DrawString("The quick brown fox jumps over the lazy dog", _sans, Brushes.White, position);
-            //Renderer.Call(() => GL.BindTexture(TextureTarget.Texture2D, _textRenderer.Texture));
-            //Renderer.Call(() => GL.BlendFunc(BlendingFactorSrc.One, BlendingFactorDest.OneMinusSrcAlpha));
-            //GL.Begin(PrimitiveType.Quads);
-            //GL.TexCoord2(0.0f, 0.0f); GL.Vertex2(0, 0);
-            //GL.TexCoord2(1.0f, 0.0f); GL.Vertex2(_width, 0);
-            //GL.TexCoord2(1.0f, 1.0f); GL.Vertex2(_width, _height);
-            //GL.TexCoord2(0.0f, 1.0f); GL.Vertex2(0, _height);
-            //GL.End();
-
             window.SwapBuffers();
         }
 
@@ -196,5 +186,6 @@ namespace Sim
                 //_mono.Dispose();
             }
         }
+
     }
 }

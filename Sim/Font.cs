@@ -16,7 +16,7 @@ namespace Sim
         {
             LoadSpritesheet("font");
             Text = "";
-            _baseScale = 1.0f / _spritesheet.SpriteHeight;
+            _baseScale = 1.0f / Spritesheet.SpriteHeight;
             FontSize = 10f;
         }
 
@@ -30,9 +30,9 @@ namespace Sim
             foreach (var c in Text)
             {
                 var sprite = Convert.ToInt32(c) - 38;
-                _spritesheet.TintColour = Colour;
-                _spritesheet.Render(sprite, cursor, new Vector2(FontSize * _baseScale), Graphics);
-                cursor += new Vector2(_spritesheet.SpriteWidth, 0) * FontSize * _baseScale;
+                Spritesheet.TintColour = Colour;
+                Spritesheet.Render(sprite, cursor, new Vector2(FontSize * _baseScale), Graphics);
+                cursor += new Vector2(Spritesheet.SpriteWidth, 0) * FontSize * _baseScale;
             }
 
         }

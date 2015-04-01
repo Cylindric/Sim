@@ -14,6 +14,7 @@ namespace Sim
         }
 
         public Vector2 Size { get; set; }
+        public SpritesheetController Spritesheet { get; set; }
 
         public double TimeToLive
         {
@@ -51,7 +52,6 @@ namespace Sim
         protected GraphicsController Graphics;
         protected Vector2 _position;
         protected Vector4 _hitbox;
-        protected SpritesheetController _spritesheet;
         protected bool _expires = false;
         protected double _timeToLive = 0;
 
@@ -64,8 +64,8 @@ namespace Sim
         // PROTECTED METHODS
         protected void LoadSpritesheet(string spritesheetName)
         {
-            _spritesheet = new SpritesheetController(spritesheetName, Graphics);
-            Size = new Vector2(_spritesheet.SpriteWidth, _spritesheet.SpriteHeight);
+            Spritesheet = new SpritesheetController(spritesheetName, Graphics);
+            Size = new Vector2(Spritesheet.SpriteWidth, Spritesheet.SpriteHeight);
         }
 
     }
