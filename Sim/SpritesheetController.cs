@@ -127,7 +127,5 @@ namespace Sim
             graphics.BindTexture(0);
             Shader.Bind(null);
         }
-
-
-   }
+    }
 }

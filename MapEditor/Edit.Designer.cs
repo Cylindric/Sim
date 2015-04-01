@@ -30,10 +30,11 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Edit));
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
-            this.FileOpenButton = new System.Windows.Forms.ToolStripButton();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.ToolDisplay = new OpenTK.GLControl();
             this.MapDisplay = new OpenTK.GLControl();
+            this.FileOpenButton = new System.Windows.Forms.ToolStripButton();
+            this.SaveButton = new System.Windows.Forms.ToolStripButton();
             this.toolStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -45,22 +46,13 @@
             // 
             this.toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.FileOpenButton});
+            this.FileOpenButton,
+            this.SaveButton});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(1205, 25);
             this.toolStrip1.TabIndex = 1;
             this.toolStrip1.Text = "toolStrip1";
-            // 
-            // FileOpenButton
-            // 
-            this.FileOpenButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.FileOpenButton.Image = global::MapEditor.Properties.Resources.map_edit;
-            this.FileOpenButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.FileOpenButton.Name = "FileOpenButton";
-            this.FileOpenButton.Size = new System.Drawing.Size(23, 22);
-            this.FileOpenButton.Text = "toolStripButton1";
-            this.FileOpenButton.Click += new System.EventHandler(this.FileOpenButton_Click);
             // 
             // splitContainer1
             // 
@@ -91,6 +83,7 @@
             this.ToolDisplay.VSync = false;
             this.ToolDisplay.Load += new System.EventHandler(this.ToolDisplay_Load);
             this.ToolDisplay.Paint += new System.Windows.Forms.PaintEventHandler(this.ToolDisplay_Paint);
+            this.ToolDisplay.MouseClick += new System.Windows.Forms.MouseEventHandler(this.ToolDisplay_MouseClick);
             this.ToolDisplay.Resize += new System.EventHandler(this.ToolDisplay_Resize);
             // 
             // MapDisplay
@@ -105,7 +98,28 @@
             this.MapDisplay.Load += new System.EventHandler(this.mapDisplay_Load);
             this.MapDisplay.Paint += new System.Windows.Forms.PaintEventHandler(this.mapDisplay_Paint);
             this.MapDisplay.KeyDown += new System.Windows.Forms.KeyEventHandler(this.mapDisplay_KeyDown);
+            this.MapDisplay.MouseClick += new System.Windows.Forms.MouseEventHandler(this.MapDisplay_MouseClick);
             this.MapDisplay.Resize += new System.EventHandler(this.mapDisplay_Resize);
+            // 
+            // FileOpenButton
+            // 
+            this.FileOpenButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.FileOpenButton.Image = global::MapEditor.Properties.Resources.open;
+            this.FileOpenButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.FileOpenButton.Name = "FileOpenButton";
+            this.FileOpenButton.Size = new System.Drawing.Size(23, 22);
+            this.FileOpenButton.Text = "toolStripButton1";
+            this.FileOpenButton.Click += new System.EventHandler(this.FileOpenButton_Click);
+            // 
+            // SaveButton
+            // 
+            this.SaveButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.SaveButton.Image = global::MapEditor.Properties.Resources.save;
+            this.SaveButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.SaveButton.Name = "SaveButton";
+            this.SaveButton.Size = new System.Drawing.Size(23, 22);
+            this.SaveButton.Text = "toolStripButton1";
+            this.SaveButton.Click += new System.EventHandler(this.SaveButton_Click);
             // 
             // Edit
             // 
@@ -136,6 +150,7 @@
         private System.Windows.Forms.SplitContainer splitContainer1;
         private OpenTK.GLControl MapDisplay;
         private OpenTK.GLControl ToolDisplay;
+        private System.Windows.Forms.ToolStripButton SaveButton;
     }
 }
 

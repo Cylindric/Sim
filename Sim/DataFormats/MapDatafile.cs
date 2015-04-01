@@ -1,24 +1,58 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
 
 namespace Sim.DataFormats
 {
-    class MapDatafile
+    public class MapDatafile
     {
         public string Spritesheet;
         public int Width;
         public int Height;
-        //public List<int> TileIds = new List<int>();
         public List<Map.Tile> Tiles = new List<Map.Tile>();
-        Dictionary<char, int> Aliases = new Dictionary<char, int>();
+        readonly Dictionary<char, int> _aliases = new Dictionary<char, int>();
 
         public MapDatafile()
         {
+        }
 
+        public MapDatafile(Map map)
+        {
+            Spritesheet = map.Spritesheet.Filename;
+            Width = map.Columns;
+            Height = map.Rows;
+            foreach (var t in map.Tiles)
+            {
+                Tiles.Add(t);
+            }
+        }
+
+        public void Save(string filename)
+        {
+            if (File.Exists(filename))
+            {
+                File.Delete(filename);
+            }
+            using (var stream = new FileStream(filename, FileMode.CreateNew, FileAccess.Write, FileShare.Write))
+            {
+                using (var file = new StreamWriter(stream, Encoding.UTF8))
+                {
+                    file.WriteLine("Spritesheet={0}", Spritesheet);
+                    file.WriteLine("Height={0}", Height);
+                    file.WriteLine("Width={0}", Width);
+                    file.WriteLine("Tiles");
+                    for (var row = 0; row < Height; row++)
+                    {
+                        for (var col = 0; col < Width; col++)
+                        {
+                            file.Write("{0:D2} ", Tiles[row*Width + col].SpriteNum);
+                        }
+                        file.WriteLine();
+                    }
+                }
+            }
         }
 
         public void LoadFromFile(string filename, bool fullFilename = false)
@@ -54,7 +88,7 @@ namespace Sim.DataFormats
                         {
                             foreach(var c in line.Substring(line.IndexOf("=") + 1).ToArray())
                             {
-                                Aliases.Add(c, Aliases.Count());
+                                _aliases.Add(c, _aliases.Count());
                             }
                             continue;
                         }
@@ -74,7 +108,7 @@ namespace Sim.DataFormats
                                 // If we're using Aliases, we won't have spaces
                                 var id = 0;
 
-                                if (Aliases.Count == 0)
+                                if (_aliases.Count == 0)
                                 {
                                     foreach (var value in line.Trim().Split(' '))
                                     {
@@ -133,9 +167,9 @@ namespace Sim.DataFormats
 
         private bool IdFromChar(char c, out int id)
         {
-            if(Aliases.ContainsKey(c))
+            if(_aliases.ContainsKey(c))
             {
-                id = Aliases[c];
+                id = _aliases[c];
                 return true;
             } else
             {

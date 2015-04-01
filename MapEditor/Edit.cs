@@ -1,27 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using OpenTK;
-using OpenTK.Graphics.OpenGL;
+﻿using OpenTK;
+using OpenTK.Graphics;
 using Sim;
+using System;
+using System.Drawing;
+using System.Windows.Forms;
 
 namespace MapEditor
 {
     public partial class Edit : Form
     {
+        private const int TileIconSpacing = 2;
+        private const int TileIconColumns = 3;
+
         private bool _mapLoaded = false;
         private bool _toolsLoaded = false;
+        private string _filename;
         private Map _map;
         private readonly GraphicsController _mapGraphics = new GraphicsController();
         private readonly GraphicsController _toolGraphics = new GraphicsController();
         private SpritesheetController _toolSprites;
+
+        private int _selectedSprite = 1;
 
         public Edit()
         {
@@ -69,8 +68,18 @@ namespace MapEditor
             if (_map != null)
             {
                 _map.Render();
+                for (var row = 0; row < MapDisplay.Height; row += _map.Spritesheet.SpriteHeight)
+                {
+                    for (var col = 0; col < MapDisplay.Width; col += _map.Spritesheet.SpriteWidth)
+                    {
+                        var pos = new Vector2(col, row);
+                        _mapGraphics.SetColour(new Color4(1f, 1f, 1f, 0.5f));
+                        _mapGraphics.RenderRectangle(pos,
+                            Vector2.Add(pos, new Vector2(_map.Spritesheet.SpriteWidth, _map.Spritesheet.SpriteHeight)));
+                        _mapGraphics.ClearColour();
+                    }
+                }
             }
-
             MapDisplay.SwapBuffers();
         }
 
@@ -86,14 +95,22 @@ namespace MapEditor
             if (_toolSprites != null)
             {
                 var sprite = 0;
-                for (var row = 0; row < _toolSprites.Count / 3; row++)
+                for (var row = 0; row < _toolSprites.Count / TileIconColumns; row++)
                 {
-                    for (var col = 0; col < 3; col++)
+                    for (var col = 0; col < TileIconColumns; col++)
                     {
-                        _toolSprites.Render(sprite++,
-                            new Vector2((_toolSprites.SpriteWidth + 2)*col, (_toolSprites.SpriteHeight + 2)*row),
-                            _toolGraphics);
+                        var pos = new Vector2(TileIconSpacing + (_toolSprites.SpriteWidth + TileIconSpacing) * col, TileIconSpacing + (_toolSprites.SpriteHeight + TileIconSpacing) * row);
 
+                        _toolSprites.Render(sprite, pos, _toolGraphics);
+
+                        if (_selectedSprite == sprite)
+                        {
+                            _toolGraphics.SetColour(Color.DarkRed);
+                            _toolGraphics.RenderRectangle(pos, Vector2.Add(pos, new Vector2(_toolSprites.SpriteWidth, _toolSprites.SpriteHeight)));
+                            _toolGraphics.ClearColour();
+                        }
+
+                        sprite++;
                     }
                 }
             }
@@ -145,7 +162,8 @@ namespace MapEditor
             {
                 if (dlg.ShowDialog() == DialogResult.OK)
                 {
-                    _map = new Map(dlg.FileName, _mapGraphics, true);
+                    _filename = dlg.FileName;
+                    _map = new Map(_filename, _mapGraphics, true);
                     _toolSprites = new SpritesheetController(_map.Spritesheet.Filename, _toolGraphics);
 
                     MapDisplay.Invalidate();
@@ -154,5 +172,42 @@ namespace MapEditor
             }
         }
 
+        private void ToolDisplay_MouseClick(object sender, MouseEventArgs e)
+        {
+            _selectedSprite = ToolClickToTileId(new Vector2(e.X, e.Y));
+        }
+
+        private int ToolClickToTileId(Vector2 pos)
+        {
+            var column = (int)pos.X / (_toolSprites.SpriteWidth + TileIconSpacing);
+            var row = (int)pos.Y / (_toolSprites.SpriteHeight + TileIconSpacing);
+            var tile = (row * TileIconColumns) + column;
+            if (tile > _toolSprites.Count)
+            {
+                return -1;
+            }
+            return tile;
+        }
+
+        private void MapDisplay_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Y > _map.MapSize.Y)
+            {
+                var rowsToAdd = (int)(e.Y - _map.MapSize.Y) / _map.Spritesheet.SpriteHeight;
+                _map.AddRows(rowsToAdd + 1, _selectedSprite);
+            }
+            if (e.X > _map.MapSize.X)
+            {
+                var columnsToAdd = (int)(e.X - _map.MapSize.X) / _map.Spritesheet.SpriteWidth;
+                _map.AddColumns(columnsToAdd + 1, _selectedSprite);
+            }
+            _map.SetTileSprite(new Vector2(e.X, e.Y), _selectedSprite);
+        }
+
+        private void SaveButton_Click(object sender, EventArgs e)
+        {
+            var data = new Sim.DataFormats.MapDatafile(_map);
+            data.Save(_filename);
+        }
     }
 }

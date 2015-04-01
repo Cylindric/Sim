@@ -18,6 +18,28 @@ namespace Sim
             public int Column;
             public bool IsWalkable;
             public int SpriteNum;
+
+            public Tile()
+            {
+                
+            }
+
+            public Tile(int row, int col, int width, int height)
+            {
+                SizePx = new Vector2(width, height);
+                MoveTile(col, row);
+
+                SpriteNum = 0;
+                IsWalkable = SpriteNum == 3;
+            }
+
+            public void MoveTile(int newX, int newY)
+            {
+                Row = newY;
+                Column = newX;
+                LocationPx = new Vector2(Column * SizePx.X, Row * SizePx.Y);
+                CentrePx = new Vector2(LocationPx.X + SizePx.X / 2, LocationPx.Y + SizePx.Y / 2);
+            }
         }
 
         public bool DebugShowHitbox { get; set; }
@@ -28,10 +50,15 @@ namespace Sim
         public Vector2 MapSize { get; set; }
 
         private Tile[,] _tiles;
-        private int _columns;
-        private int _rows;
+        public int Columns { get; private set; }
+        public int Rows { get; private set; }
 
         private readonly List<GameObject> _particleList = new List<GameObject>();
+
+        internal Tile[,] Tiles
+        {
+            get { return _tiles; }
+        }
 
         public Map(string filename, GraphicsController graphics, bool fullFilename = false) :
             base(graphics)
@@ -67,11 +94,11 @@ namespace Sim
 
         public bool CheckCollision(Vector4 hitbox)
         {
-            if (hitbox.X < 0 || hitbox.X > _columns*Spritesheet.SpriteWidth)
+            if (hitbox.X < 0 || hitbox.X > Columns*Spritesheet.SpriteWidth)
             {
                 return true;
             }
-            if (hitbox.Y < 0 || hitbox.Y > _rows*Spritesheet.SpriteWidth)
+            if (hitbox.Y < 0 || hitbox.Y > Rows*Spritesheet.SpriteWidth)
             {
                 return true;
             }
@@ -122,9 +149,9 @@ namespace Sim
 
             // Check the four adjacent tiles
             if (start.Column > 0 && _tiles[start.Row, start.Column - 1].IsWalkable) tiles.Add(_tiles[start.Row, start.Column - 1]); // left
-            if (start.Column < _columns && _tiles[start.Row, start.Column + 1].IsWalkable) tiles.Add(_tiles[start.Row, start.Column + 1]); // right
+            if (start.Column < Columns && _tiles[start.Row, start.Column + 1].IsWalkable) tiles.Add(_tiles[start.Row, start.Column + 1]); // right
             if (start.Row > 0 && _tiles[start.Row - 1, start.Column].IsWalkable) tiles.Add(_tiles[start.Row - 1, start.Column]); // up
-            if (start.Row < _columns && _tiles[start.Row + 1, start.Column].IsWalkable) tiles.Add(_tiles[start.Row + 1, start.Column]); // down
+            if (start.Row < Columns && _tiles[start.Row + 1, start.Column].IsWalkable) tiles.Add(_tiles[start.Row + 1, start.Column]); // down
 
             return tiles;
         }
@@ -152,11 +179,16 @@ namespace Sim
 
         public Tile GetTileAtPosition(Vector2 p)
         {
-            var column = (int)(p.X/Size.X);
-            var row = (int)(p.Y/Size.Y);
-            var cell = (row*_columns) + column;
-            var tile = _tiles[row, column];
-            return _tiles[row, column];
+            try
+            {
+                var column = (int)(p.X/Size.X);
+                var row = (int)(p.Y/Size.Y);
+                return _tiles[row, column];
+            }
+            catch (IndexOutOfRangeException e)
+            {
+                throw new IndexOutOfRangeException(String.Format("Invalid position specified. No tile exists at {0},{1}.", p.X, p.Y), e);
+            }
         }
 
         private void LoadFromFile(string filename, bool fullFilename = false)
@@ -166,18 +198,17 @@ namespace Sim
             {
                 data.LoadFromFile(filename, fullFilename);
                 LoadSpritesheet(data.Spritesheet);
-                _columns = data.Width;
-                _rows = data.Height;
-                MapSize = new Vector2(_columns * Spritesheet.SpriteWidth, _rows * Spritesheet.SpriteHeight);
+                Columns = data.Width;
+                Rows = data.Height;
+                MapSize = new Vector2(Columns * Spritesheet.SpriteWidth, Rows * Spritesheet.SpriteHeight);
 
-                _tiles = new Tile[_rows, _columns];
+                _tiles = new Tile[Rows, Columns];
 
                 // Now that we've loaded the spritesheet, we can update the tiles with pixel data
                 foreach (var t in data.Tiles)
                 {
-                    t.LocationPx = new Vector2(t.Column * Spritesheet.SpriteWidth, t.Row * Spritesheet.SpriteHeight);
                     t.SizePx = new Vector2(Spritesheet.SpriteWidth);
-                    t.CentrePx = new Vector2(t.LocationPx.X + t.SizePx.X / 2, t.LocationPx.Y + t.SizePx.Y / 2);
+                    t.MoveTile(t.Column, t.Row);
                     t.IsWalkable = t.SpriteNum == 3;
                     _tiles[t.Row, t.Column] = t;
                 }
@@ -188,5 +219,145 @@ namespace Sim
             }
         }
 
+        #region Map Editing
+        
+        /// <summary>
+        /// Change the Sprite ID of the tile at this location.
+        /// </summary>
+        /// <param name="p">The position.</param>
+        /// <param name="sprite">The new sprite ID.</param>
+        public void SetTileSprite(Vector2 p, int sprite)
+        {
+            var tile = GetTileAtPosition(p);
+            tile.SpriteNum = sprite;
+        }
+
+        /// <summary>
+        /// Create new rows of tiles.
+        /// </summary>
+        /// <param name="rows">The number of rows to add. If negative, adds to the top.</param>
+        /// <param name="defaultSprite">The Sprite to use for the new tiles.</param>
+        public void AddRows(int rows, int defaultSprite = 0)
+        {
+            var rowsToAdd = Math.Abs(rows);
+            var newRowCount = Rows + rowsToAdd;
+
+            var newtiles = new Tile[newRowCount, Columns];
+
+            if (rows < 0)
+            {
+                // Add new rows first
+                for (var row = 0; row < rowsToAdd; row++)
+                {
+                    for (var col = 0; col < Columns; col++)
+                    {
+                        newtiles[row, col] = new Tile(row, col, Spritesheet.SpriteWidth, Spritesheet.SpriteHeight)
+                        {
+                            SpriteNum = defaultSprite
+                        };
+                    }
+                }
+                // Add all the existing rows
+                for (var row = 0; row < Rows; row++)
+                {
+                    for (var col = 0; col < Columns; col++)
+                    {
+                        newtiles[row + rowsToAdd, col] = _tiles[row, col];
+                        newtiles[row + rowsToAdd, col].MoveTile(col, row + rowsToAdd);
+                    }
+                }
+            }
+            else
+            {
+                // Add all the existing rows first
+                for (var row = 0; row < Rows; row++)
+                {
+                    for (var col = 0; col < Columns; col++)
+                    {
+                        newtiles[row, col] = _tiles[row, col];
+                    }
+                }
+                // Add new rows
+                for (var row = 0; row < rowsToAdd; row++)
+                {
+                    for (var col = 0; col < Columns; col++)
+                    {
+                        newtiles[Rows + row, col] = new Tile(Rows + row, col, Spritesheet.SpriteWidth, Spritesheet.SpriteHeight)
+                        {
+                            SpriteNum = defaultSprite
+                        };
+                    }
+                }
+            }
+
+            Rows += rowsToAdd;
+            MapSize = new Vector2(MapSize.X, Rows * Spritesheet.SpriteHeight);
+            _tiles = newtiles;
+        }
+
+        /// <summary>
+        /// Create new column of tiles.
+        /// </summary>
+        /// <param name="columns">The number of columns to add. If negative, adds to the left.</param>
+        /// <param name="defaultSprite">The Sprite to use for the new tiles.</param>
+        public void AddColumns(int columns, int defaultSprite = 0)
+        {
+            var columnsToAdd = Math.Abs(columns);
+            var newColumnCount = Columns + columnsToAdd;
+
+            var newtiles = new Tile[Rows, newColumnCount];
+
+            if (columns < 0)
+            {
+                // Add new columns first
+                for (var row = 0; row < Rows; row++)
+                {
+                    for (var col = 0; col < columnsToAdd; col++)
+                    {
+                        newtiles[row, col] = new Tile(row, col, Spritesheet.SpriteWidth, Spritesheet.SpriteHeight)
+                        {
+                            SpriteNum = defaultSprite
+                        };
+                    }
+                }
+                // Add all the existing columns
+                for (var row = 0; row < Rows; row++)
+                {
+                    for (var col = 0; col < Columns; col++)
+                    {
+                        newtiles[row, col + columnsToAdd] = _tiles[row, col];
+                        newtiles[row, col + columnsToAdd].MoveTile(col + columnsToAdd, row);
+                    }
+                }
+            }
+            else
+            {
+                // Add all the existing columns first
+                for (var row = 0; row < Rows; row++)
+                {
+                    for (var col = 0; col < Columns; col++)
+                    {
+                        newtiles[row, col] = _tiles[row, col];
+                    }
+                }
+                // Add new columns
+                for (var row = 0; row < Rows; row++)
+                {
+                    for (var col = 0; col < columnsToAdd; col++)
+                    {
+                        newtiles[row, Columns + col] = new Tile(row, Columns + col, Spritesheet.SpriteWidth, Spritesheet.SpriteHeight)
+                        {
+                            SpriteNum = defaultSprite
+                        };
+                    }
+                }
+            }
+
+            Columns += columnsToAdd;
+            MapSize = new Vector2(Columns * Spritesheet.SpriteWidth, MapSize.Y);
+            _tiles = newtiles;
+        }
+
+        #endregion
     }
 }
