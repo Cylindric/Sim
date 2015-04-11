@@ -60,10 +60,9 @@ namespace Sim
             get { return _tiles; }
         }
 
-        public Map(string filename, GraphicsController graphics, bool fullFilename = false) :
-            base(graphics)
+        public Map(string filename, GraphicsController graphics, bool fullFilename = false)
         {
-            LoadFromFile(filename, fullFilename);
+            LoadFromFile(filename, graphics, fullFilename);
         }
 
         public override void Update(double timeDelta)
@@ -75,23 +74,28 @@ namespace Sim
             _particleList.RemoveAll(p => p.IsDead);
         }
 
-        public override void Render()
+        public override void Render(GraphicsController graphics)
         {
             foreach (var t in _tiles)
             {
-                Spritesheet.Render(t.SpriteNum, t.LocationPx, Graphics);
+                Spritesheet.Render(t.SpriteNum, t.LocationPx, graphics);
 
                 // render the hitbox
                 if (DebugShowHitbox)
                 {
                     foreach (var p in _particleList)
                     {
-                        p.Render();
+                        p.Render(graphics);
                     }
                 }                
             }
         }
 
+        /// <summary>
+        /// Check if hitbox collides with unwalkable parts of the map.
+        /// </summary>
+        /// <param name="hitbox">The hitbox to check. (x,y,width,height)</param>
+        /// <returns>Returns true on collision; else false.</returns>
         public bool CheckCollision(Vector4 hitbox)
         {
             if (hitbox.X < 0 || hitbox.X > Columns*Spritesheet.SpriteWidth)
@@ -109,17 +113,8 @@ namespace Sim
                 var collision = false;
                 foreach (var tile in TilesInHitbox(hitbox))
                 {
-                    var p =
-                        new Rectangle(tile.LocationPx, tile.SizePx, Graphics)
-                        {
-                            Color = Color.ForestGreen,
-                            TimeToLive = 0.1
-                        };
-                    _particleList.Add(p);
-
-                    if (tile.IsWalkable)
+                    if (!tile.IsWalkable)
                     {
-                        p.Color = Color.Red;
                         collision = true;
                     }
                 }
@@ -156,6 +151,11 @@ namespace Sim
             return tiles;
         }
 
+        /// <summary>
+        /// Return all tiles that intersect with the hitbox.
+        /// </summary>
+        /// <param name="hitbox">The hitbox to check. (x,y,width,height)</param>
+        /// <returns>A List of the intersecting tiles.</returns>
         private IEnumerable<Tile> TilesInHitbox(Vector4 hitbox)
         {
             var left = (int) hitbox.X/Spritesheet.SpriteWidth;
@@ -191,13 +191,13 @@ namespace Sim
             }
         }
 
-        private void LoadFromFile(string filename, bool fullFilename = false)
+        private void LoadFromFile(string filename, GraphicsController graphics, bool fullFilename = false)
         {
             var data = new MapDatafile();
             try
             {
                 data.LoadFromFile(filename, fullFilename);
-                LoadSpritesheet(data.Spritesheet);
+                LoadSpritesheet(data.Spritesheet, graphics);
                 Columns = data.Width;
                 Rows = data.Height;
                 MapSize = new Vector2(Columns * Spritesheet.SpriteWidth, Rows * Spritesheet.SpriteHeight);

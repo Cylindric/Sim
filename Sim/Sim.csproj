@@ -66,7 +66,6 @@
     <Compile Include="AiController.cs" />
     <Compile Include="Astar.cs" />
     <Compile Include="Input.cs" />
-    <Compile Include="Particle.cs" />
     <Compile Include="DataFormats\CharacterDatafile.cs" />
     <Compile Include="DataFormats\MapDatafile.cs" />
     <Compile Include="Font.cs" />

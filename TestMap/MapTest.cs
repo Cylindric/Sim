@@ -102,7 +102,7 @@ namespace MapTest
             /*
             * Test
             */
-            _map.Render();
+            _map.Render(_graphics);
             /**/
             
             SwapBuffers();

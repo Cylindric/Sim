@@ -61,7 +61,7 @@ namespace PathTest
              * Test
              */
             _map = new Map("pathtest", _graphics);
-            _astar = new Astar(_map, _graphics);
+            _astar = new Astar(_map);
             /**/
 
         }
@@ -117,8 +117,8 @@ namespace PathTest
             /*
             * Test
             */
-            _map.Render();
-            _astar.Render();
+            _map.Render(_graphics);
+            //_astar.Render(_graphics);
             /**/
 
             SwapBuffers();

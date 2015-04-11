@@ -1,6 +1,13 @@
-﻿using OpenTK;
+﻿using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using OpenTK;
 using OpenTK.Input;
 using System;
+using Sim.Primitives;
+using Rectangle = Sim.Primitives.Rectangle;
+
 namespace Sim
 {
     public class AiController
@@ -12,6 +19,11 @@ namespace Sim
 
         private readonly Map _map;
         private readonly Character[] _characters;
+        private readonly List<GameObject> _particles = new List<GameObject>();
+        private Map.Tile _clickedTile;
+
+        private readonly Dictionary<Character, Astar> _pendingPathfinders = new Dictionary<Character, Astar>();
+        private readonly Dictionary<Character, Astar> _completePathfinders = new Dictionary<Character, Astar>();
 
         public AiController(Map map, Character[] characters)
         {
@@ -50,6 +62,14 @@ namespace Sim
             }
         }
 
+        public void OnMouseDown(MouseButtonEventArgs e)
+        {
+            if (e.Button == MouseButton.Left)
+            {
+                _clickedTile = _map.GetTileAtPosition(new Vector2(e.X, e.Y));
+            }
+        }
+
         private void HandleKeyboardState()
         {
             var state = Input.GetState;
@@ -76,26 +96,92 @@ namespace Sim
             }
             else
             {
-                _characters[0].State = Character.CharacterState.Standing;
+                //_characters[0].State = Character.CharacterState.Standing;
+            }
+        }
+
+        private void HandleMouseEvents()
+        {
+            if (_clickedTile != null)
+            {
+                if (_clickedTile.IsWalkable)
+                {
+                    GiveCharacterNewDestination(_characters[0], _clickedTile.LocationPx);
+                    _clickedTile = null;
+                }
             }
         }
 
         public void Update(double timeDelta)
         {
             HandleKeyboardState();
+            HandleMouseEvents();
+
+            // Handle one pending pathfinder
+            if (_pendingPathfinders.Count > 0)
+            {
+                var pathfinder = _pendingPathfinders.Take(1).FirstOrDefault();
+                pathfinder.Value.Calculate();
+                _completePathfinders.Add(pathfinder.Key, pathfinder.Value);
+                _pendingPathfinders.Remove(pathfinder.Key);
+            }
+
+            foreach (var p in _particles)
+            {
+                p.Update(timeDelta);
+            }
 
             foreach (var character in _characters)
             {
                 UpdateCharacter(character, timeDelta);
             }
+
+            _particles.RemoveAll(p => p.IsDead);
         }
+
 
         private void UpdateCharacter(Character character, double timeDelta)
         {
             if (character.State == Character.CharacterState.HeadingToDestination)
             {
-                // A character heading somewhere should be left to it.
-                return;
+                if (_completePathfinders.ContainsKey(character))
+                {
+                    var route = _completePathfinders[character].Route;
+                    if (route.Count == 0)
+                    {
+                        // unreachable destination!
+                        character.State = Character.CharacterState.Standing;
+                    }
+                    else
+                    {
+                        // For debugging, draw the route
+                        bool first = true;
+                        foreach (var t in route)
+                        {
+                            var p = new Rectangle(t.LocationPx, t.SizePx);
+                            p.Color = first ? Color.GreenYellow : Color.DarkRed;
+                            p.TimeToLive = 0.1;
+                            _particles.Add(p);
+                            first = false;
+                        }
+
+
+                        var nextTile = route[route.Count - 1];
+                        var distance = Vector2.Subtract(character.Position, nextTile.LocationPx).LengthFast;
+                        if (distance < 1f)
+                        {
+                            // We have reached the target tile
+                            route.RemoveAt(route.Count - 1);
+                        }
+                        character.Destination = nextTile.LocationPx;
+                        _particles.Add(new Crosshair(character.Destination, 10) {TimeToLive = 0.1, Color = Color.Blue});
+                    }
+                }
+                else
+                {
+                    // A character heading somewhere but without a route there, should be left to it.
+                    return;
+                }
             }
 
             if (character.State == Character.CharacterState.Standing)
@@ -109,12 +195,56 @@ namespace Sim
             }
         }
 
+
+        public void Render(GraphicsController graphics)
+        {
+            foreach (var p in _particles)
+            {
+                p.Render(graphics);
+            }
+        }
+
+
         private void GiveCharacterRandomDestination(Character character)
         {
-            // Pick a random place on the map
-            character.Destination = new Vector2(Random.Instance.Next(0, (int)_map.MapSize.X), Random.Instance.Next(0, (int)_map.MapSize.Y));
+            // Pick a random place on the map that is reachable
+            var destination = new Vector2(Random.Instance.Next(0, (int) _map.MapSize.X),
+                Random.Instance.Next(0, (int) _map.MapSize.Y));
+
+            while (!_map.GetTileAtPosition(destination).IsWalkable)
+            {
+                destination = new Vector2(Random.Instance.Next(0, (int)_map.MapSize.X),
+                    Random.Instance.Next(0, (int) _map.MapSize.Y));
+            }
+            GiveCharacterNewDestination(character, destination);
+        }
+
+
+        private void GiveCharacterNewDestination(Character character, Vector2 destination)
+        {
+            character.Destination = destination;
+
+            // Clear any already-completed routes
+            if (_completePathfinders.ContainsKey(character))
+            {
+                _completePathfinders.Remove(character);
+            }
+
+            // Create a new pathfinder for the character
+            var astar = new Astar(_map);
+            astar.Navigate(character.Position, character.Destination);
+            if (_pendingPathfinders.ContainsKey(character))
+            {
+                _pendingPathfinders.Add(character, astar);
+            }
+            else
+            {
+                _pendingPathfinders[character] = astar;
+            }
+
             character.State = Character.CharacterState.HeadingToDestination;
         }
+
 
     }
 }

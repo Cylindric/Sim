@@ -1,4 +1,5 @@
-﻿using OpenTK;
+﻿using System;
+using OpenTK;
 using Sim.Primitives;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -38,43 +39,38 @@ namespace Sim
         }
 
         private readonly Map _map;
-        private readonly GraphicsController _graphics;
-        private readonly List<GameObject> _particleList = new List<GameObject>();
         private Vector2 _start;
         private Vector2 _destination;
         private readonly List<Node> _openList = new List<Node>();
         private readonly List<Node> _closedList = new List<Node>();
-        private readonly List<Node> _finalRoute = new List<Node>(); 
+        private readonly List<Map.Tile> _finalRoute = new List<Map.Tile>(); 
 
         private Node _startNode;
         private Node _endNode;
 
         public bool Calculating { get; private set; }
 
-        public Astar(Map map, GraphicsController graphics)
+        public List<Map.Tile> Route
+        {
+            get { return _finalRoute; }
+        }
+
+        public Astar(Map map)
         {
             _map = map;
-            _graphics = graphics;
             Calculating = false;
         }
 
+        /// <summary>
+        /// Begin a new navigation
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="destination"></param>
         public void Navigate(Vector2 start, Vector2 destination)
         {
             _start = start;
             _destination = destination;
             Calculating = true;
-
-            var p = new Crosshair(_start, 20, _graphics)
-            {
-                Color = Color.Wheat,
-            };
-            _particleList.Add(p);
-
-            p = new Crosshair(_destination, 20, _graphics)
-            {
-                Color = Color.Red,
-            };
-            _particleList.Add(p);
 
             _startNode = new Node {Tile = _map.GetTileAtPosition(_start)};
             _endNode = new Node {Tile = _map.GetTileAtPosition(_destination)};
@@ -93,7 +89,14 @@ namespace Sim
         /// </summary>
         public void Calculate()
         {
-            while (!Calculating)
+            Console.WriteLine("Calculating route from ({0},{1}) to ({2},{3}).", _startNode.Tile.Row, _startNode.Tile.Column, _endNode.Tile.Row, _endNode.Tile.Column);
+            if (!_endNode.Tile.IsWalkable)
+            {
+                Console.WriteLine("Destination tile is not walkable!");
+                Calculating = false;
+                return;
+            }
+            while (Calculating)
             {
                 Step();
             }
@@ -131,16 +134,18 @@ namespace Sim
             {
                 // Done!
                 var node = checkNode;
-                _finalRoute.Add(node);
+                _finalRoute.Add(node.Tile);
                 while(true)
                 {
                     node = node.Parent;
                     if (node == null)
                     {
+                        _openList.Clear();
+                        _closedList.Clear();
                         Calculating = false;
                         return;
                     }
-                    _finalRoute.Add(node);
+                    _finalRoute.Add(node.Tile);
                 }
             }
 
@@ -190,68 +195,6 @@ namespace Sim
                     _openList.Add(newNode);                    
                 }
             }    
-        }
-
-        public void Render()
-        {
-            foreach (var p in _particleList)
-            {
-                p.Render();
-            }
-
-            if (Calculating)
-            {
-                // Render the open list
-                foreach (var t in _openList)
-                {
-                    var centre = t.Tile.CentrePx;
-                    _graphics.SetColour(Color.PaleGreen);
-                    _graphics.RenderRectangle(t.Tile.LocationPx, t.Tile.LocationPx + t.Tile.SizePx);
-
-                    if (t.Parent != null)
-                    {
-                        var centreParent = t.Parent.Tile.CentrePx;
-                        var pointToParent = (centreParent - centre).Normalized()*20f;
-
-                        _graphics.SetColour(Color.White);
-                        _graphics.RenderLine(centre, centre + pointToParent);
-                    }
-                    _graphics.ClearColour();
-                }
-
-                foreach (var t in _closedList)
-                {
-                    var centre = t.Tile.CentrePx;
-                    _graphics.SetColour(Color.CornflowerBlue);
-                    _graphics.RenderRectangle(t.Tile.LocationPx, t.Tile.LocationPx + t.Tile.SizePx);
-
-                    if (t.Parent != null)
-                    {
-                        var centreParent = t.Parent.Tile.CentrePx;
-                        var pointToParent = (centreParent - centre).Normalized()*20f;
-
-                        _graphics.SetColour(Color.White);
-                        _graphics.RenderLine(centre, centre + pointToParent);
-                    }
-                    _graphics.ClearColour();
-                }
-            }
-            foreach (var t in _finalRoute)
-            {
-                var centre = t.Tile.CentrePx;
-                _graphics.SetColour(Color.DarkRed);
-                _graphics.RenderRectangle(t.Tile.LocationPx, t.Tile.LocationPx + t.Tile.SizePx);
-
-                if (t.Parent != null)
-                {
-                    var centreParent = t.Parent.Tile.CentrePx;
-                    var pointToParent = (centreParent - centre).Normalized() * 20;
-
-                    _graphics.SetColour(Color.Red);
-                    _graphics.RenderLine(centre, centre + pointToParent);
-                }
-                _graphics.ClearColour();
-            }
         }
     }
 }

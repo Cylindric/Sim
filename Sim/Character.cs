@@ -1,4 +1,7 @@
-﻿using OpenTK;
+﻿using System;
+using System.Collections;
+using System.Security.Cryptography;
+using OpenTK;
 using Sim.DataFormats;
 using System.Drawing;
 using System.Linq;
@@ -59,7 +62,9 @@ namespace Sim
         private int _thisFrame;
         private int _nextFrame;
         private int _frameNum;
-        private readonly Font _font;
+
+        private readonly Font _idLabel;
+        private readonly Font _destinationLabel;
 
         private readonly int[] _walkDownFrames = { 0 };
         private readonly int[] _walkLeftFrames = { 0 };
@@ -79,8 +84,7 @@ namespace Sim
         public bool DebugShowVelocity { get; set; }
         public bool DebugShowPosition { get; set; }
 
-        public Character(string name, GraphicsController graphics) : 
-            base(graphics)
+        public Character(string name, GraphicsController graphics)
         {
             var data = ResourceController.Load<CharacterDatafile>(ResourceController.GetDataFilename("character.{0}.txt", name));
             
@@ -93,9 +97,10 @@ namespace Sim
             _idleRightFrames = data.IdleRightFrames;
             _idleUpFrames = data.IdleUpFrames;
             
-            LoadSpritesheet(data.SpritesheetName);
-            
-            _font = new Font(Graphics);
+            LoadSpritesheet(data.SpritesheetName, graphics);
+
+            _idLabel = new Font(graphics);
+            _destinationLabel = new Font(graphics);
             Position = new Vector2(0, 0);
             _thisFrame = _idleDownFrames[0];
             _nextFrame = _thisFrame;
@@ -104,7 +109,6 @@ namespace Sim
 
         public void Stop()
         {
-            //Console.WriteLine("Character.cs:Stop Character stopped!");
             Velocity = new Vector2(0);
             State = CharacterState.Standing;
         }
@@ -118,7 +122,36 @@ namespace Sim
             TimeInState = Timer.GetTime() - _lastStateChange;
             TimeInDirection = Timer.GetTime() - _lastDirectionChange;
 
-            if (_state == CharacterState.Walking)
+            // Set Direction based on where Destination is.
+            var deltaX = Math.Abs(Destination.X - Position.X);
+            var deltaY = Math.Abs(Destination.Y - Position.Y);
+
+            if (deltaX > deltaY)
+            {
+                if (Destination.X < Position.X)
+                {
+                    Direction = CharacterDirection.Left;
+                }
+                else if (Destination.X > Position.X)
+                {
+                    Direction = CharacterDirection.Right;
+                }
+
+            }
+            else
+            {
+                if (Destination.Y < Position.Y)
+                {
+                    Direction = CharacterDirection.Up;
+                }
+                else
+                {
+                    Direction = CharacterDirection.Down;
+                }
+            }
+
+            // If the character is moving, set the speed based on the direection
+            if (_state == CharacterState.Walking || _state == CharacterState.HeadingToDestination)
             {
                 switch (_direction)
                 {
@@ -143,7 +176,6 @@ namespace Sim
             {
                 if (Velocity.Length > 0)
                 {
-                    //Console.WriteLine("Character.cs:Step {0:###.0},{1:###.0} Character stopped.", Position.X, Position.Y);
                     Velocity = new Vector2(0);
                 }
             }
@@ -151,43 +183,41 @@ namespace Sim
             if (_frameTime > 1.0f/4)
             {
                 _frameNum++;
-                switch (State)
+                if (State == CharacterState.Standing)
                 {
-                    case CharacterState.Standing:
-                        switch (Direction)
-                        {
-                            case CharacterDirection.Down:
-                                _nextFrame = _idleDownFrames[_frameNum % _idleDownFrames.Count()];
-                                break;
-                            case CharacterDirection.Left:
-                                _nextFrame = _idleLeftFrames[_frameNum % _idleLeftFrames.Count()];
-                                break;
-                            case CharacterDirection.Right:
-                                _nextFrame = _idleRightFrames[_frameNum % _idleRightFrames.Count()];
-                                break;
-                            case CharacterDirection.Up:
-                                _nextFrame = _idleUpFrames[_frameNum % _idleUpFrames.Count()];
-                                break;
-                        }
-                        break;
-
-                    case CharacterState.Walking:
-                        switch (Direction)
-                        {
-                            case CharacterDirection.Down:
-                                _nextFrame = _walkDownFrames[_frameNum % _walkDownFrames.Count()];
-                                break;
-                            case CharacterDirection.Left:
-                                _nextFrame = _walkLeftFrames[_frameNum % _walkLeftFrames.Count()];
-                                break;
-                            case CharacterDirection.Right:
-                                _nextFrame = _walkRightFrames[_frameNum % _walkRightFrames.Count()];
-                                break;
-                            case CharacterDirection.Up:
-                                _nextFrame = _walkUpFrames[_frameNum % _walkUpFrames.Count()];
-                                break;
-                        }
-                        break;
+                    switch (Direction)
+                    {
+                        case CharacterDirection.Down:
+                            _nextFrame = _idleDownFrames[_frameNum%_idleDownFrames.Count()];
+                            break;
+                        case CharacterDirection.Left:
+                            _nextFrame = _idleLeftFrames[_frameNum%_idleLeftFrames.Count()];
+                            break;
+                        case CharacterDirection.Right:
+                            _nextFrame = _idleRightFrames[_frameNum%_idleRightFrames.Count()];
+                            break;
+                        case CharacterDirection.Up:
+                            _nextFrame = _idleUpFrames[_frameNum%_idleUpFrames.Count()];
+                            break;
+                    }
+                }
+                else if (State == CharacterState.Walking || State == CharacterState.HeadingToDestination)
+                {
+                    switch (Direction)
+                    {
+                        case CharacterDirection.Down:
+                            _nextFrame = _walkDownFrames[_frameNum%_walkDownFrames.Count()];
+                            break;
+                        case CharacterDirection.Left:
+                            _nextFrame = _walkLeftFrames[_frameNum%_walkLeftFrames.Count()];
+                            break;
+                        case CharacterDirection.Right:
+                            _nextFrame = _walkRightFrames[_frameNum%_walkRightFrames.Count()];
+                            break;
+                        case CharacterDirection.Up:
+                            _nextFrame = _walkUpFrames[_frameNum%_walkUpFrames.Count()];
+                            break;
+                    }
                 }
 
                 _thisFrame = _nextFrame;
@@ -213,46 +243,51 @@ namespace Sim
             // render the hitbox
             if (DebugShowHitbox)
             {
-                _font.Position = Position - new Vector2(0, 12);
-                _font.FontSize = 16;
-                _font.Text = Name;
+                _idLabel.Position = Position - new Vector2(0, 12);
+                _idLabel.FontSize = 16;
+                _idLabel.Text = string.Format("{0:00},{1:00}", Position.X, Position.Y);
+
+                _destinationLabel.Position = Position + new Vector2(0, Size.Y);
+                _destinationLabel.FontSize = 16;
+                _destinationLabel.Text = string.Format("{0},{1}", Destination.X, Destination.Y);
             }
         }
 
-        public override void Render()
+        public override void Render(GraphicsController graphics)
         {
-            Spritesheet.Render(_thisFrame, Position, Graphics);
+            Spritesheet.Render(_thisFrame, Position, graphics);
             
             // render the hitbox
             if (DebugShowHitbox)
             {
-                Graphics.SetColour(Color.Red);
-                Graphics.RenderRectangle(new Vector4(Hitbox.X, Hitbox.Y, Hitbox.X + Hitbox.Z, Hitbox.Y + Hitbox.W));
-                Graphics.ClearColour();
-                _font.Render();
+                graphics.SetColour(Color.Red);
+                graphics.RenderRectangle(new Vector4(Hitbox.X, Hitbox.Y, Hitbox.X + Hitbox.Z, Hitbox.Y + Hitbox.W));
+                graphics.ClearColour();
+                _idLabel.Render(graphics);
+                _destinationLabel.Render(graphics);
             }
 
             // render the direction
             if (DebugShowVelocity)
             {
-                Graphics.SetColour(Color.Blue);
+                graphics.SetColour(Color.Blue);
                 var centre = new Vector2(Hitbox.X + Hitbox.Z / 2, Hitbox.Y + Hitbox.W / 2);
-                Graphics.RenderLine(centre, new Vector2(centre.X + Velocity.X, centre.Y + Velocity.Y));
+                graphics.RenderLine(centre, new Vector2(centre.X + Velocity.X, centre.Y + Velocity.Y));
                 if ((Destination - centre).LengthFast > 1 && State == CharacterState.HeadingToDestination)
                 {
-                    Graphics.RenderLine(centre, Destination);
+                    graphics.RenderLine(centre, Destination);
                 }
             }
 
             // render the position
             if (DebugShowPosition)
             {
-                Graphics.SetColour(Color.Green);
-                Graphics.RenderLine(Position + new Vector2(-5, 0), Position + new Vector2(5, 0));
-                Graphics.RenderLine(Position + new Vector2(0, -5), Position + new Vector2(0, 5));
+                graphics.SetColour(Color.Green);
+                graphics.RenderLine(Position + new Vector2(-5, 0), Position + new Vector2(5, 0));
+                graphics.RenderLine(Position + new Vector2(0, -5), Position + new Vector2(0, 5));
             }
 
-            Graphics.ClearColour();
+            graphics.ClearColour();
 
         }
 

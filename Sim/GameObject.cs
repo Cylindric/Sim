@@ -1,4 +1,5 @@
-﻿using OpenTK;
+﻿using System.Drawing;
+using OpenTK;
 namespace Sim
 {
     public abstract class GameObject
@@ -45,26 +46,24 @@ namespace Sim
             }
         }
 
-        public abstract void Render();
+        public abstract void Render(GraphicsController graphics);
 
         
         // PROTECTED PROPERTIES AND VARIABLES
-        protected GraphicsController Graphics;
         protected Vector2 _position;
         protected Vector4 _hitbox;
         protected bool _expires = false;
         protected double _timeToLive = 0;
 
         // PROTECTED CONSTRUCTORS
-        protected GameObject(GraphicsController graphics)
+        protected GameObject()
         {
-            Graphics = graphics;
         }
 
         // PROTECTED METHODS
-        protected void LoadSpritesheet(string spritesheetName)
+        protected void LoadSpritesheet(string spritesheetName, GraphicsController graphics)
         {
-            Spritesheet = new SpritesheetController(spritesheetName, Graphics);
+            Spritesheet = new SpritesheetController(spritesheetName, graphics);
             Size = new Vector2(Spritesheet.SpriteWidth, Spritesheet.SpriteHeight);
         }
 

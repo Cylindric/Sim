@@ -67,7 +67,7 @@ namespace MapEditor
 
             if (_map != null)
             {
-                _map.Render();
+                _map.Render(_mapGraphics);
                 for (var row = 0; row < MapDisplay.Height; row += _map.Spritesheet.SpriteHeight)
                 {
                     for (var col = 0; col < MapDisplay.Width; col += _map.Spritesheet.SpriteWidth)

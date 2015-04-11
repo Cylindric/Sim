@@ -106,7 +106,7 @@ namespace FontTest
             /*
             * Test
             */
-            _font.Render();
+            _font.Render(_graphics);
             /**/
 
 

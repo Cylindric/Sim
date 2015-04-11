@@ -12,9 +12,9 @@ namespace Sim
         public float FontSize { get; set; }
         public Color Colour { get; set; }
 
-        public Font(GraphicsController graphics) : base(graphics)
+        public Font(GraphicsController graphics)
         {
-            LoadSpritesheet("font");
+            LoadSpritesheet("font", graphics);
             Text = "";
             _baseScale = 1.0f / Spritesheet.SpriteHeight;
             FontSize = 10f;
@@ -24,14 +24,14 @@ namespace Sim
         {
         }
 
-        public override void Render()
+        public override void Render(GraphicsController graphics)
         {
             var cursor = Position;
             foreach (var c in Text)
             {
                 var sprite = Convert.ToInt32(c) - 38;
                 Spritesheet.TintColour = Colour;
-                Spritesheet.Render(sprite, cursor, new Vector2(FontSize * _baseScale), Graphics);
+                Spritesheet.Render(sprite, cursor, new Vector2(FontSize * _baseScale), graphics);
                 cursor += new Vector2(Spritesheet.SpriteWidth, 0) * FontSize * _baseScale;
             }
 
