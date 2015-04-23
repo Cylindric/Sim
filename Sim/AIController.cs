@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
 using System.Linq;
 using OpenTK;
 using OpenTK.Input;
@@ -20,7 +19,7 @@ namespace Sim
         private readonly Map _map;
         private readonly Character[] _characters;
         private readonly List<GameObject> _particles = new List<GameObject>();
-        private Map.Tile _clickedTile;
+        private Tile _clickedTile;
 
         private readonly Dictionary<Character, Astar> _pendingPathfinders = new Dictionary<Character, Astar>();
         private readonly Dictionary<Character, Astar> _completePathfinders = new Dictionary<Character, Astar>();
@@ -187,11 +186,11 @@ namespace Sim
             if (character.State == Character.CharacterState.Standing)
             {
                 // A character standing around has a chance of deciding to do something else.
-                if (character.TimeInState > MinTimeInState && Random.Instance.NextDouble() <= StateChangeChance)
-                {
-                    // Randomly flip to a different state
-                    GiveCharacterRandomDestination(character);
-                }
+                //if (character.TimeInState > MinTimeInState && Random.Instance.NextDouble() <= StateChangeChance)
+                //{
+                //    // Randomly flip to a different state
+                //    GiveCharacterRandomDestination(character);
+                //}
             }
         }
 
@@ -233,14 +232,7 @@ namespace Sim
             // Create a new pathfinder for the character
             var astar = new Astar(_map);
             astar.Navigate(character.Position, character.Destination);
-            if (_pendingPathfinders.ContainsKey(character))
-            {
-                _pendingPathfinders.Add(character, astar);
-            }
-            else
-            {
-                _pendingPathfinders[character] = astar;
-            }
+            _pendingPathfinders[character] = astar;
 
             character.State = Character.CharacterState.HeadingToDestination;
         }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Sim.Primitives;
 
 namespace Sim.DataFormats
 {
@@ -11,7 +12,7 @@ namespace Sim.DataFormats
         public string Spritesheet;
         public int Width;
         public int Height;
-        public List<Map.Tile> Tiles = new List<Map.Tile>();
+        public List<Tile> Tiles = new List<Tile>();
         readonly Dictionary<char, int> _aliases = new Dictionary<char, int>();
 
         public MapDatafile()
@@ -120,7 +121,7 @@ namespace Sim.DataFormats
                                         }
                                         else
                                         {
-                                            var t = new Map.Tile
+                                            var t = new Tile
                                             {
                                                 SpriteNum = id,
                                                 Column = Tiles.Count%Width,
@@ -142,7 +143,7 @@ namespace Sim.DataFormats
                                         }
                                         else
                                         {
-                                            var t = new Map.Tile
+                                            var t = new Tile
                                             {
                                                 SpriteNum = id,
                                                 Column = Tiles.Count%Width,
@@ -171,10 +172,9 @@ namespace Sim.DataFormats
             {
                 id = _aliases[c];
                 return true;
-            } else
-            {
-                return(int.TryParse(c.ToString(), out id));
             }
+
+            return (int.TryParse(c.ToString(), out id));
         }
 
         private bool DataIsValid()

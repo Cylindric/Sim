@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Security.Cryptography;
 using OpenTK;
 using Sim.DataFormats;
 using System.Drawing;
@@ -228,16 +226,16 @@ namespace Sim
             {
                 var newPos = Position + (Velocity * (float)timeDelta);
                 var newHitbox = new Vector4(Hitbox) {X = newPos.X, Y = newPos.Y};
-                if (map.CheckCollision(newHitbox))
-                {
-                    //Console.WriteLine("C:U Move cancelled, character collided with the map.");
-                    Stop();
-                }
-                else
-                {
+                //if (map.CheckCollision(newHitbox))
+                //{
+                //    //Console.WriteLine("C:U Move cancelled, character collided with the map.");
+                //    Stop();
+                //}
+                //else
+                //{
                     //Console.WriteLine("C:U {0:###.0},{1:###.0} > {2:###.0},{3:###.0} Character moving.", Position.X, Position.Y, newPos.X, newPos.Y);
                     Position = newPos;
-                }
+                //}
             }
 
             // render the hitbox

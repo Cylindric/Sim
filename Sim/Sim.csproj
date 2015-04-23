@@ -74,6 +74,7 @@
     <Compile Include="Map.cs" />
     <Compile Include="Character.cs" />
     <Compile Include="Primitives\Crosshair.cs" />
+    <Compile Include="Primitives\Tile.cs" />
     <Compile Include="Random.cs" />
     <Compile Include="Primitives\Rectangle.cs" />
     <Compile Include="ResourceController.cs" />

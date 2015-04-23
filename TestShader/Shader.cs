@@ -1,6 +1,4 @@
-﻿using OpenTK;
-using OpenTK.Graphics.OpenGL;
-using Sim;
+﻿using Sim;
 using System;
 using System.Collections.Generic;
 using System.Drawing;

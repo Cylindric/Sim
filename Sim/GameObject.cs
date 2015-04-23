@@ -1,5 +1,4 @@
-﻿using System.Drawing;
-using OpenTK;
+﻿using OpenTK;
 namespace Sim
 {
     public abstract class GameObject

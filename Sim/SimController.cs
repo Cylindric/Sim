@@ -16,7 +16,16 @@ namespace Sim
         private Character[] _characters;
         private AiController _ai;
 
-        private readonly List<string> _availableCharList = new List<string>()
+        private Font _mousePositionLabel;
+        private bool _showMousePosition;
+
+        private Font _helpText;
+        private bool _showHelpText;
+
+        private const double UpdateStepTime = 1.0d / 60;
+        private double _simulationAccumulator;
+
+        private readonly List<string> _availableCharList = new List<string>
         {
             "beardman",
             "oldman",
@@ -26,9 +35,9 @@ namespace Sim
         };
 
         public SimController()
-            : base(800, 600, GraphicsMode.Default, "Sim", GameWindowFlags.Default)
+            : base(880, 480, GraphicsMode.Default, "Sim", GameWindowFlags.Default)
         {
-            this.VSync = VSyncMode.Adaptive;
+            VSync = VSyncMode.Adaptive;
         }
 
         protected override void OnLoad(EventArgs e)
@@ -41,7 +50,7 @@ namespace Sim
             _characters = new Character[1];
             for (var i = 0; i < _characters.Length; i++)
             {
-                _characters[i] = new Character(Random.Instance.Next<string>(_availableCharList), _graphics);
+                _characters[i] = new Character(Random.Instance.Next(_availableCharList), _graphics);
                 while (_map.CheckCollision(_characters[i].Hitbox))
                 {
                     _characters[i].Position = new Vector2(Random.Instance.Next(20, Width - 20), Random.Instance.Next(20, Height - 20));
@@ -52,29 +61,53 @@ namespace Sim
             }
 
             _ai = new AiController(_map, _characters);
+
+            _mousePositionLabel = new Font(_graphics)
+            {
+                FontSize = 16, 
+                Text = string.Format("{0:00},{1:00}", 0, 0)
+            };
+
+            _helpText = new Font(_graphics)
+            {
+                FontSize = 20,
+                Text = "h Show character hitboxes\n" +
+                       "m Show mouse coordinates\n" +
+                       "v Show character velocities\n" +
+                       "? Show help",
+                Position = new Vector2(10, 10)
+            };
         }
 
         protected override void OnResize(EventArgs e)
         {
-            Console.WriteLine("OnResize");
             base.OnResize(e);
             _graphics.ResetDisplay(0, 0, Width, Height);
+            _mousePositionLabel.Position = new Vector2(10, Height - 20);
         }
-
+ 
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
             base.OnUpdateFrame(e);
 
             Timer.Update();
+            _simulationAccumulator += Timer.ElapsedSeconds;
 
-            _map.Update(Timer.ElapsedSeconds);
-            
-            _ai.Update(Timer.ElapsedSeconds);
-            
-            foreach (var c in _characters)
+            while (_simulationAccumulator >= UpdateStepTime)
             {
-                c.Update(Timer.ElapsedSeconds, _map);
+                _map.Update(UpdateStepTime);
+                _ai.Update(UpdateStepTime);
+
+                foreach (var c in _characters)
+                {
+                    c.Update(UpdateStepTime, _map);
+                }
+
+                _mousePositionLabel.Update(UpdateStepTime);
+
+                _simulationAccumulator -= UpdateStepTime;
             }
+
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)
@@ -84,11 +117,18 @@ namespace Sim
             _graphics.BeginRender();
             _map.Render(_graphics);
             _ai.Render(_graphics);
-             foreach (var c in _characters.OrderBy(c => c.Position.Y))
+            
+            foreach (var c in _characters.OrderBy(c => c.Position.Y))
             {
                 c.Render(_graphics);
             }
 
+            if (_showMousePosition) 
+                _mousePositionLabel.Render(_graphics);
+
+            if (_showHelpText)
+                _helpText.Render(_graphics);
+            
             _graphics.EndRender(this);
         }
 
@@ -106,6 +146,15 @@ namespace Sim
         {
             base.OnKeyPress(e);
 
+            if (e.KeyChar == '?')
+            {
+                _showHelpText = !_showHelpText;
+            }
+            else if (e.KeyChar == 'm')
+            {
+                _showMousePosition = !_showMousePosition;
+            }
+
             _ai.OnKeyPress(e);
         }
 
@@ -113,6 +162,20 @@ namespace Sim
         {
             base.OnMouseDown(e);
             _ai.OnMouseDown(e);
+
+            var tile = _map.GetTileAtPosition(new Vector2(e.X, e.Y));
+            Console.WriteLine("Clicked at {0},{1} ({2},{3})", e.X, e.Y, tile.Row, tile.Column);
+        }
+
+        protected override void OnMouseMove(MouseMoveEventArgs e)
+        {
+            base.OnMouseMove(e);
+
+            var x = Math.Min(Math.Max(0, e.X), _map.MapSize.X);
+            var y = Math.Min(Math.Max(0, e.Y), _map.MapSize.Y);
+
+            var tile = _map.GetTileAtPosition(new Vector2(x, y));
+            _mousePositionLabel.Text = string.Format("{0:00},{1:00} ({2},{3})", e.X, e.Y, tile.Column, tile.Row);
         }
 
         protected override void Dispose(bool disposing)

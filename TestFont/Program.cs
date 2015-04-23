@@ -13,7 +13,8 @@ namespace FontTest
         /*
         * Test
         */
-        private Sim.Font _font;
+        private Font _font;
+        private Font _multiline;
         /**/
 
         private GraphicsController _graphics;
@@ -52,12 +53,17 @@ namespace FontTest
             Renderer.Call(() => GL.Viewport(viewPort[0], viewPort[1], viewPort[2], viewPort[3]));
             Renderer.Call(() => GL.Ortho(viewPort[0], viewPort[0] + viewPort[2], viewPort[1] + viewPort[3], viewPort[1], -1, 1));
 
-            _graphics = new Sim.GraphicsController();
+            _graphics = new GraphicsController();
             /*
              * Test
              */
-            _font = new Sim.Font(_graphics);
-            _font.Position = new Vector2(Width/2, Height/2);
+            _font = new Font(_graphics);
+            _font.Position = new Vector2(Width / 2, Height / 2);
+
+            _multiline = new Font(_graphics);
+            _multiline.Position = new Vector2(10, 10);
+            _multiline.Text = "Line 1\nLine j 2\nLine 3\nLine 4\nLine 5\nLine 6";
+            _multiline.FontSize = 18;
             /**/
 
         }
@@ -107,6 +113,7 @@ namespace FontTest
             * Test
             */
             _font.Render(_graphics);
+            _multiline.Render(_graphics);
             /**/
 
 

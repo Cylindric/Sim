@@ -7,3 +7,7 @@ http://www.policyalmanac.org/games/aStarTutorial.htm
 Mark James' FamFamFam Icons
 http://www.famfamfam.com/lab/icons/silk/
 License: http://creativecommons.org/licenses/by/2.5/
+
+Gaffer on Games' article "Fix Your Timestep!"
+http://gafferongames.com/game-physics/fix-your-timestep/
+

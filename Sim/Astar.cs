@@ -2,8 +2,6 @@
 using OpenTK;
 using Sim.Primitives;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
 using System.Linq;
 
 namespace Sim
@@ -13,7 +11,7 @@ namespace Sim
     {
         private class Node
         {
-            public Map.Tile Tile;
+            public Tile Tile;
             public Node Parent;
 
             /// <summary>
@@ -43,14 +41,14 @@ namespace Sim
         private Vector2 _destination;
         private readonly List<Node> _openList = new List<Node>();
         private readonly List<Node> _closedList = new List<Node>();
-        private readonly List<Map.Tile> _finalRoute = new List<Map.Tile>(); 
+        private readonly List<Tile> _finalRoute = new List<Tile>(); 
 
         private Node _startNode;
         private Node _endNode;
 
         public bool Calculating { get; private set; }
 
-        public List<Map.Tile> Route
+        public List<Tile> Route
         {
             get { return _finalRoute; }
         }
