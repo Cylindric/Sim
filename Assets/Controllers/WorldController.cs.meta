@@ -1,10 +1,12 @@
 fileFormatVersion: 2
 guid: 976b657c0e8c3e24f9ce78246468f752
-timeCreated: 1466455796
+timeCreated: 1466545461
 licenseType: Free
 MonoImporter:
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - floorSprite: {fileID: 21300004, guid: f29dd86d4797df34c971bf1a59f9dd3b, type: 3}
+  - emptySprite: {fileID: 21300002, guid: f29dd86d4797df34c971bf1a59f9dd3b, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

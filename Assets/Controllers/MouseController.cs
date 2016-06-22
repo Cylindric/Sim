@@ -1,5 +1,7 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Runtime.Remoting.Messaging;
+using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class MouseController : MonoBehaviour
 {
@@ -10,6 +12,7 @@ public class MouseController : MonoBehaviour
     private Vector3 _currentFramePosition;
     private Vector3 _dragStartPosition;
     private List<GameObject> _dragPreviewGameObjects;
+    private Tile.TileType _buildModeTileType;
 
     // Use this for initialization
     private void Start()
@@ -44,6 +47,12 @@ public class MouseController : MonoBehaviour
 
     private void UpdateDragging()
     {
+        // If over UI, do nothing
+        if (EventSystem.current.IsPointerOverGameObject())
+        {
+            return;
+        }
+
         // Start Drag
         if (Input.GetMouseButtonDown(0))
         {
@@ -106,11 +115,21 @@ public class MouseController : MonoBehaviour
                     var t = WorldController.Instance.World.GetTileAt(x, y);
                     if (t != null)
                     {
-                        t.Type = Tile.TileType.Floor;
+                        t.Type = _buildModeTileType;
                     }
                 }
             }
         }
+    }
+
+    public void SetMode_BuildFloor()
+    {
+        _buildModeTileType = Tile.TileType.Floor;
+    }
+
+    public void SetMode_Clear()
+    {
+        _buildModeTileType = Tile.TileType.Empty;
     }
 
 }
