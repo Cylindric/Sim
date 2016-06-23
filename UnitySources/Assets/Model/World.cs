@@ -35,7 +35,7 @@ public class World
     private void CreateInstalledObjectPrototypes()
     {
         _installedObjectPrototypes = new Dictionary<string, InstalledObject>();
-        _installedObjectPrototypes.Add("Wall", InstalledObject.CreatePrototype("Wall", 0f, 1, 1));
+        _installedObjectPrototypes.Add("Wall", InstalledObject.CreatePrototype("Wall", 0f, 1, 1, true));
     }
     
     public void RandomiseTiles()

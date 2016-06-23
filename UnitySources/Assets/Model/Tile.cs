@@ -6,7 +6,7 @@ public class Tile {
     private World world;
     private TileType type = TileType.Empty;
     private LooseObject _looseObject;
-    private InstalledObject _installedObject;
+    public InstalledObject InstalledObject { get; protected set; }
 
     private Action<Tile> tileTypeChangedCallback;
 
@@ -53,17 +53,17 @@ public class Tile {
         // If a null objectInstance is provided, clear the current object.
         if (objectInstance == null)
         {
-            _installedObject = null;
+            InstalledObject = null;
             return true;
         }
 
-        if (_installedObject != null)
+        if (InstalledObject != null)
         {
             Debug.LogError("Trying to assign an InstalledObject to a Tile that already has one.");
             return false;
         }
 
-        _installedObject = objectInstance;
+        InstalledObject = objectInstance;
         return true;
     }
 }

@@ -17,6 +17,8 @@ public class InstalledObject
     /// </summary>
     public string ObjectType { get; protected set; }
 
+    public bool LinksToNeighbour { get; protected set; }
+
     /// <summary>
     /// Cost of moving through this object.
     /// </summary>
@@ -37,7 +39,10 @@ public class InstalledObject
     /// <summary>
     /// Create a new InstalledObject. This can only be done using the Factory methods.
     /// </summary>
-    private InstalledObject() { }
+    private InstalledObject()
+    {
+        LinksToNeighbour = false;
+    }
 
     private Action<InstalledObject> cbOnChanged;
 
@@ -49,14 +54,15 @@ public class InstalledObject
     /// <param name="width"></param>
     /// <param name="height"></param>
     /// <returns></returns>
-    public static InstalledObject CreatePrototype(string objectType, float movementCost = 1f, int width = 1, int height = 1)
+    public static InstalledObject CreatePrototype(string objectType, float movementCost = 1f, int width = 1, int height = 1, bool linksToNeighbour = false)
     {
         var obj = new InstalledObject
         {
             ObjectType = objectType,
             _movementCost = movementCost,
             _width = width,
-            _height = height
+            _height = height,
+            LinksToNeighbour = linksToNeighbour
         };
         return obj;
     }
@@ -75,6 +81,7 @@ public class InstalledObject
             _movementCost = proto._movementCost,
             _width = proto._width,
             _height = proto._height,
+            LinksToNeighbour = proto.LinksToNeighbour,
             Tile = tile
         };
 

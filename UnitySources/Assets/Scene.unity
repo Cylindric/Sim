@@ -1031,9 +1031,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 976b657c0e8c3e24f9ce78246468f752, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  floorSprite: {fileID: 21300002, guid: f29dd86d4797df34c971bf1a59f9dd3b, type: 3}
-  emptySprite: {fileID: 0}
-  wallSprite: {fileID: 21300052, guid: a2d370189c04b9b488dae91385eda05e, type: 3}
+  FloorSprite: {fileID: 21300002, guid: f29dd86d4797df34c971bf1a59f9dd3b, type: 3}
 --- !u!4 &1792151394
 Transform:
   m_ObjectHideFlags: 0

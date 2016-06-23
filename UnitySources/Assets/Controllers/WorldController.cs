@@ -29,7 +29,7 @@ public class WorldController : MonoBehaviour
         World.RegisterInstalledObjectCreatedCb(OnInstalledObjectCreated);
 
         // Cache some sprite stuff
-        Sprite[] sprites = Resources.LoadAll<Sprite>("Tiles/orange_walls");
+        Sprite[] sprites = Resources.LoadAll<Sprite>("Tiles/mapPack_spritesheet");
         foreach (Sprite sprite in sprites)
         {
             _wallSprites.Add(sprite.name, sprite);
@@ -124,9 +124,51 @@ public class WorldController : MonoBehaviour
         objGo.name = obj.ObjectType + "_" + obj.Tile.X + "_" + obj.Tile.Y;
         objGo.transform.position = new Vector3(obj.Tile.X, obj.Tile.Y, 0);
         objGo.transform.SetParent(this.transform, true);
-        objGo.AddComponent<SpriteRenderer>().sprite = _wallSprites["wall_"];
+        
+        objGo.AddComponent<SpriteRenderer>().sprite = GetSpriteForInstalledObject(obj);
 
         obj.RegisterOnChangedCallback(OnInstalledObjectChanged);
+    }
+
+    private Sprite GetSpriteForInstalledObject(InstalledObject obj)
+    {
+        string spriteName = obj.ObjectType.ToLower();
+
+        if (obj.LinksToNeighbour == true)
+        {
+            spriteName = spriteName + "_";
+
+            // check for neighbours NESW
+            var x = obj.Tile.X;
+            var y = obj.Tile.Y;
+            var t = World.GetTileAt(x, y + 1);
+            if (t != null && t.InstalledObject != null && t.InstalledObject.ObjectType == obj.ObjectType)
+            {
+                spriteName += "N";
+            }
+            t = World.GetTileAt(x + 1, y);
+            if (t != null && t.InstalledObject != null && t.InstalledObject.ObjectType == obj.ObjectType)
+            {
+                spriteName += "E";
+            }
+            t = World.GetTileAt(x, y - 1);
+            if (t != null && t.InstalledObject != null && t.InstalledObject.ObjectType == obj.ObjectType)
+            {
+                spriteName += "S";
+            }
+            t = World.GetTileAt(x - 1, y);
+            if (t != null && t.InstalledObject != null && t.InstalledObject.ObjectType == obj.ObjectType)
+            {
+                spriteName += "W";
+            }
+        }
+
+        if (_wallSprites.ContainsKey(spriteName) == false)
+        {
+            Debug.LogErrorFormat("Attempt to load missing sprite [{0}] failed!", spriteName);
+        }
+
+        return _wallSprites[spriteName];
     }
 
     private void OnInstalledObjectChanged(InstalledObject obj)
