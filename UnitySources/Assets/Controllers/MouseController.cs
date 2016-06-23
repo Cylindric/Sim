@@ -5,14 +5,16 @@ using UnityEngine.EventSystems;
 
 public class MouseController : MonoBehaviour
 {
-
     public GameObject CircleCursorPrefab;
+
+    private bool _buildModeIsObjects = false;
 
     private Vector3 _lastFramePosition;
     private Vector3 _currentFramePosition;
     private Vector3 _dragStartPosition;
     private List<GameObject> _dragPreviewGameObjects;
     private TileType _buildModeTileType;
+    private string _buildModeObjectType;
 
     // Use this for initialization
     private void Start()
@@ -96,7 +98,8 @@ public class MouseController : MonoBehaviour
                     var t = WorldController.Instance.World.GetTileAt(x, y);
                     if (t != null)
                     {
-                        var go = SimplePool.Spawn(CircleCursorPrefab, new Vector3(x + 0.5f, y + 0.5f, 0), Quaternion.identity);
+                        var go = SimplePool.Spawn(CircleCursorPrefab, new Vector3(x + 0.5f, y + 0.5f, 0),
+                            Quaternion.identity);
                         go.transform.SetParent(this.transform, true);
                         _dragPreviewGameObjects.Add(go);
                     }
@@ -115,7 +118,16 @@ public class MouseController : MonoBehaviour
                     var t = WorldController.Instance.World.GetTileAt(x, y);
                     if (t != null)
                     {
-                        t.Type = _buildModeTileType;
+                        if (_buildModeIsObjects == true)
+                        {
+                            // Create the InstalledObject and install it.
+                            WorldController.Instance.World.PlaceInstalledObject(_buildModeObjectType, t);
+                        }
+                        else
+                        {
+                            // We are in tile-changing mode.
+                            t.Type = _buildModeTileType;
+                        }
                     }
                 }
             }
@@ -124,12 +136,19 @@ public class MouseController : MonoBehaviour
 
     public void SetMode_BuildFloor()
     {
+        _buildModeIsObjects = false;
         _buildModeTileType = TileType.Floor;
     }
 
     public void SetMode_Clear()
     {
+        _buildModeIsObjects = false;
         _buildModeTileType = TileType.Empty;
     }
 
+    public void SetMode_BuildInstalledObject(string type)
+    {
+        _buildModeObjectType = type;
+        _buildModeIsObjects = true;
+    }
 }

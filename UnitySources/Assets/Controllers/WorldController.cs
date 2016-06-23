@@ -6,12 +6,13 @@ public class WorldController : MonoBehaviour
 {
     public static WorldController Instance { get; protected set; }
 
-    public Sprite floorSprite;
-    public Sprite emptySprite;
+    public Sprite FloorSprite;
 
     public World World { get; protected set; }
 
-    private readonly Dictionary<Tile, GameObject> _tileGameObjectMap = new Dictionary<Tile, GameObject>(); 
+    private readonly Dictionary<Tile, GameObject> _tileGameObjectMap = new Dictionary<Tile, GameObject>();
+    private readonly Dictionary<InstalledObject, GameObject> _installedObjectGameObjectMap = new Dictionary<InstalledObject, GameObject>();
+    private readonly Dictionary<string, Sprite> _wallSprites = new Dictionary<string, Sprite>();
 
     // Use this for initialization
     private void Start()
@@ -25,17 +26,26 @@ public class WorldController : MonoBehaviour
         // Create an empty World
         this.World = new World(100, 100);
 
-        // Create a game object for every tile
-        for (int x = 0; x < World.Width; x++)
+        World.RegisterInstalledObjectCreatedCb(OnInstalledObjectCreated);
+
+        // Cache some sprite stuff
+        Sprite[] sprites = Resources.LoadAll<Sprite>("Tiles/orange_walls");
+        foreach (Sprite sprite in sprites)
         {
-            for (int y = 0; y < World.Height; y++)
+            _wallSprites.Add(sprite.name, sprite);
+        }
+
+        // Create a game object for every tile
+        for (var x = 0; x < World.Width; x++)
+        {
+            for (var y = 0; y < World.Height; y++)
             {
-                Tile tileData = this.World.GetTileAt(x, y);
-                GameObject tileGo = new GameObject();
+                var tileData = this.World.GetTileAt(x, y);
+                var tileGo = new GameObject();
                 _tileGameObjectMap.Add(tileData, tileGo);
 
                 tileGo.name = "Tile_" + x + "_" + y;
-                tileGo.transform.localScale = new Vector3(2, 2);
+                tileGo.transform.localScale = new Vector3(1.01f, 1.01f); // little bit of extra size to help prevent gaps between tiles. TODO: must be a cleverer way of doing this ;)
                 tileGo.transform.position = new Vector3(tileData.X, tileData.Y, 0);
                 tileGo.transform.SetParent(this.transform, true);
 
@@ -60,8 +70,8 @@ public class WorldController : MonoBehaviour
     {
         while (_tileGameObjectMap.Count > 0)
         {
-            Tile tileData = _tileGameObjectMap.Keys.First();
-            GameObject tileGo = _tileGameObjectMap[tileData];
+            var tileData = _tileGameObjectMap.Keys.First();
+            var tileGo = _tileGameObjectMap[tileData];
             _tileGameObjectMap.Remove(tileData);
             tileData.UnRegisterTileTypeChangedCallback(OnTileTypeChanged);
             Destroy(tileGo);
@@ -76,21 +86,21 @@ public class WorldController : MonoBehaviour
             return;
         }
 
-        GameObject tileGo = _tileGameObjectMap[tileData];
+        var tileGo = _tileGameObjectMap[tileData];
 
         if (tileGo == null)
         {
-            Debug.LogError("TileGameObjectMap returnd a null GameObject.");
+            Debug.LogError("TileGameObjectMap returned a null GameObject.");
             return;
         }
 
         if (tileData.Type == TileType.Floor)
         {
-            tileGo.GetComponent<SpriteRenderer>().sprite = floorSprite;
+            tileGo.GetComponent<SpriteRenderer>().sprite = FloorSprite;
         }
         else if (tileData.Type == TileType.Empty)
         {
-            tileGo.GetComponent<SpriteRenderer>().sprite = emptySprite;
+            tileGo.GetComponent<SpriteRenderer>().sprite = null;
         }
         else
         {
@@ -100,10 +110,27 @@ public class WorldController : MonoBehaviour
 
     public Tile GetTileAtWorldCoordinates(Vector3 coord)
     {
-        int x = Mathf.FloorToInt(coord.x);
-        int y = Mathf.FloorToInt(coord.y);
+        var x = Mathf.FloorToInt(coord.x);
+        var y = Mathf.FloorToInt(coord.y);
 
         return World.GetTileAt(x, y);
     }
 
+    public void OnInstalledObjectCreated(InstalledObject obj)
+    {
+        GameObject objGo = new GameObject();
+        _installedObjectGameObjectMap.Add(obj, objGo);
+
+        objGo.name = obj.ObjectType + "_" + obj.Tile.X + "_" + obj.Tile.Y;
+        objGo.transform.position = new Vector3(obj.Tile.X, obj.Tile.Y, 0);
+        objGo.transform.SetParent(this.transform, true);
+        objGo.AddComponent<SpriteRenderer>().sprite = _wallSprites["wall_"];
+
+        obj.RegisterOnChangedCallback(OnInstalledObjectChanged);
+    }
+
+    private void OnInstalledObjectChanged(InstalledObject obj)
+    {
+        Debug.LogError("NOT IMPLEMENTED");
+    }
 }

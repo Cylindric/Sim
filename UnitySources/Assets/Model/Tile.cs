@@ -1,13 +1,12 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System;
 
 public class Tile {
 
     private World world;
     private TileType type = TileType.Empty;
-    private LooseObject looseObject;
-    private InstalledObject installedObject;
+    private LooseObject _looseObject;
+    private InstalledObject _installedObject;
 
     private Action<Tile> tileTypeChangedCallback;
 
@@ -47,5 +46,24 @@ public class Tile {
     public void RegisterTileTypeChangedCallback(Action<Tile> callback)
     {
         tileTypeChangedCallback += callback;
+    }
+
+    public bool PlaceObject(InstalledObject objectInstance)
+    {
+        // If a null objectInstance is provided, clear the current object.
+        if (objectInstance == null)
+        {
+            _installedObject = null;
+            return true;
+        }
+
+        if (_installedObject != null)
+        {
+            Debug.LogError("Trying to assign an InstalledObject to a Tile that already has one.");
+            return false;
+        }
+
+        _installedObject = objectInstance;
+        return true;
     }
 }
