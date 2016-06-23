@@ -1,21 +1,22 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class WorldController : MonoBehaviour
 {
     public static WorldController Instance { get; protected set; }
 
     public Sprite FloorSprite;
+    public Sprite EmptySprite;
 
     public World World { get; protected set; }
 
     private readonly Dictionary<Tile, GameObject> _tileGameObjectMap = new Dictionary<Tile, GameObject>();
-    private readonly Dictionary<InstalledObject, GameObject> _installedObjectGameObjectMap = new Dictionary<InstalledObject, GameObject>();
+    private readonly Dictionary<Furniture, GameObject> _furnitureGameObjectMap = new Dictionary<Furniture, GameObject>();
     private readonly Dictionary<string, Sprite> _wallSprites = new Dictionary<string, Sprite>();
 
-    // Use this for initialization
-    private void Start()
+    private void OnEnable()
     {
         if (Instance != null)
         {
@@ -23,19 +24,22 @@ public class WorldController : MonoBehaviour
         }
         Instance = this;
 
-        // Create an empty World
+        // Create an empty World.
         this.World = new World(100, 100);
 
-        World.RegisterInstalledObjectCreatedCb(OnInstalledObjectCreated);
+        // Centre the view on the middle of the world.
+        Camera.main.transform.position = new Vector3(World.Width/2f, World.Height/2f, Camera.main.transform.position.z);
 
-        // Cache some sprite stuff
-        Sprite[] sprites = Resources.LoadAll<Sprite>("Tiles/mapPack_spritesheet");
+        World.RegisterFurnitureCreatedCb(OnFurnitureCreated);
+        
+        // Cache some sprite stuff.
+        Sprite[] sprites = Resources.LoadAll<Sprite>("Furniture/Stone Walls");
         foreach (Sprite sprite in sprites)
         {
             _wallSprites.Add(sprite.name, sprite);
         }
 
-        // Create a game object for every tile
+        // Create a game object for every tile.
         for (var x = 0; x < World.Width; x++)
         {
             for (var y = 0; y < World.Height; y++)
@@ -45,19 +49,20 @@ public class WorldController : MonoBehaviour
                 _tileGameObjectMap.Add(tileData, tileGo);
 
                 tileGo.name = "Tile_" + x + "_" + y;
-                tileGo.transform.localScale = new Vector3(1.01f, 1.01f); // little bit of extra size to help prevent gaps between tiles. TODO: must be a cleverer way of doing this ;)
+                //tileGo.transform.localScale = new Vector3(1.01f, 1.01f); // little bit of extra size to help prevent gaps between tiles. TODO: must be a cleverer way of doing this ;)
                 tileGo.transform.position = new Vector3(tileData.X, tileData.Y, 0);
                 tileGo.transform.SetParent(this.transform, true);
 
-                tileGo.AddComponent<SpriteRenderer>();
-                tileData.RegisterTileTypeChangedCallback(OnTileTypeChanged);
+                tileGo.AddComponent<SpriteRenderer>().sprite=  EmptySprite;
+                //tileData.RegisterTileTypeChangedCallback(OnTileChanged);
             }
         }
 
-        World.RandomiseTiles();
+        World.RegisterTileChanged(OnTileChanged);
+
+        //World.RandomiseTiles();
     }
 
-    // Update is called once per frame
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
@@ -73,12 +78,12 @@ public class WorldController : MonoBehaviour
             var tileData = _tileGameObjectMap.Keys.First();
             var tileGo = _tileGameObjectMap[tileData];
             _tileGameObjectMap.Remove(tileData);
-            tileData.UnRegisterTileTypeChangedCallback(OnTileTypeChanged);
+            tileData.UnRegisterTileTypeChangedCallback(OnTileChanged);
             Destroy(tileGo);
         }
     }
 
-    private void OnTileTypeChanged(Tile tileData)
+    private void OnTileChanged(Tile tileData)
     {
         if (_tileGameObjectMap.ContainsKey(tileData) == false)
         {
@@ -100,11 +105,11 @@ public class WorldController : MonoBehaviour
         }
         else if (tileData.Type == TileType.Empty)
         {
-            tileGo.GetComponent<SpriteRenderer>().sprite = null;
+            tileGo.GetComponent<SpriteRenderer>().sprite = EmptySprite;
         }
         else
         {
-            Debug.LogError("OnTileTypeChanged - Unrecognised tile type");
+            Debug.LogError("OnTileChanged - Unrecognised tile type");
         }
     }
 
@@ -116,23 +121,23 @@ public class WorldController : MonoBehaviour
         return World.GetTileAt(x, y);
     }
 
-    public void OnInstalledObjectCreated(InstalledObject obj)
+    public void OnFurnitureCreated(Furniture furn)
     {
-        GameObject objGo = new GameObject();
-        _installedObjectGameObjectMap.Add(obj, objGo);
+        var furnGo = new GameObject();
+        _furnitureGameObjectMap.Add(furn, furnGo);
 
-        objGo.name = obj.ObjectType + "_" + obj.Tile.X + "_" + obj.Tile.Y;
-        objGo.transform.position = new Vector3(obj.Tile.X, obj.Tile.Y, 0);
-        objGo.transform.SetParent(this.transform, true);
+        furnGo.name = furn.ObjectType + "_" + furn.Tile.X + "_" + furn.Tile.Y;
+        furnGo.transform.position = new Vector3(furn.Tile.X, furn.Tile.Y, 0);
+        furnGo.transform.SetParent(this.transform, true);
         
-        objGo.AddComponent<SpriteRenderer>().sprite = GetSpriteForInstalledObject(obj);
+        furnGo.AddComponent<SpriteRenderer>().sprite = GetSpriteForFurniture(furn);
 
-        obj.RegisterOnChangedCallback(OnInstalledObjectChanged);
+        furn.RegisterOnChangedCallback(OnFurnitureChanged);
     }
 
-    private Sprite GetSpriteForInstalledObject(InstalledObject obj)
+    private Sprite GetSpriteForFurniture(Furniture obj)
     {
-        string spriteName = obj.ObjectType.ToLower();
+        var spriteName = obj.ObjectType;
 
         if (obj.LinksToNeighbour == true)
         {
@@ -141,23 +146,26 @@ public class WorldController : MonoBehaviour
             // check for neighbours NESW
             var x = obj.Tile.X;
             var y = obj.Tile.Y;
-            var t = World.GetTileAt(x, y + 1);
-            if (t != null && t.InstalledObject != null && t.InstalledObject.ObjectType == obj.ObjectType)
+
+            Tile t;
+
+            t = World.GetTileAt(x, y + 1);
+            if (t != null && t.Furniture != null && t.Furniture.ObjectType == obj.ObjectType)
             {
                 spriteName += "N";
             }
             t = World.GetTileAt(x + 1, y);
-            if (t != null && t.InstalledObject != null && t.InstalledObject.ObjectType == obj.ObjectType)
+            if (t != null && t.Furniture != null && t.Furniture.ObjectType == obj.ObjectType)
             {
                 spriteName += "E";
             }
             t = World.GetTileAt(x, y - 1);
-            if (t != null && t.InstalledObject != null && t.InstalledObject.ObjectType == obj.ObjectType)
+            if (t != null && t.Furniture != null && t.Furniture.ObjectType == obj.ObjectType)
             {
                 spriteName += "S";
             }
             t = World.GetTileAt(x - 1, y);
-            if (t != null && t.InstalledObject != null && t.InstalledObject.ObjectType == obj.ObjectType)
+            if (t != null && t.Furniture != null && t.Furniture.ObjectType == obj.ObjectType)
             {
                 spriteName += "W";
             }
@@ -166,13 +174,21 @@ public class WorldController : MonoBehaviour
         if (_wallSprites.ContainsKey(spriteName) == false)
         {
             Debug.LogErrorFormat("Attempt to load missing sprite [{0}] failed!", spriteName);
+            return null;
         }
 
         return _wallSprites[spriteName];
     }
 
-    private void OnInstalledObjectChanged(InstalledObject obj)
+    private void OnFurnitureChanged(Furniture furn)
     {
-        Debug.LogError("NOT IMPLEMENTED");
+        if (_furnitureGameObjectMap.ContainsKey(furn) == false)
+        {
+            Debug.LogError("OnFurnitureChanged failed - Furniture requested that is not in the map!");
+            return;
+        }
+
+        var furnGo = _furnitureGameObjectMap[furn];
+        furnGo.GetComponent<SpriteRenderer>().sprite = GetSpriteForFurniture(furn);
     }
 }

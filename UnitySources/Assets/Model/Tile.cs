@@ -3,12 +3,15 @@ using System;
 
 public class Tile {
 
-    private World world;
-    private TileType type = TileType.Empty;
-    private LooseObject _looseObject;
-    public InstalledObject InstalledObject { get; protected set; }
+    public World World { get; private set; }
 
-    private Action<Tile> tileTypeChangedCallback;
+    private TileType type = TileType.Empty;
+
+    //private Inventory _inventory;
+
+    public Furniture Furniture { get; private set; }
+
+    private Action<Tile> cbTileChanged;
 
     public int X { get; private set; }
     public int Y { get; private set; }
@@ -22,48 +25,50 @@ public class Tile {
 
         set
         {
+            var oldType = type;
             type = value;
 
-            if (tileTypeChangedCallback != null)
+            if (cbTileChanged != null && oldType != type)
             {
-                tileTypeChangedCallback(this);
+                cbTileChanged(this);
             }
         }
     }
 
     public Tile(World world, int x, int y)
     {
-        this.world = world;
+        this.World = world;
         this.X = x;
         this.Y = y;
     }
 
     public void UnRegisterTileTypeChangedCallback(Action<Tile> callback)
     {
-        tileTypeChangedCallback -= callback;
+        cbTileChanged -= callback;
     }
 
     public void RegisterTileTypeChangedCallback(Action<Tile> callback)
     {
-        tileTypeChangedCallback += callback;
+        cbTileChanged += callback;
     }
 
-    public bool PlaceObject(InstalledObject objectInstance)
+    public bool PlaceFurniture(Furniture objectInstance)
     {
         // If a null objectInstance is provided, clear the current object.
         if (objectInstance == null)
         {
-            InstalledObject = null;
+            Furniture = null;
             return true;
         }
 
-        if (InstalledObject != null)
+        if (Furniture != null)
         {
-            Debug.LogError("Trying to assign an InstalledObject to a Tile that already has one.");
+            Debug.LogError("Trying to assign a Furniture to a Tile that already has one.");
             return false;
         }
 
-        InstalledObject = objectInstance;
+        Furniture = objectInstance;
         return true;
     }
+
 }

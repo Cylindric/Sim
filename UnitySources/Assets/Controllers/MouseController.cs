@@ -120,7 +120,7 @@ public class MouseController : MonoBehaviour
                     {
                         if (_buildModeIsObjects == true)
                         {
-                            // Create the InstalledObject and install it.
+                            // Create the Furniture and install it.
                             WorldController.Instance.World.PlaceInstalledObject(_buildModeObjectType, t);
                         }
                         else

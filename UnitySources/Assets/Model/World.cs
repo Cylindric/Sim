@@ -6,12 +6,13 @@ using Random = UnityEngine.Random;
 public class World
 {
     private readonly Tile[,] _tiles;
-    private Dictionary<string, InstalledObject> _installedObjectPrototypes; 
-    
+    private Dictionary<string, Furniture> _installedObjectPrototypes;
+
     public int Width { get; private set; }
     public int Height { get; private set; }
 
-    private Action<InstalledObject> cbInstalledObjectCreated;
+    private Action<Furniture> cbFurnitureCreated;
+    private Action<Tile> cbTileChanged;
 
     public World(int width, int height)
     {
@@ -25,37 +26,18 @@ public class World
             for (int y = 0; y < this.Height; y++)
             {
                 _tiles[x, y] = new Tile(this, x, y);
+                _tiles[x, y].RegisterTileTypeChangedCallback(OnTileChanged);
             }
         }
-        Debug.Log("World (" + this.Width + "," + this.Height + ") created with " + (this.Width * this.Height) + " tiles.");
+        Debug.Log("World (" + this.Width + "," + this.Height + ") created with " + (this.Width*this.Height) + " tiles.");
 
-        CreateInstalledObjectPrototypes();
+        CreateFurniturePrototypes();
     }
 
-    private void CreateInstalledObjectPrototypes()
+    private void CreateFurniturePrototypes()
     {
-        _installedObjectPrototypes = new Dictionary<string, InstalledObject>();
-        _installedObjectPrototypes.Add("Wall", InstalledObject.CreatePrototype("Wall", 0f, 1, 1, true));
-    }
-    
-    public void RandomiseTiles()
-    {
-        for (int x = 0; x < this.Width; x++)
-        {
-            for (int y = 0; y < this.Height; y++)
-            {
-                if (Random.Range(0, 2) == 0)
-                {
-                    _tiles[x, y].Type = TileType.Empty;
-                }
-                else
-                {
-                    _tiles[x, y].Type = TileType.Floor;
-                }
-            }
-        }
-
-        Debug.Log("Randomised tiles");
+        _installedObjectPrototypes = new Dictionary<string, Furniture>();
+        _installedObjectPrototypes.Add("Wall", Furniture.CreatePrototype("Wall", 0f, 1, 1, true));
     }
 
     public Tile GetTileAt(int x, int y)
@@ -76,7 +58,7 @@ public class World
             return;
         }
 
-        var obj = InstalledObject.PlaceInstance(_installedObjectPrototypes[objectType], t);
+        var obj = Furniture.PlaceInstance(_installedObjectPrototypes[objectType], t);
 
         if (obj == null)
         {
@@ -84,19 +66,34 @@ public class World
             return;
         }
 
-        if (cbInstalledObjectCreated != null)
+        if (cbFurnitureCreated != null)
         {
-            cbInstalledObjectCreated(obj);
+            cbFurnitureCreated(obj);
         }
     }
 
-    public void RegisterInstalledObjectCreatedCb(Action<InstalledObject> cb)
+    public void RegisterFurnitureCreatedCb(Action<Furniture> cb)
     {
-        cbInstalledObjectCreated += cb;
+        cbFurnitureCreated += cb;
     }
 
-    public void UnRegisterInstalledObjectCreatedCb(Action<InstalledObject> cb)
+    public void UnRegisterFurnitureCreatedCb(Action<Furniture> cb)
     {
-        cbInstalledObjectCreated -= cb;
+        cbFurnitureCreated -= cb;
+    }
+
+    public void RegisterTileChanged(Action<Tile> cb)
+    {
+        cbTileChanged += cb;
+    }
+
+    public void UnRegisterTileChanged(Action<Tile> cb)
+    {
+        cbTileChanged -= cb;
+    }
+
+    private void OnTileChanged(Tile t)
+    {
+        cbTileChanged(t);
     }
 }
