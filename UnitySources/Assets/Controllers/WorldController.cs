@@ -53,7 +53,7 @@ public class WorldController : MonoBehaviour
                 tileGo.transform.position = new Vector3(tileData.X, tileData.Y, 0);
                 tileGo.transform.SetParent(this.transform, true);
 
-                tileGo.AddComponent<SpriteRenderer>().sprite=  EmptySprite;
+                tileGo.AddComponent<SpriteRenderer>().sprite = EmptySprite;
                 //tileData.RegisterTileTypeChangedCallback(OnTileChanged);
             }
         }
