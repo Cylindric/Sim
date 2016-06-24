@@ -1,6 +1,6 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿namespace Assets.Model
+{
+    public class Inventory {
 
-public class Inventory {
-
+    }
 }

@@ -1,74 +1,78 @@
-﻿using UnityEngine;
-using System;
+﻿using System;
+using UnityEngine;
 
-public class Tile {
+namespace Assets.Model
+{
+    public class Tile {
 
-    public World World { get; private set; }
+        public World World { get; private set; }
 
-    private TileType type = TileType.Empty;
+        private TileType type = TileType.Empty;
 
-    //private Inventory _inventory;
+        //private Inventory _inventory;
 
-    public Furniture Furniture { get; private set; }
+        public Furniture Furniture { get; private set; }
+        public Job PendingFurnitureJob { get; set; }
 
-    private Action<Tile> cbTileChanged;
+        private Action<Tile> cbTileChanged;
 
-    public int X { get; private set; }
-    public int Y { get; private set; }
+        public int X { get; private set; }
+        public int Y { get; private set; }
 
-    public TileType Type
-    {
-        get
+        public TileType Type
         {
-            return type;
-        }
-
-        set
-        {
-            var oldType = type;
-            type = value;
-
-            if (cbTileChanged != null && oldType != type)
+            get
             {
-                cbTileChanged(this);
+                return type;
+            }
+
+            set
+            {
+                var oldType = type;
+                type = value;
+
+                if (cbTileChanged != null && oldType != type)
+                {
+                    cbTileChanged(this);
+                }
             }
         }
-    }
 
-    public Tile(World world, int x, int y)
-    {
-        this.World = world;
-        this.X = x;
-        this.Y = y;
-    }
-
-    public void UnRegisterTileTypeChangedCallback(Action<Tile> callback)
-    {
-        cbTileChanged -= callback;
-    }
-
-    public void RegisterTileTypeChangedCallback(Action<Tile> callback)
-    {
-        cbTileChanged += callback;
-    }
-
-    public bool PlaceFurniture(Furniture objectInstance)
-    {
-        // If a null objectInstance is provided, clear the current object.
-        if (objectInstance == null)
+        public Tile(World world, int x, int y)
         {
-            Furniture = null;
+            this.World = world;
+            this.X = x;
+            this.Y = y;
+        }
+
+        public void UnRegisterTileTypeChangedCallback(Action<Tile> callback)
+        {
+            cbTileChanged -= callback;
+        }
+
+        public void RegisterTileTypeChangedCallback(Action<Tile> callback)
+        {
+            cbTileChanged += callback;
+        }
+
+        public bool PlaceFurniture(Furniture objectInstance)
+        {
+            // If a null objectInstance is provided, clear the current object.
+            if (objectInstance == null)
+            {
+                Furniture = null;
+                return true;
+            }
+
+            if (Furniture != null)
+            {
+                Debug.LogError("Trying to assign a Furniture to a Tile that already has one.");
+                return false;
+            }
+
+            Furniture = objectInstance;
             return true;
         }
 
-        if (Furniture != null)
-        {
-            Debug.LogError("Trying to assign a Furniture to a Tile that already has one.");
-            return false;
-        }
-
-        Furniture = objectInstance;
-        return true;
     }
-
 }

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-public enum TileType { Empty, Floor };
+﻿namespace Assets.Model
+{
+    public enum TileType { Empty, Floor };
+}
