@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Assets.Scripts.Pathfinding;
 using UnityEngine;
 
 namespace Assets.Scripts.Model
@@ -9,6 +10,7 @@ namespace Assets.Scripts.Model
         private readonly Tile[,] _tiles;
         private Dictionary<string, Furniture> _furniturePrototypes;
         private List<Character> _characters;
+        private PathTileGraph _tileGraph;
 
         public int Width { get; private set; }
         public int Height { get; private set; }
@@ -82,7 +84,7 @@ namespace Assets.Scripts.Model
             return _tiles[x, y];
         }
 
-        public void PlaceInstalledObject(string objectType, Tile t)
+        public void PlaceFurniture(string objectType, Tile t)
         {
             if (_furniturePrototypes.ContainsKey(objectType) == false)
             {
@@ -102,6 +104,7 @@ namespace Assets.Scripts.Model
             {
                 _cbFurnitureCreated(obj);
             }
+            InvalidateTileGraph();
         }
 
         public void RegisterFurnitureCreatedCb(Action<Furniture> cb)
@@ -137,6 +140,17 @@ namespace Assets.Scripts.Model
         private void OnTileChanged(Tile t)
         {
             _cbTileChanged(t);
+            InvalidateTileGraph();
+        }
+
+        /// <summary>
+        /// Invalidates the current TileGraph.
+        /// </summary>
+        /// <remarks>
+        /// Should be called whenever anything changes that affects the pathing.</remarks>
+        public void InvalidateTileGraph()
+        {
+            _tileGraph = null;
         }
 
         public bool IsFurniturePlacementValid(string furnitureType, Tile t)
@@ -164,7 +178,7 @@ namespace Assets.Scripts.Model
                         }
                         else
                         {
-                            PlaceInstalledObject("Wall", _tiles[x, y]);
+                            PlaceFurniture("Wall", _tiles[x, y]);
                         }
                     }
                 }

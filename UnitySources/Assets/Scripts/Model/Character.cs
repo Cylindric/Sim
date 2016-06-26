@@ -64,6 +64,10 @@ namespace Assets.Scripts.Model
             movementPercentage += percThisFrame;
             if (movementPercentage >= 1)
             {
+                // We have reached our destination.
+
+                // Get the next tile from the pathfinder. If there aren't any, we have arrived.
+
                 currTile = destTile;
                 movementPercentage = 0;
             }

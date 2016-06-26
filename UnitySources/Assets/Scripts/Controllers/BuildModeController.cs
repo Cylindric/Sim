@@ -1,5 +1,6 @@
 ﻿using Assets.Scripts.Controllers;
 using Assets.Scripts.Model;
+using Assets.Scripts.Pathfinding;
 using UnityEngine;
 
 namespace Assets.Scripts.Controllers
@@ -16,7 +17,7 @@ namespace Assets.Scripts.Controllers
     
         private void OnFurnitureJobComplete(string furnitureType, Tile t)
         {
-            WorldController.Instance.World.PlaceInstalledObject(furnitureType, t);
+            WorldController.Instance.World.PlaceFurniture(furnitureType, t);
         }
 
         public void SetMode_BuildFloor()
@@ -53,7 +54,7 @@ namespace Assets.Scripts.Controllers
 
                     var j = new Job(t, furnitureType, (theJob) =>
                     {
-                        WorldController.Instance.World.PlaceInstalledObject(furnitureType, t);
+                        WorldController.Instance.World.PlaceFurniture(furnitureType, t);
                         t.PendingFurnitureJob = null;
                     });
                     t.PendingFurnitureJob = j;
@@ -68,6 +69,12 @@ namespace Assets.Scripts.Controllers
                 // We are in Tile-changing mode.
                 t.Type = _buildModeTileType;
             }
+        }
+
+        public void BuildTestMap()
+        {
+            WorldController.Instance.World.SetupPathfindingTestMap();
+            PathTileGraph g = new PathTileGraph(WorldController.Instance.World);    
         }
     }
 }

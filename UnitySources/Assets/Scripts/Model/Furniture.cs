@@ -28,7 +28,7 @@ namespace Assets.Scripts.Model
         /// </summary>
         /// <remarks>
         /// If this is zero, the Tile is impassable.</remarks>
-        private float _movementCost = 1f;
+        public float MovementCost { get; private set; }
 
         /// <summary>
         /// Width of the Object in Tiles.
@@ -65,7 +65,7 @@ namespace Assets.Scripts.Model
             var obj = new Furniture
             {
                 ObjectType = objectType,
-                _movementCost = movementCost,
+                MovementCost = movementCost,
                 _width = width,
                 _height = height,
                 LinksToNeighbour = linksToNeighbour
@@ -91,7 +91,7 @@ namespace Assets.Scripts.Model
             var obj = new Furniture
             {
                 ObjectType = proto.ObjectType,
-                _movementCost = proto._movementCost,
+                MovementCost = proto.MovementCost,
                 _width = proto._width,
                 _height = proto._height,
                 LinksToNeighbour = proto.LinksToNeighbour,

@@ -49,10 +49,5 @@ namespace Assets.Scripts.Controllers
             return World.GetTileAt(x, y);
         }
 
-        public void BuildTestMap()
-        {
-            World.SetupPathfindingTestMap();
-        }
-
     }
 }

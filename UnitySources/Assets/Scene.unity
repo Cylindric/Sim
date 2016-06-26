@@ -944,7 +944,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1792151393}
+      - m_Target: {fileID: 999099554}
         m_MethodName: BuildTestMap
         m_Mode: 1
         m_Arguments:
