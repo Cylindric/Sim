@@ -36,6 +36,7 @@ namespace Assets.Controllers
             var sr = jobGo.AddComponent<SpriteRenderer>();
             sr.sprite = fsc.GetSpriteForFurniture(job.JobObjectType);
             sr.color = new Color(1f, 1f, 1f, 0.5f);
+            sr.sortingLayerName = "Jobs";
 
             job.RegisterJobCompleteCallback(OnJobEnded);
             job.RegisterJobCancelledCallback(OnJobEnded);

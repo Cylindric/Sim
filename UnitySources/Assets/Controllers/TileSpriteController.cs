@@ -32,7 +32,9 @@ namespace Assets.Controllers
                     tileGo.transform.position = new Vector3(tileData.X, tileData.Y, 0);
                     tileGo.transform.SetParent(this.transform, true);
 
-                    tileGo.AddComponent<SpriteRenderer>().sprite = EmptySprite;
+                    var sr = tileGo.AddComponent<SpriteRenderer>();
+                    sr.sprite = EmptySprite;
+                    sr.sortingLayerName = "Tiles";
                 }
             }
 

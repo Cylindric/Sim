@@ -8,11 +8,13 @@ namespace Assets.Model
     {
         private readonly Tile[,] _tiles;
         private Dictionary<string, Furniture> _furniturePrototypes;
+        private List<Character> _characters;
 
         public int Width { get; private set; }
         public int Height { get; private set; }
 
         private Action<Furniture> _cbFurnitureCreated;
+        private Action<Character> _cbCharacterCreated;
         private Action<Tile> _cbTileChanged;
 
         public JobQueue JobQueue;
@@ -37,6 +39,18 @@ namespace Assets.Model
             Debug.Log("World (" + this.Width + "," + this.Height + ") created with " + (this.Width*this.Height) + " tiles.");
 
             CreateFurniturePrototypes();
+
+            _characters = new List<Character>();
+        }
+
+        public void CreateCharacter(Tile t)
+        {
+            var c = new Character(t);
+            if (_cbCharacterCreated != null)
+            {
+                _cbCharacterCreated(c);
+                
+            }
         }
 
         private void CreateFurniturePrototypes()
@@ -85,6 +99,16 @@ namespace Assets.Model
         public void UnRegisterFurnitureCreatedCb(Action<Furniture> cb)
         {
             _cbFurnitureCreated -= cb;
+        }
+
+        public void RegisterCharacterCreatedCb(Action<Character> cb)
+        {
+            _cbCharacterCreated += cb;
+        }
+
+        public void UnRegisterCharacterCreatedCb(Action<Character> cb)
+        {
+            _cbCharacterCreated -= cb;
         }
 
         public void RegisterTileChanged(Action<Tile> cb)

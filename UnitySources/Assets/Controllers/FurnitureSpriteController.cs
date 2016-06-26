@@ -11,18 +11,24 @@ namespace Assets.Controllers
         private readonly Dictionary<Furniture, GameObject> _furnitureGameObjectMap = new Dictionary<Furniture, GameObject>();
         private readonly Dictionary<string, Sprite> _furnitureSprites = new Dictionary<string, Sprite>();
 
-        private static World _world { get { return WorldController.Instance.World; } }
+        /// <summary>
+        /// This is just a helper property to make it easier to access World.
+        /// </summary>
+        private static World World { get { return WorldController.Instance.World; } }
 
         private void Start()
         {
-            // Cache some sprite stuff.
+            LoadSprites();
+            World.RegisterFurnitureCreatedCb(OnFurnitureCreated);
+        }
+
+        private void LoadSprites()
+        {
             var sprites = Resources.LoadAll<Sprite>("Furniture/Stone Walls");
             foreach (var sprite in sprites)
             {
                 _furnitureSprites.Add(sprite.name, sprite);
             }
-
-            _world.RegisterFurnitureCreatedCb(OnFurnitureCreated);
         }
 
         public void OnFurnitureCreated(Furniture furn)
@@ -34,7 +40,9 @@ namespace Assets.Controllers
             furnGo.transform.position = new Vector3(furn.Tile.X, furn.Tile.Y, 0);
             furnGo.transform.SetParent(this.transform, true);
         
-            furnGo.AddComponent<SpriteRenderer>().sprite = GetSpriteForFurniture(furn);
+            var sr = furnGo.AddComponent<SpriteRenderer>();
+            sr.sprite = GetSpriteForFurniture(furn);
+            sr.sortingLayerName = "Furniture";
 
             furn.RegisterOnChangedCallback(OnFurnitureChanged);
         }
@@ -53,22 +61,22 @@ namespace Assets.Controllers
 
                 Tile t;
 
-                t = _world.GetTileAt(x, y + 1);
+                t = World.GetTileAt(x, y + 1);
                 if (t != null && t.Furniture != null && t.Furniture.ObjectType == obj.ObjectType)
                 {
                     spriteName += "N";
                 }
-                t = _world.GetTileAt(x + 1, y);
+                t = World.GetTileAt(x + 1, y);
                 if (t != null && t.Furniture != null && t.Furniture.ObjectType == obj.ObjectType)
                 {
                     spriteName += "E";
                 }
-                t = _world.GetTileAt(x, y - 1);
+                t = World.GetTileAt(x, y - 1);
                 if (t != null && t.Furniture != null && t.Furniture.ObjectType == obj.ObjectType)
                 {
                     spriteName += "S";
                 }
-                t = _world.GetTileAt(x - 1, y);
+                t = World.GetTileAt(x - 1, y);
                 if (t != null && t.Furniture != null && t.Furniture.ObjectType == obj.ObjectType)
                 {
                     spriteName += "W";
