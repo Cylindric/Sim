@@ -74,10 +74,11 @@ namespace Assets.Model
 
         public Tile GetTileAt(int x, int y)
         {
-            if (x > Width || x < 0 || y > Height || y < 0)
+            if (x >= Width || x < 0 || y >= Height || y < 0)
             {
                 return null;
             }
+
             return _tiles[x, y];
         }
 
@@ -143,14 +144,31 @@ namespace Assets.Model
             return _furniturePrototypes[furnitureType].IsValidPosition(t);
         }
 
-        //public Furniture GetFurniturePrototype(string objectType)
-        //{
-        //    if (_furniturePrototypes.ContainsKey(objectType) == false)
-        //    {
-        //        Debug.LogErrorFormat("No furniture with type {0}", objectType);
-        //        return null;
-        //    }
-        //    return _furniturePrototypes[objectType];
-        //}
+        public void SetupPathfindingTestMap()
+        {
+            var hMid = this.Width/2;
+            var vMid = this.Height/2;
+
+            for (int x = 0; x < this.Width; x++)
+            {
+                for (int y = 0; y < this.Height; y++)
+                {
+                    _tiles[x, y].Type = TileType.Floor;
+
+                    // Place some walls
+                    if ( (x == hMid - 3 || x == hMid + 3) || (y == vMid - 3 || y == vMid + 3))
+                    {
+                        if (x == hMid || y == vMid)
+                        {
+
+                        }
+                        else
+                        {
+                            PlaceInstalledObject("Wall", _tiles[x, y]);
+                        }
+                    }
+                }
+            }
+        }
     }
 }

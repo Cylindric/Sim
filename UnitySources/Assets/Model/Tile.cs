@@ -76,23 +76,25 @@ namespace Assets.Model
 
         public bool IsNeighbour(Tile tile, bool allowDiagonal = false)
         {
-            if (this.X == tile.X && (this.Y == tile.Y + 1 || this.Y == tile.Y - 1))
+            // If we're on the same X Column, see if we differ by excactly one Y row.
+            if (this.X == tile.X && Mathf.Abs(this.Y - tile.Y) == 1)
             {
                 return true;
             }
 
-            if (this.Y == tile.Y && (this.X == tile.X + 1 || this.X == tile.X - 1))
+            // If we're on the same Y Row, see if we differ by just one X column.
+            if (this.Y == tile.Y && Mathf.Abs(this.X - tile.X) == 1)
             {
                 return true;
             }
 
             if (allowDiagonal)
             {
-                if (this.X == tile.X + 1 && (this.Y == tile.Y + 1 || this.Y == tile.Y - 1))
+                if (this.X == tile.X + 1 && Mathf.Abs(this.Y - tile.Y) == 1)
                 {
                     return true;
                 }
-                if (this.X == tile.X - 1 && (this.Y == tile.Y + 1 || this.Y == tile.Y - 1))
+                if (this.X == tile.X - 1 && Mathf.Abs(this.Y - tile.Y) == 1)
                 {
                     return true;
                 }

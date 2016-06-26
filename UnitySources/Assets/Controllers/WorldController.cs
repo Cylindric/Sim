@@ -22,7 +22,7 @@ namespace Assets.Controllers
             Instance = this;
 
             // Create an empty World.
-            this.World = new World(10, 10);
+            this.World = new World(15, 15);
         
             // Centre the view on the middle of the world.
             Camera.main.transform.position = new Vector3(World.Width/2f, World.Height/2f, Camera.main.transform.position.z);
@@ -47,6 +47,11 @@ namespace Assets.Controllers
             var y = Mathf.FloorToInt(coord.y);
 
             return World.GetTileAt(x, y);
+        }
+
+        public void BuildTestMap()
+        {
+            World.SetupPathfindingTestMap();
         }
 
     }

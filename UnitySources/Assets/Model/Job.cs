@@ -8,51 +8,52 @@ namespace Assets.Model
         public Tile Tile { get; private set; }
         public string JobObjectType { get; protected set; }
 
-        private float jobTime;
-        private Action<Job> cbJobComplete;
-        private Action<Job> cbJobCancelled;
+        private float _jobTime;
+        private Action<Job> cbOnComplete;
+        private Action<Job> cbOnCancel;
 
-        public Job(Tile tile, string jobObjectType, Action<Job> cbJobComplete, float jobTime = 1f)
+        public Job(Tile tile, string jobObjectType, Action<Job> cb, float jobTime = 1f)
         {
             this.Tile = tile;
             this.JobObjectType = jobObjectType;
-            this.cbJobComplete += cbJobComplete;
+            this.cbOnComplete += cb;
+            this._jobTime = jobTime;
         }
 
-        public void RegisterJobCompleteCallback(Action<Job> cb)
+        public void RegisterOnCompleteCallback(Action<Job> cb)
         {
-            cbJobComplete += cb;
+            cbOnComplete += cb;
         }
 
-        public void UnRegisterJobCompleteCallback(Action<Job> cb)
+        public void UnregisterOnCompleteCallback(Action<Job> cb)
         {
-            cbJobComplete -= cb;
+            cbOnComplete -= cb;
         }
 
-        public void RegisterJobCancelledCallback(Action<Job> cb)
+        public void RegisterOnCancelCallback(Action<Job> cb)
         {
-            cbJobCancelled += cb;
+            cbOnCancel += cb;
         }
 
-        public void UnRegisterJobCancelledCallback(Action<Job> cb)
+        public void UnregisterOnCancelCallback(Action<Job> cb)
         {
-            cbJobCancelled -= cb;
+            cbOnCancel -= cb;
         }
 
         public void DoWork(float workTime)
         {
             Debug.Log("Work done.");
-            jobTime -= workTime;
+            _jobTime -= workTime;
 
-            if (jobTime <= 0)
+            if (_jobTime <= 0)
             {
-                cbJobComplete(this);
+                cbOnComplete(this);
             }
         }
 
         public void CancelJob()
         {
-            cbJobCancelled(this);
+            cbOnCancel(this);
         }
     }
 }

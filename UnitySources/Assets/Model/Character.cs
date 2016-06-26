@@ -16,13 +16,12 @@ namespace Assets.Model
         }
 
         public Tile currTile { get; private set; }
-        public Action<Character> cbCharacterChanged;
 
         private Job myJob;
-
         private Tile destTile;
         private float movementPercentage;
         private float speed = 2f; // Tiles Per Second
+        private Action<Character> cbOnChange;
 
         public Character(Tile tile)
         {
@@ -39,8 +38,8 @@ namespace Assets.Model
                 if (myJob != null)
                 {
                     destTile = myJob.Tile;
-                    myJob.RegisterJobCancelledCallback(OnJobEnded);
-                    myJob.RegisterJobCompleteCallback(OnJobEnded);
+                    myJob.RegisterOnCancelCallback(OnJobEnded);
+                    myJob.RegisterOnCompleteCallback(OnJobEnded);
                 }
             }
 
@@ -53,7 +52,12 @@ namespace Assets.Model
                 return;
             }
 
-            float distToTravel = Mathf.Sqrt(Mathf.Pow(currTile.X - destTile.X, 2) + Mathf.Pow(currTile.Y - destTile.Y, 2));
+            float distToTravel = Mathf.Sqrt(
+                Mathf.Pow(currTile.X - destTile.X, 2) +
+                Mathf.Pow(currTile.Y - destTile.Y, 2)
+                );
+
+            
             float distThisFrame = speed*deltaTime;
             float percThisFrame = distThisFrame/distToTravel;
 
@@ -64,9 +68,9 @@ namespace Assets.Model
                 movementPercentage = 0;
             }
 
-            if (cbCharacterChanged != null)
+            if (cbOnChange != null)
             {
-                cbCharacterChanged(this);
+                cbOnChange(this);
             }
         }
 
@@ -79,14 +83,14 @@ namespace Assets.Model
             destTile = t;
         }
 
-        public void RegisterCharacterChangedCallback(Action<Character> cb)
+        public void RegisterOnChangeCallback(Action<Character> cb)
         {
-            cbCharacterChanged += cb;
+            cbOnChange += cb;
         }
 
-        public void UnRegisterCharacterChangedCallback(Action<Character> cb)
+        public void UnregisterOnChangeCallback(Action<Character> cb)
         {
-            cbCharacterChanged -= cb;
+            cbOnChange -= cb;
         }
 
         private void OnJobEnded(Job j)

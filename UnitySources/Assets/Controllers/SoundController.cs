@@ -3,33 +3,34 @@ using UnityEngine;
 
 namespace Assets.Controllers
 {
-    class SoundController : MonoBehaviour
+    public class SoundController : MonoBehaviour
     {
         private float _soundCooldown = 0f;
+        private AudioClip _tileChangeAudioClip;
 
-        void Start()
+        private void Start()
         {
             WorldController.Instance.World.RegisterFurnitureCreatedCb(OnFurnitureCreated);
             WorldController.Instance.World.RegisterTileChanged(OnTileChanged);
+            _tileChangeAudioClip = Resources.Load<AudioClip>("Sounds/Tile_OnChanged");
         }
 
-        void Update()
+        private void Update()
         {
             _soundCooldown -= Time.deltaTime;
         }
 
-        void OnTileChanged(Tile tile_data)
+        private void OnTileChanged(Tile tileData)
         {
             if (_soundCooldown > 0) return;
-            AudioClip ac = Resources.Load<AudioClip>("Sounds/Tile_OnChanged");
-            AudioSource.PlayClipAtPoint(ac, Camera.main.transform.position);
+            AudioSource.PlayClipAtPoint(_tileChangeAudioClip, Camera.main.transform.position);
             _soundCooldown = 0.5f;
         }
 
         public void OnFurnitureCreated(Furniture furn)
         {
             if (_soundCooldown > 0) return;
-            AudioClip ac = Resources.Load<AudioClip>("Sounds/" + furn.ObjectType + "_OnCreated");
+            var ac = Resources.Load<AudioClip>("Sounds/" + furn.ObjectType + "_OnCreated");
             if (ac == null)
             {
                 ac = Resources.Load<AudioClip>("Sounds/Furniture_OnCreated");

@@ -44,7 +44,7 @@ namespace Assets.Controllers
             sr.sprite = GetSpriteForCharacter(character);
             sr.sortingLayerName = "Characters";
 
-            character.RegisterCharacterChangedCallback(OnCharacterChanged);
+            character.RegisterOnChangeCallback(OnCharacterChanged);
         }
 
         private void OnCharacterChanged(Character character)

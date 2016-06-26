@@ -56,8 +56,8 @@ namespace Assets.Controllers
                         t.PendingFurnitureJob = null;
                     });
                     t.PendingFurnitureJob = j;
-                    j.RegisterJobCancelledCallback((theJob) => { theJob.Tile.PendingFurnitureJob = null; });
-                    j.RegisterJobCompleteCallback((theJob) => { theJob.Tile.PendingFurnitureJob = null; });
+                    j.RegisterOnCancelCallback((theJob) => { theJob.Tile.PendingFurnitureJob = null; });
+                    j.RegisterOnCompleteCallback((theJob) => { theJob.Tile.PendingFurnitureJob = null; });
 
                     WorldController.Instance.World.JobQueue.Enqueue(j);
                 }
