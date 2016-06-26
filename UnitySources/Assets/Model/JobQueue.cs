@@ -24,6 +24,16 @@ namespace Assets.Model
             }
         }
 
+        public Job Dequeue()
+        {
+            if (_jobQueue.Count == 0)
+            {
+                return null;
+            }
+
+            return _jobQueue.Dequeue();
+        }
+
         public void RegisterJobCreationCallback(Action<Job> cb)
         {
             cbJobCreated += cb;

@@ -9,6 +9,10 @@ namespace Assets.Controllers
 
         public World World { get; protected set; }
 
+        /// <summary>
+        /// Called by Unity when the controller is created. 
+        /// We're using OnEnable() instead of Start() just to make sure it's ready before anything else.
+        /// </summary>
         private void OnEnable()
         {
             if (Instance != null)
@@ -18,14 +22,19 @@ namespace Assets.Controllers
             Instance = this;
 
             // Create an empty World.
-            this.World = new World(100, 100);
+            this.World = new World(10, 10);
         
             // Centre the view on the middle of the world.
             Camera.main.transform.position = new Vector3(World.Width/2f, World.Height/2f, Camera.main.transform.position.z);
         }
 
+        /// <summary>
+        /// This is called by Unity before every frame renderered.
+        /// </summary>
         private void Update()
         {
+            World.Update(Time.deltaTime);
+
             if (Input.GetKeyDown(KeyCode.Escape))
             {
                 Application.Quit();

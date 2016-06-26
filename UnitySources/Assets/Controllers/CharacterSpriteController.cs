@@ -22,7 +22,7 @@ namespace Assets.Controllers
             LoadSprites();
             World.RegisterCharacterCreatedCb(OnCharacterCreated);
 
-            World.CreateCharacter(World.GetTileAt(World.Width/2, World.Height/2));
+            var c = World.CreateCharacter(World.GetTileAt(World.Width/2, World.Height/2));
         }
 
         void Update()
@@ -37,15 +37,26 @@ namespace Assets.Controllers
             _characterGameObjectMap.Add(character, characterGo);
 
             characterGo.name = "Character";
-            characterGo.transform.position = new Vector3(character.currTile.X, character.currTile.Y, 0);
+            characterGo.transform.position = new Vector3(character.X, character.Y, 0);
             characterGo.transform.SetParent(this.transform, true);
 
             var sr = characterGo.AddComponent<SpriteRenderer>();
             sr.sprite = GetSpriteForCharacter(character);
             sr.sortingLayerName = "Characters";
 
+            character.RegisterCharacterChangedCallback(OnCharacterChanged);
+        }
 
-            //character.RegisterOnChangedCallback(OnCharacterChanged);
+        private void OnCharacterChanged(Character character)
+        {
+            if (_characterGameObjectMap.ContainsKey(character) == false)
+            {
+                Debug.LogError("OnCharacterChanged failed - Character requested that is not in the map!");
+                return;
+            }
+
+            var charGo = _characterGameObjectMap[character];
+            charGo.transform.position = new Vector3(character.X, character.Y, 0);
         }
 
         private void LoadSprites()

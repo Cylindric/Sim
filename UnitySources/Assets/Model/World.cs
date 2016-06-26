@@ -43,14 +43,27 @@ namespace Assets.Model
             _characters = new List<Character>();
         }
 
-        public void CreateCharacter(Tile t)
+        public void Update(float deltaTime)
+        {
+            //Debug.Log("Time: " + Time.deltaTime);
+
+            foreach (var c in _characters)
+            {
+                c.Update(deltaTime);
+            }
+        }
+
+        public Character CreateCharacter(Tile t)
         {
             var c = new Character(t);
+            _characters.Add(c);
+
             if (_cbCharacterCreated != null)
             {
                 _cbCharacterCreated(c);
-                
             }
+
+            return c;
         }
 
         private void CreateFurniturePrototypes()
@@ -63,7 +76,6 @@ namespace Assets.Model
         {
             if (x > Width || x < 0 || y > Height || y < 0)
             {
-                //Debug.LogError("Tile (" + x + "," + y + ") is out of range");
                 return null;
             }
             return _tiles[x, y];

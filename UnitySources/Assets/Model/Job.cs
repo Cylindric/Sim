@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 
 namespace Assets.Model
 {
@@ -40,6 +41,7 @@ namespace Assets.Model
 
         public void DoWork(float workTime)
         {
+            Debug.Log("Work done.");
             jobTime -= workTime;
 
             if (jobTime <= 0)
