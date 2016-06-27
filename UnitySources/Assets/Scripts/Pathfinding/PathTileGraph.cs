@@ -10,13 +10,13 @@ namespace Assets.Scripts.Pathfinding
     /// </summary>
     public class PathTileGraph
     {
-        private Dictionary<Tile, PathNode<Tile>> _nodes;
+        public Dictionary<Tile, PathNode<Tile>> Nodes { get; private set; }
 
         public PathTileGraph(World world)
         {
             Debug.Log("Building new PathTileGraph.");
 
-            _nodes = new Dictionary<Tile, PathNode<Tile>>();
+            Nodes = new Dictionary<Tile, PathNode<Tile>>();
 
             // Build a node for every walkable Tile on the map.
             // Do not build nodes for empty tiles.
@@ -29,18 +29,18 @@ namespace Assets.Scripts.Pathfinding
                     {
                         var n = new PathNode<Tile>();
                         n.Data = t;
-                        _nodes.Add(t, n);
+                        Nodes.Add(t, n);
                     }
                 }
             }
 
-            Debug.LogFormat("Added {0} nodes.", _nodes.Count);
+            Debug.LogFormat("Added {0} nodes.", Nodes.Count);
 
             // Build edges for every neighbour
             var edgeCount = 0;
-            foreach (var t in _nodes.Keys)
+            foreach (var t in Nodes.Keys)
             {
-                PathNode<Tile> n = _nodes[t];
+                PathNode<Tile> n = Nodes[t];
                 List<PathEdge<Tile>> edges = new List<PathEdge<Tile>>();
 
                 Tile[] neighbours = t.GetNeighbours(true); // NOTE: some array spots may be null.
@@ -51,7 +51,7 @@ namespace Assets.Scripts.Pathfinding
                     {
                         PathEdge<Tile> e = new PathEdge<Tile>();
                         e.Cost = neighbours[i].MovementCost;
-                        e.Node = _nodes[neighbours[i]];
+                        e.Node = Nodes[neighbours[i]];
                         edges.Add(e);
                         edgeCount++;
                     }

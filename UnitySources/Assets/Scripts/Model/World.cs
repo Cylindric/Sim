@@ -10,8 +10,8 @@ namespace Assets.Scripts.Model
         private readonly Tile[,] _tiles;
         private Dictionary<string, Furniture> _furniturePrototypes;
         private List<Character> _characters;
-        private PathTileGraph _tileGraph;
 
+        public PathTileGraph TileGraph { get; set; } // TODO: this PathTileGraph really shouldn't be fully public like this.
         public int Width { get; private set; }
         public int Height { get; private set; }
 
@@ -150,7 +150,7 @@ namespace Assets.Scripts.Model
         /// Should be called whenever anything changes that affects the pathing.</remarks>
         public void InvalidateTileGraph()
         {
-            _tileGraph = null;
+            TileGraph = null;
         }
 
         public bool IsFurniturePlacementValid(string furnitureType, Tile t)
