@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Xml;
+using System.Xml.Schema;
+using System.Xml.Serialization;
 using Assets.Scripts.Pathfinding;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
@@ -7,7 +10,7 @@ using Debug = UnityEngine.Debug;
 namespace Assets.Scripts.Model
 {
     [DebuggerDisplay("Character at [{X}, {Y}]")]
-    public class Character
+    public class Character : IXmlSerializable
     {
         public float X
         {
@@ -32,6 +35,9 @@ namespace Assets.Scripts.Model
         Action<Character> cbCharacterChanged;
 
         Job myJob;
+
+        public Character()
+        { }
 
         public Character(Tile tile)
         {
@@ -189,7 +195,6 @@ namespace Assets.Scripts.Model
         void OnJobEnded(Job j)
         {
             // Job completed or was cancelled.
-
             if (j != myJob)
             {
                 Debug.LogError("Character being told about job that isn't his. You forgot to unregister something.");
@@ -197,6 +202,29 @@ namespace Assets.Scripts.Model
             }
 
             myJob = null;
+        }
+
+        ///////////////////////////////////////////////////////
+        /// 
+        ///                    LOADING / SAVING
+        /// 
+        ///////////////////////////////////////////////////////
+
+        public XmlSchema GetSchema()
+        {
+            return null;
+        }
+
+        public void ReadXml(XmlReader reader)
+        {
+        }
+
+        public void WriteXml(XmlWriter writer)
+        {
+            writer.WriteStartElement("Character");
+            writer.WriteAttributeString("X", currTile.X.ToString());
+            writer.WriteAttributeString("Y", currTile.Y.ToString());
+            writer.WriteEndElement();
         }
     }
 }

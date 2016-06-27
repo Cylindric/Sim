@@ -19,8 +19,10 @@ namespace Assets.Scripts.Controllers
             LoadSprites();
             World.RegisterCharacterCreatedCb(OnCharacterCreated);
 
-            World.CreateCharacter(World.GetTileAt(World.Width / 2, World.Height / 2));
-            World.CreateCharacter(World.GetTileAt(World.Width / 2+1, World.Height / 2));
+            foreach (var c in World._characters)
+            {
+                OnCharacterCreated(c);
+            }
         }
 
         void Update()

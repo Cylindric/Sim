@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Xml;
+using System.Xml.Schema;
+using System.Xml.Serialization;
 using UnityEngine;
 
 namespace Assets.Scripts.Model
@@ -6,7 +9,7 @@ namespace Assets.Scripts.Model
     /// <summary>
     /// Furniture represents an object that is 'permanently' installed on a <see cref="Tile"/>.
     /// </summary>
-    public class Furniture
+    public class Furniture : IXmlSerializable
     {
         /// <summary>
         /// Base Tile for this object. Large objects may occupy more tiles.
@@ -43,7 +46,7 @@ namespace Assets.Scripts.Model
         /// <summary>
         /// Create a new Furniture. This can only be done using the Factory methods.
         /// </summary>
-        private Furniture()
+        public Furniture()
         {
             LinksToNeighbour = false;
         }
@@ -112,25 +115,25 @@ namespace Assets.Scripts.Model
                 int y = tile.Y;
 
                 t = tile.World.GetTileAt(x, y + 1);
-                if (t != null && t.Furniture != null && t.Furniture.ObjectType == obj.ObjectType)
+                if (t != null && t.Furniture != null && t.Furniture.cbOnChanged != null && t.Furniture.ObjectType == obj.ObjectType)
                 {
                     // The North Tile needs to be updated.
                     t.Furniture.cbOnChanged(t.Furniture);
                 }
                 t = tile.World.GetTileAt(x + 1, y);
-                if (t != null && t.Furniture != null && t.Furniture.ObjectType == obj.ObjectType)
+                if (t != null && t.Furniture != null && t.Furniture.cbOnChanged != null && t.Furniture.ObjectType == obj.ObjectType)
                 {
                     // The East Tile needs to be updated.
                     t.Furniture.cbOnChanged(t.Furniture);
                 }
                 t = tile.World.GetTileAt(x, y - 1);
-                if (t != null && t.Furniture != null && t.Furniture.ObjectType == obj.ObjectType)
+                if (t != null && t.Furniture != null && t.Furniture.cbOnChanged != null && t.Furniture.ObjectType == obj.ObjectType)
                 {
                     // The South Tile needs to be updated.
                     t.Furniture.cbOnChanged(t.Furniture);
                 }
                 t = tile.World.GetTileAt(x - 1, y);
-                if (t != null && t.Furniture != null && t.Furniture.ObjectType == obj.ObjectType)
+                if (t != null && t.Furniture != null && t.Furniture.cbOnChanged != null && t.Furniture.ObjectType == obj.ObjectType)
                 {
                     // The West Tile needs to be updated.
                     t.Furniture.cbOnChanged(t.Furniture);
@@ -192,5 +195,31 @@ namespace Assets.Scripts.Model
 
         //    return true;
         //}
+
+        ///////////////////////////////////////////////////////
+        /// 
+        ///                    LOADING / SAVING
+        /// 
+        ///////////////////////////////////////////////////////
+
+        public XmlSchema GetSchema()
+        {
+            return null;
+        }
+
+        public void ReadXml(XmlReader reader)
+        {
+            MovementCost = float.Parse(reader.GetAttribute("movementCost"));
+        }
+
+        public void WriteXml(XmlWriter writer)
+        {
+            writer.WriteStartElement("Furniture");
+            writer.WriteAttributeString("X", Tile.X.ToString());
+            writer.WriteAttributeString("Y", Tile.Y.ToString());
+            writer.WriteAttributeString("objectType", ObjectType);
+            writer.WriteAttributeString("movementCost", MovementCost.ToString());
+            writer.WriteEndElement();
+        }
     }
 }

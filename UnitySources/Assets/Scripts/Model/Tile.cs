@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Xml;
+using System.Xml.Schema;
+using System.Xml.Serialization;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
 namespace Assets.Scripts.Model
 {
     [DebuggerDisplay("Tile [{X},{Y}]")]
-    public class Tile {
+    public class Tile : IXmlSerializable
+    {
 
         public World World { get; private set; }
 
@@ -58,6 +62,10 @@ namespace Assets.Scripts.Model
 
                 return 1 * Furniture.MovementCost;
             }
+        }
+
+        public Tile()
+        {
         }
 
         public Tile(World world, int x, int y)
@@ -152,6 +160,34 @@ namespace Assets.Scripts.Model
             }
 
             return ns;
+        }
+
+        ///////////////////////////////////////////////////////
+        /// 
+        ///                    LOADING / SAVING
+        /// 
+        ///////////////////////////////////////////////////////
+
+        public XmlSchema GetSchema()
+        {
+            return null;
+        }
+
+        public void ReadXml(XmlReader reader)
+        {
+            //X = int.Parse(reader.GetAttribute("X"));
+            //Y = int.Parse(reader.GetAttribute("Y"));
+            Type = (TileType)int.Parse(reader.GetAttribute("Type"));
+            //Debug.LogFormat("Read Tile [{0},{1}] with type {2}.", X, Y, Type.ToString());
+        }
+
+        public void WriteXml(XmlWriter writer)
+        {
+            writer.WriteStartElement("Tile");
+            writer.WriteAttributeString("X", X.ToString());
+            writer.WriteAttributeString("Y", Y.ToString());
+            writer.WriteAttributeString("Type", ((int)Type).ToString());
+            writer.WriteEndElement();
         }
     }
 }

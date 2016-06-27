@@ -5,21 +5,21 @@ licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
     21300000: orange_walls_0z
-    21300002: wall_SW
+    21300002: Wall_SW
     21300004: orange_walls_2_NS
-    21300006: wall_ESW
-    21300008: wall_NEW
-    21300010: wall_W
-    21300012: wall_N
+    21300006: Wall_ESW
+    21300008: Wall_NEW
+    21300010: Wall_W
+    21300012: Wall_N
     21300014: orange_walls_2_NW
     21300016: orange_walls_2_NE
-    21300018: wall_NE
-    21300020: wall_NW
+    21300018: Wall_NE
+    21300020: Wall_NW
     21300022: orange_walls_2_EW
-    21300024: wall_NES
-    21300026: wall_NSW
-    21300028: wall_S
-    21300030: wall_E
+    21300024: Wall_NES
+    21300026: Wall_NSW
+    21300028: Wall_S
+    21300030: Wall_E
     21300032: orange_walls_2_SW
     21300034: orange_walls_2_ES
     21300036: orange_walls_18
@@ -29,7 +29,7 @@ TextureImporter:
     21300044: orange_walls_1_W
     21300046: orange_walls_1_E
     21300048: orange_walls_0_
-    21300050: wall_NESW
+    21300050: Wall_NESW
     21300052: orange_walls_26
     21300054: orange_walls_27
     21300056: orange_walls_28
@@ -37,7 +37,7 @@ TextureImporter:
     21300060: orange_walls_30
     21300062: orange_walls_1_N
     21300064: orange_walls_1_S
-    21300066: wall_
+    21300066: Wall_
     21300068: orange_walls_34
     21300070: orange_walls_35
     21300072: orange_walls_36
@@ -58,11 +58,11 @@ TextureImporter:
     21300102: orange_walls_51
     21300104: orange_walls_52
     21300106: orange_walls_53
-    21300108: wall_ES
-    21300110: wall_EW
+    21300108: Wall_ES
+    21300110: Wall_EW
     21300112: orange_walls_7
     21300114: orange_walls_8
-    21300116: wall_NS
+    21300116: Wall_NS
     21300118: orange_walls_16
     21300120: orange_walls_17
     21300122: orange_walls_22
@@ -116,7 +116,7 @@ TextureImporter:
   buildTargetSettings: []
   spriteSheet:
     sprites:
-    - name: wall_ES
+    - name: Wall_ES
       rect:
         serializedVersion: 2
         x: 4
@@ -131,7 +131,7 @@ TextureImporter:
         - {x: 0, y: 0}
         - {x: 64, y: 0}
         - {x: 64, y: 64}
-    - name: wall_SW
+    - name: Wall_SW
       rect:
         serializedVersion: 2
         x: 78
@@ -146,7 +146,7 @@ TextureImporter:
         - {x: 0, y: 0}
         - {x: 64, y: 0}
         - {x: 64, y: 64}
-    - name: wall_EW
+    - name: Wall_EW
       rect:
         serializedVersion: 2
         x: 152
@@ -161,7 +161,7 @@ TextureImporter:
         - {x: 0, y: 0}
         - {x: 64, y: 0}
         - {x: 64, y: 64}
-    - name: wall_ESW
+    - name: Wall_ESW
       rect:
         serializedVersion: 2
         x: 226
@@ -176,7 +176,7 @@ TextureImporter:
         - {x: 0, y: 0}
         - {x: 64, y: 0}
         - {x: 64, y: 64}
-    - name: wall_NEW
+    - name: Wall_NEW
       rect:
         serializedVersion: 2
         x: 300
@@ -191,7 +191,7 @@ TextureImporter:
         - {x: 0, y: 0}
         - {x: 64, y: 0}
         - {x: 64, y: 64}
-    - name: wall_W
+    - name: Wall_W
       rect:
         serializedVersion: 2
         x: 374
@@ -206,7 +206,7 @@ TextureImporter:
         - {x: 0, y: 0}
         - {x: 64, y: 0}
         - {x: 64, y: 64}
-    - name: wall_N
+    - name: Wall_N
       rect:
         serializedVersion: 2
         x: 448
@@ -251,7 +251,7 @@ TextureImporter:
         - {x: 0, y: 0}
         - {x: 64, y: 0}
         - {x: 64, y: 64}
-    - name: wall_NE
+    - name: Wall_NE
       rect:
         serializedVersion: 2
         x: 4
@@ -266,7 +266,7 @@ TextureImporter:
         - {x: 0, y: 0}
         - {x: 64, y: 0}
         - {x: 64, y: 64}
-    - name: wall_NW
+    - name: Wall_NW
       rect:
         serializedVersion: 2
         x: 78
@@ -281,7 +281,7 @@ TextureImporter:
         - {x: 0, y: 0}
         - {x: 64, y: 0}
         - {x: 64, y: 64}
-    - name: wall_NS
+    - name: Wall_NS
       rect:
         serializedVersion: 2
         x: 152
@@ -296,7 +296,7 @@ TextureImporter:
         - {x: 0, y: 0}
         - {x: 64, y: 0}
         - {x: 64, y: 64}
-    - name: wall_NES
+    - name: Wall_NES
       rect:
         serializedVersion: 2
         x: 226
@@ -311,7 +311,7 @@ TextureImporter:
         - {x: 0, y: 0}
         - {x: 64, y: 0}
         - {x: 64, y: 64}
-    - name: wall_NSW
+    - name: Wall_NSW
       rect:
         serializedVersion: 2
         x: 300
@@ -326,7 +326,7 @@ TextureImporter:
         - {x: 0, y: 0}
         - {x: 64, y: 0}
         - {x: 64, y: 64}
-    - name: wall_S
+    - name: Wall_S
       rect:
         serializedVersion: 2
         x: 374
@@ -341,7 +341,7 @@ TextureImporter:
         - {x: 0, y: 0}
         - {x: 64, y: 0}
         - {x: 64, y: 64}
-    - name: wall_E
+    - name: Wall_E
       rect:
         serializedVersion: 2
         x: 448
@@ -491,7 +491,7 @@ TextureImporter:
         - {x: 0, y: 0}
         - {x: 64, y: 0}
         - {x: 64, y: 64}
-    - name: wall_NESW
+    - name: Wall_NESW
       rect:
         serializedVersion: 2
         x: 522
@@ -612,7 +612,7 @@ TextureImporter:
         - {x: 0, y: 0}
         - {x: 64, y: 0}
         - {x: 64, y: 64}
-    - name: wall_
+    - name: Wall_
       rect:
         serializedVersion: 2
         x: 448

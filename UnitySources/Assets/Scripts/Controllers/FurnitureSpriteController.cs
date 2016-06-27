@@ -20,11 +20,17 @@ namespace Assets.Scripts.Controllers
         {
             LoadSprites();
             World.RegisterFurnitureCreatedCb(OnFurnitureCreated);
+
+            // Go through any existing furniture (i.e. from save) call their onCreate.
+            foreach (var furn in World._furnitures)
+            {
+                OnFurnitureCreated(furn);
+            }
         }
 
         private void LoadSprites()
         {
-            var sprites = Resources.LoadAll<Sprite>("Furniture/Stone Walls");
+            var sprites = Resources.LoadAll<Sprite>("Furniture/orange_walls");
             foreach (var sprite in sprites)
             {
                 _furnitureSprites.Add(sprite.name, sprite);

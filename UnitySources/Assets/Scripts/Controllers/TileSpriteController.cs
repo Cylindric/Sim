@@ -35,6 +35,8 @@ namespace Assets.Scripts.Controllers
                     var sr = tileGo.AddComponent<SpriteRenderer>();
                     sr.sprite = EmptySprite;
                     sr.sortingLayerName = "Tiles";
+
+                    OnTileChanged(tileData);
                 }
             }
 
