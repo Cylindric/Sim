@@ -24,9 +24,14 @@ namespace Assets.Scripts.Controllers
 
         private void OnJobCreated(Job job)
         {
-            Sprite theSprite = fsc.GetSpriteForFurniture(job.JobObjectType);
+            if (_jobGameObjectMap.ContainsKey(job))
+            {
+                //Debug.LogError("OnJobCreated called for a JobGO that already exists.");
+                return;
+            }
 
-            var jobGo = new GameObject();
+           var jobGo = new GameObject();
+
             _jobGameObjectMap.Add(job, jobGo);
 
             jobGo.name = "JOB_" + job.JobObjectType + "_" + job.Tile.X + "_" + job.Tile.Y;

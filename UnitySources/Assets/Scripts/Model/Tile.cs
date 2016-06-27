@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Diagnostics;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace Assets.Scripts.Model
 {
+    [DebuggerDisplay("Tile [{X},{Y}]")]
     public class Tile {
 
         public World World { get; private set; }
@@ -134,7 +137,7 @@ namespace Assets.Scripts.Model
             {
                 ns = new Tile[8]; // Tile order N E S W NE SE SW NW
             }
-            
+
             ns[0] = World.GetTileAt(X, Y + 1); // N
             ns[1] = World.GetTileAt(X + 1, Y); // E
             ns[2] = World.GetTileAt(X, Y - 1); // S

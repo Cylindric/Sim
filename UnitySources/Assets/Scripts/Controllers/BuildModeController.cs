@@ -56,7 +56,7 @@ namespace Assets.Scripts.Controllers
                     {
                         WorldController.Instance.World.PlaceFurniture(furnitureType, t);
                         t.PendingFurnitureJob = null;
-                    });
+                    }, 0.3f);
                     t.PendingFurnitureJob = j;
                     j.RegisterOnCancelCallback((theJob) => { theJob.Tile.PendingFurnitureJob = null; });
                     j.RegisterOnCompleteCallback((theJob) => { theJob.Tile.PendingFurnitureJob = null; });
@@ -74,7 +74,6 @@ namespace Assets.Scripts.Controllers
         public void BuildTestMap()
         {
             WorldController.Instance.World.SetupPathfindingTestMap();
-            PathTileGraph g = new PathTileGraph(WorldController.Instance.World);    
         }
     }
 }

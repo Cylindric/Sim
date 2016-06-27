@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using Assets.Scripts.Model;
 using UnityEngine;
 
@@ -22,7 +19,8 @@ namespace Assets.Scripts.Controllers
             LoadSprites();
             World.RegisterCharacterCreatedCb(OnCharacterCreated);
 
-            var c = World.CreateCharacter(World.GetTileAt(World.Width/2, World.Height/2));
+            World.CreateCharacter(World.GetTileAt(World.Width / 2, World.Height / 2));
+            World.CreateCharacter(World.GetTileAt(World.Width / 2+1, World.Height / 2));
         }
 
         void Update()
@@ -44,7 +42,7 @@ namespace Assets.Scripts.Controllers
             sr.sprite = GetSpriteForCharacter(character);
             sr.sortingLayerName = "Characters";
 
-            character.RegisterOnChangeCallback(OnCharacterChanged);
+            character.RegisterOnChangedCallback(OnCharacterChanged);
         }
 
         private void OnCharacterChanged(Character character)

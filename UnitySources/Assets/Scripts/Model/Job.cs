@@ -12,7 +12,7 @@ namespace Assets.Scripts.Model
         private Action<Job> cbOnComplete;
         private Action<Job> cbOnCancel;
 
-        public Job(Tile tile, string jobObjectType, Action<Job> cb, float jobTime = 1f)
+        public Job(Tile tile, string jobObjectType, Action<Job> cb, float jobTime)
         {
             this.Tile = tile;
             this.JobObjectType = jobObjectType;

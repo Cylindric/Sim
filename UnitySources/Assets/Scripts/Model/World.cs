@@ -11,7 +11,7 @@ namespace Assets.Scripts.Model
         private Dictionary<string, Furniture> _furniturePrototypes;
         private List<Character> _characters;
 
-        public PathTileGraph TileGraph { get; set; } // TODO: this PathTileGraph really shouldn't be fully public like this.
+        public Path_TileGraph TileGraph { get; set; } // TODO: this PathTileGraph really shouldn't be fully public like this.
         public int Width { get; private set; }
         public int Height { get; private set; }
 
