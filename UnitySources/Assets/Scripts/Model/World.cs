@@ -11,29 +11,18 @@ namespace Assets.Scripts.Model
     public class World : IXmlSerializable
     {
         /* #################################################################### */
-        /* #                        CONSTRUCTORS                              # */
+        /* #                           FIELDS                                 # */
         /* #################################################################### */
-
-        /* #################################################################### */
-        /* #                         DELEGATES                                # */
-        /* #################################################################### */
-
-        /* #################################################################### */
-        /* #                         PROPERTIES                               # */
-        /* #################################################################### */
+        public JobQueue JobQueue;
         public List<Character> _characters;
         public List<Furniture> _furnitures;
-        public Path_TileGraph TileGraph { get; set; } // TODO: this PathTileGraph really shouldn't be fully public like this.
-        public int Width { get; private set; }
-        public int Height { get; private set; }
-        public JobQueue JobQueue;
 
         private Tile[,] _tiles;
         private Dictionary<string, Furniture> _furniturePrototypes;
-        private Action<Furniture> _cbFurnitureCreated;
-        private Action<Character> _cbCharacterCreated;
-        private Action<Tile> _cbTileChanged;
 
+        /* #################################################################### */
+        /* #                        CONSTRUCTORS                              # */
+        /* #################################################################### */
 
         public World()
         {
@@ -47,13 +36,34 @@ namespace Assets.Scripts.Model
             this.SetupWorld(width, height);
         }
 
+        /* #################################################################### */
+        /* #                         DELEGATES                                # */
+        /* #################################################################### */
+        private Action<Furniture> _cbFurnitureCreated;
+        private Action<Character> _cbCharacterCreated;
+        private Action<Tile> _cbTileChanged;
+
+        /* #################################################################### */
+        /* #                         PROPERTIES                               # */
+        /* #################################################################### */
+        public Path_TileGraph TileGraph { get; set; } // TODO: this PathTileGraph really shouldn't be fully public like this.
+        public int Width { get; private set; }
+        public int Height { get; private set; }
+
+        /* #################################################################### */
+        /* #                           METHODS                                # */
+        /* #################################################################### */
+
         public void Update(float deltaTime)
         {
-            //Debug.Log("Time: " + Time.deltaTime);
-
             foreach (var c in this._characters)
             {
                 c.Update(deltaTime);
+            }
+
+            foreach (var f in this._furnitures)
+            {
+                f.Update(deltaTime);
             }
         }
 
@@ -138,48 +148,6 @@ namespace Assets.Scripts.Model
             this._cbTileChanged -= cb;
         }
 
-        private void CreateFurniturePrototypes()
-        {
-            this._furniturePrototypes = new Dictionary<string, Furniture>();
-
-            this._furniturePrototypes.Add("Wall", new Furniture("Wall", 0f, 1, 1, true));
-            this._furniturePrototypes.Add("Door", new Furniture("Door", 0f, 1, 1, true));
-
-            this._furniturePrototypes["Door"].furnParameters["openess"] = 0.0f;
-            this._furniturePrototypes["Door"].updateActions += FurnitureActions.Door_UpdateAction;
-        }
-
-        private void SetupWorld(int width, int height)
-        {
-            this.Width = width;
-            this.Height = height;
-
-            this._tiles = new Tile[width, height];
-
-            for (var x = 0; x < this.Width; x++)
-            {
-                for (var y = 0; y < this.Height; y++)
-                {
-                    this._tiles[x, y] = new Tile(this, x, y);
-                    this._tiles[x, y].RegisterTileTypeChangedCallback(this.OnTileChanged);
-                }
-            }
-
-            Debug.Log("World (" + this.Width + "," + this.Height + ") created with " + (this.Width * this.Height) + " tiles.");
-
-            this.CreateFurniturePrototypes();
-        }
-
-        private void OnTileChanged(Tile t)
-        {
-            if (this._cbTileChanged != null)
-            {
-                this._cbTileChanged(t);
-            }
-
-            this.InvalidateTileGraph();
-        }
-
         /// <summary>
         /// Invalidates the current TileGraph.
         /// </summary>
@@ -207,7 +175,7 @@ namespace Assets.Scripts.Model
                     this._tiles[x, y].Type = TileType.Floor;
 
                     // Place some walls
-                    if ( (x == hMid - 3 || x == hMid + 3) || (y == vMid - 3 || y == vMid + 3))
+                    if ((x == hMid - 3 || x == hMid + 3) || (y == vMid - 3 || y == vMid + 3))
                     {
                         if (x == hMid || y == vMid)
                         {
@@ -248,53 +216,6 @@ namespace Assets.Scripts.Model
                         this.ReadXml_Characters(reader);
                         break;
                 }
-            }
-        }
-
-        private void ReadXml_Tiles(XmlReader reader)
-        {
-            while (reader.Read())
-            {
-                if (reader.Name != "Tile")
-                {
-                    return;
-                }
-
-                int x = int.Parse(reader.GetAttribute("X"));
-                int y = int.Parse(reader.GetAttribute("Y"));
-                this._tiles[x, y].ReadXml(reader);
-            }
-        }
-
-        private void ReadXml_Furnitures(XmlReader reader)
-        {
-            while (reader.Read())
-            {
-                if (reader.Name != "Furniture")
-                {
-                    return;
-                }
-
-                int x = int.Parse(reader.GetAttribute("X"));
-                int y = int.Parse(reader.GetAttribute("Y"));
-                var furn = this.PlaceFurniture(reader.GetAttribute("objectType"), this._tiles[x, y]);
-                furn.ReadXml(reader);
-            }
-        }
-
-        private void ReadXml_Characters(XmlReader reader)
-        {
-            while (reader.Read())
-            {
-                if (reader.Name != "Character")
-                {
-                    return;
-                }
-
-                int x = int.Parse(reader.GetAttribute("X"));
-                int y = int.Parse(reader.GetAttribute("Y"));
-                var character = this.CreateCharacter(this._tiles[x, y]);
-                character.ReadXml(reader);
             }
         }
 
@@ -343,5 +264,93 @@ namespace Assets.Scripts.Model
 
             writer.WriteEndElement();
         }
+
+        private void CreateFurniturePrototypes()
+        {
+            this._furniturePrototypes = new Dictionary<string, Furniture>();
+
+            this._furniturePrototypes.Add("Wall", new Furniture("Wall", 0f, 1, 1, true));
+            this._furniturePrototypes.Add("Door", new Furniture("Door", 1f, 1, 1, false));
+
+            this._furniturePrototypes["Door"].furnParameters["openess"] = 0.0f;
+            this._furniturePrototypes["Door"].furnParameters["is_opening"] = 0.0f;
+            this._furniturePrototypes["Door"].updateActions += FurnitureActions.Door_UpdateAction;
+            this._furniturePrototypes["Door"].IsEntereable = FurnitureActions.Door_IsEnterable;
+        }
+
+        private void SetupWorld(int width, int height)
+        {
+            this.Width = width;
+            this.Height = height;
+
+            this._tiles = new Tile[width, height];
+
+            for (var x = 0; x < this.Width; x++)
+            {
+                for (var y = 0; y < this.Height; y++)
+                {
+                    this._tiles[x, y] = new Tile(this, x, y);
+                    this._tiles[x, y].RegisterTileTypeChangedCallback(this.OnTileChanged);
+                }
+            }
+
+            Debug.Log("World (" + this.Width + "," + this.Height + ") created with " + (this.Width*this.Height) +
+                      " tiles.");
+
+            this.CreateFurniturePrototypes();
+        }
+
+        private void OnTileChanged(Tile t)
+        {
+            if (this._cbTileChanged != null)
+            {
+                this._cbTileChanged(t);
+            }
+
+            this.InvalidateTileGraph();
+        }
+
+        private void ReadXml_Tiles(XmlReader reader)
+        {
+            if (reader.ReadToDescendant("Tile"))
+            {
+                do
+                {
+                    int x = int.Parse(reader.GetAttribute("X"));
+                    int y = int.Parse(reader.GetAttribute("Y"));
+                    this._tiles[x, y].ReadXml(reader);
+
+                } while (reader.ReadToNextSibling("Tile"));
+            }
+        }
+
+        private void ReadXml_Furnitures(XmlReader reader)
+        {
+            if (reader.ReadToDescendant("Furniture"))
+            {
+                do
+                {
+                    int x = int.Parse(reader.GetAttribute("X"));
+                    int y = int.Parse(reader.GetAttribute("Y"));
+                    var furn = this.PlaceFurniture(reader.GetAttribute("objectType"), this._tiles[x, y]);
+                    furn.ReadXml(reader);
+                } while (reader.ReadToNextSibling("Furniture"));
+            }
+        }
+
+        private void ReadXml_Characters(XmlReader reader)
+        {
+            if (reader.ReadToDescendant("Character"))
+            {
+                do
+                {
+                    int x = int.Parse(reader.GetAttribute("X"));
+                    int y = int.Parse(reader.GetAttribute("Y"));
+                    var character = this.CreateCharacter(this._tiles[x, y]);
+                    character.ReadXml(reader);
+                } while (reader.ReadToNextSibling("Character"));
+            }
+        }
+
     }
 }

@@ -6,30 +6,38 @@ namespace Assets.Scripts.Controllers
 {
     public class JobSpriteController : MonoBehaviour
     {
+        /* #################################################################### */
+        /* #                           FIELDS                                 # */
+        /* #################################################################### */
 
         private FurnitureSpriteController fsc;
-        private Dictionary<Job, GameObject> _jobGameObjectMap; 
+        private Dictionary<Job, GameObject> _jobGameObjectMap;
 
-        void Start ()
+        /* #################################################################### */
+        /* #                           METHODS                                # */
+        /* #################################################################### */
+
+        private void Start()
         {
             _jobGameObjectMap = new Dictionary<Job, GameObject>();
             fsc = GameObject.FindObjectOfType<FurnitureSpriteController>();
             WorldController.Instance.World.JobQueue.RegisterJobCreationCallback(OnJobCreated);
         }
-	
-        void Update () {
-	
+
+        private void Update()
+        {
+
         }
 
         private void OnJobCreated(Job job)
         {
             if (_jobGameObjectMap.ContainsKey(job))
             {
-                //Debug.LogError("OnJobCreated called for a JobGO that already exists.");
+                Debug.LogError("OnJobCreated called for a JobGO that already exists.");
                 return;
             }
 
-           var jobGo = new GameObject();
+            var jobGo = new GameObject();
 
             _jobGameObjectMap.Add(job, jobGo);
 

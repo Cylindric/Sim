@@ -13,6 +13,26 @@ namespace Assets.Scripts.Model
     public class Furniture : IXmlSerializable
     {
         /* #################################################################### */
+        /* #                           FIELDS                                 # */
+        /* #################################################################### */
+
+        public Dictionary<string, float> furnParameters;
+
+        public Action<Furniture, float> updateActions;
+
+        public Func<Furniture, Enterability> IsEntereable;
+
+        /// <summary>
+        /// Width of the Object in Tiles.
+        /// </summary>
+        private readonly int _width = 1;
+
+        /// <summary>
+        /// Height of the Object in Tiles.
+        /// </summary>
+        private readonly int _height = 1;
+
+        /* #################################################################### */
         /* #                        CONSTRUCTORS                              # */
         /* #################################################################### */
 
@@ -22,7 +42,7 @@ namespace Assets.Scripts.Model
         public Furniture()
         {
             this.LinksToNeighbour = false;
-            this.furnParameters = new Dictionary<string, object>();
+            this.furnParameters = new Dictionary<string, float>();
         }
 
         /// <summary>
@@ -42,7 +62,7 @@ namespace Assets.Scripts.Model
             this._height = height;
             this.LinksToNeighbour = linksToNeighbour;
             this.funcPositionValidation = this.__IsValidPosition;
-            this.furnParameters = new Dictionary<string, object>();
+            this.furnParameters = new Dictionary<string, float>();
         }
 
         /// <summary>
@@ -57,11 +77,13 @@ namespace Assets.Scripts.Model
             this._height = other._height;
             this.LinksToNeighbour = other.LinksToNeighbour;
 
-            this.furnParameters = new Dictionary<string, object>(other.furnParameters);
+            this.furnParameters = new Dictionary<string, float>(other.furnParameters);
             if (other.updateActions != null)
             {
                 this.updateActions = (Action<Furniture, float>)other.updateActions.Clone();
             }
+
+            this.IsEntereable = other.IsEntereable;
         }
 
         /* #################################################################### */
@@ -96,20 +118,6 @@ namespace Assets.Scripts.Model
         /// </summary>
         /// <remarks>If this is zero, the Tile is impassable.</remarks>
         public float MovementCost { get; private set; }
-
-        public Dictionary<string, object> furnParameters;
-        public Action<Furniture, float> updateActions;
-
-        /// <summary>
-        /// Width of the Object in Tiles.
-        /// </summary>
-        private readonly int _width = 1;
-
-        /// <summary>
-        /// Height of the Object in Tiles.
-        /// </summary>
-        private readonly int _height = 1;
-
 
         /* #################################################################### */
         /* #                           METHODS                                # */
@@ -252,6 +260,16 @@ namespace Assets.Scripts.Model
         public void ReadXml(XmlReader reader)
         {
             this.MovementCost = float.Parse(reader.GetAttribute("movementCost"));
+
+            if (reader.ReadToDescendant("Param"))
+            {
+                do
+                {
+                    var k = reader.GetAttribute("name");
+                    var v = float.Parse(reader.GetAttribute("value"));
+                    furnParameters[k] = v;
+                } while (reader.ReadToNextSibling("Param"));
+            }
         }
 
         public void WriteXml(XmlWriter writer)
@@ -261,6 +279,15 @@ namespace Assets.Scripts.Model
             writer.WriteAttributeString("Y", this.Tile.Y.ToString());
             writer.WriteAttributeString("objectType", this.ObjectType);
             writer.WriteAttributeString("movementCost", this.MovementCost.ToString());
+
+            foreach (var k in furnParameters)
+            {
+                writer.WriteStartElement("Param");
+                writer.WriteAttributeString("name", k.Key);
+                writer.WriteAttributeString("value", k.Value.ToString());
+                writer.WriteEndElement();
+            }
+
             writer.WriteEndElement();
         }
 

@@ -41,10 +41,6 @@ namespace Assets.Scripts.Pathfinding
 
             List<Path_Node<Tile>> ClosedSet = new List<Path_Node<Tile>>();
 
-/*		List<Path_Node<Tile>> OpenSet = new List<Path_Node<Tile>>();
-		OpenSet.Add( start );
-*/
-
             SimplePriorityQueue<Path_Node<Tile>> OpenSet = new SimplePriorityQueue<Path_Node<Tile>>();
             OpenSet.Enqueue( start, 0);
 
@@ -92,8 +88,13 @@ namespace Assets.Scripts.Pathfinding
                     g_score[neighbor] = tentative_g_score;
                     f_score[neighbor] = g_score[neighbor] + heuristic_cost_estimate(neighbor, goal);
 
-                    if(OpenSet.Contains(neighbor) == false) {
+                    if (OpenSet.Contains(neighbor) == false)
+                    {
                         OpenSet.Enqueue(neighbor, f_score[neighbor]);
+                    }
+                    else
+                    {
+                        OpenSet.UpdatePriority(neighbor, f_score[neighbor]);
                     }
 
                 } // foreach neighbour
@@ -136,7 +137,6 @@ namespace Assets.Scripts.Pathfinding
                 Mathf.Pow(a.data.X - b.data.X, 2) +
                 Mathf.Pow(a.data.Y - b.data.Y, 2)
                 );
-
         }
 
         void reconstruct_path(
@@ -166,13 +166,16 @@ namespace Assets.Scripts.Pathfinding
 
             }
 
-        public Tile Dequeue() {
+        public Tile Dequeue()
+        {
             return path.Dequeue();
         }
 
         public int Length() {
-            if(path == null)
+            if (path == null)
+            {
                 return 0;
+            }
 
             return path.Count;
         }

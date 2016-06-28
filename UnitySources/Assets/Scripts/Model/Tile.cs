@@ -11,20 +11,28 @@ namespace Assets.Scripts.Model
     [DebuggerDisplay("Tile [{X},{Y}]")]
     public class Tile : IXmlSerializable
     {
-
-        public World World { get; private set; }
-
+        /* #################################################################### */
+        /* #                           FIELDS                                 # */
+        /* #################################################################### */
         private TileType type = TileType.Empty;
 
-        //private Inventory _inventory;
+        /* #################################################################### */
+        /* #                        CONSTRUCTORS                              # */
+        /* #################################################################### */
 
-        public Furniture Furniture { get; private set; }
-        public Job PendingFurnitureJob { get; set; }
-
+        /* #################################################################### */
+        /* #                         DELEGATES                                # */
+        /* #################################################################### */
         private Action<Tile> cbTileChanged;
 
+        /* #################################################################### */
+        /* #                         PROPERTIES                               # */
+        /* #################################################################### */
         public int X { get; private set; }
         public int Y { get; private set; }
+        public World World { get; private set; }
+        public Furniture Furniture { get; private set; }
+        public Job PendingFurnitureJob { get; set; }
 
         public TileType Type
         {
@@ -63,6 +71,10 @@ namespace Assets.Scripts.Model
                 return 1 * Furniture.MovementCost;
             }
         }
+
+        /* #################################################################### */
+        /* #                           METHODS                                # */
+        /* #################################################################### */
 
         public Tile()
         {
@@ -160,6 +172,22 @@ namespace Assets.Scripts.Model
             }
 
             return ns;
+        }
+
+        public Enterability IsEnterable()
+        {
+            if (MovementCost == 0)
+            {
+                return Enterability.Never;
+            }
+
+            // Check the furniture to see if it has any special rules on enterability.
+            if (Furniture != null && Furniture.IsEntereable != null)
+            {
+                return Furniture.IsEntereable(Furniture);
+            }
+
+            return Enterability.Yes;
         }
 
         ///////////////////////////////////////////////////////
