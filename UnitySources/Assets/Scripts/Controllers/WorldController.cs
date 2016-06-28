@@ -18,6 +18,7 @@ namespace Assets.Scripts.Controllers
         public void NewWorld()
         {
             Debug.Log("New World clicked.");
+            loadWorld = false;
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
 

@@ -1,6 +1,6 @@
 fileFormatVersion: 2
 guid: a2d370189c04b9b488dae91385eda05e
-timeCreated: 1466696041
+timeCreated: 1467103232
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
@@ -38,7 +38,7 @@ TextureImporter:
     21300062: orange_walls_1_N
     21300064: orange_walls_1_S
     21300066: Wall_
-    21300068: orange_walls_34
+    21300068: Door_
     21300070: orange_walls_35
     21300072: orange_walls_36
     21300074: orange_walls_37
@@ -627,7 +627,7 @@ TextureImporter:
         - {x: 0, y: 0}
         - {x: 64, y: 0}
         - {x: 64, y: 64}
-    - name: orange_walls_34
+    - name: Door_
       rect:
         serializedVersion: 2
         x: 522
@@ -638,13 +638,10 @@ TextureImporter:
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 3}
-        - {x: 5, y: 0}
-        - {x: 57, y: 0}
-        - {x: 64, y: 11}
-        - {x: 64, y: 52}
-        - {x: 53, y: 64}
+      - - {x: 0, y: 21}
+        - {x: 64, y: 21}
+        - {x: 64, y: 40}
+        - {x: 0, y: 40}
     - name: orange_walls_35
       rect:
         serializedVersion: 2
@@ -656,14 +653,10 @@ TextureImporter:
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 17, y: 56}
-        - {x: 8, y: 51}
-        - {x: 8, y: 20}
-        - {x: 20, y: 8}
-        - {x: 52, y: 8}
-        - {x: 56, y: 21}
-        - {x: 56, y: 50}
-        - {x: 51, y: 56}
+      - - {x: 42, y: 0}
+        - {x: 42, y: 64}
+        - {x: 23, y: 64}
+        - {x: 23, y: 0}
     - name: orange_walls_36
       rect:
         serializedVersion: 2
