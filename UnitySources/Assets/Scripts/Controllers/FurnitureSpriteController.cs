@@ -43,6 +43,7 @@ namespace Assets.Scripts.Controllers
             _furnitureGameObjectMap.Add(furn, furnGo);
 
             furnGo.name = furn.ObjectType + "_" + furn.Tile.X + "_" + furn.Tile.Y;
+            furnGo.transform.localScale = new Vector3(1.001f, 1.001f); // little bit of extra size to help prevent gaps between tiles. TODO: must be a cleverer way of doing this ;)
             furnGo.transform.position = new Vector3(furn.Tile.X, furn.Tile.Y, 0);
             furnGo.transform.SetParent(this.transform, true);
         

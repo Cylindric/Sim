@@ -28,7 +28,7 @@ namespace Assets.Scripts.Controllers
                     _tileGameObjectMap.Add(tileData, tileGo);
 
                     tileGo.name = "Tile_" + x + "_" + y;
-                    //tileGo.transform.localScale = new Vector3(1.01f, 1.01f); // little bit of extra size to help prevent gaps between tiles. TODO: must be a cleverer way of doing this ;)
+                    tileGo.transform.localScale = new Vector3(1.001f, 1.001f); // little bit of extra size to help prevent gaps between tiles. TODO: must be a cleverer way of doing this ;)
                     tileGo.transform.position = new Vector3(tileData.X, tileData.Y, 0);
                     tileGo.transform.SetParent(this.transform, true);
 

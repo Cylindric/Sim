@@ -270,7 +270,7 @@ namespace Assets.Scripts.Model
             this._furniturePrototypes = new Dictionary<string, Furniture>();
 
             this._furniturePrototypes.Add("Wall", new Furniture("Wall", 0f, 1, 1, true));
-            this._furniturePrototypes.Add("Door", new Furniture("Door", 1f, 1, 1, false));
+            this._furniturePrototypes.Add("Door", new Furniture("Door", 2f, 1, 1, false));
 
             this._furniturePrototypes["Door"].furnParameters["openess"] = 0.0f;
             this._furniturePrototypes["Door"].furnParameters["is_opening"] = 0.0f;

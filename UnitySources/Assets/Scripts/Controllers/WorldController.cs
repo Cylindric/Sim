@@ -1,9 +1,11 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Security.Policy;
 using System.Xml;
 using System.Xml.Serialization;
 using Assets.Scripts.Model;
 using UnityEngine;
+using UnityEngine.Analytics;
 using UnityEngine.SceneManagement;
 
 namespace Assets.Scripts.Controllers
@@ -106,6 +108,24 @@ namespace Assets.Scripts.Controllers
             if (Input.GetKeyDown(KeyCode.Escape))
             {
                 Application.Quit();
+            }
+
+            float scrollSpeed = 4f;
+            if (Input.GetKey(KeyCode.A))
+            {
+                Camera.main.transform.position += Vector3.left * Time.deltaTime * scrollSpeed;
+            }
+            else if (Input.GetKey(KeyCode.D))
+            {
+                Camera.main.transform.position += Vector3.right * Time.deltaTime * scrollSpeed;
+            }
+            if (Input.GetKey(KeyCode.W))
+            {
+                Camera.main.transform.position += Vector3.up * Time.deltaTime * scrollSpeed;
+            }
+            else if (Input.GetKey(KeyCode.S))
+            {
+                Camera.main.transform.position += Vector3.down * Time.deltaTime * scrollSpeed;
             }
         }
 
