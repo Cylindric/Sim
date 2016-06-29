@@ -1,6 +1,6 @@
 fileFormatVersion: 2
 guid: a2d370189c04b9b488dae91385eda05e
-timeCreated: 1467127460
+timeCreated: 1467211014
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
@@ -37,7 +37,7 @@ TextureImporter:
     21300060: orange_walls_30
     21300062: orange_walls_1_N
     21300064: orange_walls_1_S
-    21300066: Wall_
+    21300066: Wall
     21300068: Door
     21300070: orange_walls_35
     21300072: orange_walls_36
@@ -70,6 +70,18 @@ TextureImporter:
     21300126: orange_walls_24
     21300128: orange_walls_31
     21300130: orange_walls_32
+    21300132: Door_EW_0
+    21300134: Door_NS_0
+    21300136: Door_EW_20
+    21300138: Door_NS_20
+    21300140: Door_EW_40
+    21300142: Door_NS_40
+    21300144: Door_EW_60
+    21300146: Door_NS_60
+    21300148: Door_EW_80
+    21300150: Door_NS_80
+    21300152: Door_EW_100
+    21300154: Door_NS_100
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
@@ -612,7 +624,7 @@ TextureImporter:
         - {x: 0, y: 0}
         - {x: 64, y: 0}
         - {x: 64, y: 64}
-    - name: Wall_
+    - name: Wall
       rect:
         serializedVersion: 2
         x: 448
@@ -638,12 +650,12 @@ TextureImporter:
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 39}
-        - {x: 0, y: 22}
-        - {x: 1, y: 21}
-        - {x: 64, y: 21}
-        - {x: 64, y: 40}
-        - {x: 1, y: 40}
+      - - {x: 4, y: 64}
+        - {x: 0, y: 63}
+        - {x: 0, y: 0}
+        - {x: 64, y: 0}
+        - {x: 64, y: 58}
+        - {x: 63, y: 64}
     - name: orange_walls_35
       rect:
         serializedVersion: 2
@@ -655,10 +667,14 @@ TextureImporter:
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 42, y: 0}
-        - {x: 42, y: 64}
-        - {x: 23, y: 64}
-        - {x: 23, y: 0}
+      - - {x: 17, y: 56}
+        - {x: 8, y: 51}
+        - {x: 8, y: 20}
+        - {x: 20, y: 8}
+        - {x: 52, y: 8}
+        - {x: 56, y: 21}
+        - {x: 56, y: 50}
+        - {x: 51, y: 56}
     - name: orange_walls_36
       rect:
         serializedVersion: 2
@@ -929,6 +945,204 @@ TextureImporter:
         - {x: 30, y: 0}
         - {x: 64, y: 0}
         - {x: 64, y: 64}
+    - name: Door_EW_0
+      rect:
+        serializedVersion: 2
+        x: 670
+        y: 374
+        width: 64
+        height: 64
+      alignment: 6
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: 0, y: 23}
+        - {x: 64, y: 23}
+        - {x: 64, y: 42}
+        - {x: 0, y: 42}
+    - name: Door_NS_0
+      rect:
+        serializedVersion: 2
+        x: 742
+        y: 374
+        width: 64
+        height: 64
+      alignment: 6
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: 44, y: 0}
+        - {x: 44, y: 64}
+        - {x: 25, y: 64}
+        - {x: 25, y: 0}
+    - name: Door_EW_20
+      rect:
+        serializedVersion: 2
+        x: 670
+        y: 300
+        width: 64
+        height: 64
+      alignment: 6
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: 0, y: 42}
+        - {x: 0, y: 23}
+        - {x: 60, y: 23}
+        - {x: 62, y: 25}
+        - {x: 62, y: 40}
+        - {x: 60, y: 42}
+    - name: Door_NS_20
+      rect:
+        serializedVersion: 2
+        x: 742
+        y: 300
+        width: 64
+        height: 64
+      alignment: 6
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: 25, y: 60}
+        - {x: 25, y: 0}
+        - {x: 44, y: 0}
+        - {x: 44, y: 60}
+        - {x: 42, y: 62}
+        - {x: 27, y: 62}
+    - name: Door_EW_40
+      rect:
+        serializedVersion: 2
+        x: 670
+        y: 226
+        width: 64
+        height: 64
+      alignment: 6
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: 0, y: 42}
+        - {x: 0, y: 23}
+        - {x: 47, y: 23}
+        - {x: 49, y: 25}
+        - {x: 49, y: 40}
+        - {x: 47, y: 42}
+    - name: Door_NS_40
+      rect:
+        serializedVersion: 2
+        x: 742
+        y: 225
+        width: 64
+        height: 64
+      alignment: 6
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: 25, y: 50}
+        - {x: 25, y: 1}
+        - {x: 26, y: 0}
+        - {x: 44, y: 0}
+        - {x: 44, y: 50}
+    - name: Door_EW_60
+      rect:
+        serializedVersion: 2
+        x: 669
+        y: 152
+        width: 64
+        height: 64
+      alignment: 6
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: 0, y: 42}
+        - {x: 0, y: 24}
+        - {x: 1, y: 23}
+        - {x: 37, y: 23}
+        - {x: 37, y: 42}
+    - name: Door_NS_60
+      rect:
+        serializedVersion: 2
+        x: 742
+        y: 152
+        width: 64
+        height: 64
+      alignment: 6
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: 25, y: 34}
+        - {x: 25, y: 0}
+        - {x: 44, y: 0}
+        - {x: 44, y: 34}
+        - {x: 42, y: 36}
+        - {x: 27, y: 36}
+    - name: Door_EW_80
+      rect:
+        serializedVersion: 2
+        x: 670
+        y: 78
+        width: 64
+        height: 64
+      alignment: 6
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: 0, y: 42}
+        - {x: 0, y: 23}
+        - {x: 21, y: 23}
+        - {x: 23, y: 25}
+        - {x: 23, y: 40}
+        - {x: 21, y: 42}
+    - name: Door_NS_80
+      rect:
+        serializedVersion: 2
+        x: 742
+        y: 78
+        width: 64
+        height: 64
+      alignment: 6
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: 25, y: 21}
+        - {x: 25, y: 0}
+        - {x: 44, y: 0}
+        - {x: 44, y: 21}
+        - {x: 42, y: 23}
+        - {x: 27, y: 23}
+    - name: Door_EW_100
+      rect:
+        serializedVersion: 2
+        x: 670
+        y: 4
+        width: 64
+        height: 64
+      alignment: 6
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: 0, y: 42}
+        - {x: 0, y: 23}
+        - {x: 8, y: 23}
+        - {x: 10, y: 25}
+        - {x: 10, y: 40}
+        - {x: 8, y: 42}
+    - name: Door_NS_100
+      rect:
+        serializedVersion: 2
+        x: 742
+        y: 4
+        width: 64
+        height: 64
+      alignment: 6
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: 25, y: 8}
+        - {x: 25, y: 0}
+        - {x: 44, y: 0}
+        - {x: 44, y: 8}
+        - {x: 42, y: 10}
+        - {x: 27, y: 10}
     outline: []
   spritePackingTag: 
   userData: 

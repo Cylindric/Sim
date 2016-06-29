@@ -8,25 +8,27 @@ namespace Assets.Scripts.Model
         {
             if (furn.furnParameters["is_opening"] >= 1f)
             {
-                furn.furnParameters["openess"] += deltaTime*4;
-                if (furn.furnParameters["openess"] >= 1)
+                furn.furnParameters["openness"] += deltaTime*4;
+
+                if (furn.furnParameters["openness"] >= 1f)
                 {
                     furn.furnParameters["is_opening"] = 0;
                 }
             }
             else
             {
-                furn.furnParameters["openess"] -= deltaTime * 4;
+                furn.furnParameters["openness"] -= deltaTime * 4;
             }
 
-            furn.furnParameters["openess"] = Mathf.Clamp01(furn.furnParameters["openess"]);
+            furn.furnParameters["openness"] = Mathf.Clamp01(furn.furnParameters["openness"]);
+            furn.cbOnChanged(furn);
         }
 
         public static Enterability Door_IsEnterable(Furniture furn)
         {
             furn.furnParameters["is_opening"] = 1;
 
-            if (furn.furnParameters["openess"] >= 1)
+            if (furn.furnParameters["openness"] >= 1)
             {
                 return Enterability.Yes;
             }

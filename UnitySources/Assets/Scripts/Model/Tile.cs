@@ -12,6 +12,11 @@ namespace Assets.Scripts.Model
     public class Tile : IXmlSerializable
     {
         /* #################################################################### */
+        /* #                      CONSTANT FIELDS                             # */
+        /* #################################################################### */
+        private const float BaseTileMovementCost = 1f;
+
+        /* #################################################################### */
         /* #                           FIELDS                                 # */
         /* #################################################################### */
         private TileType type = TileType.Empty;
@@ -53,7 +58,6 @@ namespace Assets.Scripts.Model
             }
         }
 
-
         public float MovementCost
         {
             get
@@ -65,10 +69,10 @@ namespace Assets.Scripts.Model
 
                 if (Furniture == null)
                 {
-                    return 1f;
+                    return BaseTileMovementCost;
                 }
 
-                return 1 * Furniture.MovementCost;
+                return BaseTileMovementCost * Furniture.MovementCost;
             }
         }
 

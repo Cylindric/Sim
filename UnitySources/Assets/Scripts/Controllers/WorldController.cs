@@ -78,6 +78,10 @@ namespace Assets.Scripts.Controllers
         {
             Debug.Log("Creating world from save.");
             var filename = Path.Combine(Application.persistentDataPath, "SaveGame000.xml");
+            if (File.Exists(filename) == false)
+            {
+                return;
+            }
 
             var serializer = new XmlSerializer(typeof(World));
             var reader = new StreamReader(filename);
@@ -85,6 +89,9 @@ namespace Assets.Scripts.Controllers
             reader.Close();
 
             Camera.main.transform.position = new Vector3(World.Width / 2f, World.Height / 2f, Camera.main.transform.position.z);
+
+            //  Use this call for wherever a player triggers a custom event
+            Analytics.CustomEvent("GameLoad", new Dictionary<string, object>() { {"save", "SaveGame000.xml"} });
         }
 
         private void CreateEmptyWorld()
@@ -93,7 +100,7 @@ namespace Assets.Scripts.Controllers
             this.World = new World(25, 25);
 
             World.CreateCharacter(World.GetTileAt(World.Width / 2, World.Height / 2));
-            World.CreateCharacter(World.GetTileAt(World.Width / 2 + 1, World.Height / 2));
+            // World.CreateCharacter(World.GetTileAt(World.Width / 2 + 1, World.Height / 2));
 
             Camera.main.transform.position = new Vector3(World.Width / 2f, World.Height / 2f, Camera.main.transform.position.z);
         }

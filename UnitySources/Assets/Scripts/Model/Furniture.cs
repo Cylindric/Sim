@@ -90,7 +90,7 @@ namespace Assets.Scripts.Model
         /* #                         DELEGATES                                # */
         /* #################################################################### */
 
-        private Action<Furniture> cbOnChanged;
+        public Action<Furniture> cbOnChanged;
 
         private readonly Func<Tile, bool> funcPositionValidation;
 

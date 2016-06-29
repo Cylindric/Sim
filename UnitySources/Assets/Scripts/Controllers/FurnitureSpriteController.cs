@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Assets.Scripts.Model;
 using UnityEngine;
 
@@ -6,36 +7,27 @@ namespace Assets.Scripts.Controllers
 {
     public class FurnitureSpriteController : MonoBehaviour
     {
-        public static WorldController Instance { get; protected set; }
+        /* #################################################################### */
+        /* #                           FIELDS                                 # */
+        /* #################################################################### */
 
         private readonly Dictionary<Furniture, GameObject> _furnitureGameObjectMap = new Dictionary<Furniture, GameObject>();
         private readonly Dictionary<string, Sprite> _furnitureSprites = new Dictionary<string, Sprite>();
+
+        /* #################################################################### */
+        /* #                         PROPERTIES                               # */
+        /* #################################################################### */
+
+        public static WorldController Instance { get; protected set; }
 
         /// <summary>
         /// This is just a helper property to make it easier to access World.
         /// </summary>
         private static World World { get { return WorldController.Instance.World; } }
 
-        private void Start()
-        {
-            LoadSprites();
-            World.RegisterFurnitureCreatedCb(OnFurnitureCreated);
-
-            // Go through any existing furniture (i.e. from save) call their onCreate.
-            foreach (var furn in World._furnitures)
-            {
-                OnFurnitureCreated(furn);
-            }
-        }
-
-        private void LoadSprites()
-        {
-            var sprites = Resources.LoadAll<Sprite>("Furniture/orange_walls");
-            foreach (var sprite in sprites)
-            {
-                _furnitureSprites.Add(sprite.name, sprite);
-            }
-        }
+        /* #################################################################### */
+        /* #                           METHODS                                # */
+        /* #################################################################### */
 
         public void OnFurnitureCreated(Furniture furn)
         {
@@ -46,7 +38,7 @@ namespace Assets.Scripts.Controllers
             furnGo.transform.localScale = new Vector3(1.001f, 1.001f); // little bit of extra size to help prevent gaps between tiles. TODO: must be a cleverer way of doing this ;)
             furnGo.transform.position = new Vector3(furn.Tile.X, furn.Tile.Y, 0);
             furnGo.transform.SetParent(this.transform, true);
-        
+
             var sr = furnGo.AddComponent<SpriteRenderer>();
             sr.sprite = GetSpriteForFurniture(furn);
             sr.sortingLayerName = "Furniture";
@@ -57,14 +49,14 @@ namespace Assets.Scripts.Controllers
         public Sprite GetSpriteForFurniture(Furniture obj)
         {
             var spriteName = obj.ObjectType;
+            var x = obj.Tile.X;
+            var y = obj.Tile.Y;
 
             if (obj.LinksToNeighbour == true)
             {
                 spriteName = spriteName + "_";
 
                 // check for neighbours NESW
-                var x = obj.Tile.X;
-                var y = obj.Tile.Y;
 
                 Tile t;
 
@@ -90,6 +82,52 @@ namespace Assets.Scripts.Controllers
                 }
             }
 
+            // If it's a door, check openness and update the sprite accordingly.
+            if (obj.ObjectType == "Door") // TODO: fix this hard-coding of types
+            {
+                spriteName = "Door_";
+
+                // Check for the EW/NS orientation
+                var t = World.GetTileAt(x + 1, y); // East
+                if (t != null && t.Furniture != null && t.Furniture.ObjectType == "Wall")
+                {
+                    spriteName += "EW_";
+                } else
+                {
+                    spriteName += "NS_";
+                }
+
+                if (obj.furnParameters["openness"] <= 0.1)
+                {
+                    spriteName += "0";
+                }
+                else if (obj.furnParameters["openness"] <= 0.2)
+                {
+                    spriteName += "20";
+                }
+                else if (obj.furnParameters["openness"] <= 0.4)
+                {
+                    spriteName += "40";
+                }
+                else if (obj.furnParameters["openness"] <= 0.6)
+                {
+                    spriteName += "60";
+                }
+                else if (obj.furnParameters["openness"] <= 0.8)
+                {
+                    spriteName += "80";
+                }
+                else if (obj.furnParameters["openness"] <= 1.0)
+                {
+                    spriteName += "100";
+                }
+            }
+
+            if (spriteName.EndsWith("_"))
+            {
+                spriteName = spriteName.Substring(0, spriteName.LastIndexOf("_", StringComparison.Ordinal));
+            }
+
             if (_furnitureSprites.ContainsKey(spriteName) == false)
             {
                 Debug.LogErrorFormat("Attempt to load missing sprite [{0}] failed!", spriteName);
@@ -101,17 +139,41 @@ namespace Assets.Scripts.Controllers
 
         public Sprite GetSpriteForFurniture(string objectType)
         {
-            if (_furnitureSprites.ContainsKey(objectType))
+            var spritename = objectType;
+
+            if (_furnitureSprites.ContainsKey(spritename))
             {
-                return _furnitureSprites[objectType];
+                return _furnitureSprites[spritename];
             }
 
-            if (_furnitureSprites.ContainsKey(objectType + "_"))
+            if (_furnitureSprites.ContainsKey(spritename + "_"))
             {
-                return _furnitureSprites[objectType + "_"];
+                return _furnitureSprites[spritename + "_"];
             }
 
             return null;
+        }
+
+        private
+            void Start()
+        {
+            LoadSprites();
+            World.RegisterFurnitureCreatedCb(OnFurnitureCreated);
+
+            // Go through any existing furniture (i.e. from save) call their onCreate.
+            foreach (var furn in World._furnitures)
+            {
+                OnFurnitureCreated(furn);
+            }
+        }
+
+        private void LoadSprites()
+        {
+            var sprites = Resources.LoadAll<Sprite>("Furniture/orange_walls");
+            foreach (var sprite in sprites)
+            {
+                _furnitureSprites.Add(sprite.name, sprite);
+            }
         }
 
         private void OnFurnitureChanged(Furniture furn)
