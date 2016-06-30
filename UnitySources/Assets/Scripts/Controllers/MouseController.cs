@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
-using Assets.Scripts.Controllers;
+using Assets.Scripts.Model;
 using Assets.Scripts.Utilities;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace Assets.Scripts.Scripts.Controllers
+namespace Assets.Scripts.Controllers
 {
     public class MouseController : MonoBehaviour
     {
@@ -16,6 +16,22 @@ namespace Assets.Scripts.Scripts.Controllers
         private Vector3 _dragStartPosition;
         private List<GameObject> _dragPreviewGameObjects;
 
+        /// <summary>
+        /// Gets the current mouse position, in World-space coordinates.
+        /// </summary>
+        /// <returns></returns>
+        public Vector3 GetMousePosition()
+        {
+            return _currentFramePosition;
+        }
+
+        public Tile GetTileUnderMouse()
+        {
+            var x = Mathf.FloorToInt(_currentFramePosition.x);
+            var y = Mathf.FloorToInt(_currentFramePosition.y);
+            return WorldController.Instance.World.GetTileAt(x, y);
+        }
+
         // Use this for initialization
         private void Start()
         {
@@ -23,7 +39,7 @@ namespace Assets.Scripts.Scripts.Controllers
         }
 
         // Update is called once per frame
-        void Update ()
+        private void Update ()
         {
             _currentFramePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         

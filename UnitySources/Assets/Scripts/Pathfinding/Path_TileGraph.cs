@@ -28,7 +28,7 @@ namespace Assets.Scripts.Pathfinding
 
                     Tile t = world.GetTileAt(x,y);
 
-                    //if(t.movementCost > 0) {	// Tiles with a move cost of 0 are unwalkable
+                    //if(t.MovementCost > 0) {	// Tiles with a move cost of 0 are unwalkable
                     Path_Node<Tile> n = new Path_Node<Tile>();
                     n.data = t;
                     nodes.Add(t, n);

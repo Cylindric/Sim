@@ -210,7 +210,7 @@ namespace Assets.Scripts.Model
             // This might happen if the tile is changed (e.g. wall built) after the pathfinder runs.
             if (nextTile.IsEnterable() == Enterability.Never)
             {
-                Debug.LogError("Error - character was strying to enter an impassable tile!");
+                // Debug.LogError("Error - character was strying to enter an impassable tile!");
                 nextTile = currTile;
                 pathAStar = null;
             }

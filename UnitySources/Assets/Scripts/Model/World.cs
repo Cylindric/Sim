@@ -16,8 +16,8 @@ namespace Assets.Scripts.Model
         public JobQueue JobQueue;
         public List<Character> _characters;
         public List<Furniture> _furnitures;
+        public List<Room> _rooms; 
 
-        private List<Room> _rooms; 
         private Tile[,] _tiles;
         private Dictionary<string, Furniture> _furniturePrototypes;
 
@@ -148,7 +148,7 @@ namespace Assets.Scripts.Model
             {
                 this._cbFurnitureCreated(furn);
                 
-                if (Mathf.Approximately(furn.MovementCost, 1f))
+                if (Mathf.Approximately(furn.MovementCost, 1f) == false)
                 {
                     // Tiles with a movement cost of exactly 1, don't affect the path-finding for their tile.
                     this.InvalidateTileGraph();
