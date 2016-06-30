@@ -5,11 +5,21 @@ namespace Assets.Scripts.Model
 {
     public class Room
     {
+        /* #################################################################### */
+        /* #                              FIELDS                              # */
+        /* #################################################################### */
+
         private float _atmosO2 = 0f;
+
         private float _atmosN = 0f;
+
         private float _atmosCo2 = 0f;
 
         private List<Tile> _tiles = new List<Tile>();
+
+        /* #################################################################### */
+        /* #                              METHODS                             # */
+        /* #################################################################### */
 
         public void AssignTile(Tile t)
         {
@@ -29,9 +39,9 @@ namespace Assets.Scripts.Model
 
         public void UnassignAllTiles()
         {
-            for (int i = 0; i < _tiles.Count; i++)
+            foreach (var t in _tiles)
             {
-                _tiles[i].Room = _tiles[i].World.GetOutsideRoom();
+                t.Room = t.World.GetOutsideRoom();
             }
             _tiles = new List<Tile>();
         }
@@ -122,6 +132,11 @@ namespace Assets.Scripts.Model
                     }
                 }
             }
+
+            // Copy data from the old room to the new room.
+            newRoom._atmosCo2 = oldRoom._atmosCo2;
+            newRoom._atmosN = oldRoom._atmosN;
+            newRoom._atmosO2 = oldRoom._atmosO2;
 
             // Tell the World that a new Room has been created.
             tile.World.AddRoom(newRoom);

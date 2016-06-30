@@ -308,9 +308,9 @@ namespace Assets.Scripts.Model
             this._furniturePrototypes.Add("Wall", new Furniture("Wall", 0f, 1, 1, true, true));
             this._furniturePrototypes.Add("Door", new Furniture("Door", 2f, 1, 1, false, true));
 
-            this._furniturePrototypes["Door"].furnParameters["openness"] = 0.0f;
-            this._furniturePrototypes["Door"].furnParameters["is_opening"] = 0.0f;
-            this._furniturePrototypes["Door"].updateActions += FurnitureActions.Door_UpdateAction;
+            this._furniturePrototypes["Door"].SetParameter("openness", 0.0f);
+            this._furniturePrototypes["Door"].SetParameter("is_opening", 0.0f);
+            this._furniturePrototypes["Door"].RegisterUpdateAction(FurnitureActions.Door_UpdateAction);
             this._furniturePrototypes["Door"].IsEntereable = FurnitureActions.Door_IsEnterable;
         }
 

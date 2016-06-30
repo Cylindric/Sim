@@ -16,11 +16,9 @@ namespace Assets.Scripts.Model
         /* #                           FIELDS                                 # */
         /* #################################################################### */
 
-        public Dictionary<string, float> furnParameters;
-
-        public Action<Furniture, float> updateActions;
-
         public Func<Furniture, Enterability> IsEntereable;
+
+        private Dictionary<string, float> _parameters;
 
         /// <summary>
         /// Width of the Object in Tiles.
@@ -42,7 +40,30 @@ namespace Assets.Scripts.Model
         public Furniture()
         {
             this.LinksToNeighbour = false;
-            this.furnParameters = new Dictionary<string, float>();
+            this._parameters = new Dictionary<string, float>();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Furniture"/> class.
+        /// </summary>
+        /// <remarks>Don't call this directly. Use Clone() instead.</remarks>
+        /// <param name="other">The Furniture instance to copy.</param>
+        private Furniture(Furniture other)
+        {
+            this.ObjectType = other.ObjectType;
+            this.MovementCost = other.MovementCost;
+            this._width = other._width;
+            this._height = other._height;
+            this.LinksToNeighbour = other.LinksToNeighbour;
+
+            this._parameters = new Dictionary<string, float>(other._parameters);
+            if (other._cbUpdateActions != null)
+            {
+                this._cbUpdateActions = (Action<Furniture, float>)other._cbUpdateActions.Clone();
+            }
+
+            this.IsEntereable = other.IsEntereable;
+            this.IsRoomEnclosure = other.IsRoomEnclosure;
         }
 
         /// <summary>
@@ -61,31 +82,9 @@ namespace Assets.Scripts.Model
             this._width = width;
             this._height = height;
             this.LinksToNeighbour = linksToNeighbour;
-            this.funcPositionValidation = this.__IsValidPosition;
-            this.furnParameters = new Dictionary<string, float>();
+            this._funcPositionValidation = this.__IsValidPosition;
+            this._parameters = new Dictionary<string, float>();
             this.IsRoomEnclosure = isRoomEnclosure;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Furniture"/> class.
-        /// </summary>
-        /// <param name="other">The Furniture instance to copy.</param>
-        private Furniture(Furniture other)
-        {
-            this.ObjectType = other.ObjectType;
-            this.MovementCost = other.MovementCost;
-            this._width = other._width;
-            this._height = other._height;
-            this.LinksToNeighbour = other.LinksToNeighbour;
-
-            this.furnParameters = new Dictionary<string, float>(other.furnParameters);
-            if (other.updateActions != null)
-            {
-                this.updateActions = (Action<Furniture, float>)other.updateActions.Clone();
-            }
-
-            this.IsEntereable = other.IsEntereable;
-            this.IsRoomEnclosure = other.IsRoomEnclosure;
         }
 
         /* #################################################################### */
@@ -94,7 +93,12 @@ namespace Assets.Scripts.Model
 
         public Action<Furniture> cbOnChanged;
 
-        private readonly Func<Tile, bool> funcPositionValidation;
+        /// <summary>
+        /// These actions are called on every update. They get called with a Furniture, and the deltaTime.
+        /// </summary>
+        private Action<Furniture, float> _cbUpdateActions;
+
+        private readonly Func<Tile, bool> _funcPositionValidation;
 
         /* #################################################################### */
         /* #                         PROPERTIES                               # */
@@ -121,11 +125,71 @@ namespace Assets.Scripts.Model
         /// <remarks>If this is zero, the Tile is impassable.</remarks>
         public float MovementCost { get; private set; }
 
+        /// <summary>
+        /// Gets a value if this Furniture defines a separate room.
+        /// </summary>
         public bool IsRoomEnclosure { get; private set; }
 
         /* #################################################################### */
         /* #                           METHODS                                # */
         /* #################################################################### */
+
+        /// <summary>
+        /// Gets the custom Furniture parameter.
+        /// </summary>
+        /// <param name="key">Key</param>
+        /// <param name="defaultValue">Default value</param>
+        /// <returns>float</returns>
+        public float GetParameter(string key, float defaultValue = 0)
+        {
+            if (_parameters.ContainsKey(key) == false)
+            {
+                return defaultValue;
+            }
+            return _parameters[key];
+        }
+
+        /// <summary>
+        /// Sets the custom Furniture parameter.
+        /// </summary>
+        /// <param name="key">Key</param>
+        /// <param name="value">New Value</param>
+        public void SetParameter(string key, float value)
+        {
+            _parameters[key] = value;
+        }
+
+        /// <summary>
+        /// Changes the custom Furniture parameter by the specified amount.
+        /// </summary>
+        /// <param name="key">Key</param>
+        /// <param name="value">Delta value</param>
+        public void OffsetParameter(string key, float value)
+        {
+            if (_parameters.ContainsKey(key) == false)
+            {
+                _parameters[key] = value;
+            }
+            _parameters[key] += value;
+        }
+
+        /// <summary>
+        /// Registers a function that will be called on every Update.
+        /// </summary>
+        /// <param name="a">Action to call.</param>
+        public void RegisterUpdateAction(Action<Furniture, float> a)
+        {
+            _cbUpdateActions += a;
+        }
+
+        /// <summary>
+        /// Unregisters a function that has been set to be called on every Update.
+        /// </summary>
+        /// <param name="a">Action to remove.</param>
+        public void UnregisterUpdateAction(Action<Furniture, float> a)
+        {
+            _cbUpdateActions -= a;
+        }
 
         /// <summary>
         /// Install a copy of the specified Prototype to the specified Tile.
@@ -135,7 +199,7 @@ namespace Assets.Scripts.Model
         /// <returns>The placed Furniture</returns>
         public static Furniture PlaceInstance(Furniture proto, Tile tile)
         {
-            if (proto.funcPositionValidation(tile) == false)
+            if (proto._funcPositionValidation(tile) == false)
             {
                 Debug.LogError("PlaceInstance position validity function returned false.");
                 return null;
@@ -194,6 +258,11 @@ namespace Assets.Scripts.Model
             return obj;
         }
 
+        /// <summary>
+        /// Make a copy of the current Furniture object.
+        /// </summary>
+        /// <remarks>Sub-classes should override this Clone() if a different copy constructor should be run.</remarks>
+        /// <returns></returns>
         public virtual Furniture Clone()
         {
             return new Furniture(this);
@@ -215,41 +284,20 @@ namespace Assets.Scripts.Model
         /// <param name="deltaTime">The amount of time that has passed since the last tick.</param>
         public void Update(float deltaTime)
         {
-            if (this.updateActions != null)
+            if (this._cbUpdateActions != null)
             {
-                this.updateActions(this, deltaTime);
+                this._cbUpdateActions(this, deltaTime);
             }
         }
 
         public bool IsValidPosition(Tile t)
         {
-            return this.funcPositionValidation(t);
+            return this._funcPositionValidation(t);
         }
-
-        /*
-        public bool IsValidPositionForDoor(Tile t)
-        {
-            if (__IsValidPosition(t) == false) return false;
-
-            // TODO: Make sure we have either N/S walls or E/W walls.
-            if (t.World.GetTileAt(t.X, t.Y + 1).Furniture.ObjectType == "Wall" &&
-                t.World.GetTileAt(t.X, t.Y - 1).Furniture.ObjectType == "Wall")
-            {
-                return true;
-            }
-            if (t.World.GetTileAt(t.X + 1, t.Y).Furniture.ObjectType == "Wall" &&
-                t.World.GetTileAt(t.X - 1, t.Y).Furniture.ObjectType == "Wall")
-            {
-                return true;
-            }
-
-            return true;
-        }
-        */
 
         public void Door_UpdateAction(float deltaTime)
         {
-            //this.furnParameters["openness"] += deltaTime;
+            //this.OffsetParameter("openness", deltaTime);
         }
 
         /// <summary>
@@ -271,7 +319,7 @@ namespace Assets.Scripts.Model
                 {
                     var k = reader.GetAttribute("name");
                     var v = float.Parse(reader.GetAttribute("value"));
-                    furnParameters[k] = v;
+                    _parameters[k] = v;
                 } while (reader.ReadToNextSibling("Param"));
             }
         }
@@ -284,7 +332,7 @@ namespace Assets.Scripts.Model
             writer.WriteAttributeString("objectType", this.ObjectType);
             writer.WriteAttributeString("movementCost", this.MovementCost.ToString());
 
-            foreach (var k in furnParameters)
+            foreach (var k in _parameters)
             {
                 writer.WriteStartElement("Param");
                 writer.WriteAttributeString("name", k.Key);
@@ -295,6 +343,11 @@ namespace Assets.Scripts.Model
             writer.WriteEndElement();
         }
 
+        /// <summary>
+        /// This will be replaced by validation checks fed to us from customisable LUA files.
+        /// </summary>
+        /// <param name="t"></param>
+        /// <returns></returns>
         private bool __IsValidPosition(Tile t)
         {
             // Make sure Tile is of type Floor.

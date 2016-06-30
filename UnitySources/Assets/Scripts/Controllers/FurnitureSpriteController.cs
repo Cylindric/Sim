@@ -97,27 +97,27 @@ namespace Assets.Scripts.Controllers
                     spriteName += "NS_";
                 }
 
-                if (obj.furnParameters["openness"] <= 0.1)
+                if (obj.GetParameter("openness") <= 0.1)
                 {
                     spriteName += "0";
                 }
-                else if (obj.furnParameters["openness"] <= 0.2)
+                else if (obj.GetParameter("openness") <= 0.2)
                 {
                     spriteName += "20";
                 }
-                else if (obj.furnParameters["openness"] <= 0.4)
+                else if (obj.GetParameter("openness") <= 0.4)
                 {
                     spriteName += "40";
                 }
-                else if (obj.furnParameters["openness"] <= 0.6)
+                else if (obj.GetParameter("openness") <= 0.6)
                 {
                     spriteName += "60";
                 }
-                else if (obj.furnParameters["openness"] <= 0.8)
+                else if (obj.GetParameter("openness") <= 0.8)
                 {
                     spriteName += "80";
                 }
-                else if (obj.furnParameters["openness"] <= 1.0)
+                else if (obj.GetParameter("openness") <= 1.0)
                 {
                     spriteName += "100";
                 }
