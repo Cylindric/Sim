@@ -24,6 +24,16 @@ namespace Assets.Scripts.Model
         /* #################################################################### */
         /* #                        CONSTRUCTORS                              # */
         /* #################################################################### */
+        public Tile()
+        {
+        }
+
+        public Tile(World world, int x, int y)
+        {
+            this.World = world;
+            this.X = x;
+            this.Y = y;
+        }
 
         /* #################################################################### */
         /* #                         DELEGATES                                # */
@@ -38,6 +48,7 @@ namespace Assets.Scripts.Model
         public World World { get; private set; }
         public Furniture Furniture { get; private set; }
         public Job PendingFurnitureJob { get; set; }
+        public Room Room { get; set; }
 
         public TileType Type
         {
@@ -79,17 +90,6 @@ namespace Assets.Scripts.Model
         /* #################################################################### */
         /* #                           METHODS                                # */
         /* #################################################################### */
-
-        public Tile()
-        {
-        }
-
-        public Tile(World world, int x, int y)
-        {
-            this.World = world;
-            this.X = x;
-            this.Y = y;
-        }
 
         public void UnRegisterTileTypeChangedCallback(Action<Tile> callback)
         {
@@ -220,6 +220,26 @@ namespace Assets.Scripts.Model
             writer.WriteAttributeString("Y", Y.ToString());
             writer.WriteAttributeString("Type", ((int)Type).ToString());
             writer.WriteEndElement();
+        }
+
+        public Tile NorthNeighbour()
+        {
+            return World.GetTileAt(X, Y + 1);
+        }
+
+        public Tile EastNeighbour()
+        {
+            return World.GetTileAt(X + 1, Y);
+        }
+
+        public Tile SouthNeighbour()
+        {
+            return World.GetTileAt(X, Y - 1);
+        }
+
+        public Tile WestNeighbour()
+        {
+            return World.GetTileAt(X -1, Y);
         }
     }
 }

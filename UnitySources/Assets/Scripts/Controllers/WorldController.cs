@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using System.Security.Policy;
-using System.Xml;
 using System.Xml.Serialization;
 using Assets.Scripts.Model;
 using UnityEngine;
@@ -97,10 +95,10 @@ namespace Assets.Scripts.Controllers
         private void CreateEmptyWorld()
         {
             Debug.Log("Creating empty world.");
-            this.World = new World(25, 25);
+            this.World = new World(100, 100);
 
-            World.CreateCharacter(World.GetTileAt(World.Width / 2, World.Height / 2));
-            // World.CreateCharacter(World.GetTileAt(World.Width / 2 + 1, World.Height / 2));
+            World.CreateCharacter(World.GetTileAt(World.Width / 2, World.Height / 2)); // First test character
+            // World.CreateCharacter(World.GetTileAt(World.Width / 2 + 1, World.Height / 2)); // Another test character
 
             Camera.main.transform.position = new Vector3(World.Width / 2f, World.Height / 2f, Camera.main.transform.position.z);
         }

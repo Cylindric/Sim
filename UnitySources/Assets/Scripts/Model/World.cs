@@ -17,6 +17,7 @@ namespace Assets.Scripts.Model
         public List<Character> _characters;
         public List<Furniture> _furnitures;
 
+        private List<Room> _rooms; 
         private Tile[,] _tiles;
         private Dictionary<string, Furniture> _furniturePrototypes;
 
@@ -29,6 +30,9 @@ namespace Assets.Scripts.Model
             this.JobQueue = new JobQueue();
             this._characters = new List<Character>();
             this._furnitures = new List<Furniture>();
+
+            this._rooms = new List<Room>();
+            this._rooms.Add(new Room()); // Add the default 'outside' room.
         }
 
         public World(int width, int height) : this()
@@ -80,6 +84,32 @@ namespace Assets.Scripts.Model
             return c;
         }
 
+        public Room GetOutsideRoom()
+        {
+            return _rooms[0];
+        }
+
+        public void DeleteRoom(Room r)
+        {
+            if (r == GetOutsideRoom())
+            {
+                Debug.LogError("Tried to delete the outside room!");
+                return;
+            }
+
+            // Remove the current room from the list of rooms.
+            _rooms.Remove(r);
+
+            // Make sure no tiles point to this room.
+            // TODO: This probably isn't necessary, as the flood-fill will assign all these tiles to new rooms.
+            r.UnassignAllTiles();
+        }
+
+        public void AddRoom(Room r)
+        {
+            _rooms.Add(r);
+        }
+
         public Tile GetTileAt(int x, int y)
         {
             if (x >= this.Width || x < 0 || y >= this.Height || y < 0)
@@ -108,12 +138,22 @@ namespace Assets.Scripts.Model
 
             this._furnitures.Add(furn);
 
+            // Recalculate rooms?
+            if (furn.IsRoomEnclosure)
+            {
+                Room.DoRoomFloodfill(furn);
+            }
+
             if (this._cbFurnitureCreated != null)
             {
                 this._cbFurnitureCreated(furn);
+                
+                if (Mathf.Approximately(furn.MovementCost, 1f))
+                {
+                    // Tiles with a movement cost of exactly 1, don't affect the path-finding for their tile.
+                    this.InvalidateTileGraph();
+                }
             }
-
-            this.InvalidateTileGraph();
 
             return furn;
         }
@@ -233,16 +273,12 @@ namespace Assets.Scripts.Model
             {
                 for (int y = 0; y < this.Height; y++)
                 {
+                    // Write out each Tile, if it isn't empty.
                     if (this._tiles[x, y].Type == defaultTile.Type)
                     {
                         continue;
                     }
-
-                    //writer.WriteStartElement("Tile");
-                    //writer.WriteAttributeString("X", x.ToString());
-                    //writer.WriteAttributeString("Y", y.ToString());
                     this._tiles[x, y].WriteXml(writer);
-                    //writer.WriteEndElement();
                 }
             }
 
@@ -269,8 +305,8 @@ namespace Assets.Scripts.Model
         {
             this._furniturePrototypes = new Dictionary<string, Furniture>();
 
-            this._furniturePrototypes.Add("Wall", new Furniture("Wall", 0f, 1, 1, true));
-            this._furniturePrototypes.Add("Door", new Furniture("Door", 2f, 1, 1, false));
+            this._furniturePrototypes.Add("Wall", new Furniture("Wall", 0f, 1, 1, true, true));
+            this._furniturePrototypes.Add("Door", new Furniture("Door", 2f, 1, 1, false, true));
 
             this._furniturePrototypes["Door"].furnParameters["openness"] = 0.0f;
             this._furniturePrototypes["Door"].furnParameters["is_opening"] = 0.0f;
@@ -291,6 +327,7 @@ namespace Assets.Scripts.Model
                 {
                     this._tiles[x, y] = new Tile(this, x, y);
                     this._tiles[x, y].RegisterTileTypeChangedCallback(this.OnTileChanged);
+                    this._tiles[x, y].Room = _rooms[0];
                 }
             }
 

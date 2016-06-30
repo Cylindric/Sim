@@ -155,9 +155,7 @@ namespace Assets.Scripts.Model
                 pathAStar = null;
                 return; // We're already were we want to be.
             }
-
-
-
+            
             if (nextTile == null || nextTile == currTile)
             {
                 // Get the next tile from the pathfinder.

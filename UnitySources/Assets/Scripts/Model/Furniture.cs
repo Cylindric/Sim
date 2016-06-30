@@ -54,7 +54,7 @@ namespace Assets.Scripts.Model
         /// <param name="width">The width in Tiles of the new Furniture.</param>
         /// <param name="height">The height in Tiles of the new Furniture.</param>
         /// <param name="linksToNeighbour">Indicates whether this Furniture links to neighbouring Furniture or not.</param>
-        public Furniture(string objectType, float movementCost = 1f, int width = 1, int height = 1, bool linksToNeighbour = false)
+        public Furniture(string objectType, float movementCost = 1f, int width = 1, int height = 1, bool linksToNeighbour = false, bool isRoomEnclosure = false)
         {
             this.ObjectType = objectType;
             this.MovementCost = movementCost;
@@ -63,6 +63,7 @@ namespace Assets.Scripts.Model
             this.LinksToNeighbour = linksToNeighbour;
             this.funcPositionValidation = this.__IsValidPosition;
             this.furnParameters = new Dictionary<string, float>();
+            this.IsRoomEnclosure = isRoomEnclosure;
         }
 
         /// <summary>
@@ -84,6 +85,7 @@ namespace Assets.Scripts.Model
             }
 
             this.IsEntereable = other.IsEntereable;
+            this.IsRoomEnclosure = other.IsRoomEnclosure;
         }
 
         /* #################################################################### */
@@ -118,6 +120,8 @@ namespace Assets.Scripts.Model
         /// </summary>
         /// <remarks>If this is zero, the Tile is impassable.</remarks>
         public float MovementCost { get; private set; }
+
+        public bool IsRoomEnclosure { get; private set; }
 
         /* #################################################################### */
         /* #                           METHODS                                # */
