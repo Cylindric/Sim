@@ -153,6 +153,8 @@ namespace Assets.Scripts.Model
 
             // At this point, we know that the inventory is null.
             inventory = inv.Clone();
+            inventory.tile = this;
+            inventory.character = null;
             inv.stackSize = 0;
 
             return true;

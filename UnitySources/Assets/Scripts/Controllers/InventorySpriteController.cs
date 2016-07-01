@@ -19,10 +19,13 @@ namespace Assets.Scripts.Controllers
             LoadSprites();
             World.RegisterInventoryCreatedCb(OnInventoryCreated);
 
-            //foreach (var c in World._characters)
-            //{
-            //    OnInventoryCreated(c);
-            //}
+            foreach (var objectType in World.InventoryManager.Inventories.Keys)
+            {
+                foreach (var inv in World.InventoryManager.Inventories[objectType])
+                {
+                    OnInventoryCreated(inv);
+                }
+            }
         }
 
         void Update()
@@ -37,34 +40,34 @@ namespace Assets.Scripts.Controllers
             _inventoryGameObjectMap.Add(inv, invGo);
 
             invGo.name = "Inv" + inv.objectType;
-            invGo.transform.position = new Vector3(inv.X, inv.Y, 0);
+            invGo.transform.position = new Vector3(inv.tile.X, inv.tile.Y, 0);
             invGo.transform.SetParent(this.transform, true);
 
             var sr = invGo.AddComponent<SpriteRenderer>();
-            sr.sprite = GetSpriteForCharacter(inv);
-            sr.sortingLayerName = "Characters";
+            sr.sprite = _inventorySprites[inv.objectType];
+            sr.sortingLayerName = "Inventory";
 
-            inv.RegisterOnChangedCallback(OnCharacterChanged);
+            // inv.RegisterOnChangedCallback(OnCharacterChanged);
         }
 
         private void OnCharacterChanged(Character character)
         {
-            if (_inventoryGameObjectMap.ContainsKey(character) == false)
-            {
-                Debug.LogError("OnCharacterChanged failed - Character requested that is not in the map!");
-                return;
-            }
+            //if (_inventoryGameObjectMap.ContainsKey(character) == false)
+            //{
+            //    Debug.LogError("OnCharacterChanged failed - Character requested that is not in the map!");
+            //    return;
+            //}
 
-            var charGo = _inventoryGameObjectMap[character];
-            charGo.transform.position = new Vector3(character.X, character.Y, 0);
+            //var charGo = _inventoryGameObjectMap[character];
+            //charGo.transform.position = new Vector3(character.X, character.Y, 0);
         }
 
         private void LoadSprites()
         {
-            var sprites = Resources.LoadAll<Sprite>("Characters/Colonist");
+            var sprites = Resources.LoadAll<Sprite>("Inventory/pate");
             if (sprites.Length == 0)
             {
-                Debug.LogError("Failed to load any sprites from the spritesheet [Characters/Colonist]2");
+                Debug.LogError("Failed to load any sprites from the spritesheet [Inventory/pate]");
             }
             foreach (var sprite in sprites)
             {

@@ -12,6 +12,10 @@
 
         public int maxStackSize = 50;
 
+        public Tile tile;
+
+        public Character character;
+
         public Inventory()
         {
             

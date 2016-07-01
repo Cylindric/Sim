@@ -14,8 +14,6 @@ namespace Assets.Scripts.Pathfinding
 
         public Path_TileGraph(World world) {
 
-            Debug.Log("Path_TileGraph");
-
             // Loop through all tiles of the world
             // For each tile, create a node
             //  Do we create nodes for non-floor tiles?  NO!

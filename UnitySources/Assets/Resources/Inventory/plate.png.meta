@@ -1,9 +1,10 @@
 fileFormatVersion: 2
 guid: b2356e195f4536d40ba03003b868b5a7
-timeCreated: 1467325372
+timeCreated: 1467359746
 licenseType: Free
 TextureImporter:
-  fileIDToRecycleName: {}
+  fileIDToRecycleName:
+    21300000: Steel Plate
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
@@ -38,7 +39,7 @@ TextureImporter:
   rGBM: 0
   compressionQuality: 50
   allowsAlphaSplitting: 0
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 6
@@ -49,7 +50,34 @@ TextureImporter:
   textureType: 8
   buildTargetSettings: []
   spriteSheet:
-    sprites: []
+    sprites:
+    - name: Steel Plate
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: -7, y: -14}
+        - {x: 5, y: -25}
+        - {x: 19, y: -25}
+        - {x: 25, y: -21}
+        - {x: 25, y: -6}
+        - {x: 16, y: 4}
+        - {x: -1, y: 4}
+        - {x: -7, y: -2}
+      - - {x: 2, y: 25}
+        - {x: -11, y: 25}
+        - {x: -25, y: 21}
+        - {x: -25, y: 10}
+        - {x: -23, y: 0}
+        - {x: -6, y: 0}
+        - {x: 6, y: 6}
+        - {x: 6, y: 17}
     outline: []
   spritePackingTag: 
   userData: 

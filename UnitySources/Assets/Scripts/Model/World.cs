@@ -182,12 +182,12 @@ namespace Assets.Scripts.Model
             this._cbCharacterCreated -= cb;
         }
 
-        public void RegisterInventoryCreatedCb(Action<Character> cb)
+        public void RegisterInventoryCreatedCb(Action<Inventory> cb)
         {
             this._cbInventoryCreated += cb;
         }
 
-        public void UnRegisterInventoryCreatedCb(Action<Character> cb)
+        public void UnRegisterInventoryCreatedCb(Action<Inventory> cb)
         {
             this._cbInventoryCreated -= cb;
         }
