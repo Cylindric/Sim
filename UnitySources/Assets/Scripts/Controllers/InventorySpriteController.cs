@@ -4,10 +4,10 @@ using UnityEngine;
 
 namespace Assets.Scripts.Controllers
 {
-    class CharacterSpriteController : MonoBehaviour
+    class InventorySpriteController : MonoBehaviour
     {
-        private readonly Dictionary<Character, GameObject> _characterGameObjectMap = new Dictionary<Character, GameObject>();
-        private readonly Dictionary<string, Sprite> _characterSprites = new Dictionary<string, Sprite>();
+        private readonly Dictionary<Inventory, GameObject> _inventoryGameObjectMap = new Dictionary<Inventory, GameObject>();
+        private readonly Dictionary<string, Sprite> _inventorySprites = new Dictionary<string, Sprite>();
 
         /// <summary>
         /// This is just a helper property to make it easier to access World.
@@ -17,12 +17,12 @@ namespace Assets.Scripts.Controllers
         private void Start()
         {
             LoadSprites();
-            World.RegisterCharacterCreatedCb(OnCharacterCreated);
+            World.RegisterInventoryCreatedCb(OnInventoryCreated);
 
-            foreach (var c in World._characters)
-            {
-                OnCharacterCreated(c);
-            }
+            //foreach (var c in World._characters)
+            //{
+            //    OnInventoryCreated(c);
+            //}
         }
 
         void Update()
@@ -30,32 +30,32 @@ namespace Assets.Scripts.Controllers
             
         }
 
-        public void OnCharacterCreated(Character character)
+        public void OnInventoryCreated(Inventory inv)
         {
-            Debug.Log("CharacterSpriteController::OnInventoryCreated()");
-            var characterGo = new GameObject();
-            _characterGameObjectMap.Add(character, characterGo);
+            Debug.Log("InventorySpriteController::OnInventoryCreated()");
+            var invGo = new GameObject();
+            _inventoryGameObjectMap.Add(inv, invGo);
 
-            characterGo.name = "Character";
-            characterGo.transform.position = new Vector3(character.X, character.Y, 0);
-            characterGo.transform.SetParent(this.transform, true);
+            invGo.name = "Inv" + inv.objectType;
+            invGo.transform.position = new Vector3(inv.X, inv.Y, 0);
+            invGo.transform.SetParent(this.transform, true);
 
-            var sr = characterGo.AddComponent<SpriteRenderer>();
-            sr.sprite = GetSpriteForCharacter(character);
+            var sr = invGo.AddComponent<SpriteRenderer>();
+            sr.sprite = GetSpriteForCharacter(inv);
             sr.sortingLayerName = "Characters";
 
-            character.RegisterOnChangedCallback(OnCharacterChanged);
+            inv.RegisterOnChangedCallback(OnCharacterChanged);
         }
 
         private void OnCharacterChanged(Character character)
         {
-            if (_characterGameObjectMap.ContainsKey(character) == false)
+            if (_inventoryGameObjectMap.ContainsKey(character) == false)
             {
                 Debug.LogError("OnCharacterChanged failed - Character requested that is not in the map!");
                 return;
             }
 
-            var charGo = _characterGameObjectMap[character];
+            var charGo = _inventoryGameObjectMap[character];
             charGo.transform.position = new Vector3(character.X, character.Y, 0);
         }
 
@@ -68,7 +68,7 @@ namespace Assets.Scripts.Controllers
             }
             foreach (var sprite in sprites)
             {
-                _characterSprites.Add(sprite.name, sprite);
+                _inventorySprites.Add(sprite.name, sprite);
             }
         }
 
@@ -76,13 +76,13 @@ namespace Assets.Scripts.Controllers
         {
             var spriteName = "body";
 
-            if (_characterSprites.ContainsKey(spriteName) == false)
+            if (_inventorySprites.ContainsKey(spriteName) == false)
             {
                 Debug.LogErrorFormat("Attempt to load missing sprite [{0}] failed!", spriteName);
                 return null;
             }
 
-            return _characterSprites[spriteName];
+            return _inventorySprites[spriteName];
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
@@ -16,7 +17,8 @@ namespace Assets.Scripts.Model
         public JobQueue JobQueue;
         public List<Character> _characters;
         public List<Furniture> _furnitures;
-        public List<Room> _rooms; 
+        public List<Room> _rooms;
+        public InventoryManager InventoryManager;
 
         private Tile[,] _tiles;
         private Dictionary<string, Furniture> _furniturePrototypes;
@@ -30,6 +32,7 @@ namespace Assets.Scripts.Model
             this.JobQueue = new JobQueue();
             this._characters = new List<Character>();
             this._furnitures = new List<Furniture>();
+            this.InventoryManager = new InventoryManager();
 
             this._rooms = new List<Room>();
             this._rooms.Add(new Room()); // Add the default 'outside' room.
@@ -45,6 +48,7 @@ namespace Assets.Scripts.Model
         /* #################################################################### */
         private Action<Furniture> _cbFurnitureCreated;
         private Action<Character> _cbCharacterCreated;
+        private Action<Inventory> _cbInventoryCreated;
         private Action<Tile> _cbTileChanged;
 
         /* #################################################################### */
@@ -178,6 +182,16 @@ namespace Assets.Scripts.Model
             this._cbCharacterCreated -= cb;
         }
 
+        public void RegisterInventoryCreatedCb(Action<Character> cb)
+        {
+            this._cbInventoryCreated += cb;
+        }
+
+        public void UnRegisterInventoryCreatedCb(Action<Character> cb)
+        {
+            this._cbInventoryCreated -= cb;
+        }
+
         public void RegisterTileChanged(Action<Tile> cb)
         {
             this._cbTileChanged += cb;
@@ -257,6 +271,16 @@ namespace Assets.Scripts.Model
                         break;
                 }
             }
+
+             // TODO: This is for testing only - remove it!
+            var inv = new Inventory();
+            var t = GetTileAt(Width/2, Height/2);
+            InventoryManager.PlaceInventory(t, inv);
+            if (_cbInventoryCreated != null)
+            {
+                _cbInventoryCreated(t.inventory);
+            }
+
         }
 
         public void WriteXml(XmlWriter writer)
@@ -331,10 +355,13 @@ namespace Assets.Scripts.Model
                 }
             }
 
-            Debug.Log("World (" + this.Width + "," + this.Height + ") created with " + (this.Width*this.Height) +
-                      " tiles.");
+            Debug.Log("World (" + this.Width + "," + this.Height + ") created with " + (this.Width*this.Height) + " tiles.");
 
             this.CreateFurniturePrototypes();
+
+            this._characters = new List<Character>();
+            this._furnitures = new List<Furniture>();
+            this.InventoryManager = new InventoryManager();
         }
 
         private void OnTileChanged(Tile t)
