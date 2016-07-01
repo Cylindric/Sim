@@ -1,11 +1,14 @@
 ﻿using System.Collections.Generic;
 using Assets.Scripts.Model;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Assets.Scripts.Controllers
 {
     class InventorySpriteController : MonoBehaviour
     {
+        public GameObject inventoryUIPrefab;
+
         private readonly Dictionary<Inventory, GameObject> _inventoryGameObjectMap = new Dictionary<Inventory, GameObject>();
         private readonly Dictionary<string, Sprite> _inventorySprites = new Dictionary<string, Sprite>();
 
@@ -47,10 +50,18 @@ namespace Assets.Scripts.Controllers
             sr.sprite = _inventorySprites[inv.objectType];
             sr.sortingLayerName = "Inventory";
 
-            // inv.RegisterOnChangedCallback(OnCharacterChanged);
+            if (inv.maxStackSize > 1)
+            {
+                var uiGo = Instantiate(inventoryUIPrefab);
+                uiGo.transform.SetParent(invGo.transform);
+                uiGo.transform.localPosition = Vector3.zero;
+                uiGo.GetComponentInChildren<Text>().text = inv.stackSize.ToString();
+            }
+
+            // inv.RegisterOnChangedCallback(OnInventoryChanged);
         }
 
-        private void OnCharacterChanged(Character character)
+        private void OnInventoryChanged(Character character)
         {
             //if (_inventoryGameObjectMap.ContainsKey(character) == false)
             //{

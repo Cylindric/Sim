@@ -97,8 +97,13 @@ namespace Assets.Scripts.Controllers
             Debug.Log("Creating empty world.");
             this.World = new World(100, 100);
 
-            World.CreateCharacter(World.GetTileAt(World.Width / 2, World.Height / 2)); // First test character
-            // World.CreateCharacter(World.GetTileAt(World.Width / 2 + 1, World.Height / 2)); // Another test character
+            for (int x = -1; x < 2; x++)
+            {
+                for (int y = -1; y < 2; y++)
+                {
+                    World.CreateCharacter(World.GetTileAt(World.Width / 2 + x, World.Height / 2 + y));
+                }
+            }
 
             Camera.main.transform.position = new Vector3(World.Width / 2f, World.Height / 2f, Camera.main.transform.position.z);
         }
