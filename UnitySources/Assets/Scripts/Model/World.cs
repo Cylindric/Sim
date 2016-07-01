@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 using Assets.Scripts.Pathfinding;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace Assets.Scripts.Model
 {
@@ -222,9 +224,9 @@ namespace Assets.Scripts.Model
             var hMid = this.Width/2;
             var vMid = this.Height/2;
 
-            for (int x = 5; x < this.Width - 5; x++)
+            for (int x = hMid-20; x < hMid+20; x++)
             {
-                for (int y = 5; y < this.Height - 5; y++)
+                for (int y = vMid-20; y < vMid+20; y++)
                 {
                     this._tiles[x, y].Type = TileType.Floor;
 
@@ -256,24 +258,39 @@ namespace Assets.Scripts.Model
 
             this.SetupWorld(this.Width, this.Height);
 
+            var timer = new Stopwatch();
+
             while (reader.Read())
             {
                 switch (reader.Name)
                 {
                     case "Tiles":
+                        timer.Start();
                         this.ReadXml_Tiles(reader);
+                        Debug.LogFormat("Loading Tiles took {0} ms.", timer.ElapsedMilliseconds);
+                        timer.Stop();
+                        timer.Reset();
                         break;
                     case "Furnitures":
+                        timer.Start();
                         this.ReadXml_Furnitures(reader);
+                        Debug.LogFormat("Loading Furniture took {0} ms.", timer.ElapsedMilliseconds);
+                        timer.Stop();
+                        timer.Reset();
                         break;
                     case "Characters":
+                        timer.Start();
                         this.ReadXml_Characters(reader);
+                        Debug.LogFormat("Loading Characters took {0} ms.", timer.ElapsedMilliseconds);
+                        timer.Stop();
+                        timer.Reset();
                         break;
                 }
             }
 
              // TODO: This is for testing only - remove it!
             var inv = new Inventory();
+            inv.stackSize = 10;
             var t = GetTileAt(Width/2, Height/2);
             InventoryManager.PlaceInventory(t, inv);
             if (_cbInventoryCreated != null)
@@ -281,6 +298,23 @@ namespace Assets.Scripts.Model
                 _cbInventoryCreated(t.inventory);
             }
 
+            inv = new Inventory();
+            inv.stackSize = 18;
+            t = GetTileAt(Width / 2 + 2, Height / 2);
+            InventoryManager.PlaceInventory(t, inv);
+            if (_cbInventoryCreated != null)
+            {
+                _cbInventoryCreated(t.inventory);
+            }
+
+            inv = new Inventory();
+            inv.stackSize = 14;
+            t = GetTileAt(Width / 2 + 1, Height / 2 + 2);
+            InventoryManager.PlaceInventory(t, inv);
+            if (_cbInventoryCreated != null)
+            {
+                _cbInventoryCreated(t.inventory);
+            }
         }
 
         public void WriteXml(XmlWriter writer)

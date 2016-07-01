@@ -64,7 +64,7 @@ namespace Assets.Scripts.Controllers
 
         private void LoadSprites()
         {
-            var sprites = Resources.LoadAll<Sprite>("Inventory/pate");
+            var sprites = Resources.LoadAll<Sprite>("Inventory/plate");
             if (sprites.Length == 0)
             {
                 Debug.LogError("Failed to load any sprites from the spritesheet [Inventory/pate]");

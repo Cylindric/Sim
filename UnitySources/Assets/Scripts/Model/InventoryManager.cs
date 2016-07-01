@@ -24,7 +24,7 @@ namespace Assets.Scripts.Model
             // If the stack-size is zero, remove it.
             if (inv.stackSize == 0)
             {
-                if (Inventories.ContainsKey(tile.inventory.objectType) == false)
+                if (Inventories.ContainsKey(tile.inventory.objectType))
                 {
                     Inventories[inv.objectType].Remove(inv);
                 }

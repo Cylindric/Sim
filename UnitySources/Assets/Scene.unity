@@ -336,10 +336,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CircleCursorPrefab: {fileID: 147766, guid: e721010fdcdeaef49aaa6ed455b974ff, type: 2}
   CursorLight: {fileID: 735107432}
-  _lastFramePosition: {x: 0, y: 0, z: 0}
-  _currentFramePosition: {x: 0, y: 0, z: 0}
-  _dragStartPosition: {x: 0, y: 0, z: 0}
-  _dragPreviewGameObjects: []
 --- !u!4 &156135469
 Transform:
   m_ObjectHideFlags: 0
@@ -1128,8 +1124,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e54a3b2453e1b3d45974da0963f1ca80, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _myText: {fileID: 0}
-  _mouseController: {fileID: 0}
 --- !u!1 &764525706
 GameObject:
   m_ObjectHideFlags: 0
@@ -1278,8 +1272,46 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e04a127087a6adb4eb0df8c43d11502a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _myText: {fileID: 0}
-  _mouseController: {fileID: 0}
+--- !u!1 &864888492
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 4
+  m_Component:
+  - 4: {fileID: 864888493}
+  - 114: {fileID: 864888494}
+  m_Layer: 0
+  m_Name: InventorySpriteController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &864888493
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 864888492}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_Children: []
+  m_Father: {fileID: 1423223046}
+  m_RootOrder: 8
+--- !u!114 &864888494
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 864888492}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a8c4552cccf52a4da2ddc4dba5dca1f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &916328296
 GameObject:
   m_ObjectHideFlags: 0
@@ -1440,8 +1472,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8436cf970eda6ba40adeaae65c2bba05, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _myText: {fileID: 0}
-  _mouseController: {fileID: 0}
 --- !u!1 &999099552
 GameObject:
   m_ObjectHideFlags: 0
@@ -1482,9 +1512,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 74c11061a24ac1f419a5f802bb989b01, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _buildModeIsObjects: 0
-  _buildModeTileType: 0
-  _buildModeObjectType: 
 --- !u!1 &1032211969
 GameObject:
   m_ObjectHideFlags: 0
@@ -2312,6 +2339,7 @@ Transform:
   - {fileID: 999099553}
   - {fileID: 1892873744}
   - {fileID: 416647078}
+  - {fileID: 864888493}
   m_Father: {fileID: 0}
   m_RootOrder: 0
 --- !u!1 &1433110817
@@ -2754,7 +2782,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 023a70498950a4446be97384af41ff5a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fsc: {fileID: 0}
 --- !u!1 &2013891778
 GameObject:
   m_ObjectHideFlags: 0
@@ -2856,8 +2883,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0314590ebcb71be4a8d66ea67112a44b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _soundCooldown: 0
-  _tileChangeAudioClip: {fileID: 0}
 --- !u!4 &2069169590
 Transform:
   m_ObjectHideFlags: 0

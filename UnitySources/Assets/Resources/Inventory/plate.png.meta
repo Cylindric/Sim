@@ -1,6 +1,6 @@
 fileFormatVersion: 2
 guid: b2356e195f4536d40ba03003b868b5a7
-timeCreated: 1467359746
+timeCreated: 1467374661
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
@@ -58,26 +58,26 @@ TextureImporter:
         y: 0
         width: 64
         height: 64
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      alignment: 6
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: -7, y: -14}
-        - {x: 5, y: -25}
-        - {x: 19, y: -25}
-        - {x: 25, y: -21}
-        - {x: 25, y: -6}
-        - {x: 16, y: 4}
-        - {x: -1, y: 4}
-        - {x: -7, y: -2}
-      - - {x: 2, y: 25}
-        - {x: -11, y: 25}
-        - {x: -25, y: 21}
-        - {x: -25, y: 10}
-        - {x: -23, y: 0}
-        - {x: -6, y: 0}
-        - {x: 6, y: 6}
-        - {x: 6, y: 17}
+      - - {x: 25, y: 18}
+        - {x: 37, y: 7}
+        - {x: 51, y: 7}
+        - {x: 57, y: 11}
+        - {x: 57, y: 26}
+        - {x: 48, y: 36}
+        - {x: 31, y: 36}
+        - {x: 25, y: 30}
+      - - {x: 34, y: 57}
+        - {x: 21, y: 57}
+        - {x: 7, y: 53}
+        - {x: 7, y: 42}
+        - {x: 9, y: 32}
+        - {x: 26, y: 32}
+        - {x: 38, y: 38}
+        - {x: 38, y: 49}
     outline: []
   spritePackingTag: 
   userData: 
