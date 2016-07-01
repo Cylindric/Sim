@@ -19,7 +19,9 @@ namespace Assets.Scripts.Model
         /* #################################################################### */
         /* #                           FIELDS                                 # */
         /* #################################################################### */
-        private TileType type = TileType.Empty;
+        private TileType _type = TileType.Empty;
+
+        public Inventory inventory;
 
         /* #################################################################### */
         /* #                        CONSTRUCTORS                              # */
@@ -54,15 +56,15 @@ namespace Assets.Scripts.Model
         {
             get
             {
-                return type;
+                return _type;
             }
 
             set
             {
-                var oldType = type;
-                type = value;
+                var oldType = _type;
+                _type = value;
 
-                if (cbTileChanged != null && oldType != type)
+                if (cbTileChanged != null && oldType != _type)
                 {
                     cbTileChanged(this);
                 }
@@ -101,10 +103,10 @@ namespace Assets.Scripts.Model
             cbTileChanged += callback;
         }
 
-        public bool PlaceFurniture(Furniture objectInstance)
+        public bool PlaceFurniture(Furniture furn)
         {
-            // If a null objectInstance is provided, clear the current object.
-            if (objectInstance == null)
+            // If a null inv is provided, clear the current object.
+            if (furn == null)
             {
                 Furniture = null;
                 return true;
@@ -116,7 +118,45 @@ namespace Assets.Scripts.Model
                 return false;
             }
 
-            Furniture = objectInstance;
+            Furniture = furn;
+            return true;
+        }
+
+        public bool PlaceInventory(Inventory inv)
+        {
+            // If a null inv is provided, clear the current object.
+            if (inv == null)
+            {
+                inventory = null;
+                return true;
+            }
+
+            if (inventory != null)
+            {
+                // Try to combine a stack.
+                if (inventory.objectType != inv.objectType)
+                {
+                    Debug.LogError("Trying to assign an Inventory to a Tile that already has some.");
+                    return false;
+                }
+
+                int numToMove = inv.stackSize;
+                if (inventory.stackSize + numToMove > inventory.maxStackSize)
+                {
+                    numToMove = inventory.maxStackSize - inventory.stackSize;
+                }
+
+                inventory.stackSize += numToMove;
+                inv.stackSize -= numToMove;
+                return true;
+            }
+
+            // At this point, we know that the inventory is null.
+            inventory = inv.Clone();
+            inventory.tile = this;
+            inventory.character = null;
+            inv.stackSize = 0;
+
             return true;
         }
 

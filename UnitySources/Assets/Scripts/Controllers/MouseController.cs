@@ -120,7 +120,6 @@ namespace Assets.Scripts.Controllers
                             _dragPreviewGameObjects.Add(go);
                         }
                     }
-
                 }
             }
 

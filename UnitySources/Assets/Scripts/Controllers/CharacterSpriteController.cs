@@ -32,7 +32,7 @@ namespace Assets.Scripts.Controllers
 
         public void OnCharacterCreated(Character character)
         {
-            Debug.Log("CharacterSpriteController::OnCharacterCreated()");
+            Debug.Log("CharacterSpriteController::OnInventoryCreated()");
             var characterGo = new GameObject();
             _characterGameObjectMap.Add(character, characterGo);
 
