@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 using Assets.Scripts.Pathfinding;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace Assets.Scripts.Model
 {
@@ -16,7 +19,8 @@ namespace Assets.Scripts.Model
         public JobQueue JobQueue;
         public List<Character> _characters;
         public List<Furniture> _furnitures;
-        public List<Room> _rooms; 
+        public List<Room> _rooms;
+        public InventoryManager InventoryManager;
 
         private Tile[,] _tiles;
         private Dictionary<string, Furniture> _furniturePrototypes;
@@ -30,6 +34,7 @@ namespace Assets.Scripts.Model
             this.JobQueue = new JobQueue();
             this._characters = new List<Character>();
             this._furnitures = new List<Furniture>();
+            this.InventoryManager = new InventoryManager();
 
             this._rooms = new List<Room>();
             this._rooms.Add(new Room()); // Add the default 'outside' room.
@@ -45,6 +50,7 @@ namespace Assets.Scripts.Model
         /* #################################################################### */
         private Action<Furniture> _cbFurnitureCreated;
         private Action<Character> _cbCharacterCreated;
+        private Action<Inventory> _cbInventoryCreated;
         private Action<Tile> _cbTileChanged;
 
         /* #################################################################### */
@@ -178,6 +184,16 @@ namespace Assets.Scripts.Model
             this._cbCharacterCreated -= cb;
         }
 
+        public void RegisterInventoryCreatedCb(Action<Inventory> cb)
+        {
+            this._cbInventoryCreated += cb;
+        }
+
+        public void UnRegisterInventoryCreatedCb(Action<Inventory> cb)
+        {
+            this._cbInventoryCreated -= cb;
+        }
+
         public void RegisterTileChanged(Action<Tile> cb)
         {
             this._cbTileChanged += cb;
@@ -208,9 +224,9 @@ namespace Assets.Scripts.Model
             var hMid = this.Width/2;
             var vMid = this.Height/2;
 
-            for (int x = 5; x < this.Width - 5; x++)
+            for (int x = hMid-20; x < hMid+20; x++)
             {
-                for (int y = 5; y < this.Height - 5; y++)
+                for (int y = vMid-20; y < vMid+20; y++)
                 {
                     this._tiles[x, y].Type = TileType.Floor;
 
@@ -242,20 +258,62 @@ namespace Assets.Scripts.Model
 
             this.SetupWorld(this.Width, this.Height);
 
+            var timer = new Stopwatch();
+
             while (reader.Read())
             {
                 switch (reader.Name)
                 {
                     case "Tiles":
+                        timer.Start();
                         this.ReadXml_Tiles(reader);
+                        Debug.LogFormat("Loading Tiles took {0} ms.", timer.ElapsedMilliseconds);
+                        timer.Stop();
+                        timer.Reset();
                         break;
                     case "Furnitures":
+                        timer.Start();
                         this.ReadXml_Furnitures(reader);
+                        Debug.LogFormat("Loading Furniture took {0} ms.", timer.ElapsedMilliseconds);
+                        timer.Stop();
+                        timer.Reset();
                         break;
                     case "Characters":
+                        timer.Start();
                         this.ReadXml_Characters(reader);
+                        Debug.LogFormat("Loading Characters took {0} ms.", timer.ElapsedMilliseconds);
+                        timer.Stop();
+                        timer.Reset();
                         break;
                 }
+            }
+
+             // TODO: This is for testing only - remove it!
+            var inv = new Inventory();
+            inv.stackSize = 10;
+            var t = GetTileAt(Width/2, Height/2);
+            InventoryManager.PlaceInventory(t, inv);
+            if (_cbInventoryCreated != null)
+            {
+                _cbInventoryCreated(t.inventory);
+            }
+
+            inv = new Inventory();
+            inv.stackSize = 18;
+            t = GetTileAt(Width / 2 + 2, Height / 2);
+            InventoryManager.PlaceInventory(t, inv);
+            if (_cbInventoryCreated != null)
+            {
+                _cbInventoryCreated(t.inventory);
+            }
+
+            inv = new Inventory();
+            inv.stackSize = 14;
+            t = GetTileAt(Width / 2 + 1, Height / 2 + 2);
+            InventoryManager.PlaceInventory(t, inv);
+            if (_cbInventoryCreated != null)
+            {
+                _cbInventoryCreated(t.inventory);
             }
         }
 
@@ -331,10 +389,13 @@ namespace Assets.Scripts.Model
                 }
             }
 
-            Debug.Log("World (" + this.Width + "," + this.Height + ") created with " + (this.Width*this.Height) +
-                      " tiles.");
+            Debug.Log("World (" + this.Width + "," + this.Height + ") created with " + (this.Width*this.Height) + " tiles.");
 
             this.CreateFurniturePrototypes();
+
+            this._characters = new List<Character>();
+            this._furnitures = new List<Furniture>();
+            this.InventoryManager = new InventoryManager();
         }
 
         private void OnTileChanged(Tile t)
