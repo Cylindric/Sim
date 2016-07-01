@@ -154,8 +154,7 @@ namespace Assets.Scripts.Controllers
             return null;
         }
 
-        private
-            void Start()
+        private void Start()
         {
             LoadSprites();
             World.RegisterFurnitureCreatedCb(OnFurnitureCreated);

@@ -17,7 +17,7 @@ namespace Assets.Scripts.Model
             }
             else
             {
-                furn.OffsetParameter("openness", deltaTime * 4);
+                furn.OffsetParameter("openness", deltaTime * -4);
             }
 
             furn.SetParameter("openness", Mathf.Clamp01(furn.GetParameter("openness")));
