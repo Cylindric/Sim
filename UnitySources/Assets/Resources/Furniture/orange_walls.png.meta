@@ -1,6 +1,6 @@
 fileFormatVersion: 2
 guid: a2d370189c04b9b488dae91385eda05e
-timeCreated: 1467211014
+timeCreated: 1467386721
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
@@ -135,14 +135,14 @@ TextureImporter:
         y: 374
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: Wall_SW
       rect:
         serializedVersion: 2
@@ -150,14 +150,14 @@ TextureImporter:
         y: 374
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: Wall_EW
       rect:
         serializedVersion: 2
@@ -165,14 +165,14 @@ TextureImporter:
         y: 374
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: Wall_ESW
       rect:
         serializedVersion: 2
@@ -180,14 +180,14 @@ TextureImporter:
         y: 374
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: Wall_NEW
       rect:
         serializedVersion: 2
@@ -195,14 +195,14 @@ TextureImporter:
         y: 374
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: Wall_W
       rect:
         serializedVersion: 2
@@ -210,14 +210,14 @@ TextureImporter:
         y: 374
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: Wall_N
       rect:
         serializedVersion: 2
@@ -225,14 +225,14 @@ TextureImporter:
         y: 374
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: orange_walls_7
       rect:
         serializedVersion: 2
@@ -240,14 +240,14 @@ TextureImporter:
         y: 374
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: orange_walls_8
       rect:
         serializedVersion: 2
@@ -255,14 +255,14 @@ TextureImporter:
         y: 374
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: Wall_NE
       rect:
         serializedVersion: 2
@@ -270,14 +270,14 @@ TextureImporter:
         y: 300
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: Wall_NW
       rect:
         serializedVersion: 2
@@ -285,14 +285,14 @@ TextureImporter:
         y: 300
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: Wall_NS
       rect:
         serializedVersion: 2
@@ -300,14 +300,14 @@ TextureImporter:
         y: 300
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: Wall_NES
       rect:
         serializedVersion: 2
@@ -315,14 +315,14 @@ TextureImporter:
         y: 300
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: Wall_NSW
       rect:
         serializedVersion: 2
@@ -330,14 +330,14 @@ TextureImporter:
         y: 300
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: Wall_S
       rect:
         serializedVersion: 2
@@ -345,14 +345,14 @@ TextureImporter:
         y: 300
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: Wall_E
       rect:
         serializedVersion: 2
@@ -360,14 +360,14 @@ TextureImporter:
         y: 300
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: orange_walls_16
       rect:
         serializedVersion: 2
@@ -375,14 +375,14 @@ TextureImporter:
         y: 300
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: orange_walls_17
       rect:
         serializedVersion: 2
@@ -390,14 +390,14 @@ TextureImporter:
         y: 300
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: orange_walls_18
       rect:
         serializedVersion: 2
@@ -405,14 +405,14 @@ TextureImporter:
         y: 226
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: orange_walls_19
       rect:
         serializedVersion: 2
@@ -420,14 +420,14 @@ TextureImporter:
         y: 226
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: orange_walls_20
       rect:
         serializedVersion: 2
@@ -435,14 +435,14 @@ TextureImporter:
         y: 226
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: orange_walls_21
       rect:
         serializedVersion: 2
@@ -450,14 +450,14 @@ TextureImporter:
         y: 226
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: orange_walls_22
       rect:
         serializedVersion: 2
@@ -465,14 +465,14 @@ TextureImporter:
         y: 226
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: orange_walls_23
       rect:
         serializedVersion: 2
@@ -480,14 +480,14 @@ TextureImporter:
         y: 226
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: orange_walls_24
       rect:
         serializedVersion: 2
@@ -495,14 +495,14 @@ TextureImporter:
         y: 226
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: Wall_NESW
       rect:
         serializedVersion: 2
@@ -510,14 +510,14 @@ TextureImporter:
         y: 226
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: orange_walls_26
       rect:
         serializedVersion: 2
@@ -525,8 +525,8 @@ TextureImporter:
         y: 226
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
       - - {x: 4, y: 60}
@@ -541,14 +541,14 @@ TextureImporter:
         y: 152
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: orange_walls_28
       rect:
         serializedVersion: 2
@@ -556,14 +556,14 @@ TextureImporter:
         y: 152
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: orange_walls_29
       rect:
         serializedVersion: 2
@@ -571,14 +571,14 @@ TextureImporter:
         y: 152
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: orange_walls_30
       rect:
         serializedVersion: 2
@@ -586,14 +586,14 @@ TextureImporter:
         y: 152
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: orange_walls_31
       rect:
         serializedVersion: 2
@@ -601,14 +601,14 @@ TextureImporter:
         y: 152
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: orange_walls_32
       rect:
         serializedVersion: 2
@@ -616,14 +616,14 @@ TextureImporter:
         y: 152
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: Wall
       rect:
         serializedVersion: 2
@@ -631,14 +631,14 @@ TextureImporter:
         y: 152
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: Door
       rect:
         serializedVersion: 2
@@ -646,14 +646,14 @@ TextureImporter:
         y: 152
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
       - - {x: 4, y: 64}
         - {x: 0, y: 63}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
         - {x: 64, y: 58}
         - {x: 63, y: 64}
     - name: orange_walls_35
@@ -663,8 +663,8 @@ TextureImporter:
         y: 152
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
       - - {x: 17, y: 56}
@@ -682,14 +682,14 @@ TextureImporter:
         y: 78
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: orange_walls_37
       rect:
         serializedVersion: 2
@@ -697,14 +697,14 @@ TextureImporter:
         y: 78
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: orange_walls_38
       rect:
         serializedVersion: 2
@@ -712,14 +712,14 @@ TextureImporter:
         y: 78
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: orange_walls_39
       rect:
         serializedVersion: 2
@@ -727,14 +727,14 @@ TextureImporter:
         y: 78
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: orange_walls_40
       rect:
         serializedVersion: 2
@@ -742,14 +742,14 @@ TextureImporter:
         y: 78
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: orange_walls_41
       rect:
         serializedVersion: 2
@@ -757,14 +757,14 @@ TextureImporter:
         y: 78
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: orange_walls_42
       rect:
         serializedVersion: 2
@@ -772,14 +772,14 @@ TextureImporter:
         y: 78
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: orange_walls_43
       rect:
         serializedVersion: 2
@@ -787,14 +787,14 @@ TextureImporter:
         y: 78
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
       - - {x: 34, y: 0}
         - {x: 34, y: 64}
-        - {x: 0, y: 64}
-        - {x: 0, y: 0}
+        - {x: -32, y: 32}
+        - {x: -32, y: -32}
     - name: orange_walls_44
       rect:
         serializedVersion: 2
@@ -802,14 +802,14 @@ TextureImporter:
         y: 78
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
+      - - {x: -32, y: 32}
         - {x: 0, y: 30}
         - {x: 64, y: 30}
-        - {x: 64, y: 64}
+        - {x: 32, y: 32}
     - name: orange_walls_45
       rect:
         serializedVersion: 2
@@ -817,14 +817,14 @@ TextureImporter:
         y: 4
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: orange_walls_46
       rect:
         serializedVersion: 2
@@ -832,14 +832,14 @@ TextureImporter:
         y: 4
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: orange_walls_47
       rect:
         serializedVersion: 2
@@ -847,14 +847,14 @@ TextureImporter:
         y: 4
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: orange_walls_48
       rect:
         serializedVersion: 2
@@ -862,14 +862,14 @@ TextureImporter:
         y: 4
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: orange_walls_49
       rect:
         serializedVersion: 2
@@ -877,14 +877,14 @@ TextureImporter:
         y: 4
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: orange_walls_50
       rect:
         serializedVersion: 2
@@ -892,14 +892,14 @@ TextureImporter:
         y: 4
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: orange_walls_51
       rect:
         serializedVersion: 2
@@ -907,14 +907,14 @@ TextureImporter:
         y: 4
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 64}
-        - {x: 0, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: orange_walls_52
       rect:
         serializedVersion: 2
@@ -922,12 +922,12 @@ TextureImporter:
         y: 4
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 0}
-        - {x: 64, y: 0}
+      - - {x: -32, y: -32}
+        - {x: 32, y: -32}
         - {x: 64, y: 34}
         - {x: 0, y: 34}
     - name: orange_walls_53
@@ -937,14 +937,14 @@ TextureImporter:
         y: 4
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
       - - {x: 30, y: 64}
         - {x: 30, y: 0}
-        - {x: 64, y: 0}
-        - {x: 64, y: 64}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
     - name: Door_EW_0
       rect:
         serializedVersion: 2
@@ -952,14 +952,14 @@ TextureImporter:
         y: 374
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 23}
-        - {x: 64, y: 23}
-        - {x: 64, y: 42}
-        - {x: 0, y: 42}
+      - - {x: -32, y: -9}
+        - {x: 32, y: -9}
+        - {x: 32, y: 10}
+        - {x: -32, y: 10}
     - name: Door_NS_0
       rect:
         serializedVersion: 2
@@ -967,8 +967,8 @@ TextureImporter:
         y: 374
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
       - - {x: 44, y: 0}
@@ -982,8 +982,8 @@ TextureImporter:
         y: 300
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
       - - {x: 0, y: 42}
@@ -999,8 +999,8 @@ TextureImporter:
         y: 300
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
       - - {x: 25, y: 60}
@@ -1016,8 +1016,8 @@ TextureImporter:
         y: 226
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
       - - {x: 0, y: 42}
@@ -1033,8 +1033,8 @@ TextureImporter:
         y: 225
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
       - - {x: 25, y: 50}
@@ -1049,8 +1049,8 @@ TextureImporter:
         y: 152
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
       - - {x: 0, y: 42}
@@ -1065,8 +1065,8 @@ TextureImporter:
         y: 152
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
       - - {x: 25, y: 34}
@@ -1082,8 +1082,8 @@ TextureImporter:
         y: 78
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
       - - {x: 0, y: 42}
@@ -1099,8 +1099,8 @@ TextureImporter:
         y: 78
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
       - - {x: 25, y: 21}
@@ -1116,8 +1116,8 @@ TextureImporter:
         y: 4
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
       - - {x: 0, y: 42}
@@ -1133,8 +1133,8 @@ TextureImporter:
         y: 4
         width: 64
         height: 64
-      alignment: 6
-      pivot: {x: 0, y: 0}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
       - - {x: 25, y: 8}

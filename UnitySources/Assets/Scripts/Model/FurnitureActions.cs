@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Assets.Scripts.Controllers;
+using UnityEngine;
 
 namespace Assets.Scripts.Model
 {
@@ -34,6 +35,12 @@ namespace Assets.Scripts.Model
             }
 
             return Enterability.Soon;
+        }
+
+        public static void JobComplete_FurnitureBuilding(Job theJob)
+        {
+            WorldController.Instance.World.PlaceFurniture(theJob.JobObjectType, theJob.Tile);
+            theJob.Tile.PendingFurnitureJob = null;
         }
     }
 }

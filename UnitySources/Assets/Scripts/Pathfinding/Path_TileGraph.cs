@@ -35,7 +35,7 @@ namespace Assets.Scripts.Pathfinding
                 }
             }
 
-            Debug.Log("Path_TileGraph: Created "+nodes.Count+" nodes.");
+            // Debug.Log("Path_TileGraph: Created "+nodes.Count+" nodes.");
 
 
             // Now loop through all nodes again
@@ -76,7 +76,7 @@ namespace Assets.Scripts.Pathfinding
                 n.edges = edges.ToArray();
             }
 
-            Debug.Log("Path_TileGraph: Created "+edgeCount+" edges.");
+            // Debug.Log("Path_TileGraph: Created "+edgeCount+" edges.");
 
         }
 

@@ -16,16 +16,27 @@
 
         public Character character;
 
+        /* #################################################################### */
+        /* #                           CONSTRUCTORS                           # */
+        /* #################################################################### */
+
         public Inventory()
         {
             
         }
 
+        public Inventory(string objectType, int maxStackSize, int stackSize)
+        {
+            this.objectType = objectType;
+            this.maxStackSize = maxStackSize;
+            this.stackSize = stackSize;
+        }
+
         private Inventory(Inventory other)
         {
-            objectType = other.objectType;
-            maxStackSize = other.maxStackSize;
-            stackSize = other.stackSize;
+            this.objectType = other.objectType;
+            this.maxStackSize = other.maxStackSize;
+            this.stackSize = other.stackSize;
         }
 
         public virtual Inventory Clone()

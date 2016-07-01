@@ -44,9 +44,10 @@ namespace Assets.Scripts.Controllers
 
         public Tile GetTileAtWorldCoordinates(Vector3 coord)
         {
-            var x = Mathf.FloorToInt(coord.x);
-            var y = Mathf.FloorToInt(coord.y);
+            var x = Mathf.FloorToInt(coord.x + 0.5f);
+            var y = Mathf.FloorToInt(coord.y + 0.5f);
 
+            //Debug.LogFormat("Mouse at [{0},{1}]  [{2},{3}]", coord.x, coord.y, x, y);
             return World.GetTileAt(x, y);
         }
 

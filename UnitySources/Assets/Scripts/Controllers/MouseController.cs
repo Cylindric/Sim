@@ -27,9 +27,7 @@ namespace Assets.Scripts.Controllers
 
         public Tile GetTileUnderMouse()
         {
-            var x = Mathf.FloorToInt(_currentFramePosition.x);
-            var y = Mathf.FloorToInt(_currentFramePosition.y);
-            return WorldController.Instance.World.GetTileAt(x, y);
+            return WorldController.Instance.GetTileAtWorldCoordinates(_currentFramePosition);
         }
 
         // Use this for initialization
@@ -77,10 +75,10 @@ namespace Assets.Scripts.Controllers
                 _dragStartPosition = _currentFramePosition;
             }
 
-            var startX = Mathf.FloorToInt(_dragStartPosition.x);
-            var endX = Mathf.FloorToInt(_currentFramePosition.x);
-            var startY = Mathf.FloorToInt(_dragStartPosition.y);
-            var endY = Mathf.FloorToInt(_currentFramePosition.y);
+            var startX = Mathf.FloorToInt(_dragStartPosition.x + 0.5f);
+            var endX = Mathf.FloorToInt(_currentFramePosition.x + 0.5f);
+            var startY = Mathf.FloorToInt(_dragStartPosition.y + 0.5f);
+            var endY = Mathf.FloorToInt(_currentFramePosition.y + 0.5f);
 
             if (endX < startX)
             {
@@ -114,7 +112,7 @@ namespace Assets.Scripts.Controllers
                         var t = WorldController.Instance.World.GetTileAt(x, y);
                         if (t != null)
                         {
-                            var go = SimplePool.Spawn(CircleCursorPrefab, new Vector3(x + 0.5f, y + 0.5f, 0),
+                            var go = SimplePool.Spawn(CircleCursorPrefab, new Vector3(x, y, 0),
                                 Quaternion.identity);
                             go.transform.SetParent(this.transform, true);
                             _dragPreviewGameObjects.Add(go);

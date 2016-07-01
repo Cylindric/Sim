@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
+using Assets.Scripts.Controllers;
 using Assets.Scripts.Pathfinding;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
@@ -24,6 +24,7 @@ namespace Assets.Scripts.Model
 
         private Tile[,] _tiles;
         private Dictionary<string, Furniture> _furniturePrototypes;
+        public Dictionary<string, Job> _furnitureJobPrototypes;
 
         /* #################################################################### */
         /* #                        CONSTRUCTORS                              # */
@@ -362,9 +363,28 @@ namespace Assets.Scripts.Model
         private void CreateFurniturePrototypes()
         {
             this._furniturePrototypes = new Dictionary<string, Furniture>();
+            this._furnitureJobPrototypes = new Dictionary<string, Job>();
 
             this._furniturePrototypes.Add("Wall", new Furniture("Wall", 0f, 1, 1, true, true));
-            this._furniturePrototypes.Add("Door", new Furniture("Door", 2f, 1, 1, false, true));
+            this._furnitureJobPrototypes.Add(
+                key: "Wall", 
+                value: new Job(
+                    tile: null, 
+                    jobObjectType: "Wall", 
+                    cb: FurnitureActions.JobComplete_FurnitureBuilding, 
+                    jobTime: 1f, 
+                    requirements: new Inventory[] {new Inventory(
+                        objectType: "Steel Plate", 
+                        maxStackSize: 5, 
+                        stackSize: 0)}));
+
+            this._furniturePrototypes.Add("Door", new Furniture(
+                objectType: "Door", 
+                movementCost: 2f, 
+                width: 1, 
+                height: 1, 
+                linksToNeighbour: false, 
+                isRoomEnclosure: true));
 
             this._furniturePrototypes["Door"].SetParameter("openness", 0.0f);
             this._furniturePrototypes["Door"].SetParameter("is_opening", 0.0f);

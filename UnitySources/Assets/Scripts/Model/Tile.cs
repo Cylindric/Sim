@@ -12,20 +12,23 @@ namespace Assets.Scripts.Model
     public class Tile : IXmlSerializable
     {
         /* #################################################################### */
-        /* #                      CONSTANT FIELDS                             # */
+        /* #                         CONSTANT FIELDS                          # */
         /* #################################################################### */
+
         private const float BaseTileMovementCost = 1f;
 
         /* #################################################################### */
-        /* #                           FIELDS                                 # */
+        /* #                              FIELDS                              # */
         /* #################################################################### */
-        private TileType _type = TileType.Empty;
 
         public Inventory inventory;
 
+        private TileType _type = TileType.Empty;
+
         /* #################################################################### */
-        /* #                        CONSTRUCTORS                              # */
+        /* #                           CONSTRUCTORS                           # */
         /* #################################################################### */
+
         public Tile()
         {
         }
@@ -38,13 +41,15 @@ namespace Assets.Scripts.Model
         }
 
         /* #################################################################### */
-        /* #                         DELEGATES                                # */
+        /* #                             DELEGATES                            # */
         /* #################################################################### */
+
         private Action<Tile> cbTileChanged;
 
         /* #################################################################### */
-        /* #                         PROPERTIES                               # */
+        /* #                            PROPERTIES                            # */
         /* #################################################################### */
+
         public int X { get; private set; }
         public int Y { get; private set; }
         public World World { get; private set; }
@@ -90,7 +95,7 @@ namespace Assets.Scripts.Model
         }
 
         /* #################################################################### */
-        /* #                           METHODS                                # */
+        /* #                              METHODS                             # */
         /* #################################################################### */
 
         public void UnRegisterTileTypeChangedCallback(Action<Tile> callback)
