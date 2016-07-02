@@ -44,7 +44,7 @@ namespace Assets.Scripts.Model
         /* #                             DELEGATES                            # */
         /* #################################################################### */
 
-        private Action<Tile> cbTileChanged;
+        public Action<Tile> cbTileChanged;
 
         /* #################################################################### */
         /* #                            PROPERTIES                            # */

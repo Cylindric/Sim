@@ -157,7 +157,7 @@ namespace Assets.Scripts.Model
                 
                 if (Mathf.Approximately(furn.MovementCost, 1f) == false)
                 {
-                    // Tiles with a movement cost of exactly 1, don't affect the path-finding for their tile.
+                    // Tiles with a movement cost of exactly 1, don't affect the path-finding for their job.
                     this.InvalidateTileGraph();
                 }
             }

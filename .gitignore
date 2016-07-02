@@ -1,6 +1,8 @@
 /[Ll]ibrary/
 /[Tt]ools/
 
+
+/[Bb]uild/PC
 /[Bb]uild/WebGL/*/
 !Build/WebGL/web.config
 

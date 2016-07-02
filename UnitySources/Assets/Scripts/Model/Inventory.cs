@@ -1,4 +1,6 @@
-﻿namespace Assets.Scripts.Model
+﻿using System;
+
+namespace Assets.Scripts.Model
 {
     public class Inventory {
 
@@ -8,13 +10,42 @@
 
         public string objectType = "Steel Plate";
 
-        public int stackSize = 1;
+        private int _stackSize = 1;
+
+        public int stackSize
+        {
+            get { return _stackSize; }
+            set
+            {
+                if (_stackSize != value)
+                {
+                    _stackSize = value;
+                    if (cbInventoryChanged != null)
+                    {
+                        cbInventoryChanged(this);
+                    }
+                }
+            }
+        }
+
+        public void UnRegisterInventoryChangedCallback(Action<Inventory> callback)
+        {
+            cbInventoryChanged -= callback;
+        }
+
+        public void RegisterInventoryChangedCallback(Action<Inventory> callback)
+        {
+            cbInventoryChanged += callback;
+        }
+
 
         public int maxStackSize = 50;
 
         public Tile tile;
 
         public Character character;
+
+        private Action<Inventory> cbInventoryChanged;
 
         /* #################################################################### */
         /* #                           CONSTRUCTORS                           # */
@@ -38,6 +69,22 @@
             this.maxStackSize = other.maxStackSize;
             this.stackSize = other.stackSize;
         }
+
+        /* #################################################################### */
+        /* #                            PROPERTIES                            # */
+        /* #################################################################### */
+
+        public int Space
+        {
+            get
+            {
+                return this.maxStackSize - this.stackSize;
+            }
+        }
+
+        /* #################################################################### */
+        /* #                              METHODS                             # */
+        /* #################################################################### */
 
         public virtual Inventory Clone()
         {

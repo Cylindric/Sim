@@ -17,7 +17,7 @@ namespace Assets.Scripts.Model
         private float _jobTime;
         private Action<Job> cbOnComplete;
         private Action<Job> cbOnCancel;
-        private Dictionary<string, Inventory> _inventoryRequirements;
+        public Dictionary<string, Inventory> _inventoryRequirements;
 
         /* #################################################################### */
         /* #                           CONSTRUCTORS                           # */
@@ -114,6 +114,46 @@ namespace Assets.Scripts.Model
         public void CancelJob()
         {
             cbOnCancel(this);
+        }
+
+        public bool HasAllMaterial()
+        {
+            foreach (var inv in _inventoryRequirements.Values)
+            {
+                if (inv.maxStackSize > inv.stackSize)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public int NeedsMaterial(Inventory inv)
+        {
+            if (_inventoryRequirements.ContainsKey(inv.objectType) == false)
+            {
+                return 0;
+            }
+
+            if (_inventoryRequirements[inv.objectType].stackSize >= _inventoryRequirements[inv.objectType].maxStackSize)
+            {
+                // We already have all that we need.
+                return 0;
+            }
+
+            return _inventoryRequirements[inv.objectType].maxStackSize - _inventoryRequirements[inv.objectType].stackSize;
+        }
+
+        public Inventory GetFirstRequiredInventory()
+        {
+            foreach (var inv in _inventoryRequirements.Values)
+            {
+                if (inv.maxStackSize > inv.stackSize)
+                {
+                    return inv;
+                }
+            }
+            return null;
         }
     }
 }
