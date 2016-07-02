@@ -31,6 +31,12 @@ namespace Assets.Scripts.Controllers
 
         private void OnJobCreated(Job job)
         {
+            if (job.JobObjectType == null)
+            {
+                // This job doesn't have a sprite associated with it.
+                return;
+            }
+
             if (_jobGameObjectMap.ContainsKey(job))
             {
                 Debug.LogError("OnJobCreated called for a JobGO that already exists.");

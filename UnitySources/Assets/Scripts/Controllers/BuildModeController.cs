@@ -1,4 +1,5 @@
-﻿using Assets.Scripts.Controllers;
+﻿using System.Security.Policy;
+using Assets.Scripts.Controllers;
 using Assets.Scripts.Model;
 using Assets.Scripts.Pathfinding;
 using UnityEngine;
@@ -52,11 +53,22 @@ namespace Assets.Scripts.Controllers
                     // this tile is valid for this furniture.
                     // Create a job to build it.
 
-                    var j = new Job(t, furnitureType, (theJob) =>
+                    Job j;
+
+                    if (WorldController.Instance.World._furnitureJobPrototypes.ContainsKey(furnitureType))
                     {
-                        WorldController.Instance.World.PlaceFurniture(furnitureType, t);
-                        t.PendingFurnitureJob = null;
-                    }, 0.3f);
+                        // Make a clone of the Job Prototype.
+                        j = WorldController.Instance.World._furnitureJobPrototypes[furnitureType].Clone();
+
+                        // Assign the correct tile.
+                        j.Tile = t;
+                    }
+                    else
+                    {
+                        Debug.LogError("There is no Furniture Job Prototype for '" + furnitureType + "'");
+                        j = new Job(t, furnitureType, FurnitureActions.JobComplete_FurnitureBuilding, 0.1f, null);
+                    }
+
                     t.PendingFurnitureJob = j;
                     j.RegisterOnCancelCallback((theJob) => { theJob.Tile.PendingFurnitureJob = null; });
                     j.RegisterOnCompleteCallback((theJob) => { theJob.Tile.PendingFurnitureJob = null; });
@@ -75,5 +87,6 @@ namespace Assets.Scripts.Controllers
         {
             WorldController.Instance.World.SetupPathfindingTestMap();
         }
+
     }
 }

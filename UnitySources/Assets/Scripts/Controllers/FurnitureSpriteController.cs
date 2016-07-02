@@ -168,7 +168,7 @@ namespace Assets.Scripts.Controllers
 
         private void LoadSprites()
         {
-            var sprites = Resources.LoadAll<Sprite>("Furniture/orange_walls");
+            var sprites = Resources.LoadAll<Sprite>("Furniture/");
             foreach (var sprite in sprites)
             {
                 _furnitureSprites.Add(sprite.name, sprite);

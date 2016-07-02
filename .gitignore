@@ -1,6 +1,11 @@
 /[Ll]ibrary/
-/[Bb]uild/
 /[Tt]ools/
+
+
+/[Bb]uild/PC
+/[Bb]uild/WebGL/*/
+!Build/WebGL/web.config
+
 
 # OS Files
 [Tt]humbs.db
