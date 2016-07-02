@@ -30,6 +30,8 @@ namespace Assets.Scripts.Model
         /// </summary>
         private readonly int _height = 1;
 
+        private List<Job> _jobs;
+
         /* #################################################################### */
         /* #                        CONSTRUCTORS                              # */
         /* #################################################################### */
@@ -41,6 +43,7 @@ namespace Assets.Scripts.Model
         {
             this.LinksToNeighbour = false;
             this._parameters = new Dictionary<string, float>();
+            this._jobs = new List<Job>();
         }
 
         /// <summary>
@@ -57,6 +60,8 @@ namespace Assets.Scripts.Model
             this.LinksToNeighbour = other.LinksToNeighbour;
 
             this._parameters = new Dictionary<string, float>(other._parameters);
+            this._jobs = new List<Job>();
+
             if (other._cbUpdateActions != null)
             {
                 this._cbUpdateActions = (Action<Furniture, float>)other._cbUpdateActions.Clone();
@@ -85,6 +90,7 @@ namespace Assets.Scripts.Model
             this._funcPositionValidation = this.__IsValidPosition;
             this._parameters = new Dictionary<string, float>();
             this.IsRoomEnclosure = isRoomEnclosure;
+            this._jobs = new List<Job>();
         }
 
         /* #################################################################### */
@@ -367,5 +373,38 @@ namespace Assets.Scripts.Model
             return true;
         }
 
+        public void ClearJobs()
+        {
+            foreach (var j in _jobs)
+            {
+                j.CancelJob();
+                Tile.World.JobQueue.Remove(j);
+            }
+
+            _jobs = new List<Job>();
+        }
+
+        public void AddJob(Job job)
+        {
+            _jobs.Add(job);
+            Tile.World.JobQueue.Enqueue(job);
+        }
+
+        public void RemoveJob(Job job)
+        {
+            _jobs.Remove(job);
+            job.CancelJob();
+            Tile.World.JobQueue.Remove(job);
+        }
+
+        public int GetJobCount()
+        {
+            return _jobs.Count;
+        }
+
+        public bool IsStockpile()
+        {
+            return ObjectType == "Stockpile";
+        }
     }
 }

@@ -182,7 +182,7 @@ namespace Assets.Scripts.Model
                 // Are we carrying what we need?
                 if (inventory != null)
                 {
-                    if (myJob.NeedsMaterial(inventory) != 0)
+                    if (myJob.NeedsMaterial(inventory) > 0)
                     {
                         destTile = myJob.Tile;
 
@@ -190,6 +190,8 @@ namespace Assets.Scripts.Model
                         {
                             // We are at the jobsite, so drop the inventory.
                             currTile.World.InventoryManager.PlaceInventory(myJob, inventory);
+                            myJob.DoWork(0); // This will call all the cbJobWorked callbacks
+
                             if (inventory.stackSize == 0)
                             {
                                 inventory = null;
@@ -225,7 +227,9 @@ namespace Assets.Scripts.Model
                     // At this point, the job still requires inventory, but we don't have it.
                     // That means we need to walk towards a Tile that does have the required items.
 
-                    if (currTile.inventory != null && myJob.NeedsMaterial(currTile.inventory) != 0)
+                    if (currTile.inventory != null && 
+                        (myJob.CanTakeFromStockpile || currTile.Furniture == null || currTile.Furniture.IsStockpile() == false) &&
+                        myJob.NeedsMaterial(currTile.inventory) != 0)
                     {
                         // The materials we need are right where we're stood!
                         currTile.World.InventoryManager.PlaceInventory(
@@ -243,11 +247,12 @@ namespace Assets.Scripts.Model
                         var supply = currTile.World.InventoryManager.GetClosestInventoryOfType(
                             objectType: unsatisfied.objectType,
                             t: currTile,
-                            desiredQty: unsatisfied.maxStackSize - unsatisfied.stackSize);
+                            desiredQty: unsatisfied.maxStackSize - unsatisfied.stackSize,
+                            searchInStockpiles: myJob.CanTakeFromStockpile);
 
                         if (supply == null)
                         {
-                            Debug.LogFormat("No Tile found containing the desired type ({0}).", unsatisfied.objectType);
+                            //Debug.LogFormat("No Tile found containing the desired type ({0}).", unsatisfied.objectType);
                             AbandonJob();
                             return;
                         }
@@ -369,13 +374,15 @@ namespace Assets.Scripts.Model
                 movementPercentage = 0;
                 // FIXME?  Do we actually want to retain any overshot movement?
             }
-
-
         }
 
         private void OnJobEnded(Job j)
         {
             // Job completed or was cancelled.
+
+            j.UnregisterOnCancelCallback(OnJobEnded);
+            j.UnregisterOnCompleteCallback(OnJobEnded);
+
             if (j != myJob)
             {
                 Debug.LogError("Character being told about job that isn't his. You forgot to unregister something.");

@@ -55,6 +55,8 @@ namespace Assets.Scripts.Model
                     Inventories[tile.inventory.objectType] = new List<Inventory>();
                 }
                 Inventories[tile.inventory.objectType].Add(tile.inventory);
+
+                tile.World.OnInventoryCreated(tile.inventory);
             }
 
             return true;
@@ -124,7 +126,7 @@ namespace Assets.Scripts.Model
             return true;
         }
 
-        public Inventory GetClosestInventoryOfType(string objectType, Tile t, int desiredQty)
+        public Inventory GetClosestInventoryOfType(string objectType, Tile t, int desiredQty, bool searchInStockpiles)
         {
             if (Inventories.ContainsKey(objectType) == false)
             {
@@ -136,6 +138,10 @@ namespace Assets.Scripts.Model
             {
                 if (inv.tile != null)
                 {
+                    if (inv.tile.Furniture != null && inv.tile.Furniture.IsStockpile() && searchInStockpiles == false)
+                    {
+                        return null;
+                    }
                     return inv;
                 }
             }

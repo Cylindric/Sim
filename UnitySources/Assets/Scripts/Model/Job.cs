@@ -14,9 +14,10 @@ namespace Assets.Scripts.Model
         /* #                              FIELDS                              # */
         /* #################################################################### */
 
-        private float _jobTime;
+        public float _jobTime { get; private set; }
         private Action<Job> cbOnComplete;
         private Action<Job> cbOnCancel;
+        private Action<Job> cbJobWorked;
         public Dictionary<string, Inventory> _inventoryRequirements;
 
         /* #################################################################### */
@@ -30,6 +31,8 @@ namespace Assets.Scripts.Model
             this.cbOnComplete += cb;
             this._jobTime = jobTime;
             this._inventoryRequirements = new Dictionary<string, Inventory>();
+            this.AcceptsAnyItemType = false;
+            this.CanTakeFromStockpile = true;
 
             // Make sure the Inventories are COPIED, as we will be making changes to them.
             if (requirements != null)
@@ -49,6 +52,8 @@ namespace Assets.Scripts.Model
             this.cbOnCancel += other.cbOnCancel;
             this._jobTime = other._jobTime;
             this._inventoryRequirements = new Dictionary<string, Inventory>();
+            this.AcceptsAnyItemType = other.AcceptsAnyItemType;
+            this.CanTakeFromStockpile = other.CanTakeFromStockpile;
 
             // Make sure the Inventories are COPIED, as we will be making changes to them.
             if (other._inventoryRequirements != null)
@@ -72,6 +77,10 @@ namespace Assets.Scripts.Model
 
         public string JobObjectType { get; protected set; }
 
+        public bool AcceptsAnyItemType { get; set; }
+        public bool CanTakeFromStockpile { get; set; }
+
+
         /* #################################################################### */
         /* #                              METHODS                             # */
         /* #################################################################### */
@@ -91,6 +100,16 @@ namespace Assets.Scripts.Model
             cbOnComplete -= cb;
         }
 
+        public void RegisteJobWorkedCallback(Action<Job> cb)
+        {
+            cbJobWorked += cb;
+        }
+
+        public void UnregisterJobworkedCallback(Action<Job> cb)
+        {
+            cbJobWorked -= cb;
+        }
+
         public void RegisterOnCancelCallback(Action<Job> cb)
         {
             cbOnCancel += cb;
@@ -103,17 +122,43 @@ namespace Assets.Scripts.Model
 
         public void DoWork(float workTime)
         {
+            // Check to make sure we have everything we need.
+            // If not, don't register the work time.
+            if (HasAllMaterial() == false)
+            {
+                // Still call the callbacks though, so animations etc can be updated
+                if (cbJobWorked != null)
+                {
+                    cbJobWorked(this);
+                }
+
+                return;
+            }
+
+            if (cbJobWorked != null)
+            {
+                cbJobWorked(this);
+            }
+
             _jobTime -= workTime;
 
             if (_jobTime <= 0)
             {
-                cbOnComplete(this);
+                if (cbOnComplete != null)
+                {
+                    cbOnComplete(this);
+                }
             }
         }
 
         public void CancelJob()
         {
-            cbOnCancel(this);
+            if (cbOnCancel != null)
+            {
+                cbOnCancel(this);
+            }
+
+            Tile.World.JobQueue.Remove(this);
         }
 
         public bool HasAllMaterial()
@@ -130,6 +175,11 @@ namespace Assets.Scripts.Model
 
         public int NeedsMaterial(Inventory inv)
         {
+            if (AcceptsAnyItemType)
+            {
+                return inv.maxStackSize;
+            }
+
             if (_inventoryRequirements.ContainsKey(inv.objectType) == false)
             {
                 return 0;
