@@ -131,10 +131,40 @@ namespace Assets.Scripts.Model
             }
         }
 
+        /// <summary>
+        /// The Oxygen Generator adds Nitrogen and Oxygen to try and maintain a 78/21 balance.
+        /// </summary>
+        /// <param name="furn"></param>
+        /// <param name="deltaTime"></param>
         public static void OygenGenerator_UpdateAction(Furniture furn, float deltaTime)
         {
+            const float targetO2 = 0.21f;
+            const float targetN = 0.78f;
+
+            if (furn == null)
+            {
+                Debug.LogError("Furn is null!");
+                return;
+            }
+            if (furn.Tile == null)
+            {
+                Debug.LogError("Furn Tile is null!");
+                return;
+            }
+            if (furn.Tile.Room == null)
+            {
+                Debug.LogError("Furn Tile Room is null!");
+                return;
+            }
+            if (furn.Tile.Room.Size == 0)
+            {
+                Debug.LogError("Furn Tile Room Size is zero!");
+                return;
+            }
+
             // The base fill-rate for the O2 Generator.
-            var baseRate = 0.1f;
+            // TODO: Will need a way to both add Nitrogen and O2, and scrub them too, probably with different rates for all combos.
+            var baseRate = 1f;
 
             // The rate depends on the size of the room being affected.
             // Larger rooms take longer
@@ -143,9 +173,25 @@ namespace Assets.Scripts.Model
             // The final rate
             var rate = baseRate*roomSizeMulti;
 
-
-            // Debug.LogFormat("Pumping {0} O2", 0.1f/deltaTime);
-            furn.Tile.Room.ChangeGas("O2", rate * deltaTime);
+            var currentPressure = furn.Tile.Room.GetTotalAtmosphericPressure();
+            if (currentPressure >= 1f)
+            {
+                // Already at one-atmosphere of pressure, so will not add any more! Otherwise ears go pop!
+            }
+            else
+            {
+                // Add Oxygen first, that's important.
+                if (furn.Tile.Room.GetGasPercentage("O2") < targetO2)
+                {
+                    // Pump Oxy!
+                    furn.Tile.Room.ChangeGas("O2", rate*deltaTime);
+                }
+                else
+                {
+                    // Pump Nitro!
+                    furn.Tile.Room.ChangeGas("N", rate*deltaTime);
+                }
+            }
         }
     }
 }

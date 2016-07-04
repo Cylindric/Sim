@@ -440,6 +440,16 @@ namespace Assets.Scripts.Model
             Tile.UnplaceFurniture();
 
             if (cbOnRemoved != null) cbOnRemoved(this);
+
+            // If we removed something that defines a Room, we need to re-set the Rooms around it.
+            if (IsRoomEnclosure)
+            {
+                Room.DoRoomFloodfill(this.Tile);
+            }
+
+            // If we've removed something, there's a fair chance routes to places have changed,
+            // so recalculate the pathfinding graph.
+            Tile.World.InvalidateTileGraph();
         }
     }
 }

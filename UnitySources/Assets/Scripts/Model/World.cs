@@ -109,7 +109,7 @@ namespace Assets.Scripts.Model
 
             // Make sure no tiles point to this room.
             // TODO: This probably isn't necessary, as the flood-fill will assign all these tiles to new rooms.
-            r.UnassignAllTiles();
+            r.ReturnTilesToOutsideRoom();
         }
 
         public void AddRoom(Room r)
@@ -127,7 +127,7 @@ namespace Assets.Scripts.Model
             return this._tiles[x, y];
         }
 
-        public Furniture PlaceFurniture(string objectType, Tile t)
+        public Furniture PlaceFurniture(string objectType, Tile t, bool doRoomFloodFill = true)
         {
             if (this._furniturePrototypes.ContainsKey(objectType) == false)
             {
@@ -147,9 +147,9 @@ namespace Assets.Scripts.Model
             this._furnitures.Add(furn);
 
             // Recalculate rooms?
-            if (furn.IsRoomEnclosure)
+            if (furn.IsRoomEnclosure & doRoomFloodFill)
             {
-                Room.DoRoomFloodfill(furn);
+                Room.DoRoomFloodfill(furn.Tile);
             }
 
             if (this._cbFurnitureCreated != null)
@@ -264,6 +264,7 @@ namespace Assets.Scripts.Model
 
             while (reader.Read())
             {
+                Debug.LogFormat("Parsing section {0}.", reader.Name);
                 switch (reader.Name)
                 {
                     case "Tiles":
@@ -271,7 +272,7 @@ namespace Assets.Scripts.Model
                         this.ReadXml_Tiles(reader);
                         Debug.LogFormat("Loading Tiles took {0} ms.", timer.ElapsedMilliseconds);
                         timer.Stop();
-                        timer.Reset();
+                       timer.Reset();
                         break;
                     case "Furnitures":
                         timer.Start();
@@ -483,6 +484,7 @@ namespace Assets.Scripts.Model
 
         private void ReadXml_Tiles(XmlReader reader)
         {
+            var count = 0;
             if (reader.ReadToDescendant("Tile"))
             {
                 do
@@ -490,22 +492,36 @@ namespace Assets.Scripts.Model
                     int x = int.Parse(reader.GetAttribute("X"));
                     int y = int.Parse(reader.GetAttribute("Y"));
                     this._tiles[x, y].ReadXml(reader);
+                    count++;
 
                 } while (reader.ReadToNextSibling("Tile"));
             }
+            Debug.LogFormat("Loaded {0} Tiles from save file.", count);
         }
 
         private void ReadXml_Furnitures(XmlReader reader)
         {
             if (reader.ReadToDescendant("Furniture"))
             {
+                var count = 0;
                 do
                 {
+                    count++;
                     int x = int.Parse(reader.GetAttribute("X"));
                     int y = int.Parse(reader.GetAttribute("Y"));
-                    var furn = this.PlaceFurniture(reader.GetAttribute("objectType"), this._tiles[x, y]);
+                    var furn = this.PlaceFurniture(reader.GetAttribute("objectType"), this._tiles[x, y], false);
                     furn.ReadXml(reader);
                 } while (reader.ReadToNextSibling("Furniture"));
+                Debug.LogFormat("Loaded {0} Furnitures from save file.", count);
+
+                foreach (var furn in _furnitures)
+                {
+                    Room.DoRoomFloodfill(furn.Tile, true);
+                }
+            }
+            else
+            {
+                Debug.LogWarning("No Furniture found in save file!");
             }
         }
 
