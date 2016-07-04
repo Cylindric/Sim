@@ -143,6 +143,7 @@ namespace Assets.Scripts.Model
                 return null;
             }
 
+            furn.RegisterOnRemovedCallback(OnFurnitureRemoved);
             this._furnitures.Add(furn);
 
             // Recalculate rooms?
@@ -415,7 +416,7 @@ namespace Assets.Scripts.Model
                     tile: null,
                     jobObjectType: "Oxygen",
                     cb: FurnitureActions.JobComplete_FurnitureBuilding,
-                    jobTime: 5f,
+                    jobTime: 2.5f,
                     requirements: new Inventory[] {new Inventory(
                         objectType: "Steel Plate",
                         maxStackSize: 10,
@@ -427,7 +428,7 @@ namespace Assets.Scripts.Model
             // Door
             this._furniturePrototypes.Add("Door", new Furniture(
                 objectType: "Door", 
-                movementCost: 2f, 
+                movementCost: 1f, 
                 width: 1, 
                 height: 1, 
                 linksToNeighbour: false, 
@@ -523,6 +524,11 @@ namespace Assets.Scripts.Model
             {
                 _cbInventoryCreated(inv);
             }
+        }
+
+        public void OnFurnitureRemoved(Furniture furn)
+        {
+            _furnitures.Remove(furn);
         }
     }
 }

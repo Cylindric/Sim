@@ -29,7 +29,7 @@ namespace Assets.Scripts.UI
 
         private void Update()
         {
-            const string template = "O<size=6>2</size>: {0:P0}";
+            const string template = "O<size=6>2</size>: {0:P2} ({1:P2})";
             _myText.text = "O<size=6>2</size>: 0";
 
             var t = _mouseController.GetTileUnderMouse();
@@ -44,11 +44,14 @@ namespace Assets.Scripts.UI
                 return;
             }
 
-            if (t.Room.GetGasPercentage("O2") < 0.06f)
+            var percentage = t.Room.GetGasPercentage("O2");
+            var amount = t.Room.GetGasAmount("O2");
+
+            if (percentage < 0.06f)
             {
                 _myText.color = Color.red;
             }
-            else if (t.Room.GetGasPercentage("O2") < 0.1f)
+            else if (percentage < 0.1f)
             {
                 _myText.color = Color.red;
             }
@@ -57,7 +60,7 @@ namespace Assets.Scripts.UI
                 _myText.color = Color.green;
             }
 
-            _myText.text = string.Format(template, t.Room.GetGasAmount("O2"));
+            _myText.text = string.Format(template, amount, percentage);
         }
     }
 }

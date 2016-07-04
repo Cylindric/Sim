@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
@@ -108,8 +109,20 @@ namespace Assets.Scripts.Model
             cbTileChanged += callback;
         }
 
-        public bool UninstallFurniture()
+        public bool UnplaceFurniture()
         {
+            if (Furniture == null) return false;
+
+            var f = Furniture;
+            for (var xOff = X; xOff < X + f._width; xOff++)
+            {
+                for (var yOff = Y; yOff < Y + f._height; yOff++)
+                {
+                    var t = World.GetTileAt(xOff, yOff);
+                    t.Furniture = null;
+                }
+            }
+
             Furniture = null;
             return true;
         }
@@ -118,7 +131,7 @@ namespace Assets.Scripts.Model
         {
             if (furn == null)
             {
-                return UninstallFurniture();
+                return UnplaceFurniture();
             }
                 
             if(furn.IsValidPosition(this) == false)
@@ -127,11 +140,11 @@ namespace Assets.Scripts.Model
                 return false;
             }
 
-            for (var x_off = X; x_off < X + furn._width; x_off++)
+            for (var xOff = X; xOff < X + furn._width; xOff++)
             {
-                for (var y_off = Y; y_off < Y + furn._height; y_off++)
+                for (var yOff = Y; yOff < Y + furn._height; yOff++)
                 {
-                    var t = World.GetTileAt(x_off, y_off);
+                    var t = World.GetTileAt(xOff, yOff);
                     t.Furniture = furn;
                 }
             }

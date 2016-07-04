@@ -6,11 +6,26 @@ using UnityEngine;
 
 namespace Assets.Scripts.Controllers
 {
+    public enum BuildMode
+    {
+        Floor,
+        Furniture,
+        Deconstruct
+    }
+
     public class BuildModeController : MonoBehaviour
     {
-        public bool _buildModeIsObjects = false;
-        private TileType _buildModeTileType;
+        /* #################################################################### */
+        /* #                              FIELDS                              # */
+        /* #################################################################### */
+
+        public BuildMode BuildMode = BuildMode.Floor;
         public string BuildModeObjectType;
+        private TileType _buildModeTileType;
+
+        /* #################################################################### */
+        /* #                              METHODS                             # */
+        /* #################################################################### */
 
         private void Start()
         {
@@ -22,7 +37,7 @@ namespace Assets.Scripts.Controllers
 
         public bool IsObjectDraggable()
         {
-            if (_buildModeIsObjects == false)
+            if (BuildMode == BuildMode.Floor || BuildMode == BuildMode.Deconstruct)
             {
                 // Floors are draggable.
                 return true;
@@ -40,7 +55,7 @@ namespace Assets.Scripts.Controllers
 
         public void SetMode_BuildFloor()
         {
-            _buildModeIsObjects = false;
+            BuildMode = BuildMode.Floor;
             _buildModeTileType = TileType.Floor;
 
             GameObject.FindObjectOfType<MouseController>().StartBuildMode();
@@ -48,20 +63,26 @@ namespace Assets.Scripts.Controllers
 
         public void SetMode_Clear()
         {
-            _buildModeIsObjects = false;
+            BuildMode = BuildMode.Floor;
             _buildModeTileType = TileType.Empty;
+        }
+
+        public void SetMode_Deconstruct()
+        {
+            BuildMode = BuildMode.Deconstruct;
+            GameObject.FindObjectOfType<MouseController>().StartBuildMode();
         }
 
         public void SetMode_BuildInstalledObject(string type)
         {
             BuildModeObjectType = type;
-            _buildModeIsObjects = true;
+            BuildMode = BuildMode.Furniture;
             GameObject.FindObjectOfType<MouseController>().StartBuildMode();
         }
 
         public void DoBuild(Tile t)
         {
-            if (_buildModeIsObjects == true)
+            if (BuildMode == BuildMode.Furniture)
             {
                 var furnitureType = BuildModeObjectType;
 
@@ -98,10 +119,22 @@ namespace Assets.Scripts.Controllers
                     WorldController.Instance.World.JobQueue.Enqueue(j);
                 }
             }
-            else
+            else if (BuildMode == BuildMode.Floor)
             {
                 // We are in Tile-changing mode.
                 t.Type = _buildModeTileType;
+            }
+            else if (BuildMode == BuildMode.Deconstruct)
+            {
+                if (t.Furniture != null)
+                {
+                    t.Furniture.Deconstruct();
+                }
+
+            }
+            else
+            {
+                Debug.LogError("Unimplemented build mode");
             }
         }
 

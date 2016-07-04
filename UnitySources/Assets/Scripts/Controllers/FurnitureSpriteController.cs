@@ -48,6 +48,33 @@ namespace Assets.Scripts.Controllers
             sr.sortingLayerName = "Furniture";
 
             furn.RegisterOnChangedCallback(OnFurnitureChanged);
+            furn.RegisterOnRemovedCallback(OnFurnitureRemoved);
+        }
+
+        private void OnFurnitureChanged(Furniture furn)
+        {
+            if (_furnitureGameObjectMap.ContainsKey(furn) == false)
+            {
+                Debug.LogError("OnFurnitureChanged failed - Furniture requested that is not in the map!");
+                return;
+            }
+
+            var furnGo = _furnitureGameObjectMap[furn];
+            furnGo.GetComponent<SpriteRenderer>().sprite = GetSpriteForFurniture(furn);
+            furnGo.GetComponent<SpriteRenderer>().color = furn.Tint;
+        }
+
+        private void OnFurnitureRemoved(Furniture furn)
+        {
+            if (_furnitureGameObjectMap.ContainsKey(furn) == false)
+            {
+                Debug.LogError("OnFurnitureRemoved failed - Furniture requested that is not in the map!");
+                return;
+            }
+
+            var furnGo = _furnitureGameObjectMap[furn];
+            Destroy(furnGo);
+            _furnitureGameObjectMap.Remove(furn);
         }
 
         public Sprite GetSpriteForFurniture(Furniture obj)
@@ -177,19 +204,6 @@ namespace Assets.Scripts.Controllers
             {
                 _furnitureSprites.Add(sprite.name, sprite);
             }
-        }
-
-        private void OnFurnitureChanged(Furniture furn)
-        {
-            if (_furnitureGameObjectMap.ContainsKey(furn) == false)
-            {
-                Debug.LogError("OnFurnitureChanged failed - Furniture requested that is not in the map!");
-                return;
-            }
-
-            var furnGo = _furnitureGameObjectMap[furn];
-            furnGo.GetComponent<SpriteRenderer>().sprite = GetSpriteForFurniture(furn);
-            furnGo.GetComponent<SpriteRenderer>().color = furn.Tint;
         }
     }
 }

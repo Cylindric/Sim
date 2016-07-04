@@ -273,7 +273,6 @@ namespace Assets.Scripts.Model
             // Are we there yet?
             if (currTile == myJob.Tile)
             {
-                //if(pathAStar != null && pathAStar.Length() == 1)	{ // We are adjacent to the job site.
                 myJob.DoWork(deltaTime);
             }
 
@@ -319,10 +318,6 @@ namespace Assets.Scripts.Model
                 }
             }
 
-            /*		if(pathAStar.Length() == 1) {
-                        return;
-                    }
-            */
             // At this point we should have a valid nextTile to move to.
 
             // What's the total distance from point A to point B?
@@ -372,7 +367,6 @@ namespace Assets.Scripts.Model
 
                 currTile = nextTile;
                 movementPercentage = 0;
-                // FIXME?  Do we actually want to retain any overshot movement?
             }
         }
 

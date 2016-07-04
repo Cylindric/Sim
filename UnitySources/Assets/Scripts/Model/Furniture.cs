@@ -104,6 +104,7 @@ namespace Assets.Scripts.Model
         /* #################################################################### */
 
         public Action<Furniture> cbOnChanged;
+        public Action<Furniture> cbOnRemoved;
 
         /// <summary>
         /// These actions are called on every update. They get called with a Furniture, and the deltaTime.
@@ -291,6 +292,16 @@ namespace Assets.Scripts.Model
             this.cbOnChanged -= cb;
         }
 
+        public void RegisterOnRemovedCallback(Action<Furniture> cb)
+        {
+            this.cbOnRemoved += cb;
+        }
+
+        public void UnRegisterOnRemovedCallback(Action<Furniture> cb)
+        {
+            this.cbOnRemoved -= cb;
+        }
+
         /// <summary>
         /// Called by the World each 'tick' to update this object.
         /// </summary>
@@ -420,6 +431,15 @@ namespace Assets.Scripts.Model
         public bool IsStockpile()
         {
             return ObjectType == "Stockpile";
+        }
+
+        public void Deconstruct()
+        {
+            Debug.Log("Deconstructing...");
+
+            Tile.UnplaceFurniture();
+
+            if (cbOnRemoved != null) cbOnRemoved(this);
         }
     }
 }

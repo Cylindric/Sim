@@ -134,7 +134,7 @@ namespace Assets.Scripts.Model
         public static void OygenGenerator_UpdateAction(Furniture furn, float deltaTime)
         {
             // The base fill-rate for the O2 Generator.
-            var baseRate = 0.001f;
+            var baseRate = 0.1f;
 
             // The rate depends on the size of the room being affected.
             // Larger rooms take longer

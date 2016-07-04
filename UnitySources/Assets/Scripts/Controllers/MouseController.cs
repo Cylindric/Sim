@@ -14,8 +14,8 @@ namespace Assets.Scripts.Controllers
 
         enum MouseMode
         {
-            SELECT,
-            BUILD
+            Select,
+            Build
         }
 
         /* #################################################################### */
@@ -29,7 +29,7 @@ namespace Assets.Scripts.Controllers
         private BuildModeController bmc;
         private FurnitureSpriteController fsc;
         private bool IsDragging = false;
-        private MouseMode _mode = MouseMode.SELECT;
+        private MouseMode _mode = MouseMode.Select;
 
         /* #################################################################### */
         /* #                           CONSTRUCTORS                           # */
@@ -49,12 +49,12 @@ namespace Assets.Scripts.Controllers
 
         public void StartBuildMode()
         {
-            _mode = MouseMode.BUILD;
+            _mode = MouseMode.Build;
         }
 
         public void StartSelectMode()
         {
-            _mode = MouseMode.SELECT;
+            _mode = MouseMode.Select;
         }
 
         /// <summary>
@@ -111,11 +111,11 @@ namespace Assets.Scripts.Controllers
 
             if (Input.GetKeyUp(KeyCode.Escape))
             {
-                if (_mode == MouseMode.BUILD)
+                if (_mode == MouseMode.Build)
                 {
-                    _mode = MouseMode.SELECT;
+                    _mode = MouseMode.Select;
                 }
-                else if (_mode == MouseMode.SELECT)
+                else if (_mode == MouseMode.Select)
                 {
                     Debug.Log("Show Game Menu");
                 }
@@ -157,7 +157,7 @@ namespace Assets.Scripts.Controllers
                 SimplePool.Despawn(go);
             }
 
-            if (_mode != MouseMode.BUILD)
+            if (_mode != MouseMode.Build)
             {
                 return;
             }
@@ -213,7 +213,7 @@ namespace Assets.Scripts.Controllers
                     var t = WorldController.Instance.World.GetTileAt(x, y);
                     if (t != null)
                     {
-                        if (bmc._buildModeIsObjects)
+                        if (bmc.BuildMode == BuildMode.Furniture)
                         {
                             ShowFurnitureSpriteAtTile(bmc.BuildModeObjectType, t);
                         }
