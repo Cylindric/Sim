@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Assets.Scripts.Model
@@ -6,20 +7,101 @@ namespace Assets.Scripts.Model
     public class Room
     {
         /* #################################################################### */
+        /* #                         CONSTANT FIELDS                          # */
+        /* #################################################################### */
+
+        /* #################################################################### */
         /* #                              FIELDS                              # */
         /* #################################################################### */
 
-        private float _atmosO2 = 0f;
-
-        private float _atmosN = 0f;
-
-        private float _atmosCo2 = 0f;
+        private Dictionary<string, float> atmosphericGasses;
 
         private List<Tile> _tiles = new List<Tile>();
+
+        private World _world;
+
+        /* #################################################################### */
+        /* #                           CONSTRUCTORS                           # */
+        /* #################################################################### */
+
+        public Room(World world)
+        {
+            this._world = world;
+            atmosphericGasses = new Dictionary<string, float>();
+        }
+
+        public float Size
+        {
+            get { return _tiles.Count; }
+        }
+
+        /* #################################################################### */
+        /* #                             DELEGATES                            # */
+        /* #################################################################### */
+
+        /* #################################################################### */
+        /* #                            PROPERTIES                            # */
+        /* #################################################################### */
 
         /* #################################################################### */
         /* #                              METHODS                             # */
         /* #################################################################### */
+
+        public bool IsOutsideRoom()
+        {
+            if (_tiles.Count == 0)
+            {
+                return true;
+            }
+
+            return this == _tiles[0].World.GetOutsideRoom();
+        }
+
+        public void ChangeGas(string name, float amount)
+        {
+            if (IsOutsideRoom())
+            {
+                return;
+            }
+
+            if (atmosphericGasses.ContainsKey(name))
+            {
+                atmosphericGasses[name] += amount;
+            }
+            else
+            {
+                atmosphericGasses[name] = amount;
+            }
+
+            atmosphericGasses[name] = Mathf.Clamp01(atmosphericGasses[name]);
+        }
+
+        public float GetGasAmount(string name)
+        {
+            if (atmosphericGasses.ContainsKey(name))
+            {
+                return atmosphericGasses[name];
+            }
+            return 0f;
+
+        }
+
+        public float GetGasPercentage(string name)
+        {
+            if (atmosphericGasses.ContainsKey(name) == false)
+            {
+                return 0f;
+            }
+
+            var total = atmosphericGasses.Values.Sum(g => g);
+
+            if (Mathf.Approximately(total, 0))
+            {
+                return 0f;
+            }
+
+            return atmosphericGasses[name]/total;
+        }
 
         public void AssignTile(Tile t)
         {
@@ -102,7 +184,7 @@ namespace Assets.Scripts.Model
 
             // If we get this far, we know that we need to create a new Room.
 
-            var newRoom = new Room();
+            var newRoom = new Room(tile.World);
 
             var tilesToCheck = new Queue<Tile>();
             tilesToCheck.Enqueue(tile);
@@ -134,12 +216,18 @@ namespace Assets.Scripts.Model
             }
 
             // Copy data from the old room to the new room.
-            newRoom._atmosCo2 = oldRoom._atmosCo2;
-            newRoom._atmosN = oldRoom._atmosN;
-            newRoom._atmosO2 = oldRoom._atmosO2;
+            newRoom.CopyGas(oldRoom);
 
             // Tell the World that a new Room has been created.
             tile.World.AddRoom(newRoom);
+        }
+
+        private void CopyGas(Room other)
+        {
+            foreach (var gas in other.atmosphericGasses)
+            {
+                this.atmosphericGasses[gas.Key] = gas.Value;
+            }
         }
     }
 }

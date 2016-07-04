@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
+using System.Timers;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
@@ -23,7 +23,8 @@ namespace Assets.Scripts.Model
         public InventoryManager InventoryManager;
 
         private Tile[,] _tiles;
-        private Dictionary<string, Furniture> _furniturePrototypes;
+        public Dictionary<string, Furniture> _furniturePrototypes;
+        public Dictionary<string, Job> _furnitureJobPrototypes;
 
         /* #################################################################### */
         /* #                        CONSTRUCTORS                              # */
@@ -37,7 +38,7 @@ namespace Assets.Scripts.Model
             this.InventoryManager = new InventoryManager();
 
             this._rooms = new List<Room>();
-            this._rooms.Add(new Room()); // Add the default 'outside' room.
+            this._rooms.Add(new Room(this)); // Add the default 'outside' room.
         }
 
         public World(int width, int height) : this()
@@ -156,7 +157,7 @@ namespace Assets.Scripts.Model
                 
                 if (Mathf.Approximately(furn.MovementCost, 1f) == false)
                 {
-                    // Tiles with a movement cost of exactly 1, don't affect the path-finding for their tile.
+                    // Tiles with a movement cost of exactly 1, don't affect the path-finding for their job.
                     this.InvalidateTileGraph();
                 }
             }
@@ -288,9 +289,8 @@ namespace Assets.Scripts.Model
                 }
             }
 
-             // TODO: This is for testing only - remove it!
-            var inv = new Inventory();
-            inv.stackSize = 10;
+            // TODO: This is for testing only - remove it!
+            var inv = new Inventory("Steel Plate", 50, 50);
             var t = GetTileAt(Width/2, Height/2);
             InventoryManager.PlaceInventory(t, inv);
             if (_cbInventoryCreated != null)
@@ -298,8 +298,7 @@ namespace Assets.Scripts.Model
                 _cbInventoryCreated(t.inventory);
             }
 
-            inv = new Inventory();
-            inv.stackSize = 18;
+            inv = new Inventory("Steel Plate", 50, 4);
             t = GetTileAt(Width / 2 + 2, Height / 2);
             InventoryManager.PlaceInventory(t, inv);
             if (_cbInventoryCreated != null)
@@ -307,8 +306,7 @@ namespace Assets.Scripts.Model
                 _cbInventoryCreated(t.inventory);
             }
 
-            inv = new Inventory();
-            inv.stackSize = 14;
+            inv = new Inventory("Steel Plate", 50, 3);
             t = GetTileAt(Width / 2 + 1, Height / 2 + 2);
             InventoryManager.PlaceInventory(t, inv);
             if (_cbInventoryCreated != null)
@@ -362,9 +360,78 @@ namespace Assets.Scripts.Model
         private void CreateFurniturePrototypes()
         {
             this._furniturePrototypes = new Dictionary<string, Furniture>();
+            this._furnitureJobPrototypes = new Dictionary<string, Job>();
 
+            // ------------------------------------------------------------------------------------------------------
+            // Stockpile
+            var f = new Furniture(
+                objectType: "Stockpile", 
+                movementCost: 1f, 
+                width: 1, 
+                height: 1, 
+                linksToNeighbour: false, 
+                isRoomEnclosure: false);
+            f.Tint = new Color32(255, 158, 158, 255);
+            
+            this._furniturePrototypes.Add("Stockpile", f);
+
+            this._furnitureJobPrototypes.Add("Stockpile", new Job(
+                    tile: null,
+                    jobObjectType: "Stockpile",
+                    cb: FurnitureActions.JobComplete_FurnitureBuilding,
+                    jobTime: 0f,
+                    requirements: null));
+
+            this._furniturePrototypes["Stockpile"].RegisterUpdateAction(FurnitureActions.Stockpile_UpdateAction);
+
+            // ------------------------------------------------------------------------------------------------------
+            // Wall
             this._furniturePrototypes.Add("Wall", new Furniture("Wall", 0f, 1, 1, true, true));
-            this._furniturePrototypes.Add("Door", new Furniture("Door", 2f, 1, 1, false, true));
+            this._furnitureJobPrototypes.Add(
+                key: "Wall",
+                value: new Job(
+                    tile: null,
+                    jobObjectType: "Wall",
+                    cb: FurnitureActions.JobComplete_FurnitureBuilding,
+                    jobTime: 1f,
+                    requirements: new Inventory[] {new Inventory(
+                        objectType: "Steel Plate",
+                        maxStackSize: 5,
+                        stackSize: 0)}));
+
+            // ------------------------------------------------------------------------------------------------------
+            // Oxygen Generator
+            this._furniturePrototypes.Add("Oxygen", new Furniture(
+                objectType: "Oxygen", 
+                movementCost: 10f, 
+                width: 2, 
+                height: 2, 
+                linksToNeighbour: false, 
+                isRoomEnclosure: false));
+
+            this._furnitureJobPrototypes.Add(
+                key: "Oxygen",
+                value: new Job(
+                    tile: null,
+                    jobObjectType: "Oxygen",
+                    cb: FurnitureActions.JobComplete_FurnitureBuilding,
+                    jobTime: 5f,
+                    requirements: new Inventory[] {new Inventory(
+                        objectType: "Steel Plate",
+                        maxStackSize: 10,
+                        stackSize: 0)}));
+
+            this._furniturePrototypes["Oxygen"].RegisterUpdateAction(FurnitureActions.OygenGenerator_UpdateAction);
+
+            // ------------------------------------------------------------------------------------------------------
+            // Door
+            this._furniturePrototypes.Add("Door", new Furniture(
+                objectType: "Door", 
+                movementCost: 2f, 
+                width: 1, 
+                height: 1, 
+                linksToNeighbour: false, 
+                isRoomEnclosure: true));
 
             this._furniturePrototypes["Door"].SetParameter("openness", 0.0f);
             this._furniturePrototypes["Door"].SetParameter("is_opening", 0.0f);
@@ -450,5 +517,12 @@ namespace Assets.Scripts.Model
             }
         }
 
+        public void OnInventoryCreated(Inventory inv)
+        {
+            if (_cbInventoryCreated != null)
+            {
+                _cbInventoryCreated(inv);
+            }
+        }
     }
 }

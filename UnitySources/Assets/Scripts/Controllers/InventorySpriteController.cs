@@ -47,6 +47,11 @@ namespace Assets.Scripts.Controllers
             invGo.transform.SetParent(this.transform, true);
 
             var sr = invGo.AddComponent<SpriteRenderer>();
+
+            if (_inventorySprites.ContainsKey(inv.objectType) == false)
+            {
+                Debug.Log("Could not find sprite for " + inv.objectType);
+            }
             sr.sprite = _inventorySprites[inv.objectType];
             sr.sortingLayerName = "Inventory";
 
@@ -58,27 +63,45 @@ namespace Assets.Scripts.Controllers
                 uiGo.GetComponentInChildren<Text>().text = inv.stackSize.ToString();
             }
 
-            // inv.RegisterOnChangedCallback(OnInventoryChanged);
+            inv.RegisterInventoryChangedCallback(OnInventoryChanged);
         }
 
-        private void OnInventoryChanged(Character character)
+        private void OnInventoryChanged(Inventory inv)
         {
-            //if (_inventoryGameObjectMap.ContainsKey(character) == false)
-            //{
-            //    Debug.LogError("OnCharacterChanged failed - Character requested that is not in the map!");
-            //    return;
-            //}
+            if (_inventoryGameObjectMap.ContainsKey(inv) == false)
+            {
+                Debug.LogError("OnInventoryChanged failed - Inventory requested that is not in the map!");
+                return;
+            }
 
-            //var charGo = _inventoryGameObjectMap[character];
-            //charGo.transform.position = new Vector3(character.X, character.Y, 0);
+            var invGo = _inventoryGameObjectMap[inv];
+
+            if (inv.stackSize > 0)
+            {
+                var text = invGo.GetComponentInChildren<Text>();
+
+                if (text != null)
+                {
+                    text.text = inv.stackSize.ToString();
+                }
+            }
+            else
+            {
+                // the stack size is now zero, so remove the sprite
+                Destroy(invGo);
+                _inventoryGameObjectMap.Remove(inv);
+                inv.UnRegisterInventoryChangedCallback(OnInventoryChanged);
+            }
+
+            invGo.transform.position = new Vector3(inv.tile.X, inv.tile.Y, 0);
         }
 
         private void LoadSprites()
         {
-            var sprites = Resources.LoadAll<Sprite>("Inventory/plate");
+            var sprites = Resources.LoadAll<Sprite>("Inventory/");
             if (sprites.Length == 0)
             {
-                Debug.LogError("Failed to load any sprites from the spritesheet [Inventory/pate]");
+                Debug.LogError("Failed to load any sprites from the spritesheet [Inventory/]");
             }
             foreach (var sprite in sprites)
             {

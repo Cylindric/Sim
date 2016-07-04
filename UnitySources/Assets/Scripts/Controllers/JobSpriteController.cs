@@ -31,6 +31,12 @@ namespace Assets.Scripts.Controllers
 
         private void OnJobCreated(Job job)
         {
+            if (job.JobObjectType == null)
+            {
+                // This job doesn't have a sprite associated with it.
+                return;
+            }
+
             if (_jobGameObjectMap.ContainsKey(job))
             {
                 Debug.LogError("OnJobCreated called for a JobGO that already exists.");
@@ -42,12 +48,14 @@ namespace Assets.Scripts.Controllers
             _jobGameObjectMap.Add(job, jobGo);
 
             jobGo.name = "JOB_" + job.JobObjectType + "_" + job.Tile.X + "_" + job.Tile.Y;
-            jobGo.transform.position = new Vector3(job.Tile.X, job.Tile.Y, 0);
+
+            var posOffset = new Vector3((float)(job.FurniturePrototype._width - 1) / 2, (float)(job.FurniturePrototype._height - 1) / 2, 0);
+            jobGo.transform.position = new Vector3(job.Tile.X, job.Tile.Y, 0) + posOffset;
             jobGo.transform.SetParent(this.transform, true);
 
             var sr = jobGo.AddComponent<SpriteRenderer>();
             sr.sprite = fsc.GetSpriteForFurniture(job.JobObjectType);
-            sr.color = new Color(1f, 1f, 1f, 0.5f);
+            sr.color = new Color(0.5f, 1f, 0.5f, 0.25f);
             sr.sortingLayerName = "Jobs";
 
             job.RegisterOnCompleteCallback(OnJobEnded);

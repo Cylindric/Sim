@@ -12,20 +12,23 @@ namespace Assets.Scripts.Model
     public class Tile : IXmlSerializable
     {
         /* #################################################################### */
-        /* #                      CONSTANT FIELDS                             # */
+        /* #                         CONSTANT FIELDS                          # */
         /* #################################################################### */
+
         private const float BaseTileMovementCost = 1f;
 
         /* #################################################################### */
-        /* #                           FIELDS                                 # */
+        /* #                              FIELDS                              # */
         /* #################################################################### */
-        private TileType _type = TileType.Empty;
 
         public Inventory inventory;
 
+        private TileType _type = TileType.Empty;
+
         /* #################################################################### */
-        /* #                        CONSTRUCTORS                              # */
+        /* #                           CONSTRUCTORS                           # */
         /* #################################################################### */
+
         public Tile()
         {
         }
@@ -38,13 +41,15 @@ namespace Assets.Scripts.Model
         }
 
         /* #################################################################### */
-        /* #                         DELEGATES                                # */
+        /* #                             DELEGATES                            # */
         /* #################################################################### */
-        private Action<Tile> cbTileChanged;
+
+        public Action<Tile> cbTileChanged;
 
         /* #################################################################### */
-        /* #                         PROPERTIES                               # */
+        /* #                            PROPERTIES                            # */
         /* #################################################################### */
+
         public int X { get; private set; }
         public int Y { get; private set; }
         public World World { get; private set; }
@@ -90,7 +95,7 @@ namespace Assets.Scripts.Model
         }
 
         /* #################################################################### */
-        /* #                           METHODS                                # */
+        /* #                              METHODS                             # */
         /* #################################################################### */
 
         public void UnRegisterTileTypeChangedCallback(Action<Tile> callback)
@@ -103,22 +108,34 @@ namespace Assets.Scripts.Model
             cbTileChanged += callback;
         }
 
+        public bool UninstallFurniture()
+        {
+            Furniture = null;
+            return true;
+        }
+
         public bool PlaceFurniture(Furniture furn)
         {
-            // If a null inv is provided, clear the current object.
             if (furn == null)
             {
-                Furniture = null;
-                return true;
+                return UninstallFurniture();
             }
-
-            if (Furniture != null)
+                
+            if(furn.IsValidPosition(this) == false)
             {
-                Debug.LogError("Trying to assign a Furniture to a Tile that already has one.");
+                Debug.LogError("Trying to assign a Furniture to a Tile that isn't valid.");
                 return false;
             }
 
-            Furniture = furn;
+            for (var x_off = X; x_off < X + furn._width; x_off++)
+            {
+                for (var y_off = Y; y_off < Y + furn._height; y_off++)
+                {
+                    var t = World.GetTileAt(x_off, y_off);
+                    t.Furniture = furn;
+                }
+            }
+
             return true;
         }
 

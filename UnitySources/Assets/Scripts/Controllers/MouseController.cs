@@ -8,13 +8,54 @@ namespace Assets.Scripts.Controllers
 {
     public class MouseController : MonoBehaviour
     {
-        public GameObject CircleCursorPrefab;
-        public Light CursorLight;
+        /* #################################################################### */
+        /* #                         CONSTANT FIELDS                          # */
+        /* #################################################################### */
 
+        enum MouseMode
+        {
+            SELECT,
+            BUILD
+        }
+
+        /* #################################################################### */
+        /* #                              FIELDS                              # */
+        /* #################################################################### */
+        public GameObject CircleCursorPrefab;
         private Vector3 _lastFramePosition;
         private Vector3 _currentFramePosition;
         private Vector3 _dragStartPosition;
         private List<GameObject> _dragPreviewGameObjects;
+        private BuildModeController bmc;
+        private FurnitureSpriteController fsc;
+        private bool IsDragging = false;
+        private MouseMode _mode = MouseMode.SELECT;
+
+        /* #################################################################### */
+        /* #                           CONSTRUCTORS                           # */
+        /* #################################################################### */
+
+        /* #################################################################### */
+        /* #                             DELEGATES                            # */
+        /* #################################################################### */
+
+        /* #################################################################### */
+        /* #                            PROPERTIES                            # */
+        /* #################################################################### */
+
+        /* #################################################################### */
+        /* #                              METHODS                             # */
+        /* #################################################################### */
+
+        public void StartBuildMode()
+        {
+            _mode = MouseMode.BUILD;
+        }
+
+        public void StartSelectMode()
+        {
+            _mode = MouseMode.SELECT;
+        }
 
         /// <summary>
         /// Gets the current mouse position, in World-space coordinates.
@@ -27,22 +68,59 @@ namespace Assets.Scripts.Controllers
 
         public Tile GetTileUnderMouse()
         {
-            var x = Mathf.FloorToInt(_currentFramePosition.x);
-            var y = Mathf.FloorToInt(_currentFramePosition.y);
-            return WorldController.Instance.World.GetTileAt(x, y);
+            return WorldController.Instance.GetTileAtWorldCoordinates(_currentFramePosition);
+        }
+
+        private void ShowFurnitureSpriteAtTile(string furnType, Tile t)
+        {
+            var go = new GameObject();
+            go.transform.SetParent(this.transform, true);
+            _dragPreviewGameObjects.Add(go);
+
+            var sr = go.AddComponent<SpriteRenderer>();
+            sr.sprite = fsc.GetSpriteForFurniture(furnType);
+
+            if (WorldController.Instance.World.IsFurniturePlacementValid(furnType, t))
+            {
+                sr.color = new Color(0.5f, 1f, 0.5f, 0.25f);
+            }
+            else
+            {
+                sr.color = new Color(1f, 0.5f, 0.5f, 1f);
+            }
+
+            sr.sortingLayerName = "Jobs";
+
+            var proto = t.World._furniturePrototypes[furnType];
+            var posOffset = new Vector3((float) (proto._width - 1)/2, (float) (proto._height - 1)/2, 0);
+            go.transform.position = new Vector3(t.X, t.Y, 0) + posOffset;
         }
 
         // Use this for initialization
         private void Start()
         {
+            fsc = GameObject.FindObjectOfType<FurnitureSpriteController>();
+            bmc = GameObject.FindObjectOfType<BuildModeController>();
             _dragPreviewGameObjects = new List<GameObject>();
         }
 
         // Update is called once per frame
-        private void Update ()
+        private void Update()
         {
             _currentFramePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        
+
+            if (Input.GetKeyUp(KeyCode.Escape))
+            {
+                if (_mode == MouseMode.BUILD)
+                {
+                    _mode = MouseMode.SELECT;
+                }
+                else if (_mode == MouseMode.SELECT)
+                {
+                    Debug.Log("Show Game Menu");
+                }
+            }
+
             UpdateDragging();
             UpdateCameraMovement();
 
@@ -59,7 +137,7 @@ namespace Assets.Scripts.Controllers
             }
 
             // Zooming
-            Camera.main.orthographicSize -= Camera.main.orthographicSize * Input.GetAxis("Mouse ScrollWheel") * 2f;
+            Camera.main.orthographicSize -= Camera.main.orthographicSize*Input.GetAxis("Mouse ScrollWheel")*2f;
             Camera.main.orthographicSize = Mathf.Clamp(Camera.main.orthographicSize, 3f, 50f);
         }
 
@@ -71,16 +149,45 @@ namespace Assets.Scripts.Controllers
                 return;
             }
 
+            // Clear the drag-area markers
+            while (_dragPreviewGameObjects.Count > 0)
+            {
+                var go = _dragPreviewGameObjects[0];
+                _dragPreviewGameObjects.RemoveAt(0);
+                SimplePool.Despawn(go);
+            }
+
+            if (_mode != MouseMode.BUILD)
+            {
+                return;
+            }
+
             // Start Drag
             if (Input.GetMouseButtonDown(0))
             {
                 _dragStartPosition = _currentFramePosition;
+                IsDragging = true;
+            }
+            else if (IsDragging == false)
+            {
+                _dragStartPosition = _currentFramePosition;
             }
 
-            var startX = Mathf.FloorToInt(_dragStartPosition.x);
-            var endX = Mathf.FloorToInt(_currentFramePosition.x);
-            var startY = Mathf.FloorToInt(_dragStartPosition.y);
-            var endY = Mathf.FloorToInt(_currentFramePosition.y);
+            if (Input.GetMouseButtonUp(1) || Input.GetKeyUp(KeyCode.Escape))
+            {
+                // The RIGHT mouse button came up or ESC was pressed, so cancel any dragging.
+                IsDragging = false;
+            }
+
+            if (bmc.IsObjectDraggable() == false)
+            {
+                _dragStartPosition = _currentFramePosition;
+            }
+
+            var startX = Mathf.FloorToInt(_dragStartPosition.x + 0.5f);
+            var endX = Mathf.FloorToInt(_currentFramePosition.x + 0.5f);
+            var startY = Mathf.FloorToInt(_dragStartPosition.y + 0.5f);
+            var endY = Mathf.FloorToInt(_currentFramePosition.y + 0.5f);
 
             if (endX < startX)
             {
@@ -96,25 +203,23 @@ namespace Assets.Scripts.Controllers
                 startY = temp;
             }
 
-            // Clear the drag-area markers
-            while (_dragPreviewGameObjects.Count > 0)
+            //if (IsDragging)
+            //{
+            // Display dragged area
+            for (var x = startX; x <= endX; x++)
             {
-                var go = _dragPreviewGameObjects[0];
-                _dragPreviewGameObjects.RemoveAt(0);
-                SimplePool.Despawn(go);
-            }
-
-            if (Input.GetMouseButton(0))
-            {
-                // Display dragged area
-                for (var x = startX; x <= endX; x++)
+                for (var y = startY; y <= endY; y++)
                 {
-                    for (var y = startY; y <= endY; y++)
+                    var t = WorldController.Instance.World.GetTileAt(x, y);
+                    if (t != null)
                     {
-                        var t = WorldController.Instance.World.GetTileAt(x, y);
-                        if (t != null)
+                        if (bmc._buildModeIsObjects)
                         {
-                            var go = SimplePool.Spawn(CircleCursorPrefab, new Vector3(x + 0.5f, y + 0.5f, 0),
+                            ShowFurnitureSpriteAtTile(bmc.BuildModeObjectType, t);
+                        }
+                        else
+                        {
+                            var go = SimplePool.Spawn(CircleCursorPrefab, new Vector3(x, y, 0),
                                 Quaternion.identity);
                             go.transform.SetParent(this.transform, true);
                             _dragPreviewGameObjects.Add(go);
@@ -122,12 +227,12 @@ namespace Assets.Scripts.Controllers
                     }
                 }
             }
+            //}
 
             // End Drag
-            if (Input.GetMouseButtonUp(0))
+            if (IsDragging && Input.GetMouseButtonUp(0))
             {
-                var bmc = GameObject.FindObjectOfType<BuildModeController>();
-
+                IsDragging = false;
                 for (var x = startX; x <= endX; x++)
                 {
                     for (var y = startY; y <= endY; y++)
@@ -141,6 +246,6 @@ namespace Assets.Scripts.Controllers
                 }
             }
         }
-    
+
     }
 }
