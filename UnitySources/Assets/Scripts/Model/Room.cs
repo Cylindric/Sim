@@ -1,10 +1,16 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Net;
+using System.Xml;
+using System.Xml.Schema;
+using System.Xml.Serialization;
+using Assets.Scripts.Controllers;
 using UnityEngine;
 
 namespace Assets.Scripts.Model
 {
-    public class Room
+    public class Room : IXmlSerializable
     {
         /* #################################################################### */
         /* #                         CONSTANT FIELDS                          # */
@@ -23,6 +29,11 @@ namespace Assets.Scripts.Model
         /* #################################################################### */
         /* #                           CONSTRUCTORS                           # */
         /* #################################################################### */
+
+        public Room()
+        {
+            atmosphericGasses = new Dictionary<string, float>();
+        }
 
         public Room(World world)
         {
@@ -229,5 +240,58 @@ namespace Assets.Scripts.Model
                 this.atmosphericGasses[gas.Key] = gas.Value;
             }
         }
+
+        public XmlSchema GetSchema()
+        {
+            return null;
+        }
+
+        public void ReadXml(XmlReader reader)
+        {
+            // Rooms are tricky, because they are regenerated automatically, making it hard to link back to.
+            if (reader.ReadToDescendant("Room"))
+            {
+                if (reader.ReadToDescendant("Gasses"))
+                {
+                    if (reader.ReadToDescendant("Gas"))
+                    {
+                        do
+                        {
+                            var name = reader.GetAttribute("name");
+                            var value = float.Parse(reader.GetAttribute("amount"));
+                            this.atmosphericGasses[name] = value;
+                        } while (reader.ReadToNextSibling("Gas"));
+                    }
+                }
+            }
+        }
+
+        public void WriteXml(XmlWriter writer)
+        {
+            writer.WriteStartElement("Room");
+            if (_tiles.Count == 0)
+            {
+                writer.WriteAttributeString("x", "-1");
+                writer.WriteAttributeString("y", "-1");
+            }
+            else
+            {
+                writer.WriteAttributeString("x", _tiles[0].X.ToString());
+                writer.WriteAttributeString("y", _tiles[0].X.ToString());
+            }
+
+            writer.WriteStartElement("Gasses");
+            foreach (var gas in atmosphericGasses)
+            {
+                writer.WriteStartElement("Gas");
+                writer.WriteAttributeString("name", gas.Key);
+                writer.WriteAttributeString("amount", gas.Value.ToString(CultureInfo.InvariantCulture));
+                writer.WriteEndElement();
+            }
+            writer.WriteEndElement();
+
+            writer.WriteEndElement();
+        }
+
     }
 }

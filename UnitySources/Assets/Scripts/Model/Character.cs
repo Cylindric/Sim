@@ -121,6 +121,13 @@ namespace Assets.Scripts.Model
 
         public void ReadXml(XmlReader reader)
         {
+            // Read a single Inventory item in.
+            if (reader.ReadToDescendant("Inventory"))
+            {
+                this.inventory = new Inventory();
+                this.inventory.character = this;
+                this.inventory.ReadXml(reader);
+            }
         }
 
         public void WriteXml(XmlWriter writer)
@@ -128,6 +135,10 @@ namespace Assets.Scripts.Model
             writer.WriteStartElement("Character");
             writer.WriteAttributeString("X", currTile.X.ToString());
             writer.WriteAttributeString("Y", currTile.Y.ToString());
+            if (this.inventory != null)
+            {
+                this.inventory.WriteXml(writer);
+            }
             writer.WriteEndElement();
         }
 

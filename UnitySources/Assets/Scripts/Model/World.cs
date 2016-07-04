@@ -341,12 +341,18 @@ namespace Assets.Scripts.Model
 
             writer.WriteEndElement();
 
+            writer.WriteStartElement("Rooms");
+            foreach (var room in this._rooms)
+            {
+                room.WriteXml(writer);
+            }
+            writer.WriteEndElement();
+
             writer.WriteStartElement("Furnitures");
             foreach (var furn in this._furnitures)
             {
                 furn.WriteXml(writer);
             }
-
             writer.WriteEndElement();
 
             writer.WriteStartElement("Characters");
@@ -354,7 +360,6 @@ namespace Assets.Scripts.Model
             {
                 character.WriteXml(writer);
             }
-
             writer.WriteEndElement();
         }
 
@@ -520,10 +525,7 @@ namespace Assets.Scripts.Model
 
         public void OnInventoryCreated(Inventory inv)
         {
-            if (_cbInventoryCreated != null)
-            {
-                _cbInventoryCreated(inv);
-            }
+            if (_cbInventoryCreated != null) _cbInventoryCreated(inv);
         }
 
         public void OnFurnitureRemoved(Furniture furn)

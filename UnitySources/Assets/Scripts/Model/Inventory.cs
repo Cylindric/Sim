@@ -1,8 +1,12 @@
 ﻿using System;
+using System.Xml;
+using System.Xml.Schema;
+using System.Xml.Serialization;
 
 namespace Assets.Scripts.Model
 {
-    public class Inventory {
+    public class Inventory : IXmlSerializable
+    {
 
         /* #################################################################### */
         /* #                              FIELDS                              # */
@@ -89,6 +93,31 @@ namespace Assets.Scripts.Model
         public virtual Inventory Clone()
         {
             return new Inventory(this);
+        }
+
+        public XmlSchema GetSchema()
+        {
+            return null;
+        }
+
+        public void ReadXml(XmlReader reader)
+        {
+            this.objectType = reader.GetAttribute("objectType");
+
+            int stackSize = int.Parse(reader.GetAttribute("stackSize"));
+            int maxStackSize = int.Parse(reader.GetAttribute("maxStackSize"));
+
+            this.stackSize = stackSize;
+            this.maxStackSize = maxStackSize;
+        }
+
+        public void WriteXml(XmlWriter writer)
+        {
+            writer.WriteStartElement("Inventory");
+            writer.WriteAttributeString("objectType", this.objectType);
+            writer.WriteAttributeString("stackSize", this.stackSize.ToString());
+            writer.WriteAttributeString("maxStackSize", this.maxStackSize.ToString());
+            writer.WriteEndElement();
         }
     }
 }

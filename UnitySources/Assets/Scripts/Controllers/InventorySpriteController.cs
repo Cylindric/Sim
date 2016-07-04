@@ -93,7 +93,7 @@ namespace Assets.Scripts.Controllers
                 inv.UnRegisterInventoryChangedCallback(OnInventoryChanged);
             }
 
-            invGo.transform.position = new Vector3(inv.tile.X, inv.tile.Y, 0);
+            invGo.transform.position = new Vector3(inv.tile.X - 0.5f, inv.tile.Y - 0.5f, 0);
         }
 
         private void LoadSprites()
