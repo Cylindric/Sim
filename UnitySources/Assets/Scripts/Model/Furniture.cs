@@ -335,7 +335,7 @@ namespace Assets.Scripts.Model
 
         public void ReadXml(XmlReader reader)
         {
-            this.MovementCost = float.Parse(reader.GetAttribute("movementCost"));
+            // this.MovementCost = float.Parse(reader.GetAttribute("movementCost"));
 
             if (reader.ReadToDescendant("Param"))
             {
@@ -354,7 +354,7 @@ namespace Assets.Scripts.Model
             writer.WriteAttributeString("X", this.Tile.X.ToString());
             writer.WriteAttributeString("Y", this.Tile.Y.ToString());
             writer.WriteAttributeString("objectType", this.ObjectType);
-            writer.WriteAttributeString("movementCost", this.MovementCost.ToString());
+            // writer.WriteAttributeString("movementCost", this.MovementCost.ToString());
 
             foreach (var k in _parameters)
             {

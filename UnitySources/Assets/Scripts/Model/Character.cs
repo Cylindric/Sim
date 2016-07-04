@@ -10,7 +10,8 @@ using Debug = UnityEngine.Debug;
 namespace Assets.Scripts.Model
 {
     [DebuggerDisplay("Character at [{X}, {Y}]")]
-    public class Character : IXmlSerializable
+    public class 
+        Character : IXmlSerializable
     {
         /* #################################################################### */
         /* #                           FIELDS                                 # */
