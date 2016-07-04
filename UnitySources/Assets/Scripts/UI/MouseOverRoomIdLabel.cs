@@ -33,6 +33,5 @@ namespace Assets.Scripts.UI
 
             _myText.text = "Room: " + t.World._rooms.IndexOf(t.Room);
         }
-        
     }
 }

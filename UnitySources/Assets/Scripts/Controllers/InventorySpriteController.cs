@@ -47,6 +47,11 @@ namespace Assets.Scripts.Controllers
             invGo.transform.SetParent(this.transform, true);
 
             var sr = invGo.AddComponent<SpriteRenderer>();
+
+            if (_inventorySprites.ContainsKey(inv.objectType) == false)
+            {
+                Debug.Log("Could not find sprite for " + inv.objectType);
+            }
             sr.sprite = _inventorySprites[inv.objectType];
             sr.sortingLayerName = "Inventory";
 
@@ -93,10 +98,10 @@ namespace Assets.Scripts.Controllers
 
         private void LoadSprites()
         {
-            var sprites = Resources.LoadAll<Sprite>("Inventory/plate");
+            var sprites = Resources.LoadAll<Sprite>("Inventory/");
             if (sprites.Length == 0)
             {
-                Debug.LogError("Failed to load any sprites from the spritesheet [Inventory/pate]");
+                Debug.LogError("Failed to load any sprites from the spritesheet [Inventory/]");
             }
             foreach (var sprite in sprites)
             {

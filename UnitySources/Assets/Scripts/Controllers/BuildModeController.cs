@@ -8,14 +8,31 @@ namespace Assets.Scripts.Controllers
 {
     public class BuildModeController : MonoBehaviour
     {
-        private bool _buildModeIsObjects = false;
+        public bool _buildModeIsObjects = false;
         private TileType _buildModeTileType;
-        private string _buildModeObjectType;
+        public string BuildModeObjectType;
 
         private void Start()
         {
         }
-    
+
+        private void Update()
+        {
+        }
+
+        public bool IsObjectDraggable()
+        {
+            if (_buildModeIsObjects == false)
+            {
+                // Floors are draggable.
+                return true;
+            }
+
+            var proto = WorldController.Instance.World._furniturePrototypes[BuildModeObjectType];
+
+            return (proto._width == 1 && proto._height == 1);
+        }
+
         private void OnFurnitureJobComplete(string furnitureType, Tile t)
         {
             WorldController.Instance.World.PlaceFurniture(furnitureType, t);
@@ -25,6 +42,8 @@ namespace Assets.Scripts.Controllers
         {
             _buildModeIsObjects = false;
             _buildModeTileType = TileType.Floor;
+
+            GameObject.FindObjectOfType<MouseController>().StartBuildMode();
         }
 
         public void SetMode_Clear()
@@ -35,15 +54,16 @@ namespace Assets.Scripts.Controllers
 
         public void SetMode_BuildInstalledObject(string type)
         {
-            _buildModeObjectType = type;
+            BuildModeObjectType = type;
             _buildModeIsObjects = true;
+            GameObject.FindObjectOfType<MouseController>().StartBuildMode();
         }
 
         public void DoBuild(Tile t)
         {
             if (_buildModeIsObjects == true)
             {
-                string furnitureType = _buildModeObjectType;
+                var furnitureType = BuildModeObjectType;
 
                 // Check that we can build the object in the selected tile.
                 if (
@@ -68,6 +88,8 @@ namespace Assets.Scripts.Controllers
                         Debug.LogError("There is no Furniture Job Prototype for '" + furnitureType + "'");
                         j = new Job(t, furnitureType, FurnitureActions.JobComplete_FurnitureBuilding, 0.1f, null);
                     }
+
+                    j.FurniturePrototype = WorldController.Instance.World._furniturePrototypes[furnitureType];
 
                     t.PendingFurnitureJob = j;
                     j.RegisterOnCancelCallback((theJob) => { theJob.Tile.PendingFurnitureJob = null; });

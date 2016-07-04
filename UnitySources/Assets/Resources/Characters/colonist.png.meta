@@ -1,6 +1,6 @@
 fileFormatVersion: 2
 guid: f8c8034f8798e3d478a5c85e72df01f7
-timeCreated: 1467386896
+timeCreated: 1467556487
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
@@ -47,69 +47,31 @@ TextureImporter:
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
-  spritePixelsToUnits: 32
+  spritePixelsToUnits: 64
   alphaIsTransparency: 1
   textureType: 8
   buildTargetSettings: []
   spriteSheet:
     sprites:
-    - name: colonist_0
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 0
-        width: 32
-        height: 32
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline:
-      - - {x: -6, y: 2}
-        - {x: -6, y: -2}
-        - {x: -5, y: -5}
-        - {x: 1, y: -5}
-        - {x: 5, y: -3}
-        - {x: 5, y: 0}
-        - {x: 1, y: 4}
-        - {x: -2, y: 4}
     - name: body
       rect:
         serializedVersion: 2
-        x: 32
-        y: 0
-        width: 32
-        height: 32
+        x: 1
+        y: 1
+        width: 64
+        height: 64
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: -5, y: 6}
-        - {x: -7, y: 2}
-        - {x: -7, y: -6}
-        - {x: -5, y: -7}
-        - {x: 5, y: -7}
-        - {x: 6, y: -5}
-        - {x: 6, y: 1}
-        - {x: 4, y: 6}
-    - name: head
-      rect:
-        serializedVersion: 2
-        x: 64
-        y: 0
-        width: 32
-        height: 32
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline:
-      - - {x: -8, y: -3}
-        - {x: -6, y: -8}
-        - {x: 4, y: -8}
-        - {x: 7, y: -7}
-        - {x: 7, y: 2}
-        - {x: 4, y: 7}
-        - {x: -3, y: 7}
-        - {x: -8, y: 2}
+      - - {x: -13, y: 25}
+        - {x: -25, y: 14}
+        - {x: -25, y: -19}
+        - {x: -11, y: -25}
+        - {x: 18, y: -25}
+        - {x: 25, y: -18}
+        - {x: 25, y: 11}
+        - {x: 19, y: 25}
     outline: []
   spritePackingTag: 
   userData: 

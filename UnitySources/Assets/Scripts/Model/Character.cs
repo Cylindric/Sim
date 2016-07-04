@@ -150,7 +150,7 @@ namespace Assets.Scripts.Model
             pathAStar = new Path_AStar(currTile.World, currTile, destTile);
             if (pathAStar.Length() == 0)
             {
-                Debug.LogError("Path_AStar returned no path to target job tile!");
+                // Debug.LogError("Path_AStar returned no path to target job tile!");
                 AbandonJob();
                 pathAStar = null;
                 destTile = currTile;

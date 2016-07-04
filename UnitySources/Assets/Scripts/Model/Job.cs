@@ -19,6 +19,7 @@ namespace Assets.Scripts.Model
         private Action<Job> cbOnCancel;
         private Action<Job> cbJobWorked;
         public Dictionary<string, Inventory> _inventoryRequirements;
+        public Furniture FurniturePrototype;
 
         /* #################################################################### */
         /* #                           CONSTRUCTORS                           # */

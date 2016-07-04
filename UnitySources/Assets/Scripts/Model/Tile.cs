@@ -108,22 +108,34 @@ namespace Assets.Scripts.Model
             cbTileChanged += callback;
         }
 
+        public bool UninstallFurniture()
+        {
+            Furniture = null;
+            return true;
+        }
+
         public bool PlaceFurniture(Furniture furn)
         {
-            // If a null inv is provided, clear the current object.
             if (furn == null)
             {
-                Furniture = null;
-                return true;
+                return UninstallFurniture();
             }
-
-            if (Furniture != null)
+                
+            if(furn.IsValidPosition(this) == false)
             {
-                Debug.LogError("Trying to assign a Furniture to a Tile that already has one.");
+                Debug.LogError("Trying to assign a Furniture to a Tile that isn't valid.");
                 return false;
             }
 
-            Furniture = furn;
+            for (var x_off = X; x_off < X + furn._width; x_off++)
+            {
+                for (var y_off = Y; y_off < Y + furn._height; y_off++)
+                {
+                    var t = World.GetTileAt(x_off, y_off);
+                    t.Furniture = furn;
+                }
+            }
+
             return true;
         }
 

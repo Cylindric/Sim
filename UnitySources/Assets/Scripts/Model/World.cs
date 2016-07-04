@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Timers;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
@@ -22,7 +23,7 @@ namespace Assets.Scripts.Model
         public InventoryManager InventoryManager;
 
         private Tile[,] _tiles;
-        private Dictionary<string, Furniture> _furniturePrototypes;
+        public Dictionary<string, Furniture> _furniturePrototypes;
         public Dictionary<string, Job> _furnitureJobPrototypes;
 
         /* #################################################################### */
@@ -37,7 +38,7 @@ namespace Assets.Scripts.Model
             this.InventoryManager = new InventoryManager();
 
             this._rooms = new List<Room>();
-            this._rooms.Add(new Room()); // Add the default 'outside' room.
+            this._rooms.Add(new Room(this)); // Add the default 'outside' room.
         }
 
         public World(int width, int height) : this()
@@ -361,14 +362,18 @@ namespace Assets.Scripts.Model
             this._furniturePrototypes = new Dictionary<string, Furniture>();
             this._furnitureJobPrototypes = new Dictionary<string, Job>();
 
+            // ------------------------------------------------------------------------------------------------------
             // Stockpile
-            this._furniturePrototypes.Add("Stockpile", new Furniture(
+            var f = new Furniture(
                 objectType: "Stockpile", 
                 movementCost: 1f, 
                 width: 1, 
                 height: 1, 
                 linksToNeighbour: false, 
-                isRoomEnclosure: false));
+                isRoomEnclosure: false);
+            f.Tint = new Color32(255, 158, 158, 255);
+            
+            this._furniturePrototypes.Add("Stockpile", f);
 
             this._furnitureJobPrototypes.Add("Stockpile", new Job(
                     tile: null,
@@ -379,6 +384,7 @@ namespace Assets.Scripts.Model
 
             this._furniturePrototypes["Stockpile"].RegisterUpdateAction(FurnitureActions.Stockpile_UpdateAction);
 
+            // ------------------------------------------------------------------------------------------------------
             // Wall
             this._furniturePrototypes.Add("Wall", new Furniture("Wall", 0f, 1, 1, true, true));
             this._furnitureJobPrototypes.Add(
@@ -392,7 +398,32 @@ namespace Assets.Scripts.Model
                         objectType: "Steel Plate",
                         maxStackSize: 5,
                         stackSize: 0)}));
-            
+
+            // ------------------------------------------------------------------------------------------------------
+            // Oxygen Generator
+            this._furniturePrototypes.Add("Oxygen", new Furniture(
+                objectType: "Oxygen", 
+                movementCost: 10f, 
+                width: 2, 
+                height: 2, 
+                linksToNeighbour: false, 
+                isRoomEnclosure: false));
+
+            this._furnitureJobPrototypes.Add(
+                key: "Oxygen",
+                value: new Job(
+                    tile: null,
+                    jobObjectType: "Oxygen",
+                    cb: FurnitureActions.JobComplete_FurnitureBuilding,
+                    jobTime: 5f,
+                    requirements: new Inventory[] {new Inventory(
+                        objectType: "Steel Plate",
+                        maxStackSize: 10,
+                        stackSize: 0)}));
+
+            this._furniturePrototypes["Oxygen"].RegisterUpdateAction(FurnitureActions.OygenGenerator_UpdateAction);
+
+            // ------------------------------------------------------------------------------------------------------
             // Door
             this._furniturePrototypes.Add("Door", new Furniture(
                 objectType: "Door", 

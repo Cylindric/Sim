@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using Assets.Scripts.Pathfinding;
 using UnityEngine;
 
 namespace Assets.Scripts.Model

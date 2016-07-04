@@ -118,7 +118,8 @@ namespace Assets.Scripts.Model
 
         private static void Stockpile_JobWorked(Job j)
         {
-            j.Tile.Furniture.RemoveJob(j);
+            j.Tile.Furniture
+                .RemoveJob(j);
 
             foreach (var inv in j._inventoryRequirements.Values)
             {
@@ -128,6 +129,23 @@ namespace Assets.Scripts.Model
                     return;
                 }
             }
+        }
+
+        public static void OygenGenerator_UpdateAction(Furniture furn, float deltaTime)
+        {
+            // The base fill-rate for the O2 Generator.
+            var baseRate = 0.001f;
+
+            // The rate depends on the size of the room being affected.
+            // Larger rooms take longer
+            var roomSizeMulti = 1f/furn.Tile.Room.Size;
+
+            // The final rate
+            var rate = baseRate*roomSizeMulti;
+
+
+            // Debug.LogFormat("Pumping {0} O2", 0.1f/deltaTime);
+            furn.Tile.Room.ChangeGas("O2", rate * deltaTime);
         }
     }
 }

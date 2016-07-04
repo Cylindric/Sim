@@ -23,12 +23,12 @@ namespace Assets.Scripts.Model
         /// <summary>
         /// Width of the Object in Tiles.
         /// </summary>
-        private readonly int _width = 1;
+        public readonly int _width = 1; // TODO: change to property
 
         /// <summary>
         /// Height of the Object in Tiles.
         /// </summary>
-        private readonly int _height = 1;
+        public readonly int _height = 1; // TODO: change to property
 
         private List<Job> _jobs;
 
@@ -44,6 +44,7 @@ namespace Assets.Scripts.Model
             this.LinksToNeighbour = false;
             this._parameters = new Dictionary<string, float>();
             this._jobs = new List<Job>();
+            this.Tint = Color.white;
         }
 
         /// <summary>
@@ -58,17 +59,21 @@ namespace Assets.Scripts.Model
             this._width = other._width;
             this._height = other._height;
             this.LinksToNeighbour = other.LinksToNeighbour;
-
+            this.IsEntereable = other.IsEntereable;
+            this.IsRoomEnclosure = other.IsRoomEnclosure;
+            this.Tint = other.Tint;
             this._parameters = new Dictionary<string, float>(other._parameters);
-            this._jobs = new List<Job>();
 
             if (other._cbUpdateActions != null)
             {
                 this._cbUpdateActions = (Action<Furniture, float>)other._cbUpdateActions.Clone();
             }
+            if (other._funcPositionValidation != null)
+            {
+                this._funcPositionValidation = (Func<Tile, bool>)other._funcPositionValidation.Clone();
+            }
 
-            this.IsEntereable = other.IsEntereable;
-            this.IsRoomEnclosure = other.IsRoomEnclosure;
+            this._jobs = new List<Job>();
         }
 
         /// <summary>
@@ -91,6 +96,7 @@ namespace Assets.Scripts.Model
             this._parameters = new Dictionary<string, float>();
             this.IsRoomEnclosure = isRoomEnclosure;
             this._jobs = new List<Job>();
+            this.Tint = Color.white;
         }
 
         /* #################################################################### */
@@ -135,6 +141,8 @@ namespace Assets.Scripts.Model
         /// Gets a value if this Furniture defines a separate room.
         /// </summary>
         public bool IsRoomEnclosure { get; private set; }
+
+        public Color Tint { get; set; }
 
         /* #################################################################### */
         /* #                           METHODS                                # */
@@ -224,11 +232,10 @@ namespace Assets.Scripts.Model
             if (obj.LinksToNeighbour)
             {
                 // Notify any linked neighbours of this new item.
-                Tile t;
                 int x = tile.X;
                 int y = tile.Y;
 
-                t = tile.World.GetTileAt(x, y + 1);
+                var t = tile.World.GetTileAt(x, y + 1);
                 if (t != null && t.Furniture != null && t.Furniture.cbOnChanged != null &&
                     t.Furniture.ObjectType == obj.ObjectType)
                 {
@@ -353,21 +360,29 @@ namespace Assets.Scripts.Model
         /// This will be replaced by validation checks fed to us from customisable LUA files.
         /// </summary>
         /// <param name="t"></param>
-        /// <returns></returns>
+        /// <returns>True if the Tile is valid; else false.</returns>
         private bool __IsValidPosition(Tile t)
         {
-            // Make sure Tile is of type Floor.
-            if (t.Type != TileType.Floor)
+            for (var xOff = t.X; xOff < t.X + _width; xOff++)
             {
-                Debug.Log("Tile is not a floor.");
-                return false;
-            }
+                for (var yOff = t.Y; yOff < t.Y + _height; yOff++)
+                {
+                    var t2 = t.World.GetTileAt(xOff, yOff);
 
-            // Make sure Tile doesn't already have any Furniture.
-            if (t.Furniture != null)
-            {
-                Debug.Log("Tile already has furniture.");
-                return false;
+                    // Make sure Tile is of type Floor.
+                    if (t2.Type != TileType.Floor)
+                    {
+                        // Debug.Log("Tile is not a floor.");
+                        return false;
+                    }
+
+                    // Make sure Tile doesn't already have any Furniture.
+                    if (t2.Furniture != null)
+                    {
+                        // Debug.Log("Tile already has furniture.");
+                        return false;
+                    }
+                }
             }
 
             return true;
