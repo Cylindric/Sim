@@ -18,7 +18,7 @@ namespace Assets.Scripts.Model
             }
             else
             {
-                furn.OffsetParameter("openness", deltaTime * -4);
+                furn.OffsetParameter("openness", deltaTime*-4);
             }
 
             furn.SetParameter("openness", Mathf.Clamp01(furn.GetParameter("openness")));
@@ -45,7 +45,7 @@ namespace Assets.Scripts.Model
 
         public static Inventory[] Stockpile_GetItemsFromFilter()
         {
-            return new Inventory[1] { new Inventory("Steel Plate", 50, 0) };
+            return new Inventory[1] {new Inventory("Steel Plate", 50, 0)};
         }
 
         /// <summary>
@@ -153,7 +153,7 @@ namespace Assets.Scripts.Model
             }
             if (furn.Tile.Room == null)
             {
-                Debug.LogError("Furn Tile Room is null!");
+                Debug.LogErrorFormat("Oxygen Generator at [{0},{1}] has no Room!", furn.Tile.X, furn.Tile.Y);
                 return;
             }
             if (furn.Tile.Room.Size == 0)
@@ -192,6 +192,33 @@ namespace Assets.Scripts.Model
                     furn.Tile.Room.ChangeGas("N", rate*deltaTime);
                 }
             }
+        }
+
+        public static void MiningConsole_UpdateAction(Furniture furn, float deltaTime)
+        {
+            if (furn.GetJobCount() > 0)
+            {
+                // There's already a Job, so nothing to do.
+                return;
+            }
+
+            var j = new Job(
+                tile: furn.GetJobSpotTile(), 
+                jobObjectType: null,
+                cb: MiningConsole_JobComplete,
+                jobTime: 1f,
+                requirements: null);
+
+            furn.AddJob(j);
+        }
+
+        public static void MiningConsole_JobComplete(Job job)
+        {
+            // Spawn some Steel Plates from the console
+            var steel = new Inventory("Steel Plate", 50, 2);
+            job.Tile.World.InventoryManager.PlaceInventory(job.Tile, steel);
+
+            job.Furniture.RemoveJob(job);
         }
     }
 }

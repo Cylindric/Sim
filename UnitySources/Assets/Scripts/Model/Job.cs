@@ -21,6 +21,11 @@ namespace Assets.Scripts.Model
         public Dictionary<string, Inventory> _inventoryRequirements;
         public Furniture FurniturePrototype;
 
+        /// <summary>
+        /// The piece of Furniture that owns this Job. Will often be NULL.
+        /// </summary>
+        public Furniture Furniture { get; set; }
+
         /* #################################################################### */
         /* #                           CONSTRUCTORS                           # */
         /* #################################################################### */

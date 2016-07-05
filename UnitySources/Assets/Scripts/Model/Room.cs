@@ -272,7 +272,7 @@ namespace Assets.Scripts.Model
                 }
             }
 
-            Debug.LogFormat("Floodfill processed {0} tiles.", processedTiles);
+            // Debug.LogFormat("Floodfill processed {0} tiles.", processedTiles);
 
             if (isConnectedToSpace)
             {

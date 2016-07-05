@@ -35,7 +35,7 @@ namespace Assets.Scripts.Model
 
         private Tile nextTile; // The next tile in the pathfinding sequence
         private Path_AStar pathAStar;
-        private float movementPercentage; // Goes from 0 to 1 as we move from currTile to destTile
+        private float movementPercentage; // Goes from 0 to 1 as we move from CurrentTile to destTile
         private float speed = 5f; // Tiles per second
         private Job myJob;
 
@@ -47,7 +47,7 @@ namespace Assets.Scripts.Model
 
         public Character(Tile tile)
         {
-            currTile = destTile = nextTile = tile;
+            CurrentTile = destTile = nextTile = tile;
         }
 
         /* #################################################################### */
@@ -61,15 +61,25 @@ namespace Assets.Scripts.Model
         /* #################################################################### */
         public float X
         {
-            get { return Mathf.Lerp(currTile.X, nextTile.X, movementPercentage); }
+            get
+            {
+                if (nextTile == null) return CurrentTile.X;
+
+                return Mathf.Lerp(CurrentTile.X, nextTile.X, movementPercentage);
+            }
         }
 
         public float Y
         {
-            get { return Mathf.Lerp(currTile.Y, nextTile.Y, movementPercentage); }
+            get
+            {
+                if (nextTile == null) return CurrentTile.Y;
+
+                return Mathf.Lerp(CurrentTile.Y, nextTile.Y, movementPercentage);
+            }
         }
 
-        public Tile currTile { get; protected set; }
+        public Tile CurrentTile { get; protected set; }
 
         /* #################################################################### */
         /* #                           METHODS                                # */
@@ -77,9 +87,9 @@ namespace Assets.Scripts.Model
 
         public void AbandonJob()
         {
-            nextTile = destTile = currTile;
+            nextTile = destTile = CurrentTile;
             pathAStar = null;
-            currTile.World.JobQueue.Enqueue(myJob);
+            CurrentTile.World.JobQueue.Enqueue(myJob);
             myJob = null;
         }
 
@@ -97,7 +107,7 @@ namespace Assets.Scripts.Model
 
         public void SetDestination(Tile tile)
         {
-            if (currTile.IsNeighbour(tile, true) == false)
+            if (CurrentTile.IsNeighbour(tile, true) == false)
             {
                 Debug.Log("Character::SetDestination -- Our destination tile isn't actually our neighbour.");
             }
@@ -134,8 +144,8 @@ namespace Assets.Scripts.Model
         public void WriteXml(XmlWriter writer)
         {
             writer.WriteStartElement("Character");
-            writer.WriteAttributeString("X", currTile.X.ToString());
-            writer.WriteAttributeString("Y", currTile.Y.ToString());
+            writer.WriteAttributeString("X", CurrentTile.X.ToString());
+            writer.WriteAttributeString("Y", CurrentTile.Y.ToString());
             if (this.inventory != null)
             {
                 this.inventory.WriteXml(writer);
@@ -146,26 +156,34 @@ namespace Assets.Scripts.Model
         private void GetNewJob()
         {
             // Grab a new job.
-            myJob = currTile.World.JobQueue.Dequeue();
+            myJob = CurrentTile.World.JobQueue.Dequeue();
             if (myJob == null)
             {
                 return;
             }
 
-            destTile = myJob.Tile;
+            if (myJob.Furniture != null)
+            {
+                destTile = myJob.Furniture.GetJobSpotTile();
+            }
+            else
+            {
+                destTile = myJob.Tile;
+            }
+
             myJob.RegisterOnCompleteCallback(OnJobEnded);
             myJob.RegisterOnCancelCallback(OnJobEnded);
 
             // Check to see if the job is reachable from the character's current position.
             // We mmight have to go somewhere else first to get materials.
 
-            pathAStar = new Path_AStar(currTile.World, currTile, destTile);
+            pathAStar = new Path_AStar(CurrentTile.World, CurrentTile, destTile);
             if (pathAStar.Length() == 0)
             {
                 // Debug.LogError("Path_AStar returned no path to target job tile!");
                 AbandonJob();
                 pathAStar = null;
-                destTile = currTile;
+                destTile = CurrentTile;
                 return;
             }
         }
@@ -180,7 +198,7 @@ namespace Assets.Scripts.Model
                 if (myJob == null)
                 {
                     // There is no job queued, so can just finish.
-                    destTile = currTile;
+                    destTile = CurrentTile;
                     return;
                 }
 
@@ -198,10 +216,10 @@ namespace Assets.Scripts.Model
                     {
                         destTile = myJob.Tile;
 
-                        if (currTile == destTile)
+                        if (CurrentTile == destTile)
                         {
                             // We are at the jobsite, so drop the inventory.
-                            currTile.World.InventoryManager.PlaceInventory(myJob, inventory);
+                            CurrentTile.World.InventoryManager.PlaceInventory(myJob, inventory);
                             myJob.DoWork(0); // This will call all the cbJobWorked callbacks
 
                             if (inventory.stackSize == 0)
@@ -226,7 +244,7 @@ namespace Assets.Scripts.Model
                         // We are carrying something, but the job doesn't want it.
                         // Dump it where we are.
                         // TODO: actually dump it to an empty tile, as we might be stood on a job tile.
-                        if (currTile.World.InventoryManager.PlaceInventory(currTile, inventory) == false)
+                        if (CurrentTile.World.InventoryManager.PlaceInventory(CurrentTile, inventory) == false)
                         {
                             Debug.LogError("Character tried to dump inventory to an invalid tile.");
                             // TODO: At this point we should try to dump this inv somewhere else, but for now we're just deleting it.
@@ -239,15 +257,15 @@ namespace Assets.Scripts.Model
                     // At this point, the job still requires inventory, but we don't have it.
                     // That means we need to walk towards a Tile that does have the required items.
 
-                    if (currTile.inventory != null && 
-                        (myJob.CanTakeFromStockpile || currTile.Furniture == null || currTile.Furniture.IsStockpile() == false) &&
-                        myJob.NeedsMaterial(currTile.inventory) != 0)
+                    if (CurrentTile.inventory != null && 
+                        (myJob.CanTakeFromStockpile || CurrentTile.Furniture == null || CurrentTile.Furniture.IsStockpile() == false) &&
+                        myJob.NeedsMaterial(CurrentTile.inventory) != 0)
                     {
                         // The materials we need are right where we're stood!
-                        currTile.World.InventoryManager.PlaceInventory(
+                        CurrentTile.World.InventoryManager.PlaceInventory(
                             character: this, 
-                            source: currTile.inventory, 
-                            qty: myJob.NeedsMaterial(currTile.inventory));
+                            source: CurrentTile.inventory, 
+                            qty: myJob.NeedsMaterial(CurrentTile.inventory));
 
                     }
                     else
@@ -256,9 +274,9 @@ namespace Assets.Scripts.Model
                         var unsatisfied = myJob.GetFirstRequiredInventory();
 
                         // Look for the first item that matches
-                        var supply = currTile.World.InventoryManager.GetClosestInventoryOfType(
+                        var supply = CurrentTile.World.InventoryManager.GetClosestInventoryOfType(
                             objectType: unsatisfied.objectType,
-                            t: currTile,
+                            t: CurrentTile,
                             desiredQty: unsatisfied.maxStackSize - unsatisfied.stackSize,
                             searchInStockpiles: myJob.CanTakeFromStockpile);
 
@@ -283,7 +301,7 @@ namespace Assets.Scripts.Model
             destTile = myJob.Tile;
 
             // Are we there yet?
-            if (currTile == myJob.Tile)
+            if (CurrentTile == myJob.Tile)
             {
                 myJob.DoWork(deltaTime);
             }
@@ -293,19 +311,19 @@ namespace Assets.Scripts.Model
 
         private void Update_DoMovement(float deltaTime)
         {
-            if (currTile == destTile)
+            if (CurrentTile == destTile)
             {
                 pathAStar = null;
                 return; // We're already were we want to be.
             }
             
-            if (nextTile == null || nextTile == currTile)
+            if (nextTile == null || nextTile == CurrentTile)
             {
                 // Get the next tile from the pathfinder.
                 if (pathAStar == null || pathAStar.Length() == 0)
                 {
                     // Generate a path to our destination
-                    pathAStar = new Path_AStar(currTile.World, currTile, destTile);
+                    pathAStar = new Path_AStar(CurrentTile.World, CurrentTile, destTile);
                     // This will calculate a path from curr to dest.
                     if (pathAStar.Length() == 0)
                     {
@@ -324,9 +342,9 @@ namespace Assets.Scripts.Model
                 nextTile = pathAStar.Dequeue();
 
 
-                if (nextTile == currTile)
+                if (nextTile == CurrentTile)
                 {
-                    Debug.LogError("Update_DoMovement - nextTile is currTile?");
+                    Debug.LogError("Update_DoMovement - nextTile is CurrentTile?");
                 }
             }
 
@@ -337,11 +355,11 @@ namespace Assets.Scripts.Model
             // But when we do the pathfinding system, we'll likely
             // switch to something like Manhattan or Chebyshev distance
             float distToTravel = 0;
-            if (nextTile != currTile)
+            if (nextTile != CurrentTile)
             {
                 distToTravel = Mathf.Sqrt(
-                    Mathf.Pow(currTile.X - nextTile.X, 2) +
-                    Mathf.Pow(currTile.Y - nextTile.Y, 2)
+                    Mathf.Pow(CurrentTile.X - nextTile.X, 2) +
+                    Mathf.Pow(CurrentTile.Y - nextTile.Y, 2)
                     );
             }
 
@@ -377,7 +395,7 @@ namespace Assets.Scripts.Model
                 //       If there are no more tiles, then we have TRULY
                 //       reached our destination.
 
-                currTile = nextTile;
+                CurrentTile = nextTile;
                 movementPercentage = 0;
             }
         }

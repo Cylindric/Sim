@@ -32,6 +32,11 @@ namespace Assets.Scripts.Model
 
         private List<Job> _jobs;
 
+        /// <summary>
+        /// If this furniture gets worked by a person, where is the correct place to stand?
+        /// </summary>
+        public Vector2 JobSpotOffset { get; set; }
+
         /* #################################################################### */
         /* #                        CONSTRUCTORS                              # */
         /* #################################################################### */
@@ -45,6 +50,7 @@ namespace Assets.Scripts.Model
             this._parameters = new Dictionary<string, float>();
             this._jobs = new List<Job>();
             this.Tint = Color.white;
+            this.JobSpotOffset = Vector2.zero;
         }
 
         /// <summary>
@@ -62,6 +68,7 @@ namespace Assets.Scripts.Model
             this.IsEntereable = other.IsEntereable;
             this.IsRoomEnclosure = other.IsRoomEnclosure;
             this.Tint = other.Tint;
+            this.JobSpotOffset = other.JobSpotOffset;
             this._parameters = new Dictionary<string, float>(other._parameters);
 
             if (other._cbUpdateActions != null)
@@ -85,6 +92,7 @@ namespace Assets.Scripts.Model
         /// <param name="width">The width in Tiles of the new Furniture.</param>
         /// <param name="height">The height in Tiles of the new Furniture.</param>
         /// <param name="linksToNeighbour">Indicates whether this Furniture links to neighbouring Furniture or not.</param>
+        /// <param name="isRoomEnclosure">Indicates that this Furnitures defines rooms.</param>
         public Furniture(string objectType, float movementCost = 1f, int width = 1, int height = 1, bool linksToNeighbour = false, bool isRoomEnclosure = false)
         {
             this.ObjectType = objectType;
@@ -97,6 +105,7 @@ namespace Assets.Scripts.Model
             this.IsRoomEnclosure = isRoomEnclosure;
             this._jobs = new List<Job>();
             this.Tint = Color.white;
+            this.JobSpotOffset = Vector2.zero;
         }
 
         /* #################################################################### */
@@ -216,7 +225,7 @@ namespace Assets.Scripts.Model
         {
             if (proto._funcPositionValidation(tile) == false)
             {
-                Debug.LogError("PlaceInstance position validity function returned false.");
+                Debug.LogErrorFormat("PlaceInstance position [{0},{1}] validity function for {2} returned false.", tile.X, tile.Y, proto.ObjectType);
                 return null;
             }
 
@@ -412,6 +421,7 @@ namespace Assets.Scripts.Model
 
         public void AddJob(Job job)
         {
+            job.Furniture = this;
             _jobs.Add(job);
             Tile.World.JobQueue.Enqueue(job);
         }
@@ -420,6 +430,7 @@ namespace Assets.Scripts.Model
         {
             _jobs.Remove(job);
             job.CancelJob();
+            job.Furniture = null;
             Tile.World.JobQueue.Remove(job);
         }
 
@@ -450,6 +461,11 @@ namespace Assets.Scripts.Model
             // If we've removed something, there's a fair chance routes to places have changed,
             // so recalculate the pathfinding graph.
             Tile.World.InvalidateTileGraph();
+        }
+
+        public Tile GetJobSpotTile()
+        {
+            return Tile.World.GetTileAt(Tile.X + (int)JobSpotOffset.x, Tile.Y + (int)JobSpotOffset.y);
         }
     }
 }

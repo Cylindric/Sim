@@ -54,7 +54,7 @@ namespace Assets.Scripts.UI
 
             if (!string.IsNullOrEmpty(text))
             {
-                text = string.Format("Air Pressure: {0:#0.0} BAR\n{1}", t.Room.GetTotalAtmosphericPressure(), text);
+                text = string.Format("Air Pressure: {0:#0} mbar\n{1}", t.Room.GetTotalAtmosphericPressure()*1000, text);
                 _myText.text = text;
             }
         }

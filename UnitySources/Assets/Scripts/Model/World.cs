@@ -292,7 +292,7 @@ namespace Assets.Scripts.Model
             }
 
             // TODO: This is for testing only - remove it!
-            var inv = new Inventory("Steel Plate", 50, 50);
+            var inv = new Inventory("Steel Plate", 50, 10);
             var t = GetTileAt(Width/2, Height/2);
             InventoryManager.PlaceInventory(t, inv);
             if (_cbInventoryCreated != null)
@@ -409,11 +409,11 @@ namespace Assets.Scripts.Model
             // ------------------------------------------------------------------------------------------------------
             // Oxygen Generator
             this._furniturePrototypes.Add("Oxygen", new Furniture(
-                objectType: "Oxygen", 
-                movementCost: 10f, 
-                width: 2, 
-                height: 2, 
-                linksToNeighbour: false, 
+                objectType: "Oxygen",
+                movementCost: 10f,
+                width: 2,
+                height: 2,
+                linksToNeighbour: false,
                 isRoomEnclosure: false));
 
             this._furnitureJobPrototypes.Add(
@@ -429,6 +429,32 @@ namespace Assets.Scripts.Model
                         stackSize: 0)}));
 
             this._furniturePrototypes["Oxygen"].RegisterUpdateAction(FurnitureActions.OygenGenerator_UpdateAction);
+
+            // ------------------------------------------------------------------------------------------------------
+            // Mining Drone Station
+            this._furniturePrototypes.Add("Mining Console", new Furniture(
+                objectType: "Mining Console",
+                movementCost: 1f,
+                width: 3,
+                height: 3, // TODO: might become a 3x2 with a workspot.
+                linksToNeighbour: false,
+                isRoomEnclosure: false));
+
+            this._furniturePrototypes["Mining Console"].JobSpotOffset = new Vector2(1, 0);
+            this._furniturePrototypes["Mining Console"].RegisterUpdateAction(FurnitureActions.MiningConsole_UpdateAction);
+
+            this._furnitureJobPrototypes.Add(
+                key: "Mining Console",
+                value: new Job(
+                    tile: null,
+                    jobObjectType: "Mining Console",
+                    cb: FurnitureActions.JobComplete_FurnitureBuilding,
+                    jobTime: 2.5f,
+                    requirements: new Inventory[] {new Inventory(
+                        objectType: "Steel Plate",
+                        maxStackSize: 10,
+                        stackSize: 0)}));
+
 
             // ------------------------------------------------------------------------------------------------------
             // Door
