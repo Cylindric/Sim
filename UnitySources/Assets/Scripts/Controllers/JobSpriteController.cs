@@ -58,15 +58,15 @@ namespace Assets.Scripts.Controllers
             sr.color = new Color(0.5f, 1f, 0.5f, 0.25f);
             sr.sortingLayerName = "Jobs";
 
-            job.RegisterOnCompleteCallback(OnJobEnded);
-            job.RegisterOnCancelCallback(OnJobEnded);
+            job.RegisterOnJobCompletedCallback(OnJobEnded);
+            job.RegisterOnJobStoppedCallback(OnJobEnded);
         }
 
         private void OnJobEnded(Job job)
         {
             var jobGo = _jobGameObjectMap[job];
-            job.UnregisterOnCancelCallback(OnJobEnded);
-            job.UnregisterOnCompleteCallback(OnJobEnded);
+            job.UnregisterOnJobStoppedCallback(OnJobEnded);
+            job.UnregisterOnJobCompletedCallback(OnJobEnded);
             Destroy(jobGo);
         }
     }

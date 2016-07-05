@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Timers;
 using System.Xml;
 using System.Xml.Schema;
@@ -38,7 +39,7 @@ namespace Assets.Scripts.Model
             this.InventoryManager = new InventoryManager();
 
             this._rooms = new List<Room>();
-            this._rooms.Add(new Room(this)); // Add the default 'outside' room.
+            this._rooms.Add(new Room()); // Add the default 'outside' room.
         }
 
         public World(int width, int height) : this()
@@ -109,7 +110,6 @@ namespace Assets.Scripts.Model
             _rooms.Remove(r);
 
             // Make sure no tiles point to this room.
-            // TODO: This probably isn't necessary, as the flood-fill will assign all these tiles to new rooms.
             r.ReturnTilesToOutsideRoom();
         }
 
@@ -282,6 +282,13 @@ namespace Assets.Scripts.Model
                         timer.Stop();
                         timer.Reset();
                         break;
+                    case "Rooms":
+                        timer.Start();
+                        this.ReadXml_Rooms(reader);
+                        Debug.LogFormat("Loading Rooms took {0} ms.", timer.ElapsedMilliseconds);
+                        timer.Stop();
+                        timer.Reset();
+                        break;
                     case "Characters":
                         timer.Start();
                         this.ReadXml_Characters(reader);
@@ -291,37 +298,21 @@ namespace Assets.Scripts.Model
                         break;
                 }
             }
-
-            // TODO: This is for testing only - remove it!
-            var inv = new Inventory("Steel Plate", 50, 10);
-            var t = GetTileAt(Width/2, Height/2);
-            InventoryManager.PlaceInventory(t, inv);
-            if (_cbInventoryCreated != null)
-            {
-                _cbInventoryCreated(t.inventory);
-            }
-
-            inv = new Inventory("Steel Plate", 50, 4);
-            t = GetTileAt(Width / 2 + 2, Height / 2);
-            InventoryManager.PlaceInventory(t, inv);
-            if (_cbInventoryCreated != null)
-            {
-                _cbInventoryCreated(t.inventory);
-            }
-
-            inv = new Inventory("Steel Plate", 50, 3);
-            t = GetTileAt(Width / 2 + 1, Height / 2 + 2);
-            InventoryManager.PlaceInventory(t, inv);
-            if (_cbInventoryCreated != null)
-            {
-                _cbInventoryCreated(t.inventory);
-            }
         }
 
         public void WriteXml(XmlWriter writer)
         {
             writer.WriteAttributeString("Width", this.Width.ToString());
             writer.WriteAttributeString("Height", this.Height.ToString());
+
+
+            writer.WriteStartElement("Rooms");
+            foreach (var room in this._rooms.Skip(1)) // Don't save the outside room
+            {
+                room.WriteXml(writer);
+            }
+            writer.WriteEndElement();
+
 
             writer.WriteStartElement("Tiles");
 
@@ -341,13 +332,6 @@ namespace Assets.Scripts.Model
                 }
             }
 
-            writer.WriteEndElement();
-
-            writer.WriteStartElement("Rooms");
-            foreach (var room in this._rooms)
-            {
-                room.WriteXml(writer);
-            }
             writer.WriteEndElement();
 
             writer.WriteStartElement("Furnitures");
@@ -384,6 +368,7 @@ namespace Assets.Scripts.Model
             this._furniturePrototypes.Add("Stockpile", f);
 
             this._furnitureJobPrototypes.Add("Stockpile", new Job(
+                    name: "BuildStockpile",
                     tile: null,
                     jobObjectType: "Stockpile",
                     cb: FurnitureActions.JobComplete_FurnitureBuilding,
@@ -398,6 +383,7 @@ namespace Assets.Scripts.Model
             this._furnitureJobPrototypes.Add(
                 key: "Wall",
                 value: new Job(
+                    name: "BuildWall",
                     tile: null,
                     jobObjectType: "Wall",
                     cb: FurnitureActions.JobComplete_FurnitureBuilding,
@@ -420,6 +406,7 @@ namespace Assets.Scripts.Model
             this._furnitureJobPrototypes.Add(
                 key: "Oxygen",
                 value: new Job(
+                    name: "BuildOxygen",
                     tile: null,
                     jobObjectType: "Oxygen",
                     cb: FurnitureActions.JobComplete_FurnitureBuilding,
@@ -435,26 +422,25 @@ namespace Assets.Scripts.Model
             // Mining Drone Station
             this._furniturePrototypes.Add("Mining Console", new Furniture(
                 objectType: "Mining Console",
-                movementCost: 1f,
+                movementCost: 0,
                 width: 3,
-                height: 3, // TODO: might become a 3x2 with a workspot.
+                height: 2,
                 linksToNeighbour: false,
                 isRoomEnclosure: false));
 
-            this._furniturePrototypes["Mining Console"].JobSpotOffset = new Vector2(1, 0);
+            this._furniturePrototypes["Mining Console"].JobSpotOffset = new Vector2(1, -1);
+            this._furniturePrototypes["Mining Console"].JobSpawnOffset = new Vector2(0, -1);
             this._furniturePrototypes["Mining Console"].RegisterUpdateAction(FurnitureActions.MiningConsole_UpdateAction);
 
             this._furnitureJobPrototypes.Add(
                 key: "Mining Console",
                 value: new Job(
+                    name: "BuildMiningConsole",
                     tile: null,
                     jobObjectType: "Mining Console",
                     cb: FurnitureActions.JobComplete_FurnitureBuilding,
                     jobTime: 2.5f,
-                    requirements: new Inventory[] {new Inventory(
-                        objectType: "Steel Plate",
-                        maxStackSize: 10,
-                        stackSize: 0)}));
+                    requirements: null));
 
 
             // ------------------------------------------------------------------------------------------------------
@@ -467,6 +453,7 @@ namespace Assets.Scripts.Model
                 linksToNeighbour: false, 
                 isRoomEnclosure: true));
 
+            this._furniturePrototypes["Door"].Name = "Bulkhead";
             this._furniturePrototypes["Door"].SetParameter("openness", 0.0f);
             this._furniturePrototypes["Door"].SetParameter("is_opening", 0.0f);
             this._furniturePrototypes["Door"].RegisterUpdateAction(FurnitureActions.Door_UpdateAction);
@@ -543,15 +530,37 @@ namespace Assets.Scripts.Model
                     furn.ReadXml(reader);
                 } while (reader.ReadToNextSibling("Furniture"));
                 Debug.LogFormat("Loaded {0} Furnitures from save file.", count);
-
-                foreach (var furn in _furnitures)
-                {
-                    Room.DoRoomFloodfill(furn.Tile, true);
-                }
             }
             else
             {
                 Debug.LogWarning("No Furniture found in save file!");
+            }
+        }
+
+        private void ReadXml_Rooms(XmlReader reader)
+        {
+            if (reader.ReadToDescendant("Room"))
+            {
+                var count = 0;
+                do
+                {
+                    count++;
+
+                    var r = new Room();
+                    _rooms.Add(r);
+                    r.ReadXml(reader);
+
+                    //int x = int.Parse(reader.GetAttribute("X"));
+                    //int y = int.Parse(reader.GetAttribute("Y"));
+                    //string type = reader.GetAttribute("objectType");
+                    //var furn = this.PlaceFurniture(type, this._tiles[x, y], false);
+                    //furn.ReadXml(reader);
+                } while (reader.ReadToNextSibling("Room"));
+                Debug.LogFormat("Loaded {0} Rooms from save file.", count);
+            }
+            else
+            {
+                Debug.LogWarning("No Rooms found in save file!");
             }
         }
 
@@ -577,6 +586,20 @@ namespace Assets.Scripts.Model
         public void OnFurnitureRemoved(Furniture furn)
         {
             _furnitures.Remove(furn);
+        }
+
+        public int GetRoomId(Room room)
+        {
+            return _rooms.IndexOf(room);
+        }
+
+        public Room GetRoomFromId(int id)
+        {
+            if (id < 0 || id > _rooms.Count - 1)
+            {
+                return null;
+            }
+            return _rooms[id];
         }
     }
 }

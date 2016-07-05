@@ -88,7 +88,7 @@ namespace Assets.Scripts.Model
         public void AbandonJob()
         {
             nextTile = destTile = CurrentTile;
-            pathAStar = null;
+            //pathAStar = null;
             World.Current.JobQueue.Enqueue(myJob);
             myJob = null;
         }
@@ -157,11 +157,9 @@ namespace Assets.Scripts.Model
         {
             // Grab a new job.
             myJob = World.Current.JobQueue.Dequeue();
-            if (myJob == null)
-            {
-                return;
-            }
 
+            if (myJob == null) return;
+            
             if (myJob.Furniture != null)
             {
                 destTile = myJob.Furniture.GetJobSpotTile();
@@ -171,11 +169,16 @@ namespace Assets.Scripts.Model
                 destTile = myJob.Tile;
             }
 
-            myJob.RegisterOnCompleteCallback(OnJobEnded);
-            myJob.RegisterOnCancelCallback(OnJobEnded);
+            myJob.RegisterOnJobStoppedCallback(OnJobStopped);
 
             // Check to see if the job is reachable from the character's current position.
             // We mmight have to go somewhere else first to get materials.
+
+            // If we are already at the worksite, just return, otherwise need to calculate a route there.
+            if (destTile == CurrentTile)
+            {
+                return;
+            }
 
             pathAStar = new Path_AStar(World.Current, CurrentTile, destTile);
             if (pathAStar.Length() == 0)
@@ -400,16 +403,15 @@ namespace Assets.Scripts.Model
             }
         }
 
-        private void OnJobEnded(Job j)
+        private void OnJobStopped(Job j)
         {
             // Job completed or was cancelled.
 
-            j.UnregisterOnCancelCallback(OnJobEnded);
-            j.UnregisterOnCompleteCallback(OnJobEnded);
+            j.UnregisterOnJobStoppedCallback(OnJobStopped);
 
             if (j != myJob)
             {
-                Debug.LogError("Character being told about job that isn't his. You forgot to unregister something.");
+                Debug.LogError("Character being told about job (" + j.Name + ") that isn't his. You forgot to unregister something.");
                 return;
             }
 

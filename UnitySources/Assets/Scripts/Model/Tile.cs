@@ -263,12 +263,6 @@ namespace Assets.Scripts.Model
             return Enterability.Yes;
         }
 
-        ///////////////////////////////////////////////////////
-        /// 
-        ///                    LOADING / SAVING
-        /// 
-        ///////////////////////////////////////////////////////
-
         public XmlSchema GetSchema()
         {
             return null;
@@ -276,9 +270,12 @@ namespace Assets.Scripts.Model
 
         public void ReadXml(XmlReader reader)
         {
-            //X = int.Parse(reader.GetAttribute("X"));
-            //Y = int.Parse(reader.GetAttribute("Y"));
+            //X = int.Parse(reader.GetAttribute("X")); // Already read by the World
+            //Y = int.Parse(reader.GetAttribute("Y")); // Already read by the World
             Type = (TileType)int.Parse(reader.GetAttribute("Type"));
+            Room = World.Current.GetRoomFromId(int.Parse(reader.GetAttribute("RoomID")));
+            if (Room == null) return;
+            Room.AssignTile(this);
             //Debug.LogFormat("Read Tile [{0},{1}] with type {2}.", X, Y, Type.ToString());
         }
 
@@ -287,6 +284,7 @@ namespace Assets.Scripts.Model
             writer.WriteStartElement("Tile");
             writer.WriteAttributeString("X", X.ToString());
             writer.WriteAttributeString("Y", Y.ToString());
+            writer.WriteAttributeString("RoomID", Room == null ? "-1" : Room.Id.ToString());
             writer.WriteAttributeString("Type", ((int)Type).ToString());
             writer.WriteEndElement();
         }

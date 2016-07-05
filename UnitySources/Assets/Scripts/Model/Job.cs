@@ -15,11 +15,16 @@ namespace Assets.Scripts.Model
         /* #################################################################### */
 
         public float _jobTime { get; private set; }
-        private Action<Job> cbOnComplete;
-        private Action<Job> cbOnCancel;
-        private Action<Job> cbJobWorked;
+        public string Name { get; set; }
         public Dictionary<string, Inventory> _inventoryRequirements;
         public Furniture FurniturePrototype;
+
+        private float jobTimeRequired;
+        private bool jobRepeats = false;
+
+        private Action<Job> cbOnJobCompleted;
+        private Action<Job> cbOnJobStopped;
+        private Action<Job> cbOnJobWorked;
 
         /// <summary>
         /// The piece of Furniture that owns this Job. Will often be NULL.
@@ -30,15 +35,18 @@ namespace Assets.Scripts.Model
         /* #                           CONSTRUCTORS                           # */
         /* #################################################################### */
 
-        public Job(Tile tile, string jobObjectType, Action<Job> cb, float jobTime, IEnumerable<Inventory> requirements)
+        public Job(string name, Tile tile, string jobObjectType, Action<Job> cb, float jobTime, IEnumerable<Inventory> requirements, bool repeats = false)
         {
+            this.Name = name;
             this.Tile = tile;
             this.JobObjectType = jobObjectType;
-            this.cbOnComplete += cb;
+            this.cbOnJobCompleted += cb;
             this._jobTime = jobTime;
+            this.jobTimeRequired = jobTime;
             this._inventoryRequirements = new Dictionary<string, Inventory>();
             this.AcceptsAnyItemType = false;
             this.CanTakeFromStockpile = true;
+            this.jobRepeats = repeats;
 
             // Make sure the Inventories are COPIED, as we will be making changes to them.
             if (requirements != null)
@@ -52,11 +60,15 @@ namespace Assets.Scripts.Model
 
         private Job(Job other)
         {
+            this.Name = other.Name + " (clone)";
             this.Tile = other.Tile;
             this.JobObjectType = other.JobObjectType;
-            this.cbOnComplete += other.cbOnComplete;
-            this.cbOnCancel += other.cbOnCancel;
+            this.cbOnJobCompleted += other.cbOnJobCompleted;
+            this.cbOnJobStopped += other.cbOnJobStopped;
             this._jobTime = other._jobTime;
+            this.jobTimeRequired = other.jobTimeRequired;
+            this.jobRepeats = other.jobRepeats;
+
             this._inventoryRequirements = new Dictionary<string, Inventory>();
             this.AcceptsAnyItemType = other.AcceptsAnyItemType;
             this.CanTakeFromStockpile = other.CanTakeFromStockpile;
@@ -96,34 +108,34 @@ namespace Assets.Scripts.Model
             return new Job(this);
         }
 
-        public void RegisterOnCompleteCallback(Action<Job> cb)
+        public void RegisterOnJobCompletedCallback(Action<Job> cb)
         {
-            cbOnComplete += cb;
+            cbOnJobCompleted += cb;
         }
 
-        public void UnregisterOnCompleteCallback(Action<Job> cb)
+        public void UnregisterOnJobCompletedCallback(Action<Job> cb)
         {
-            cbOnComplete -= cb;
+            cbOnJobCompleted -= cb;
         }
 
-        public void RegisteJobWorkedCallback(Action<Job> cb)
+        public void RegisterOnJobWorkedCallback(Action<Job> cb)
         {
-            cbJobWorked += cb;
+            cbOnJobWorked += cb;
         }
 
-        public void UnregisterJobworkedCallback(Action<Job> cb)
+        public void UnregisterOnJobWorkedCallback(Action<Job> cb)
         {
-            cbJobWorked -= cb;
+            cbOnJobWorked -= cb;
         }
 
-        public void RegisterOnCancelCallback(Action<Job> cb)
+        public void RegisterOnJobStoppedCallback(Action<Job> cb)
         {
-            cbOnCancel += cb;
+            cbOnJobStopped += cb;
         }
 
-        public void UnregisterOnCancelCallback(Action<Job> cb)
+        public void UnregisterOnJobStoppedCallback(Action<Job> cb)
         {
-            cbOnCancel -= cb;
+            cbOnJobStopped -= cb;
         }
 
         public void DoWork(float workTime)
@@ -133,36 +145,36 @@ namespace Assets.Scripts.Model
             if (HasAllMaterial() == false)
             {
                 // Still call the callbacks though, so animations etc can be updated
-                if (cbJobWorked != null)
-                {
-                    cbJobWorked(this);
-                }
+                if (cbOnJobWorked != null) cbOnJobWorked(this);
 
                 return;
             }
 
-            if (cbJobWorked != null)
-            {
-                cbJobWorked(this);
-            }
+            if (cbOnJobWorked != null) cbOnJobWorked(this);
 
             _jobTime -= workTime;
 
             if (_jobTime <= 0)
             {
-                if (cbOnComplete != null)
+                // Do whatever is supposed to happen when this Job completes.
+                if (cbOnJobCompleted != null) cbOnJobCompleted(this);
+
+                if (jobRepeats == false)
                 {
-                    cbOnComplete(this);
+                    // If the Job is completely done, notify everything.
+                    if (cbOnJobStopped != null) cbOnJobStopped(this);
+                }
+                else
+                {
+                    // This is a repeating Job, and must be reset.
+                    _jobTime += jobTimeRequired;
                 }
             }
         }
 
         public void CancelJob()
         {
-            if (cbOnCancel != null)
-            {
-                cbOnCancel(this);
-            }
+            if (cbOnJobStopped != null) cbOnJobStopped(this);
 
             World.Current.JobQueue.Remove(this);
         }

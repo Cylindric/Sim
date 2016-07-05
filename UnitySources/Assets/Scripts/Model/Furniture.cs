@@ -37,6 +37,16 @@ namespace Assets.Scripts.Model
         /// </summary>
         public Vector2 JobSpotOffset { get; set; }
 
+        /// <summary>
+        /// If this furniture spawns anything, where does it appear?
+        /// </summary>
+        public Vector2 JobSpawnOffset { get; set; }
+
+        /// <summary>
+        /// Backing-field for the property "Name".
+        /// </summary>
+        private string _name = string.Empty;
+
         /* #################################################################### */
         /* #                        CONSTRUCTORS                              # */
         /* #################################################################### */
@@ -46,11 +56,13 @@ namespace Assets.Scripts.Model
         /// </summary>
         public Furniture()
         {
+            this.Name = string.Empty;
             this.LinksToNeighbour = false;
             this._parameters = new Dictionary<string, float>();
             this._jobs = new List<Job>();
             this.Tint = Color.white;
             this.JobSpotOffset = Vector2.zero;
+            this.JobSpawnOffset = Vector2.zero;
         }
 
         /// <summary>
@@ -61,6 +73,7 @@ namespace Assets.Scripts.Model
         private Furniture(Furniture other)
         {
             this.ObjectType = other.ObjectType;
+            this.Name = other.Name;
             this.MovementCost = other.MovementCost;
             this._width = other._width;
             this._height = other._height;
@@ -69,6 +82,7 @@ namespace Assets.Scripts.Model
             this.IsRoomEnclosure = other.IsRoomEnclosure;
             this.Tint = other.Tint;
             this.JobSpotOffset = other.JobSpotOffset;
+            this.JobSpawnOffset = other.JobSpawnOffset;
             this._parameters = new Dictionary<string, float>(other._parameters);
 
             if (other._cbUpdateActions != null)
@@ -106,6 +120,7 @@ namespace Assets.Scripts.Model
             this._jobs = new List<Job>();
             this.Tint = Color.white;
             this.JobSpotOffset = Vector2.zero;
+            this.JobSpawnOffset = Vector2.zero;
         }
 
         /* #################################################################### */
@@ -132,9 +147,16 @@ namespace Assets.Scripts.Model
         public Tile Tile { get; private set; }
 
         /// <summary>
-        /// Gets the ObjectType for this object. Will lbe queried by the visual system to know what sprite to render for this object.
+        /// Gets the ObjectType for this object. Will be queried by the visual system to know what sprite to render for this object.
         /// </summary>
         public string ObjectType { get; private set; }
+
+        /// <summary>
+        /// Gets the Name of this object.
+        /// </summary>
+        public string Name {
+            get { return string.IsNullOrEmpty(_name) ? ObjectType : _name; }
+            set { _name = value; } }
 
         /// <summary>
         /// Gets a value indicating whether this Furniture links to neighbouring furniture of the same type?
@@ -408,30 +430,42 @@ namespace Assets.Scripts.Model
             return true;
         }
 
-        public void ClearJobs()
+        private void ClearJobs()
         {
-            foreach (var j in _jobs)
+            var jobs = _jobs.ToArray();
+            foreach (var j in _jobs.ToArray())
             {
-                j.CancelJob();
-                World.Current.JobQueue.Remove(j);
+                RemoveJob(j);
             }
-
-            _jobs = new List<Job>();
         }
 
         public void AddJob(Job job)
         {
             job.Furniture = this;
             _jobs.Add(job);
+            job.RegisterOnJobStoppedCallback(OnJobStopped);
             World.Current.JobQueue.Enqueue(job);
         }
 
-        public void RemoveJob(Job job)
+        public void CancelJobs()
         {
+            var jobs = _jobs.ToArray();
+            foreach (var j in _jobs.ToArray())
+            {
+                j.CancelJob();
+            }
+        }
+
+        private void RemoveJob(Job job)
+        {
+            job.UnregisterOnJobStoppedCallback(OnJobStopped);
             _jobs.Remove(job);
-            job.CancelJob();
             job.Furniture = null;
-            World.Current.JobQueue.Remove(job);
+        }
+
+        public void OnJobStopped(Job job)
+        {
+            RemoveJob(job);
         }
 
         public int GetJobCount()
@@ -466,6 +500,11 @@ namespace Assets.Scripts.Model
         public Tile GetJobSpotTile()
         {
             return World.Current.GetTileAt(Tile.X + (int)JobSpotOffset.x, Tile.Y + (int)JobSpotOffset.y);
+        }
+
+        public Tile GetSpawnSpotTile()
+        {
+            return World.Current.GetTileAt(Tile.X + (int)JobSpawnOffset.x, Tile.Y + (int)JobSpawnOffset.y);
         }
     }
 }

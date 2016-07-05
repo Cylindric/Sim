@@ -26,8 +26,6 @@ namespace Assets.Scripts.Model
 
         private List<Tile> _tiles = new List<Tile>();
 
-        private World _world;
-
         /* #################################################################### */
         /* #                           CONSTRUCTORS                           # */
         /* #################################################################### */
@@ -37,15 +35,14 @@ namespace Assets.Scripts.Model
             atmosphericGasses = new Dictionary<string, float>();
         }
 
-        public Room(World world)
-        {
-            this._world = world;
-            atmosphericGasses = new Dictionary<string, float>();
-        }
-
         public int Size
         {
             get { return _tiles.Count; }
+        }
+
+        public int Id
+        {
+            get { return World.Current.GetRoomId(this); }
         }
 
         /* #################################################################### */
@@ -230,7 +227,7 @@ namespace Assets.Scripts.Model
 
             // If we get this far, we know that we need to create a new Room.
 
-            var newRoom = new Room(World.Current);
+            var newRoom = new Room();
             var tilesToCheck = new Queue<Tile>();
             tilesToCheck.Enqueue(tile);
 
@@ -314,20 +311,16 @@ namespace Assets.Scripts.Model
 
         public void ReadXml(XmlReader reader)
         {
-            // Rooms are tricky, because they are regenerated automatically, making it hard to link back to.
-            if (reader.ReadToDescendant("Room"))
+            if (reader.ReadToDescendant("Gasses"))
             {
-                if (reader.ReadToDescendant("Gasses"))
+                if (reader.ReadToDescendant("Gas"))
                 {
-                    if (reader.ReadToDescendant("Gas"))
+                    do
                     {
-                        do
-                        {
-                            var name = reader.GetAttribute("name");
-                            var value = float.Parse(reader.GetAttribute("amount"));
-                            this.atmosphericGasses[name] = value;
-                        } while (reader.ReadToNextSibling("Gas"));
-                    }
+                        var name = reader.GetAttribute("name");
+                        var value = float.Parse(reader.GetAttribute("amount"));
+                        this.atmosphericGasses[name] = value;
+                    } while (reader.ReadToNextSibling("Gas"));
                 }
             }
         }
@@ -335,26 +328,20 @@ namespace Assets.Scripts.Model
         public void WriteXml(XmlWriter writer)
         {
             writer.WriteStartElement("Room");
-            if (_tiles.Count == 0)
-            {
-                writer.WriteAttributeString("x", "-1");
-                writer.WriteAttributeString("y", "-1");
-            }
-            else
-            {
-                writer.WriteAttributeString("x", _tiles[0].X.ToString());
-                writer.WriteAttributeString("y", _tiles[0].X.ToString());
-            }
+            writer.WriteAttributeString("id", this.Id.ToString());
 
-            writer.WriteStartElement("Gasses");
-            foreach (var gas in atmosphericGasses)
+            if (atmosphericGasses.Count > 0)
             {
-                writer.WriteStartElement("Gas");
-                writer.WriteAttributeString("name", gas.Key);
-                writer.WriteAttributeString("amount", gas.Value.ToString(CultureInfo.InvariantCulture));
+                writer.WriteStartElement("Gasses");
+                foreach (var gas in atmosphericGasses)
+                {
+                    writer.WriteStartElement("Gas");
+                    writer.WriteAttributeString("name", gas.Key);
+                    writer.WriteAttributeString("amount", gas.Value.ToString(CultureInfo.InvariantCulture));
+                    writer.WriteEndElement();
+                }
                 writer.WriteEndElement();
             }
-            writer.WriteEndElement();
 
             writer.WriteEndElement();
         }

@@ -13,15 +13,15 @@ namespace Assets.Scripts.UI
         {
             var bmc = GameObject.FindObjectOfType<BuildModeController>();
 
-            foreach (var s in World.Current._furniturePrototypes.Keys)
+            foreach (var s in World.Current._furniturePrototypes.Values)
             {
                 var go = (GameObject)Instantiate(BuildButtonPrefab);
                 go.transform.SetParent(this.transform);
 
-                go.name = string.Format("Button - Build {0}", s);
-                go.transform.GetComponentInChildren<Text>().text = string.Format("Build {0}", s);
+                go.name = string.Format("Button - Build {0}", s.ObjectType);
+                go.transform.GetComponentInChildren<Text>().text = string.Format("Build {0}", s.Name);
 	        
-                var objectId = s;
+                var objectId = s.ObjectType;
                 var b = go.GetComponent<Button>();
                 b.onClick.AddListener(delegate { bmc.SetMode_BuildInstalledObject(objectId); });
             }

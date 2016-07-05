@@ -65,7 +65,7 @@ namespace Assets.Scripts.Model
             if (furn.Tile.inventory != null && furn.Tile.inventory.stackSize >= furn.Tile.inventory.maxStackSize)
             {
                 // We are full!
-                furn.ClearJobs();
+                furn.CancelJobs();
                 return;
             }
 
@@ -82,7 +82,7 @@ namespace Assets.Scripts.Model
             if (furn.Tile.inventory != null && furn.Tile.inventory.stackSize == 0)
             {
                 Debug.LogError("Stockpile has a zero-size stack.");
-                furn.ClearJobs();
+                furn.CancelJobs();
                 return;
             }
 
@@ -104,6 +104,7 @@ namespace Assets.Scripts.Model
             }
 
             var j = new Job(
+                name: "StockpileFetch" + itemsDesired[0].objectType,
                 tile: furn.Tile,
                 jobObjectType: null,
                 cb: null,
@@ -111,15 +112,14 @@ namespace Assets.Scripts.Model
                 requirements: itemsDesired);
 
             j.CanTakeFromStockpile = false;
-            j.RegisteJobWorkedCallback(Stockpile_JobWorked);
+            j.RegisterOnJobWorkedCallback(Stockpile_JobWorked);
 
             furn.AddJob(j);
         }
 
         private static void Stockpile_JobWorked(Job j)
         {
-            j.Tile.Furniture
-                .RemoveJob(j);
+            j.CancelJob();
 
             foreach (var inv in j._inventoryRequirements.Values)
             {
@@ -196,18 +196,39 @@ namespace Assets.Scripts.Model
 
         public static void MiningConsole_UpdateAction(Furniture furn, float deltaTime)
         {
+            var spawnSpot = furn.GetSpawnSpotTile();
+
             if (furn.GetJobCount() > 0)
             {
+                // If the destination Tile is full of Iron, stop the job.
+                if (spawnSpot.inventory != null && (spawnSpot.inventory.stackSize >= spawnSpot.inventory.maxStackSize))
+                {
+                    // the job spot is full, so cancel
+                    furn.CancelJobs();
+                }
+
                 // There's already a Job, so nothing to do.
                 return;
             }
 
+            // If we get here, then we have no current Job. Check to see if our destination is full
+            if (spawnSpot.inventory != null && (spawnSpot.inventory.stackSize >= spawnSpot.inventory.maxStackSize))
+            {
+                // the job spot is full!
+                return;
+            }
+
+            var jobSpot = furn.GetJobSpotTile();
+
             var j = new Job(
-                tile: furn.GetJobSpotTile(), 
+                name: "MiningConsole_Work",
+                tile: jobSpot, 
                 jobObjectType: null,
                 cb: MiningConsole_JobComplete,
-                jobTime: 1f,
-                requirements: null);
+                jobTime: 0.3f,
+                requirements: null,
+                repeats: true);
+            //j.RegisterOnJobStoppedCallback(MiningConsole_JobStopped);
 
             furn.AddJob(j);
         }
@@ -215,10 +236,14 @@ namespace Assets.Scripts.Model
         public static void MiningConsole_JobComplete(Job job)
         {
             // Spawn some Steel Plates from the console
-            var steel = new Inventory("Steel Plate", 50, 2);
-            World.Current.InventoryManager.PlaceInventory(job.Tile, steel);
-
-            job.Furniture.RemoveJob(job);
+            var steel = new Inventory("Steel Plate", 50, 5);
+            World.Current.InventoryManager.PlaceInventory(job.Furniture.GetSpawnSpotTile(), steel);
         }
+
+        //public static void MiningConsole_JobStopped(Job job)
+        //{
+        //    job.UnregisterOnJobStoppedCallback(MiningConsole_JobStopped);
+        //    job.Furniture.RemoveJob(job);
+        //}
     }
 }

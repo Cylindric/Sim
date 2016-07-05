@@ -26,13 +26,12 @@ namespace Assets.Scripts.UI
                 return;
             }
 
-            var r = t.Room;
-            if (r == null)
+            if (t.Room == null)
             {
                 return;
             }
 
-            _myText.text = "Room: " + World.Current._rooms.IndexOf(t.Room);
+            _myText.text = "Room: " + t.Room.Id;
         }
     }
 }

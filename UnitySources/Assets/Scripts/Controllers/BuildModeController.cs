@@ -107,14 +107,14 @@ namespace Assets.Scripts.Controllers
                     else
                     {
                         Debug.LogError("There is no Furniture Job Prototype for '" + furnitureType + "'");
-                        j = new Job(t, furnitureType, FurnitureActions.JobComplete_FurnitureBuilding, 0.1f, null);
+                        j = new Job("BuildFurniture", t, furnitureType, FurnitureActions.JobComplete_FurnitureBuilding, 0.1f, null);
                     }
 
                     j.FurniturePrototype = WorldController.Instance.World._furniturePrototypes[furnitureType];
 
                     t.PendingFurnitureJob = j;
-                    j.RegisterOnCancelCallback((theJob) => { theJob.Tile.PendingFurnitureJob = null; });
-                    j.RegisterOnCompleteCallback((theJob) => { theJob.Tile.PendingFurnitureJob = null; });
+                    j.RegisterOnJobStoppedCallback((theJob) => { theJob.Tile.PendingFurnitureJob = null; });
+                    j.RegisterOnJobCompletedCallback((theJob) => { theJob.Tile.PendingFurnitureJob = null; });
 
                     WorldController.Instance.World.JobQueue.Enqueue(j);
                 }
