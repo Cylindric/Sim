@@ -89,7 +89,7 @@ namespace Assets.Scripts.Model
         {
             nextTile = destTile = CurrentTile;
             pathAStar = null;
-            CurrentTile.World.JobQueue.Enqueue(myJob);
+            World.Current.JobQueue.Enqueue(myJob);
             myJob = null;
         }
 
@@ -156,7 +156,7 @@ namespace Assets.Scripts.Model
         private void GetNewJob()
         {
             // Grab a new job.
-            myJob = CurrentTile.World.JobQueue.Dequeue();
+            myJob = World.Current.JobQueue.Dequeue();
             if (myJob == null)
             {
                 return;
@@ -177,7 +177,7 @@ namespace Assets.Scripts.Model
             // Check to see if the job is reachable from the character's current position.
             // We mmight have to go somewhere else first to get materials.
 
-            pathAStar = new Path_AStar(CurrentTile.World, CurrentTile, destTile);
+            pathAStar = new Path_AStar(World.Current, CurrentTile, destTile);
             if (pathAStar.Length() == 0)
             {
                 // Debug.LogError("Path_AStar returned no path to target job tile!");
@@ -219,7 +219,7 @@ namespace Assets.Scripts.Model
                         if (CurrentTile == destTile)
                         {
                             // We are at the jobsite, so drop the inventory.
-                            CurrentTile.World.InventoryManager.PlaceInventory(myJob, inventory);
+                            World.Current.InventoryManager.PlaceInventory(myJob, inventory);
                             myJob.DoWork(0); // This will call all the cbJobWorked callbacks
 
                             if (inventory.stackSize == 0)
@@ -244,7 +244,7 @@ namespace Assets.Scripts.Model
                         // We are carrying something, but the job doesn't want it.
                         // Dump it where we are.
                         // TODO: actually dump it to an empty tile, as we might be stood on a job tile.
-                        if (CurrentTile.World.InventoryManager.PlaceInventory(CurrentTile, inventory) == false)
+                        if (World.Current.InventoryManager.PlaceInventory(CurrentTile, inventory) == false)
                         {
                             Debug.LogError("Character tried to dump inventory to an invalid tile.");
                             // TODO: At this point we should try to dump this inv somewhere else, but for now we're just deleting it.
@@ -262,7 +262,7 @@ namespace Assets.Scripts.Model
                         myJob.NeedsMaterial(CurrentTile.inventory) != 0)
                     {
                         // The materials we need are right where we're stood!
-                        CurrentTile.World.InventoryManager.PlaceInventory(
+                        World.Current.InventoryManager.PlaceInventory(
                             character: this, 
                             source: CurrentTile.inventory, 
                             qty: myJob.NeedsMaterial(CurrentTile.inventory));
@@ -274,7 +274,7 @@ namespace Assets.Scripts.Model
                         var unsatisfied = myJob.GetFirstRequiredInventory();
 
                         // Look for the first item that matches
-                        var supply = CurrentTile.World.InventoryManager.GetClosestInventoryOfType(
+                        var supply = World.Current.InventoryManager.GetClosestInventoryOfType(
                             objectType: unsatisfied.objectType,
                             t: CurrentTile,
                             desiredQty: unsatisfied.maxStackSize - unsatisfied.stackSize,
@@ -323,7 +323,7 @@ namespace Assets.Scripts.Model
                 if (pathAStar == null || pathAStar.Length() == 0)
                 {
                     // Generate a path to our destination
-                    pathAStar = new Path_AStar(CurrentTile.World, CurrentTile, destTile);
+                    pathAStar = new Path_AStar(World.Current, CurrentTile, destTile);
                     // This will calculate a path from curr to dest.
                     if (pathAStar.Length() == 0)
                     {

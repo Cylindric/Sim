@@ -164,7 +164,7 @@ namespace Assets.Scripts.Model
                 cbOnCancel(this);
             }
 
-            Tile.World.JobQueue.Remove(this);
+            World.Current.JobQueue.Remove(this);
         }
 
         public bool HasAllMaterial()

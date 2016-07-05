@@ -36,7 +36,6 @@ namespace Assets.Scripts.Model
 
         public Tile(World world, int x, int y)
         {
-            this.World = world;
             this.X = x;
             this.Y = y;
         }
@@ -53,7 +52,7 @@ namespace Assets.Scripts.Model
 
         public int X { get; private set; }
         public int Y { get; private set; }
-        public World World { get; private set; }
+        //public World World { get; private set; }
         public Furniture Furniture { get; private set; }
         public Job PendingFurnitureJob { get; set; }
         public Room Room { get; set; }
@@ -118,7 +117,7 @@ namespace Assets.Scripts.Model
             {
                 for (var yOff = Y; yOff < Y + f._height; yOff++)
                 {
-                    var t = World.GetTileAt(xOff, yOff);
+                    var t = World.Current.GetTileAt(xOff, yOff);
                     t.Furniture = null;
                 }
             }
@@ -144,7 +143,7 @@ namespace Assets.Scripts.Model
             {
                 for (var yOff = Y; yOff < Y + furn._height; yOff++)
                 {
-                    var t = World.GetTileAt(xOff, yOff);
+                    var t = World.Current.GetTileAt(xOff, yOff);
                     t.Furniture = furn;
                 }
             }
@@ -232,17 +231,17 @@ namespace Assets.Scripts.Model
                 ns = new Tile[8]; // Tile order N E S W NE SE SW NW
             }
 
-            ns[0] = World.GetTileAt(X, Y + 1); // N
-            ns[1] = World.GetTileAt(X + 1, Y); // E
-            ns[2] = World.GetTileAt(X, Y - 1); // S
-            ns[3] = World.GetTileAt(X - 1, Y); // w
+            ns[0] = World.Current.GetTileAt(X, Y + 1); // N
+            ns[1] = World.Current.GetTileAt(X + 1, Y); // E
+            ns[2] = World.Current.GetTileAt(X, Y - 1); // S
+            ns[3] = World.Current.GetTileAt(X - 1, Y); // w
 
             if (allowDiagonal == true)
             {
-                ns[4] = World.GetTileAt(X + 1, Y + 1); // NE
-                ns[5] = World.GetTileAt(X + 1, Y - 1); // SE
-                ns[6] = World.GetTileAt(X - 1, Y - 1); // SW
-                ns[7] = World.GetTileAt(X - 1, Y + 1); // NW
+                ns[4] = World.Current.GetTileAt(X + 1, Y + 1); // NE
+                ns[5] = World.Current.GetTileAt(X + 1, Y - 1); // SE
+                ns[6] = World.Current.GetTileAt(X - 1, Y - 1); // SW
+                ns[7] = World.Current.GetTileAt(X - 1, Y + 1); // NW
             }
 
             return ns;
@@ -294,22 +293,22 @@ namespace Assets.Scripts.Model
 
         public Tile NorthNeighbour()
         {
-            return World.GetTileAt(X, Y + 1);
+            return World.Current.GetTileAt(X, Y + 1);
         }
 
         public Tile EastNeighbour()
         {
-            return World.GetTileAt(X + 1, Y);
+            return World.Current.GetTileAt(X + 1, Y);
         }
 
         public Tile SouthNeighbour()
         {
-            return World.GetTileAt(X, Y - 1);
+            return World.Current.GetTileAt(X, Y - 1);
         }
 
         public Tile WestNeighbour()
         {
-            return World.GetTileAt(X -1, Y);
+            return World.Current.GetTileAt(X -1, Y);
         }
     }
 }

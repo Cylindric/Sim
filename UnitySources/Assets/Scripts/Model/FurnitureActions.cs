@@ -125,7 +125,7 @@ namespace Assets.Scripts.Model
             {
                 if (inv.stackSize > 0)
                 {
-                    j.Tile.World.InventoryManager.PlaceInventory(j.Tile, inv);
+                    World.Current.InventoryManager.PlaceInventory(j.Tile, inv);
                     return;
                 }
             }
@@ -216,7 +216,7 @@ namespace Assets.Scripts.Model
         {
             // Spawn some Steel Plates from the console
             var steel = new Inventory("Steel Plate", 50, 2);
-            job.Tile.World.InventoryManager.PlaceInventory(job.Tile, steel);
+            World.Current.InventoryManager.PlaceInventory(job.Tile, steel);
 
             job.Furniture.RemoveJob(job);
         }

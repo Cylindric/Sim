@@ -91,7 +91,7 @@ namespace Assets.Scripts.Controllers
 
             sr.sortingLayerName = "Jobs";
 
-            var proto = t.World._furniturePrototypes[furnType];
+            var proto = World.Current._furniturePrototypes[furnType];
             var posOffset = new Vector3((float) (proto._width - 1)/2, (float) (proto._height - 1)/2, 0);
             go.transform.position = new Vector3(t.X, t.Y, 0) + posOffset;
         }

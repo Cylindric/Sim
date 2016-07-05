@@ -67,7 +67,7 @@ namespace Assets.Scripts.Model
                 return true;
             }
 
-            return this == _tiles[0].World.GetOutsideRoom();
+            return this == World.Current.GetOutsideRoom();
         }
 
         public void ChangeGas(string name, float amount)
@@ -147,7 +147,7 @@ namespace Assets.Scripts.Model
         {
             foreach (var t in _tiles)
             {
-                t.Room = t.World.GetOutsideRoom();
+                t.Room = World.Current.GetOutsideRoom();
             }
             _tiles = new List<Tile>();
         }
@@ -155,7 +155,7 @@ namespace Assets.Scripts.Model
         public static void DoRoomFloodfill(Tile sourceTile, bool onlyIfOutside = false)
         {
             // Get a reference to the World, for convenience.
-            var world = sourceTile.World;
+            var world = World.Current;
             var oldRoom = sourceTile.Room;
 
             if (oldRoom != null)
@@ -230,7 +230,7 @@ namespace Assets.Scripts.Model
 
             // If we get this far, we know that we need to create a new Room.
 
-            var newRoom = new Room(tile.World);
+            var newRoom = new Room(World.Current);
             var tilesToCheck = new Queue<Tile>();
             tilesToCheck.Enqueue(tile);
 
@@ -296,7 +296,7 @@ namespace Assets.Scripts.Model
             }
 
             // Tell the World that a new Room has been created.
-            tile.World.AddRoom(newRoom);
+            World.Current.AddRoom(newRoom);
         }
 
         private void CopyGas(Room other)

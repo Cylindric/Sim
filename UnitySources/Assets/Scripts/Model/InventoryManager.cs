@@ -54,7 +54,7 @@ namespace Assets.Scripts.Model
                 }
                 Inventories[tile.inventory.objectType].Add(tile.inventory);
 
-                tile.World.OnInventoryCreated(tile.inventory);
+                World.Current.OnInventoryCreated(tile.inventory);
             }
 
             return true;

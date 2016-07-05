@@ -90,12 +90,12 @@ namespace Assets.Scripts.Pathfinding
                 var dX = curr.X - neigh.X;
                 int dY = curr.Y - neigh.Y;
 
-                if (curr.World.GetTileAt(curr.X - dX, curr.Y).MovementCost == 0)
+                if (World.Current.GetTileAt(curr.X - dX, curr.Y).MovementCost == 0)
                 {
                     // E or W is unwalkable, so this would be a clipped movement.
                     return true;
                 }
-                if (curr.World.GetTileAt(curr.X, curr.Y - dY).MovementCost == 0)
+                if (World.Current.GetTileAt(curr.X, curr.Y - dY).MovementCost == 0)
                 {
                     // N or S is unwalkable, so this would be a clipped movement.
                     return true;

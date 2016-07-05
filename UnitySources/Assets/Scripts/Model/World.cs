@@ -57,6 +57,7 @@ namespace Assets.Scripts.Model
         /* #################################################################### */
         /* #                         PROPERTIES                               # */
         /* #################################################################### */
+        public static World Current { get; private set; }
         public Path_TileGraph TileGraph { get; set; } // TODO: this PathTileGraph really shouldn't be fully public like this.
         public int Width { get; private set; }
         public int Height { get; private set; }
@@ -474,6 +475,8 @@ namespace Assets.Scripts.Model
 
         private void SetupWorld(int width, int height)
         {
+            Current = this;
+
             this.Width = width;
             this.Height = height;
 
@@ -535,7 +538,8 @@ namespace Assets.Scripts.Model
                     count++;
                     int x = int.Parse(reader.GetAttribute("X"));
                     int y = int.Parse(reader.GetAttribute("Y"));
-                    var furn = this.PlaceFurniture(reader.GetAttribute("objectType"), this._tiles[x, y], false);
+                    string type = reader.GetAttribute("objectType");
+                    var furn = this.PlaceFurniture(type, this._tiles[x, y], false);
                     furn.ReadXml(reader);
                 } while (reader.ReadToNextSibling("Furniture"));
                 Debug.LogFormat("Loaded {0} Furnitures from save file.", count);
