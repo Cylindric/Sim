@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using MoonSharp.Interpreter;
 using UnityEngine;
 
 namespace Assets.Scripts.Model
 {
+    [MoonSharpUserData]
     public class Job
     {
         /* #################################################################### */

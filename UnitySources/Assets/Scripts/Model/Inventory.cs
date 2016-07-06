@@ -2,9 +2,11 @@
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
+using MoonSharp.Interpreter;
 
 namespace Assets.Scripts.Model
 {
+    [MoonSharpUserData]
     public class Inventory : IXmlSerializable
     {
 

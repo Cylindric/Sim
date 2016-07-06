@@ -1,4 +1,5 @@
-﻿using Assets.Scripts.Controllers;
+﻿using System.Collections.Generic;
+using Assets.Scripts.Controllers;
 using MoonSharp.Interpreter;
 using UnityEngine;
 
@@ -6,24 +7,36 @@ namespace Assets.Scripts.Model
 {
     public class FurnitureActions
     {
+        private static FurnitureActions _instance;
+        private Script _myLuaScript;
+
         public FurnitureActions(string rawLuaCode)
         {
-            var myLuaScript = new Script();
-            var result = myLuaScript.DoString(rawLuaCode);
-            result = myLuaScript.Call(myLuaScript.Globals["test"], 123);
+            // Tell LUA to load all the classes that we have marked as MoonSharpUserData
+            UserData.RegisterAssembly();
 
-            if (result.Type == DataType.String)
-            {
-                Debug.Log(result.String);
-            }
-            else
-            {
-                Debug.Log(result.Number);
-            }
+            _instance = this;
 
+            _myLuaScript = new Script();
+            _myLuaScript.DoString(rawLuaCode);
         }
 
-        public static void JobComplete_FurnitureBuilding(Job theJob) { }
+        public static void CallFunctionsWithFurniture(IEnumerable<string> functionNames, Furniture furn, float deltaTime)
+        {
+            foreach (var fname in functionNames)
+            {
+                var func = _instance._myLuaScript.Globals[fname];
+
+                if (func == null)
+                {
+                    Debug.LogErrorFormat("Function {0} is not a LUA function.", fname);
+                    return;
+                }
+
+                var result = _instance._myLuaScript.Call(func, new object[] {furn, deltaTime});
+                Debug.Log(result.String);
+            }
+        }
 
         //public static void Door_UpdateAction(Furniture furn, float deltaTime)
         //{
@@ -57,11 +70,12 @@ namespace Assets.Scripts.Model
         //    return Enterability.Soon;
         //}
 
-        //public static void JobComplete_FurnitureBuilding(Job theJob)
-        //{
-        //    WorldController.Instance.World.PlaceFurniture(theJob.JobObjectType, theJob.Tile);
-        //    theJob.Tile.PendingFurnitureJob = null;
-        //}
+        
+        public static void JobComplete_FurnitureBuilding(Job theJob)
+        {
+            WorldController.Instance.World.PlaceFurniture(theJob.JobObjectType, theJob.Tile);
+            theJob.Tile.PendingFurnitureJob = null;
+        }
 
         //public static Inventory[] Stockpile_GetItemsFromFilter()
         //{
@@ -156,63 +170,6 @@ namespace Assets.Scripts.Model
         ///// </summary>
         ///// <param name="furn"></param>
         ///// <param name="deltaTime"></param>
-        //public static void OygenGenerator_UpdateAction(Furniture furn, float deltaTime)
-        //{
-        //    const float targetO2 = 0.21f;
-        //    const float targetN = 0.78f;
-
-        //    if (furn == null)
-        //    {
-        //        Debug.LogError("Furn is null!");
-        //        return;
-        //    }
-        //    if (furn.Tile == null)
-        //    {
-        //        Debug.LogError("Furn Tile is null!");
-        //        return;
-        //    }
-        //    if (furn.Tile.Room == null)
-        //    {
-        //        Debug.LogErrorFormat("Oxygen Generator at [{0},{1}] has no Room!", furn.Tile.X, furn.Tile.Y);
-        //        return;
-        //    }
-        //    if (furn.Tile.Room.Size == 0)
-        //    {
-        //        Debug.LogError("Furn Tile Room Size is zero!");
-        //        return;
-        //    }
-
-        //    // The base fill-rate for the O2 Generator.
-        //    // TODO: Will need a way to both add Nitrogen and O2, and scrub them too, probably with different rates for all combos.
-        //    var baseRate = 1f;
-
-        //    // The rate depends on the size of the room being affected.
-        //    // Larger rooms take longer
-        //    var roomSizeMulti = 1f/furn.Tile.Room.Size;
-
-        //    // The final rate
-        //    var rate = baseRate*roomSizeMulti;
-
-        //    var currentPressure = furn.Tile.Room.GetTotalAtmosphericPressure();
-        //    if (currentPressure >= 1f)
-        //    {
-        //        // Already at one-atmosphere of pressure, so will not add any more! Otherwise ears go pop!
-        //    }
-        //    else
-        //    {
-        //        // Add Oxygen first, that's important.
-        //        if (furn.Tile.Room.GetGasPercentage("O2") < targetO2)
-        //        {
-        //            // Pump Oxy!
-        //            furn.Tile.Room.ChangeGas("O2", rate*deltaTime);
-        //        }
-        //        else
-        //        {
-        //            // Pump Nitro!
-        //            furn.Tile.Room.ChangeGas("N", rate*deltaTime);
-        //        }
-        //    }
-        //}
 
         //public static void MiningConsole_UpdateAction(Furniture furn, float deltaTime)
         //{

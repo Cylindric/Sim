@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Timers;
 using System.Xml;
@@ -8,11 +9,13 @@ using System.Xml.Schema;
 using System.Xml.Serialization;
 using Assets.Scripts.Pathfinding;
 using Assets.Scripts.Utilities;
+using MoonSharp.Interpreter;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
 namespace Assets.Scripts.Model
 {
+    [MoonSharpUserData]
     public class World : IXmlSerializable
     {
         /* #################################################################### */
@@ -350,15 +353,37 @@ namespace Assets.Scripts.Model
             writer.WriteEndElement();
         }
 
+        public void SetFurnitureJobPrototype(Job j, Furniture f)
+        {
+            _furnitureJobPrototypes[f.ObjectType] = j;
+        }
+
+        public void LoadFurnitureLua()
+        {
+            var filepath = Application.streamingAssetsPath;
+            filepath = Path.Combine(filepath, "LUA");
+            filepath = Path.Combine(filepath, "Furniture.lua");
+
+            var myLuaCode = System.IO.File.ReadAllText(filepath);
+
+            var fa = new FurnitureActions(myLuaCode);
+        }
+
         private void CreateFurniturePrototypes()
         {
+            LoadFurnitureLua();
+
             this._furniturePrototypes = new Dictionary<string, Furniture>();
             this._furnitureJobPrototypes = new Dictionary<string, Job>();
 
-            var furnText = Resources.Load<TextAsset>("Data/Furniture");
+            var filepath = Application.streamingAssetsPath;
+            filepath = Path.Combine(filepath, "Data");
+            filepath = Path.Combine(filepath, "Furniture.xml");
+
+            var furnText = System.IO.File.ReadAllText(filepath);
 
             var xml = new XmlDocument();
-            xml.LoadXml(furnText.text);
+            xml.LoadXml(furnText);
             var furnitures = xml.DocumentElement.SelectSingleNode("/Furnitures");
             foreach (XmlNode furniture in furnitures.ChildNodes)
             {
@@ -392,6 +417,15 @@ namespace Assets.Scripts.Model
                     }
                 }
 
+                var callbacks = furnitures.SelectNodes(".//OnUpdate");
+                if (callbacks != null)
+                {
+                    foreach (XmlNode callback in callbacks)
+                    {
+                        var name = callback.InnerText;
+                        furn.RegisterUpdateAction(name);
+                    }
+                }
 
                 foreach (XmlNode buildJob in furniture.SelectNodes(".//BuildingJob"))
                 {
@@ -436,11 +470,6 @@ namespace Assets.Scripts.Model
 
         private void SetupWorld(int width, int height)
         {
-            FurnitureActions fa = new FurnitureActions(@"
-                function test(n)
-                    return n * 2
-                end
-            ");
             Current = this;
 
             this.Width = width;

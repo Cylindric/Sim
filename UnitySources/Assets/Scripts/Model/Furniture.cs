@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
+using MoonSharp.Interpreter;
 using UnityEngine;
 
 namespace Assets.Scripts.Model
@@ -10,6 +11,7 @@ namespace Assets.Scripts.Model
     /// <summary>
     /// Furniture represents an object that is 'permanently' installed on a <see cref="Tile"/>.
     /// </summary>
+    [MoonSharpUserData]
     public class Furniture : IXmlSerializable
     {
         /* #################################################################### */
@@ -63,6 +65,7 @@ namespace Assets.Scripts.Model
             this.Tint = Color.white;
             this.JobSpotOffset = Vector2.zero;
             this.JobSpawnOffset = Vector2.zero;
+            this._cbUpdateActions = new List<string>();
         }
 
         /// <summary>
@@ -84,11 +87,8 @@ namespace Assets.Scripts.Model
             this.JobSpotOffset = other.JobSpotOffset;
             this.JobSpawnOffset = other.JobSpawnOffset;
             this._parameters = new Dictionary<string, float>(other._parameters);
+            this._cbUpdateActions = new List<string>(other._cbUpdateActions);
 
-            if (other._cbUpdateActions != null)
-            {
-                this._cbUpdateActions = (Action<Furniture, float>)other._cbUpdateActions.Clone();
-            }
             if (other._funcPositionValidation != null)
             {
                 this._funcPositionValidation = (Func<Tile, bool>)other._funcPositionValidation.Clone();
@@ -121,6 +121,7 @@ namespace Assets.Scripts.Model
             this.Tint = Color.white;
             this.JobSpotOffset = Vector2.zero;
             this.JobSpawnOffset = Vector2.zero;
+            this._cbUpdateActions = new List<string>();
         }
 
         /* #################################################################### */
@@ -133,7 +134,8 @@ namespace Assets.Scripts.Model
         /// <summary>
         /// These actions are called on every update. They get called with a Furniture, and the deltaTime.
         /// </summary>
-        private Action<Furniture, float> _cbUpdateActions;
+        private List<string> _cbUpdateActions;
+        //private Action<Furniture, float> _cbUpdateActions;
 
         private readonly Func<Tile, bool> _funcPositionValidation;
 
@@ -223,18 +225,18 @@ namespace Assets.Scripts.Model
         /// Registers a function that will be called on every Update.
         /// </summary>
         /// <param name="a">Action to call.</param>
-        public void RegisterUpdateAction(Action<Furniture, float> a)
+        public void RegisterUpdateAction(string fname)
         {
-            _cbUpdateActions += a;
+            _cbUpdateActions.Add(fname);
         }
 
         /// <summary>
         /// Unregisters a function that has been set to be called on every Update.
         /// </summary>
         /// <param name="a">Action to remove.</param>
-        public void UnregisterUpdateAction(Action<Furniture, float> a)
+        public void UnregisterUpdateAction(string fname)
         {
-            _cbUpdateActions -= a;
+            _cbUpdateActions.Remove(fname);
         }
 
         /// <summary>
@@ -341,7 +343,7 @@ namespace Assets.Scripts.Model
         {
             if (this._cbUpdateActions != null)
             {
-                this._cbUpdateActions(this, deltaTime);
+                FurnitureActions.CallFunctionsWithFurniture(_cbUpdateActions, this, deltaTime);
             }
         }
 

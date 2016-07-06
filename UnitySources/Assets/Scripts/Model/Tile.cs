@@ -4,12 +4,14 @@ using System.Runtime.InteropServices;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
+using MoonSharp.Interpreter;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
 namespace Assets.Scripts.Model
 {
     [DebuggerDisplay("Tile [{X},{Y}]")]
+    [MoonSharpUserData]
     public class Tile : IXmlSerializable
     {
         /* #################################################################### */

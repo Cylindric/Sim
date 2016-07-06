@@ -58,6 +58,7 @@
 			<Inventory objectType="steel_plate" amount="10" />
 		</BuildingJob>
 		<DeconstructJob />
+		<OnUpdate>OnUpdate_GasGenerator</OnUpdate>
 	</Furniture>
 	
  	<Furniture objectType="mining_station">

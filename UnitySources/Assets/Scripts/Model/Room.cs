@@ -8,10 +8,12 @@ using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 using Assets.Scripts.Controllers;
+using MoonSharp.Interpreter;
 using UnityEngine;
 
 namespace Assets.Scripts.Model
 {
+    [MoonSharpUserData]
     public class Room : IXmlSerializable
     {
         /* #################################################################### */
