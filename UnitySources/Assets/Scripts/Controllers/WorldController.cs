@@ -47,8 +47,7 @@ namespace Assets.Scripts.Controllers
             var x = Mathf.FloorToInt(coord.x + 0.5f);
             var y = Mathf.FloorToInt(coord.y + 0.5f);
 
-            //Debug.LogFormat("Mouse at [{0},{1}]  [{2},{3}]", coord.x, coord.y, x, y);
-            return World.GetTileAt(x, y);
+            return World.Current.GetTileAt(x, y);
         }
 
         /// <summary>

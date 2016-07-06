@@ -364,10 +364,13 @@ namespace Assets.Scripts.Model
             return null;
         }
 
+        public void ReadXmllPrototype(XmlReader reader)
+        {
+            
+        }
+            
         public void ReadXml(XmlReader reader)
         {
-            // this.MovementCost = float.Parse(reader.GetAttribute("movementCost"));
-
             if (reader.ReadToDescendant("Param"))
             {
                 do

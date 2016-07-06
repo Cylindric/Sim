@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Furnitures>
+	
+	<Furniture objectType="furn_wall_steel">
+		<Name>Steel Wall</Name>
+		<MovementCost>0</MovementCost>
+		<Width>1</Width>
+		<Height>1</Height>
+		<LinksToNeighbours>True</LinksToNeighbours>
+		<EnclosesRoom>True</EnclosesRoom>
+		<BuildingJob time="1">
+			<Inventory objectType="steel_plate" amount="5" />
+		</BuildingJob>
+		<DeconstructJob>
+			<Inventory objectType="steel_plate" amount="3" />
+		</DeconstructJob>
+	</Furniture>
+	
+	<Furniture objectType="furn_door">
+		<Name>Door</Name>
+		<MovementCost>1</MovementCost>
+		<Width>1</Width>
+		<Height>1</Height>
+		<LinksToNeighbours>False</LinksToNeighbours>
+		<EnclosesRoom>True</EnclosesRoom>
+		<Params>
+			<Param name="openess">0</Param>
+			<Param name="is_opening">0</Param>
+		</Params>
+		<BuildingJob time="1">
+			<Inventory objectType="steel_plate" amount="2" />
+		</BuildingJob>
+		<UpdateAction></UpdateAction>
+		<DeconstructJob>
+			<Inventory objectType="steel_plate" amount="1" />
+		</DeconstructJob>
+	</Furniture>
+
+ 	<Furniture objectType="stockpile">
+		<Name>Stockpile</Name>
+		<MovementCost>1</MovementCost>
+		<Width>1</Width>
+		<Height>1</Height>
+		<LinksToNeighbours>False</LinksToNeighbours>
+		<EnclosesRoom>False</EnclosesRoom>
+		<BuildingJob time="0" />
+		<DeconstructJob />
+	</Furniture>
+
+ 	<Furniture objectType="oxygen">
+		<Name>Oxygen Generator</Name>
+		<MovementCost>0</MovementCost>
+		<Width>2</Width>
+		<Height>2</Height>
+		<LinksToNeighbours>False</LinksToNeighbours>
+		<EnclosesRoom>False</EnclosesRoom>
+		<BuildingJob time="3">
+			<Inventory objectType="steel_plate" amount="10" />
+		</BuildingJob>
+		<DeconstructJob />
+	</Furniture>
+	
+ 	<Furniture objectType="mining_station">
+		<Name>Mining Drone Station</Name>
+		<MovementCost>0</MovementCost>
+		<Width>3</Width>
+		<Height>2</Height>
+		<LinksToNeighbours>False</LinksToNeighbours>
+		<EnclosesRoom>False</EnclosesRoom>
+		<JobSpotOffset>1,-1</JobSpotOffset>
+		<JobSpawnOffset>0,-1</JobSpawnOffset>
+		<BuildingJob time="3" />
+		<DeconstructJob />
+		<Params>
+			<Param name="openess">0</Param>
+			<Param name="is_opening">0</Param>
+		</Params>
+	</Furniture>
+			
+</Furnitures>

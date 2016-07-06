@@ -12,7 +12,7 @@ namespace Assets.Scripts.Model
         /* #                              FIELDS                              # */
         /* #################################################################### */
 
-        public string objectType = "Steel Plate";
+        public string objectType = "";
 
         private int _stackSize = 1;
 

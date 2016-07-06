@@ -114,13 +114,13 @@ namespace Assets.Scripts.Controllers
             }
 
             // If it's a door, check openness and update the sprite accordingly.
-            if (obj.ObjectType == "Door") // TODO: fix this hard-coding of types
+            if (obj.ObjectType == "furn_door") // TODO: fix this hard-coding of types
             {
-                spriteName = "Door_";
+                spriteName = "furn_door_";
 
                 // Check for the EW/NS orientation
                 var t = World.GetTileAt(x + 1, y); // East
-                if (t != null && t.Furniture != null && t.Furniture.ObjectType == "Wall")
+                if (t != null && t.Furniture != null && t.Furniture.ObjectType == "furn_wall_steel")
                 {
                     spriteName += "EW_";
                 } else

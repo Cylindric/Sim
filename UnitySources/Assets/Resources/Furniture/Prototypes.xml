@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Furnitures>
-  <Furniture objectType="furn_door_standard"  name="Door" movementCost="1" width="1" height="1">
-    
-  </Furniture>
-</Furnitures>
-</xml>

@@ -1,25 +1,25 @@
 fileFormatVersion: 2
 guid: a2d370189c04b9b488dae91385eda05e
-timeCreated: 1467386721
+timeCreated: 1467758945
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
     21300000: orange_walls_0z
-    21300002: Wall_SW
+    21300002: furn_wall_steel_SW
     21300004: orange_walls_2_NS
-    21300006: Wall_ESW
-    21300008: Wall_NEW
-    21300010: Wall_W
-    21300012: Wall_N
+    21300006: furn_wall_steel_ESW
+    21300008: furn_wall_steel_NEW
+    21300010: furn_wall_steel_W
+    21300012: furn_wall_steel_N
     21300014: orange_walls_2_NW
     21300016: orange_walls_2_NE
-    21300018: Wall_NE
-    21300020: Wall_NW
+    21300018: furn_wall_steel_NE
+    21300020: furn_wall_steel_NW
     21300022: orange_walls_2_EW
-    21300024: Wall_NES
-    21300026: Wall_NSW
-    21300028: Wall_S
-    21300030: Wall_E
+    21300024: furn_wall_steel_NES
+    21300026: furn_wall_steel_NSW
+    21300028: furn_wall_steel_S
+    21300030: furn_wall_steel_E
     21300032: orange_walls_2_SW
     21300034: orange_walls_2_ES
     21300036: orange_walls_18
@@ -29,7 +29,7 @@ TextureImporter:
     21300044: orange_walls_1_W
     21300046: orange_walls_1_E
     21300048: orange_walls_0_
-    21300050: Wall_NESW
+    21300050: furn_wall_steel_NESW
     21300052: orange_walls_26
     21300054: orange_walls_27
     21300056: orange_walls_28
@@ -37,8 +37,8 @@ TextureImporter:
     21300060: orange_walls_30
     21300062: orange_walls_1_N
     21300064: orange_walls_1_S
-    21300066: Wall
-    21300068: Door
+    21300066: furn_wall_steel
+    21300068: furn_door
     21300070: orange_walls_35
     21300072: orange_walls_36
     21300074: orange_walls_37
@@ -58,11 +58,11 @@ TextureImporter:
     21300102: orange_walls_51
     21300104: orange_walls_52
     21300106: orange_walls_53
-    21300108: Wall_ES
-    21300110: Wall_EW
+    21300108: furn_wall_steel_ES
+    21300110: furn_wall_steel_EW
     21300112: orange_walls_7
     21300114: orange_walls_8
-    21300116: Wall_NS
+    21300116: furn_wall_steel_NS
     21300118: orange_walls_16
     21300120: orange_walls_17
     21300122: orange_walls_22
@@ -70,18 +70,18 @@ TextureImporter:
     21300126: orange_walls_24
     21300128: orange_walls_31
     21300130: orange_walls_32
-    21300132: Door_EW_0
-    21300134: Door_NS_0
-    21300136: Door_EW_20
-    21300138: Door_NS_20
-    21300140: Door_EW_40
-    21300142: Door_NS_40
-    21300144: Door_EW_60
-    21300146: Door_NS_60
-    21300148: Door_EW_80
-    21300150: Door_NS_80
-    21300152: Door_EW_100
-    21300154: Door_NS_100
+    21300132: furn_door_EW_0
+    21300134: furn_door_NS_0
+    21300136: furn_door_EW_20
+    21300138: furn_door_NS_20
+    21300140: furn_door_EW_40
+    21300142: furn_door_NS_40
+    21300144: furn_door_EW_60
+    21300146: furn_door_NS_60
+    21300148: furn_door_EW_80
+    21300150: furn_door_NS_80
+    21300152: furn_door_EW_100
+    21300154: furn_door_NS_100
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
@@ -128,7 +128,7 @@ TextureImporter:
   buildTargetSettings: []
   spriteSheet:
     sprites:
-    - name: Wall_ES
+    - name: furn_wall_steel_ES
       rect:
         serializedVersion: 2
         x: 4
@@ -143,7 +143,7 @@ TextureImporter:
         - {x: -32, y: -32}
         - {x: 32, y: -32}
         - {x: 32, y: 32}
-    - name: Wall_SW
+    - name: furn_wall_steel_SW
       rect:
         serializedVersion: 2
         x: 78
@@ -158,7 +158,7 @@ TextureImporter:
         - {x: -32, y: -32}
         - {x: 32, y: -32}
         - {x: 32, y: 32}
-    - name: Wall_EW
+    - name: furn_wall_steel_EW
       rect:
         serializedVersion: 2
         x: 152
@@ -173,7 +173,7 @@ TextureImporter:
         - {x: -32, y: -32}
         - {x: 32, y: -32}
         - {x: 32, y: 32}
-    - name: Wall_ESW
+    - name: furn_wall_steel_ESW
       rect:
         serializedVersion: 2
         x: 226
@@ -188,7 +188,7 @@ TextureImporter:
         - {x: -32, y: -32}
         - {x: 32, y: -32}
         - {x: 32, y: 32}
-    - name: Wall_NEW
+    - name: furn_wall_steel_NEW
       rect:
         serializedVersion: 2
         x: 300
@@ -203,7 +203,7 @@ TextureImporter:
         - {x: -32, y: -32}
         - {x: 32, y: -32}
         - {x: 32, y: 32}
-    - name: Wall_W
+    - name: furn_wall_steel_W
       rect:
         serializedVersion: 2
         x: 374
@@ -218,7 +218,7 @@ TextureImporter:
         - {x: -32, y: -32}
         - {x: 32, y: -32}
         - {x: 32, y: 32}
-    - name: Wall_N
+    - name: furn_wall_steel_N
       rect:
         serializedVersion: 2
         x: 448
@@ -263,7 +263,7 @@ TextureImporter:
         - {x: -32, y: -32}
         - {x: 32, y: -32}
         - {x: 32, y: 32}
-    - name: Wall_NE
+    - name: furn_wall_steel_NE
       rect:
         serializedVersion: 2
         x: 4
@@ -278,7 +278,7 @@ TextureImporter:
         - {x: -32, y: -32}
         - {x: 32, y: -32}
         - {x: 32, y: 32}
-    - name: Wall_NW
+    - name: furn_wall_steel_NW
       rect:
         serializedVersion: 2
         x: 78
@@ -293,7 +293,7 @@ TextureImporter:
         - {x: -32, y: -32}
         - {x: 32, y: -32}
         - {x: 32, y: 32}
-    - name: Wall_NS
+    - name: furn_wall_steel_NS
       rect:
         serializedVersion: 2
         x: 152
@@ -308,7 +308,7 @@ TextureImporter:
         - {x: -32, y: -32}
         - {x: 32, y: -32}
         - {x: 32, y: 32}
-    - name: Wall_NES
+    - name: furn_wall_steel_NES
       rect:
         serializedVersion: 2
         x: 226
@@ -323,7 +323,7 @@ TextureImporter:
         - {x: -32, y: -32}
         - {x: 32, y: -32}
         - {x: 32, y: 32}
-    - name: Wall_NSW
+    - name: furn_wall_steel_NSW
       rect:
         serializedVersion: 2
         x: 300
@@ -338,7 +338,7 @@ TextureImporter:
         - {x: -32, y: -32}
         - {x: 32, y: -32}
         - {x: 32, y: 32}
-    - name: Wall_S
+    - name: furn_wall_steel_S
       rect:
         serializedVersion: 2
         x: 374
@@ -353,7 +353,7 @@ TextureImporter:
         - {x: -32, y: -32}
         - {x: 32, y: -32}
         - {x: 32, y: 32}
-    - name: Wall_E
+    - name: furn_wall_steel_E
       rect:
         serializedVersion: 2
         x: 448
@@ -503,7 +503,7 @@ TextureImporter:
         - {x: -32, y: -32}
         - {x: 32, y: -32}
         - {x: 32, y: 32}
-    - name: Wall_NESW
+    - name: furn_wall_steel_NESW
       rect:
         serializedVersion: 2
         x: 522
@@ -529,11 +529,11 @@ TextureImporter:
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 4, y: 60}
-        - {x: 4, y: 6}
-        - {x: 6, y: 4}
-        - {x: 60, y: 4}
-        - {x: 60, y: 60}
+      - - {x: -28, y: 28}
+        - {x: -28, y: -26}
+        - {x: -26, y: -28}
+        - {x: 28, y: -28}
+        - {x: 28, y: 28}
     - name: orange_walls_27
       rect:
         serializedVersion: 2
@@ -624,7 +624,7 @@ TextureImporter:
         - {x: -32, y: -32}
         - {x: 32, y: -32}
         - {x: 32, y: 32}
-    - name: Wall
+    - name: furn_wall_steel
       rect:
         serializedVersion: 2
         x: 448
@@ -639,7 +639,7 @@ TextureImporter:
         - {x: -32, y: -32}
         - {x: 32, y: -32}
         - {x: 32, y: 32}
-    - name: Door
+    - name: furn_door
       rect:
         serializedVersion: 2
         x: 521
@@ -650,12 +650,12 @@ TextureImporter:
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 4, y: 64}
-        - {x: 0, y: 63}
+      - - {x: -28, y: 32}
+        - {x: -32, y: 31}
         - {x: -32, y: -32}
         - {x: 32, y: -32}
-        - {x: 64, y: 58}
-        - {x: 63, y: 64}
+        - {x: 32, y: 26}
+        - {x: 31, y: 32}
     - name: orange_walls_35
       rect:
         serializedVersion: 2
@@ -667,14 +667,14 @@ TextureImporter:
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 17, y: 56}
-        - {x: 8, y: 51}
-        - {x: 8, y: 20}
-        - {x: 20, y: 8}
-        - {x: 52, y: 8}
-        - {x: 56, y: 21}
-        - {x: 56, y: 50}
-        - {x: 51, y: 56}
+      - - {x: -15, y: 24}
+        - {x: -24, y: 19}
+        - {x: -24, y: -12}
+        - {x: -12, y: -24}
+        - {x: 20, y: -24}
+        - {x: 24, y: -11}
+        - {x: 24, y: 18}
+        - {x: 19, y: 24}
     - name: orange_walls_36
       rect:
         serializedVersion: 2
@@ -791,8 +791,8 @@ TextureImporter:
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 34, y: 0}
-        - {x: 34, y: 64}
+      - - {x: 2, y: -32}
+        - {x: 2, y: 32}
         - {x: -32, y: 32}
         - {x: -32, y: -32}
     - name: orange_walls_44
@@ -807,8 +807,8 @@ TextureImporter:
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
       - - {x: -32, y: 32}
-        - {x: 0, y: 30}
-        - {x: 64, y: 30}
+        - {x: -32, y: -2}
+        - {x: 32, y: -2}
         - {x: 32, y: 32}
     - name: orange_walls_45
       rect:
@@ -928,8 +928,8 @@ TextureImporter:
       outline:
       - - {x: -32, y: -32}
         - {x: 32, y: -32}
-        - {x: 64, y: 34}
-        - {x: 0, y: 34}
+        - {x: 32, y: 2}
+        - {x: -32, y: 2}
     - name: orange_walls_53
       rect:
         serializedVersion: 2
@@ -941,11 +941,11 @@ TextureImporter:
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 30, y: 64}
-        - {x: 30, y: 0}
+      - - {x: -2, y: 32}
+        - {x: -2, y: -32}
         - {x: 32, y: -32}
         - {x: 32, y: 32}
-    - name: Door_EW_0
+    - name: furn_door_EW_0
       rect:
         serializedVersion: 2
         x: 670
@@ -960,7 +960,7 @@ TextureImporter:
         - {x: 32, y: -9}
         - {x: 32, y: 10}
         - {x: -32, y: 10}
-    - name: Door_NS_0
+    - name: furn_door_NS_0
       rect:
         serializedVersion: 2
         x: 742
@@ -971,11 +971,11 @@ TextureImporter:
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 44, y: 0}
-        - {x: 44, y: 64}
-        - {x: 25, y: 64}
-        - {x: 25, y: 0}
-    - name: Door_EW_20
+      - - {x: 12, y: -32}
+        - {x: 12, y: 32}
+        - {x: -7, y: 32}
+        - {x: -7, y: -32}
+    - name: furn_door_EW_20
       rect:
         serializedVersion: 2
         x: 670
@@ -986,13 +986,13 @@ TextureImporter:
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 42}
-        - {x: 0, y: 23}
-        - {x: 60, y: 23}
-        - {x: 62, y: 25}
-        - {x: 62, y: 40}
-        - {x: 60, y: 42}
-    - name: Door_NS_20
+      - - {x: -32, y: 10}
+        - {x: -32, y: -9}
+        - {x: 28, y: -9}
+        - {x: 30, y: -7}
+        - {x: 30, y: 8}
+        - {x: 28, y: 10}
+    - name: furn_door_NS_20
       rect:
         serializedVersion: 2
         x: 742
@@ -1003,13 +1003,13 @@ TextureImporter:
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 25, y: 60}
-        - {x: 25, y: 0}
-        - {x: 44, y: 0}
-        - {x: 44, y: 60}
-        - {x: 42, y: 62}
-        - {x: 27, y: 62}
-    - name: Door_EW_40
+      - - {x: -7, y: 28}
+        - {x: -7, y: -32}
+        - {x: 12, y: -32}
+        - {x: 12, y: 28}
+        - {x: 10, y: 30}
+        - {x: -5, y: 30}
+    - name: furn_door_EW_40
       rect:
         serializedVersion: 2
         x: 670
@@ -1020,13 +1020,13 @@ TextureImporter:
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 42}
-        - {x: 0, y: 23}
-        - {x: 47, y: 23}
-        - {x: 49, y: 25}
-        - {x: 49, y: 40}
-        - {x: 47, y: 42}
-    - name: Door_NS_40
+      - - {x: -32, y: 10}
+        - {x: -32, y: -9}
+        - {x: 15, y: -9}
+        - {x: 17, y: -7}
+        - {x: 17, y: 8}
+        - {x: 15, y: 10}
+    - name: furn_door_NS_40
       rect:
         serializedVersion: 2
         x: 742
@@ -1037,12 +1037,12 @@ TextureImporter:
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 25, y: 50}
-        - {x: 25, y: 1}
-        - {x: 26, y: 0}
-        - {x: 44, y: 0}
-        - {x: 44, y: 50}
-    - name: Door_EW_60
+      - - {x: -7, y: 18}
+        - {x: -7, y: -31}
+        - {x: -6, y: -32}
+        - {x: 12, y: -32}
+        - {x: 12, y: 18}
+    - name: furn_door_EW_60
       rect:
         serializedVersion: 2
         x: 669
@@ -1053,12 +1053,12 @@ TextureImporter:
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 42}
-        - {x: 0, y: 24}
-        - {x: 1, y: 23}
-        - {x: 37, y: 23}
-        - {x: 37, y: 42}
-    - name: Door_NS_60
+      - - {x: -32, y: 10}
+        - {x: -32, y: -8}
+        - {x: -31, y: -9}
+        - {x: 5, y: -9}
+        - {x: 5, y: 10}
+    - name: furn_door_NS_60
       rect:
         serializedVersion: 2
         x: 742
@@ -1069,13 +1069,13 @@ TextureImporter:
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 25, y: 34}
-        - {x: 25, y: 0}
-        - {x: 44, y: 0}
-        - {x: 44, y: 34}
-        - {x: 42, y: 36}
-        - {x: 27, y: 36}
-    - name: Door_EW_80
+      - - {x: -7, y: 2}
+        - {x: -7, y: -32}
+        - {x: 12, y: -32}
+        - {x: 12, y: 2}
+        - {x: 10, y: 4}
+        - {x: -5, y: 4}
+    - name: furn_door_EW_80
       rect:
         serializedVersion: 2
         x: 670
@@ -1086,13 +1086,13 @@ TextureImporter:
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 42}
-        - {x: 0, y: 23}
-        - {x: 21, y: 23}
-        - {x: 23, y: 25}
-        - {x: 23, y: 40}
-        - {x: 21, y: 42}
-    - name: Door_NS_80
+      - - {x: -32, y: 10}
+        - {x: -32, y: -9}
+        - {x: -11, y: -9}
+        - {x: -9, y: -7}
+        - {x: -9, y: 8}
+        - {x: -11, y: 10}
+    - name: furn_door_NS_80
       rect:
         serializedVersion: 2
         x: 742
@@ -1103,13 +1103,13 @@ TextureImporter:
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 25, y: 21}
-        - {x: 25, y: 0}
-        - {x: 44, y: 0}
-        - {x: 44, y: 21}
-        - {x: 42, y: 23}
-        - {x: 27, y: 23}
-    - name: Door_EW_100
+      - - {x: -7, y: -11}
+        - {x: -7, y: -32}
+        - {x: 12, y: -32}
+        - {x: 12, y: -11}
+        - {x: 10, y: -9}
+        - {x: -5, y: -9}
+    - name: furn_door_EW_100
       rect:
         serializedVersion: 2
         x: 670
@@ -1120,13 +1120,13 @@ TextureImporter:
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 0, y: 42}
-        - {x: 0, y: 23}
-        - {x: 8, y: 23}
-        - {x: 10, y: 25}
-        - {x: 10, y: 40}
-        - {x: 8, y: 42}
-    - name: Door_NS_100
+      - - {x: -32, y: 10}
+        - {x: -32, y: -9}
+        - {x: -24, y: -9}
+        - {x: -22, y: -7}
+        - {x: -22, y: 8}
+        - {x: -24, y: 10}
+    - name: furn_door_NS_100
       rect:
         serializedVersion: 2
         x: 742
@@ -1137,12 +1137,12 @@ TextureImporter:
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline:
-      - - {x: 25, y: 8}
-        - {x: 25, y: 0}
-        - {x: 44, y: 0}
-        - {x: 44, y: 8}
-        - {x: 42, y: 10}
-        - {x: 27, y: 10}
+      - - {x: -7, y: -24}
+        - {x: -7, y: -32}
+        - {x: 12, y: -32}
+        - {x: 12, y: -24}
+        - {x: 10, y: -22}
+        - {x: -5, y: -22}
     outline: []
   spritePackingTag: 
   userData: 

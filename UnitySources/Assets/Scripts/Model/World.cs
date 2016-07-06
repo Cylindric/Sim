@@ -7,6 +7,7 @@ using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 using Assets.Scripts.Pathfinding;
+using Assets.Scripts.Utilities;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
@@ -242,7 +243,7 @@ namespace Assets.Scripts.Model
                         }
                         else
                         {
-                            this.PlaceFurniture("Wall", this._tiles[x, y]);
+                            this.PlaceFurniture("furn_wall_steel", this._tiles[x, y]);
                         }
                     }
                 }
@@ -354,114 +355,92 @@ namespace Assets.Scripts.Model
             this._furniturePrototypes = new Dictionary<string, Furniture>();
             this._furnitureJobPrototypes = new Dictionary<string, Job>();
 
-            // ------------------------------------------------------------------------------------------------------
-            // Stockpile
-            var f = new Furniture(
-                objectType: "Stockpile", 
-                movementCost: 1f, 
-                width: 1, 
-                height: 1, 
-                linksToNeighbour: false, 
-                isRoomEnclosure: false);
-            f.Tint = new Color32(255, 158, 158, 255);
-            
-            this._furniturePrototypes.Add("Stockpile", f);
+            var furnText = Resources.Load<TextAsset>("Data/Furniture");
 
-            this._furnitureJobPrototypes.Add("Stockpile", new Job(
-                    name: "BuildStockpile",
-                    tile: null,
-                    jobObjectType: "Stockpile",
-                    cb: FurnitureActions.JobComplete_FurnitureBuilding,
-                    jobTime: 0f,
-                    requirements: null));
+            var xml = new XmlDocument();
+            xml.LoadXml(furnText.text);
+            var furnitures = xml.DocumentElement.SelectSingleNode("/Furnitures");
+            foreach (XmlNode furniture in furnitures.ChildNodes)
+            {
+                var objectType = XmlParser.ParseAttributeString(furniture, "objectType");
+                Debug.LogFormat("Loading Furniture {0}...", objectType);
 
-            this._furniturePrototypes["Stockpile"].RegisterUpdateAction(FurnitureActions.Stockpile_UpdateAction);
+                var furn = new Furniture(
+                    objectType: objectType,
+                    movementCost: XmlParser.ParseFloat(furniture, ".//MovementCost"),
+                    width: XmlParser.ParseInt(furniture, ".//Width"),
+                    height: XmlParser.ParseInt(furniture, ".//Height"),
+                    linksToNeighbour: XmlParser.ParseBool(furniture, ".//LinksToNeighbours"),
+                    isRoomEnclosure: XmlParser.ParseBool(furniture, ".//EnclosesRoom")
+                    );
+                furn.Name = XmlParser.ParseString(furniture, ".//Name");
+                furn.JobSpotOffset = XmlParser.ParseVector2(furniture, ".//JobSpotOffset");
+                furn.JobSpawnOffset = XmlParser.ParseVector2(furniture, ".//JobSpawnOffset");
 
-            // ------------------------------------------------------------------------------------------------------
-            // Wall
-            this._furniturePrototypes.Add("Wall", new Furniture("Wall", 0f, 1, 1, true, true));
-            this._furnitureJobPrototypes.Add(
-                key: "Wall",
-                value: new Job(
-                    name: "BuildWall",
-                    tile: null,
-                    jobObjectType: "Wall",
-                    cb: FurnitureActions.JobComplete_FurnitureBuilding,
-                    jobTime: 1f,
-                    requirements: new Inventory[] {new Inventory(
-                        objectType: "Steel Plate",
-                        maxStackSize: 5,
-                        stackSize: 0)}));
+                this._furniturePrototypes.Add(objectType, furn);
 
-            // ------------------------------------------------------------------------------------------------------
-            // Oxygen Generator
-            this._furniturePrototypes.Add("Oxygen", new Furniture(
-                objectType: "Oxygen",
-                movementCost: 10f,
-                width: 2,
-                height: 2,
-                linksToNeighbour: false,
-                isRoomEnclosure: false));
+                var parameters = furnitures.SelectSingleNode(".//Params");
+                if (parameters != null)
+                {
+                    foreach (XmlNode param in parameters.ChildNodes)
+                    {
+                        if (param.Attributes == null) continue;
 
-            this._furnitureJobPrototypes.Add(
-                key: "Oxygen",
-                value: new Job(
-                    name: "BuildOxygen",
-                    tile: null,
-                    jobObjectType: "Oxygen",
-                    cb: FurnitureActions.JobComplete_FurnitureBuilding,
-                    jobTime: 2.5f,
-                    requirements: new Inventory[] {new Inventory(
-                        objectType: "Steel Plate",
-                        maxStackSize: 10,
-                        stackSize: 0)}));
-
-            this._furniturePrototypes["Oxygen"].RegisterUpdateAction(FurnitureActions.OygenGenerator_UpdateAction);
-
-            // ------------------------------------------------------------------------------------------------------
-            // Mining Drone Station
-            this._furniturePrototypes.Add("Mining Console", new Furniture(
-                objectType: "Mining Console",
-                movementCost: 0,
-                width: 3,
-                height: 2,
-                linksToNeighbour: false,
-                isRoomEnclosure: false));
-
-            this._furniturePrototypes["Mining Console"].JobSpotOffset = new Vector2(1, -1);
-            this._furniturePrototypes["Mining Console"].JobSpawnOffset = new Vector2(0, -1);
-            this._furniturePrototypes["Mining Console"].RegisterUpdateAction(FurnitureActions.MiningConsole_UpdateAction);
-
-            this._furnitureJobPrototypes.Add(
-                key: "Mining Console",
-                value: new Job(
-                    name: "BuildMiningConsole",
-                    tile: null,
-                    jobObjectType: "Mining Console",
-                    cb: FurnitureActions.JobComplete_FurnitureBuilding,
-                    jobTime: 2.5f,
-                    requirements: null));
+                        var name = param.Attributes["name"].InnerText;
+                        var value = float.Parse(param.InnerText);
+                        this._furniturePrototypes[objectType].SetParameter(name, value);
+                    }
+                }
 
 
-            // ------------------------------------------------------------------------------------------------------
-            // Door
-            this._furniturePrototypes.Add("Door", new Furniture(
-                objectType: "Door", 
-                movementCost: 1f, 
-                width: 1, 
-                height: 1, 
-                linksToNeighbour: false, 
-                isRoomEnclosure: true));
+                foreach (XmlNode buildJob in furniture.SelectNodes(".//BuildingJob"))
+                {
+                    Debug.LogFormat("Adding Job to Furniture {0}...", objectType);
+                    var time = float.Parse(buildJob.Attributes["time"].InnerText);
 
-            this._furniturePrototypes["Door"].Name = "Bulkhead";
-            this._furniturePrototypes["Door"].SetParameter("openness", 0.0f);
-            this._furniturePrototypes["Door"].SetParameter("is_opening", 0.0f);
-            this._furniturePrototypes["Door"].RegisterUpdateAction(FurnitureActions.Door_UpdateAction);
-            this._furniturePrototypes["Door"].IsEntereable = FurnitureActions.Door_IsEnterable;
+                    var inventory = new List<Inventory>();
+                    foreach (XmlNode inv in buildJob.SelectNodes(".//Inventory"))
+                    {
+                        inventory.Add(new Inventory(
+                            objectType: inv.Attributes["objectType"].InnerText,
+                            maxStackSize: int.Parse(inv.Attributes["amount"].InnerText),
+                            stackSize: 0
+                            ));
+                    }
+
+                    this._furnitureJobPrototypes.Add(
+                        key: objectType,
+                        value: new Job(
+                            name: "Build_" + objectType,
+                            tile: null,
+                            jobObjectType: objectType,
+                            cb: FurnitureActions.JobComplete_FurnitureBuilding,
+                            jobTime: time,
+                            requirements: inventory
+                            )
+                        );
+                    Debug.LogFormat("Added Job to Furniture {0}...", objectType);
+                }
+
+                Debug.LogFormat("Loaded Furniture {0} succeeded.", objectType);
+            }
+
+            // TODO: This will come from LUA later
+            //this._furniturePrototypes["furn_door"].RegisterUpdateAction(FurnitureActions.Door_UpdateAction);
+            //this._furniturePrototypes["furn_door"].IsEntereable = FurnitureActions.Door_IsEnterable;
+            //this._furniturePrototypes["mining_station"].RegisterUpdateAction(FurnitureActions.MiningConsole_UpdateAction);
+            //this._furniturePrototypes["stockpile"].RegisterUpdateAction(FurnitureActions.Stockpile_UpdateAction);
+            //this._furniturePrototypes["oxygen"].RegisterUpdateAction(FurnitureActions.OygenGenerator_UpdateAction);
+            //this._furniturePrototypes["stockpile"].Tint = new Color32(255, 158, 158, 255);
         }
 
         private void SetupWorld(int width, int height)
         {
+            FurnitureActions fa = new FurnitureActions(@"
+                function test(n)
+                    return n * 2
+                end
+            ");
             Current = this;
 
             this.Width = width;
