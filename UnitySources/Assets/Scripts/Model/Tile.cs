@@ -24,8 +24,6 @@ namespace Assets.Scripts.Model
         /* #                              FIELDS                              # */
         /* #################################################################### */
 
-        public Inventory inventory;
-
         private TileType _type = TileType.Empty;
 
         /* #################################################################### */
@@ -54,10 +52,10 @@ namespace Assets.Scripts.Model
 
         public int X { get; private set; }
         public int Y { get; private set; }
-        //public World World { get; private set; }
         public Furniture Furniture { get; private set; }
         public Job PendingFurnitureJob { get; set; }
         public Room Room { get; set; }
+        public Inventory Inventory { get; set; }
 
         public TileType Type
         {
@@ -115,9 +113,9 @@ namespace Assets.Scripts.Model
             if (Furniture == null) return false;
 
             var f = Furniture;
-            for (var xOff = X; xOff < X + f._width; xOff++)
+            for (var xOff = X; xOff < X + f.Width; xOff++)
             {
-                for (var yOff = Y; yOff < Y + f._height; yOff++)
+                for (var yOff = Y; yOff < Y + f.Height; yOff++)
                 {
                     var t = World.Current.GetTileAt(xOff, yOff);
                     t.Furniture = null;
@@ -141,9 +139,9 @@ namespace Assets.Scripts.Model
                 return false;
             }
 
-            for (var xOff = X; xOff < X + furn._width; xOff++)
+            for (var xOff = X; xOff < X + furn.Width; xOff++)
             {
-                for (var yOff = Y; yOff < Y + furn._height; yOff++)
+                for (var yOff = Y; yOff < Y + furn.Height; yOff++)
                 {
                     var t = World.Current.GetTileAt(xOff, yOff);
                     t.Furniture = furn;
@@ -158,35 +156,35 @@ namespace Assets.Scripts.Model
             // If a null inv is provided, clear the current object.
             if (inv == null)
             {
-                inventory = null;
+                Inventory = null;
                 return true;
             }
 
-            if (inventory != null)
+            if (Inventory != null)
             {
                 // Try to combine a stack.
-                if (inventory.objectType != inv.objectType)
+                if (Inventory.ObjectType != inv.ObjectType)
                 {
                     Debug.LogError("Trying to assign an Inventory to a Tile that already has some.");
                     return false;
                 }
 
-                int numToMove = inv.stackSize;
-                if (inventory.stackSize + numToMove > inventory.maxStackSize)
+                int numToMove = inv.StackSize;
+                if (Inventory.StackSize + numToMove > Inventory.MaxStackSize)
                 {
-                    numToMove = inventory.maxStackSize - inventory.stackSize;
+                    numToMove = Inventory.MaxStackSize - Inventory.StackSize;
                 }
 
-                inventory.stackSize += numToMove;
-                inv.stackSize -= numToMove;
+                Inventory.StackSize += numToMove;
+                inv.StackSize -= numToMove;
                 return true;
             }
 
-            // At this point, we know that the inventory is null.
-            inventory = inv.Clone();
-            inventory.tile = this;
-            inventory.character = null;
-            inv.stackSize = 0;
+            // At this point, we know that the Inventory is null.
+            Inventory = inv.Clone();
+            Inventory.Tile = this;
+            Inventory.Character = null;
+            inv.StackSize = 0;
 
             return true;
         }
@@ -309,6 +307,11 @@ namespace Assets.Scripts.Model
         public Tile WestNeighbour()
         {
             return World.Current.GetTileAt(X -1, Y);
+        }
+
+        public override string ToString()
+        {
+            return string.Format("Tile [{0},{1}] T:{2}", X, Y, Type);
         }
     }
 }

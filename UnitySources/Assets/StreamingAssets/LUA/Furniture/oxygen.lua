@@ -46,7 +46,7 @@ function OnUpdate_GasGenerator(furniture, deltaTime)
   
   else
     -- Add various gases from the tanks until they're reached the desired concentrations.
-    if (furn.Tile.Room.GetGasPercentage("O2") < targetO2) then
+    if (furniture.Tile.Room.GetGasPercentage("O2") < targetO2) then
       -- Pump Oxy!
       furniture.Tile.Room.ChangeGas("O2", qty)
     else

@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Furnitures>
 	
-	<Furniture objectType="furn_wall_steel">
+	<Furniture ObjectType="furn_wall_steel">
 		<Name>Steel Wall</Name>
 		<MovementCost>0</MovementCost>
 		<Width>1</Width>
@@ -13,7 +13,7 @@
 		</BuildingJob>
 	</Furniture>
 	
-	<Furniture objectType="furn_door">
+	<Furniture ObjectType="furn_door">
 		<Name>Door</Name>
 		<MovementCost>1</MovementCost>
 		<Width>1</Width>
@@ -31,7 +31,7 @@
 		<IsEnterable>IsEnterable_Door</IsEnterable>
 	</Furniture>
 
- 	<Furniture objectType="furn_stockpile">
+ 	<Furniture ObjectType="furn_stockpile">
 		<Name>Stockpile</Name>
 		<MovementCost>1</MovementCost>
 		<Width>1</Width>
@@ -41,7 +41,7 @@
 		<BuildingJob time="0" />
 	</Furniture>
 
- 	<Furniture objectType="furn_oxygen">
+ 	<Furniture ObjectType="furn_oxygen">
 		<Name>Oxygen Generator</Name>
 		<MovementCost>0</MovementCost>
 		<Width>2</Width>
@@ -49,12 +49,12 @@
 		<LinksToNeighbours>False</LinksToNeighbours>
 		<EnclosesRoom>False</EnclosesRoom>
 		<BuildingJob time="3">
-			<Inventory objectType="steel_plate" amount="10" />
+			<!-- Inventory ObjectType="steel_plate" amount="10" / -->
 		</BuildingJob>
 		<OnUpdate>OnUpdate_GasGenerator</OnUpdate>
 	</Furniture>
 	
- 	<Furniture objectType="furn_mining_station">
+ 	<Furniture ObjectType="furn_mining_station">
 		<Name>Mining Drone Station</Name>
 		<MovementCost>0</MovementCost>
 		<Width>3</Width>

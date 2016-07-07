@@ -18,34 +18,14 @@ namespace Assets.Scripts.Model
         /* #                           FIELDS                                 # */
         /* #################################################################### */
 
-        private Dictionary<string, float> _parameters;
-
-        /// <summary>
-        /// Width of the Object in Tiles.
-        /// </summary>
-        public readonly int _width = 1; // TODO: change to property
-
-        /// <summary>
-        /// Height of the Object in Tiles.
-        /// </summary>
-        public readonly int _height = 1; // TODO: change to property
-
-        private List<Job> _jobs;
-
-        /// <summary>
-        /// If this furniture gets worked by a person, where is the correct place to stand?
-        /// </summary>
-        public Vector2 JobSpotOffset { get; set; }
-
-        /// <summary>
-        /// If this furniture spawns anything, where does it appear?
-        /// </summary>
-        public Vector2 JobSpawnOffset { get; set; }
-
         /// <summary>
         /// Backing-field for the property "Name".
         /// </summary>
         private string _name = string.Empty;
+
+        private readonly Dictionary<string, float> _parameters;
+
+        private readonly List<Job> _jobs;
 
         /* #################################################################### */
         /* #                        CONSTRUCTORS                              # */
@@ -58,11 +38,13 @@ namespace Assets.Scripts.Model
         {
             this.Name = string.Empty;
             this.LinksToNeighbour = false;
-            this._parameters = new Dictionary<string, float>();
-            this._jobs = new List<Job>();
             this.Tint = Color.white;
             this.JobSpotOffset = Vector2.zero;
             this.JobSpawnOffset = Vector2.zero;
+            this.Width = 1;
+            this.Height = 1;
+            this._parameters = new Dictionary<string, float>();
+            this._jobs = new List<Job>();
             this._cbUpdateActions = new List<string>();
             this._cbIsEnterableAction = string.Empty;
         }
@@ -77,8 +59,8 @@ namespace Assets.Scripts.Model
             this.ObjectType = other.ObjectType;
             this.Name = other.Name;
             this.MovementCost = other.MovementCost;
-            this._width = other._width;
-            this._height = other._height;
+            this.Width = other.Width;
+            this.Height = other.Height;
             this.LinksToNeighbour = other.LinksToNeighbour;
             this.IsRoomEnclosure = other.IsRoomEnclosure;
             this.Tint = other.Tint;
@@ -87,6 +69,8 @@ namespace Assets.Scripts.Model
             this._parameters = new Dictionary<string, float>(other._parameters);
             this._cbUpdateActions = new List<string>(other._cbUpdateActions);
             this._cbIsEnterableAction = other._cbIsEnterableAction;
+            this.Width = other.Width;
+            this.Height = other.Height;
 
             if (other._funcPositionValidation != null)
             {
@@ -108,8 +92,8 @@ namespace Assets.Scripts.Model
         {
             this.ObjectType = objectType;
             this.MovementCost = movementCost;
-            this._width = width;
-            this._height = height;
+            this.Width = width;
+            this.Height = height;
             this.LinksToNeighbour = linksToNeighbour;
             this._funcPositionValidation = this.__IsValidPosition;
             this.IsRoomEnclosure = isRoomEnclosure;
@@ -169,6 +153,26 @@ namespace Assets.Scripts.Model
         public bool IsRoomEnclosure { get; private set; }
 
         public Color Tint { get; set; }
+
+        /// <summary>
+        /// Width of the Object in Tiles.
+        /// </summary>
+        public int Width { get; set; }
+
+        /// <summary>
+        /// Height of the Object in Tiles.
+        /// </summary>
+        public int Height { get; set; }
+
+        /// <summary>
+        /// If this furniture gets worked by a person, where is the correct place to stand?
+        /// </summary>
+        public Vector2 JobSpotOffset { get; set; }
+
+        /// <summary>
+        /// If this furniture spawns anything, where does it appear?
+        /// </summary>
+        public Vector2 JobSpawnOffset { get; set; }
 
         /* #################################################################### */
         /* #                           METHODS                                # */
@@ -421,7 +425,7 @@ namespace Assets.Scripts.Model
             writer.WriteStartElement("Furniture");
             writer.WriteAttributeString("X", this.Tile.X.ToString());
             writer.WriteAttributeString("Y", this.Tile.Y.ToString());
-            writer.WriteAttributeString("objectType", this.ObjectType);
+            writer.WriteAttributeString("ObjectType", this.ObjectType);
             // writer.WriteAttributeString("movementCost", this.MovementCost.ToString());
 
             foreach (var k in _parameters)
@@ -442,9 +446,9 @@ namespace Assets.Scripts.Model
         /// <returns>True if the Tile is valid; else false.</returns>
         private bool __IsValidPosition(Tile t)
         {
-            for (var xOff = t.X; xOff < t.X + _width; xOff++)
+            for (var xOff = t.X; xOff < t.X + Width; xOff++)
             {
-                for (var yOff = t.Y; yOff < t.Y + _height; yOff++)
+                for (var yOff = t.Y; yOff < t.Y + Height; yOff++)
                 {
                     var t2 = World.Current.GetTileAt(xOff, yOff);
 
@@ -536,7 +540,8 @@ namespace Assets.Scripts.Model
 
         public Tile GetJobSpotTile()
         {
-            return World.Current.GetTileAt(Tile.X + (int)JobSpotOffset.x, Tile.Y + (int)JobSpotOffset.y);
+            var t = World.Current.GetTileAt(Tile.X + (int)JobSpotOffset.x, Tile.Y + (int)JobSpotOffset.y);
+            return t;
         }
 
         public Tile GetSpawnSpotTile()

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Timers;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
@@ -390,8 +389,8 @@ namespace Assets.Scripts.Model
             var furnitures = xml.DocumentElement.SelectSingleNode("/Furnitures");
             foreach (XmlNode furniture in furnitures.ChildNodes)
             {
-                var objectType = XmlParser.ParseAttributeString(furniture, "objectType");
-                // Debug.LogFormat("Loading Furniture {0}...", objectType);
+                var objectType = XmlParser.ParseAttributeString(furniture, "ObjectType");
+                // Debug.LogFormat("Loading Furniture {0}...", ObjectType);
 
                 var furn = new Furniture(
                     objectType: objectType,
@@ -405,6 +404,7 @@ namespace Assets.Scripts.Model
                 furn.JobSpotOffset = XmlParser.ParseVector2(furniture, ".//JobSpotOffset");
                 furn.JobSpawnOffset = XmlParser.ParseVector2(furniture, ".//JobSpawnOffset");
 
+                Debug.Log("Adding Furniture Prototype " + objectType);
                 this._furniturePrototypes.Add(objectType, furn);
 
                 var parameters = furniture.SelectSingleNode(".//Params");
@@ -450,7 +450,7 @@ namespace Assets.Scripts.Model
                     foreach (XmlNode inv in buildJob.SelectNodes(".//Inventory"))
                     {
                         inventory.Add(new Inventory(
-                            objectType: inv.Attributes["objectType"].InnerText,
+                            objectType: inv.Attributes["ObjectType"].InnerText,
                             maxStackSize: int.Parse(inv.Attributes["amount"].InnerText),
                             stackSize: 0
                             ));
@@ -467,7 +467,7 @@ namespace Assets.Scripts.Model
                             requirements: inventory
                             )
                         );
-                    Debug.LogFormat("Added Job to Furniture {0}...", objectType);
+                    // Debug.LogFormat("Added Job to Furniture {0}...", objectType);
                 }
 
                 Debug.LogFormat("Loaded Furniture {0} succeeded.", objectType);
@@ -547,7 +547,7 @@ namespace Assets.Scripts.Model
                     count++;
                     int x = int.Parse(reader.GetAttribute("X"));
                     int y = int.Parse(reader.GetAttribute("Y"));
-                    string type = reader.GetAttribute("objectType");
+                    string type = reader.GetAttribute("ObjectType");
                     var furn = this.PlaceFurniture(type, this._tiles[x, y], false);
                     furn.ReadXml(reader);
                 } while (reader.ReadToNextSibling("Furniture"));
@@ -574,7 +574,7 @@ namespace Assets.Scripts.Model
 
                     //int x = int.Parse(reader.GetAttribute("X"));
                     //int y = int.Parse(reader.GetAttribute("Y"));
-                    //string type = reader.GetAttribute("objectType");
+                    //string type = reader.GetAttribute("ObjectType");
                     //var furn = this.PlaceFurniture(type, this._tiles[x, y], false);
                     //furn.ReadXml(reader);
                 } while (reader.ReadToNextSibling("Room"));

@@ -49,7 +49,7 @@ namespace Assets.Scripts.Controllers
 
             jobGo.name = "JOB_" + job.JobObjectType + "_" + job.Tile.X + "_" + job.Tile.Y;
 
-            var posOffset = new Vector3((float)(job.FurniturePrototype._width - 1) / 2, (float)(job.FurniturePrototype._height - 1) / 2, 0);
+            var posOffset = new Vector3((float)(job.FurniturePrototype.Width - 1) / 2, (float)(job.FurniturePrototype.Height - 1) / 2, 0);
             jobGo.transform.position = new Vector3(job.Tile.X, job.Tile.Y, 0) + posOffset;
             jobGo.transform.SetParent(this.transform, true);
 

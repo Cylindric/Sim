@@ -9,49 +9,23 @@ namespace Assets.Scripts.Model
     [MoonSharpUserData]
     public class Inventory : IXmlSerializable
     {
-
         /* #################################################################### */
         /* #                              FIELDS                              # */
         /* #################################################################### */
 
-        public string objectType = "";
-
-        private int _stackSize = 1;
-
-        public int stackSize
-        {
-            get { return _stackSize; }
-            set
-            {
-                if (_stackSize != value)
-                {
-                    _stackSize = value;
-                    if (cbInventoryChanged != null)
-                    {
-                        cbInventoryChanged(this);
-                    }
-                }
-            }
-        }
+        private int _stackSize;
 
         public void UnRegisterInventoryChangedCallback(Action<Inventory> callback)
         {
-            cbInventoryChanged -= callback;
+            _cbInventoryChanged -= callback;
         }
 
         public void RegisterInventoryChangedCallback(Action<Inventory> callback)
         {
-            cbInventoryChanged += callback;
+            _cbInventoryChanged += callback;
         }
 
-
-        public int maxStackSize = 50;
-
-        public Tile tile;
-
-        public Character character;
-
-        private Action<Inventory> cbInventoryChanged;
+        private Action<Inventory> _cbInventoryChanged;
 
         /* #################################################################### */
         /* #                           CONSTRUCTORS                           # */
@@ -59,34 +33,56 @@ namespace Assets.Scripts.Model
 
         public Inventory()
         {
-            
+            this.StackSize = 1;
+            this.MaxStackSize = 50;
         }
 
-        public Inventory(string objectType, int maxStackSize, int stackSize)
+        public Inventory(string objectType, int maxStackSize, int stackSize) : this()
         {
-            this.objectType = objectType;
-            this.maxStackSize = maxStackSize;
-            this.stackSize = stackSize;
+            this.ObjectType = objectType;
+            this.MaxStackSize = maxStackSize;
+            this.StackSize = stackSize;
         }
 
-        private Inventory(Inventory other)
+        private Inventory(Inventory other) : this()
         {
-            this.objectType = other.objectType;
-            this.maxStackSize = other.maxStackSize;
-            this.stackSize = other.stackSize;
+            this.ObjectType = other.ObjectType;
+            this.MaxStackSize = other.MaxStackSize;
+            this.StackSize = other.StackSize;
         }
 
         /* #################################################################### */
         /* #                            PROPERTIES                            # */
         /* #################################################################### */
 
+        public string ObjectType { get; set; }
+
+        public int StackSize
+        {
+            get { return _stackSize; }
+            set
+            {
+                if (_stackSize != value)
+                {
+                    _stackSize = value;
+                    if (_cbInventoryChanged != null) _cbInventoryChanged(this);
+                }
+            }
+        }
+
         public int Space
         {
             get
             {
-                return this.maxStackSize - this.stackSize;
+                return this.MaxStackSize - this.StackSize;
             }
         }
+
+        public int MaxStackSize { get; set; }
+
+        public Tile Tile { get; set; }
+
+        public Character Character { get; set; }
 
         /* #################################################################### */
         /* #                              METHODS                             # */
@@ -104,21 +100,21 @@ namespace Assets.Scripts.Model
 
         public void ReadXml(XmlReader reader)
         {
-            this.objectType = reader.GetAttribute("objectType");
+            this.ObjectType = reader.GetAttribute("ObjectType");
 
-            int stackSize = int.Parse(reader.GetAttribute("stackSize"));
-            int maxStackSize = int.Parse(reader.GetAttribute("maxStackSize"));
+            int stackSize = int.Parse(reader.GetAttribute("StackSize"));
+            int maxStackSize = int.Parse(reader.GetAttribute("MaxStackSize"));
 
-            this.stackSize = stackSize;
-            this.maxStackSize = maxStackSize;
+            this.StackSize = stackSize;
+            this.MaxStackSize = maxStackSize;
         }
 
         public void WriteXml(XmlWriter writer)
         {
             writer.WriteStartElement("Inventory");
-            writer.WriteAttributeString("objectType", this.objectType);
-            writer.WriteAttributeString("stackSize", this.stackSize.ToString());
-            writer.WriteAttributeString("maxStackSize", this.maxStackSize.ToString());
+            writer.WriteAttributeString("ObjectType", this.ObjectType);
+            writer.WriteAttributeString("StackSize", this.StackSize.ToString());
+            writer.WriteAttributeString("MaxStackSize", this.MaxStackSize.ToString());
             writer.WriteEndElement();
         }
     }

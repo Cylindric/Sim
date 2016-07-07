@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using MoonSharp.Interpreter;
 using UnityEngine;
 
@@ -25,19 +26,25 @@ namespace Assets.Scripts.Model
         private bool jobRepeats = false;
 
         private Action<Job> cbOnJobCompleted;
+        private List<string> cbOnJobCompletedLua;
         private Action<Job> cbOnJobStopped;
         private Action<Job> cbOnJobWorked;
-
-        /// <summary>
-        /// The piece of Furniture that owns this Job. Will often be NULL.
-        /// </summary>
-        public Furniture Furniture { get; set; }
+        private List<string> cbOnJobWorkedLua;
 
         /* #################################################################### */
         /* #                           CONSTRUCTORS                           # */
         /* #################################################################### */
 
-        public Job(string name, Tile tile, string jobObjectType, Action<Job> cb, float jobTime, IEnumerable<Inventory> requirements, bool repeats = false)
+        public Job()
+        {
+            this._inventoryRequirements = new Dictionary<string, Inventory>();
+            this.AcceptsAnyItemType = false;
+            this.CanTakeFromStockpile = true;
+            this.cbOnJobCompletedLua = new List<string>();
+            this.cbOnJobWorkedLua = new List<string>();
+        }
+
+        public Job(string name, Tile tile, string jobObjectType, Action<Job> cb, float jobTime, IEnumerable<Inventory> requirements, bool repeats = false) : this()
         {
             this.Name = name;
             this.Tile = tile;
@@ -45,9 +52,6 @@ namespace Assets.Scripts.Model
             this.cbOnJobCompleted += cb;
             this._jobTime = jobTime;
             this.jobTimeRequired = jobTime;
-            this._inventoryRequirements = new Dictionary<string, Inventory>();
-            this.AcceptsAnyItemType = false;
-            this.CanTakeFromStockpile = true;
             this.jobRepeats = repeats;
 
             // Make sure the Inventories are COPIED, as we will be making changes to them.
@@ -55,12 +59,12 @@ namespace Assets.Scripts.Model
             {
                 foreach (var inv in requirements)
                 {
-                    this._inventoryRequirements[inv.objectType] = inv.Clone();
+                    this._inventoryRequirements[inv.ObjectType] = inv.Clone();
                 }
             }
         }
 
-        private Job(Job other)
+        private Job(Job other) : this()
         {
             this.Name = other.Name + " (clone)";
             this.Tile = other.Tile;
@@ -70,17 +74,17 @@ namespace Assets.Scripts.Model
             this._jobTime = other._jobTime;
             this.jobTimeRequired = other.jobTimeRequired;
             this.jobRepeats = other.jobRepeats;
-
-            this._inventoryRequirements = new Dictionary<string, Inventory>();
             this.AcceptsAnyItemType = other.AcceptsAnyItemType;
             this.CanTakeFromStockpile = other.CanTakeFromStockpile;
+            this.cbOnJobCompletedLua = new List<string>(other.cbOnJobCompletedLua);
+            this.cbOnJobWorkedLua = new List<string>(other.cbOnJobWorkedLua);
 
             // Make sure the Inventories are COPIED, as we will be making changes to them.
             if (other._inventoryRequirements != null)
             {
                 foreach (var inv in other._inventoryRequirements.Values)
                 {
-                    this._inventoryRequirements[inv.objectType] = inv.Clone();
+                    this._inventoryRequirements[inv.ObjectType] = inv.Clone();
                 }
             }
         }
@@ -92,6 +96,11 @@ namespace Assets.Scripts.Model
         /* #################################################################### */
         /* #                            PROPERTIES                            # */
         /* #################################################################### */
+
+        /// <summary>
+        /// The piece of Furniture that owns this Job. Will often be NULL.
+        /// </summary>
+        public Furniture Furniture { get; set; }
 
         public Tile Tile { get; set; }
 
@@ -120,6 +129,16 @@ namespace Assets.Scripts.Model
             cbOnJobCompleted -= cb;
         }
 
+        public void RegisterOnJobCompletedCallback(string cb)
+        {
+            cbOnJobCompletedLua.Add(cb);
+        }
+
+        public void UnregisterOnJobCompletedCallback(string cb)
+        {
+            cbOnJobCompletedLua.Remove(cb);
+        }
+
         public void RegisterOnJobWorkedCallback(Action<Job> cb)
         {
             cbOnJobWorked += cb;
@@ -128,6 +147,16 @@ namespace Assets.Scripts.Model
         public void UnregisterOnJobWorkedCallback(Action<Job> cb)
         {
             cbOnJobWorked -= cb;
+        }
+
+        public void RegisterOnJobWorkedCallback(string cb)
+        {
+            cbOnJobWorkedLua.Add(cb);
+        }
+
+        public void UnregisterOnJobWorkedCallback(string cb)
+        {
+            cbOnJobWorkedLua.Remove(cb);
         }
 
         public void RegisterOnJobStoppedCallback(Action<Job> cb)
@@ -149,10 +178,19 @@ namespace Assets.Scripts.Model
                 // Still call the callbacks though, so animations etc can be updated
                 if (cbOnJobWorked != null) cbOnJobWorked(this);
 
+                foreach (var funcname in cbOnJobWorkedLua)
+                {
+                    FurnitureActions.CallFunction(funcname, this);
+                }
+
                 return;
             }
 
             if (cbOnJobWorked != null) cbOnJobWorked(this);
+            foreach (var funcname in cbOnJobWorkedLua)
+            {
+                FurnitureActions.CallFunction(funcname, this);
+            }
 
             _jobTime -= workTime;
 
@@ -160,6 +198,10 @@ namespace Assets.Scripts.Model
             {
                 // Do whatever is supposed to happen when this Job completes.
                 if (cbOnJobCompleted != null) cbOnJobCompleted(this);
+                foreach (var funcname in cbOnJobCompletedLua)
+                {
+                    FurnitureActions.CallFunction(funcname, this);
+                }
 
                 if (jobRepeats == false)
                 {
@@ -185,7 +227,7 @@ namespace Assets.Scripts.Model
         {
             foreach (var inv in _inventoryRequirements.Values)
             {
-                if (inv.maxStackSize > inv.stackSize)
+                if (inv.MaxStackSize > inv.StackSize)
                 {
                     return false;
                 }
@@ -197,28 +239,28 @@ namespace Assets.Scripts.Model
         {
             if (AcceptsAnyItemType)
             {
-                return inv.maxStackSize;
+                return inv.MaxStackSize;
             }
 
-            if (_inventoryRequirements.ContainsKey(inv.objectType) == false)
+            if (_inventoryRequirements.ContainsKey(inv.ObjectType) == false)
             {
                 return 0;
             }
 
-            if (_inventoryRequirements[inv.objectType].stackSize >= _inventoryRequirements[inv.objectType].maxStackSize)
+            if (_inventoryRequirements[inv.ObjectType].StackSize >= _inventoryRequirements[inv.ObjectType].MaxStackSize)
             {
                 // We already have all that we need.
                 return 0;
             }
 
-            return _inventoryRequirements[inv.objectType].maxStackSize - _inventoryRequirements[inv.objectType].stackSize;
+            return _inventoryRequirements[inv.ObjectType].MaxStackSize - _inventoryRequirements[inv.ObjectType].StackSize;
         }
 
         public Inventory GetFirstRequiredInventory()
         {
             foreach (var inv in _inventoryRequirements.Values)
             {
-                if (inv.maxStackSize > inv.stackSize)
+                if (inv.MaxStackSize > inv.StackSize)
                 {
                     return inv;
                 }

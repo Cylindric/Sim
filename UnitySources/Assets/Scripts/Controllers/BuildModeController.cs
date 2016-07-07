@@ -45,7 +45,7 @@ namespace Assets.Scripts.Controllers
 
             var proto = WorldController.Instance.World._furniturePrototypes[BuildModeObjectType];
 
-            return (proto._width == 1 && proto._height == 1);
+            return (proto.Width == 1 && proto.Height == 1);
         }
 
         private void OnFurnitureJobComplete(string furnitureType, Tile t)
@@ -86,12 +86,12 @@ namespace Assets.Scripts.Controllers
             {
                 var furnitureType = BuildModeObjectType;
 
-                // Check that we can build the object in the selected tile.
+                // Check that we can build the object in the selected Tile.
                 if (
                     t.PendingFurnitureJob == null
                     && WorldController.Instance.World.IsFurniturePlacementValid(furnitureType, t))
                 {
-                    // this tile is valid for this furniture.
+                    // this Tile is valid for this furniture.
                     // Create a job to build it.
 
                     Job j;
@@ -101,7 +101,7 @@ namespace Assets.Scripts.Controllers
                         // Make a clone of the Job Prototype.
                         j = WorldController.Instance.World._furnitureJobPrototypes[furnitureType].Clone();
 
-                        // Assign the correct tile.
+                        // Assign the correct Tile.
                         j.Tile = t;
                     }
                     else

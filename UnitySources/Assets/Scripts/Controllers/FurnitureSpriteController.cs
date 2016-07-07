@@ -37,7 +37,7 @@ namespace Assets.Scripts.Controllers
             furnGo.name = furn.ObjectType + "_" + furn.Tile.X + "_" + furn.Tile.Y;
             furnGo.transform.localScale = new Vector3(1.001f, 1.001f); // little bit of extra size to help prevent gaps between tiles. TODO: must be a cleverer way of doing this ;)
 
-            var posOffset = new Vector3((float)(furn._width - 1) / 2, (float)(furn._height - 1) / 2, 0);
+            var posOffset = new Vector3((float)(furn.Width - 1) / 2, (float)(furn.Height - 1) / 2, 0);
 
             furnGo.transform.position = new Vector3(furn.Tile.X, furn.Tile.Y, 0) + posOffset;
             furnGo.transform.SetParent(this.transform, true);

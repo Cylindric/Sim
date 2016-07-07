@@ -1,10 +1,13 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Xml.Serialization;
 using Assets.Scripts.Model;
+using MoonSharp.RemoteDebugger;
 using UnityEngine;
 using UnityEngine.Analytics;
 using UnityEngine.SceneManagement;
+using Debug = UnityEngine.Debug;
 
 namespace Assets.Scripts.Controllers
 {
@@ -49,6 +52,8 @@ namespace Assets.Scripts.Controllers
 
             return World.Current.GetTileAt(x, y);
         }
+
+        RemoteDebuggerService remoteDebugger;
 
         /// <summary>
         /// Called by Unity when the controller is created. 

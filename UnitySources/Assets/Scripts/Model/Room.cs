@@ -211,13 +211,13 @@ namespace Assets.Scripts.Model
             if (tile.Room != oldRoom)
             {
                 // This Tile was already assigned to another new Room, 
-                // so the direction picked isn'tile isolated.
+                // so the direction picked isn'Tile isolated.
                 return;
             }
 
             if (tile.Furniture != null && tile.Furniture.IsRoomEnclosure)
             {
-                // This Tile has a wall or door or something, so doesn'tile have a Room.
+                // This Tile has a wall or door or something, so doesn'Tile have a Room.
                 return;
             }
 

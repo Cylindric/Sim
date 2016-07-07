@@ -7,15 +7,15 @@ namespace Assets.Scripts.Pathfinding
     public class Path_TileGraph {
 
         // This class constructs a simple path-finding compatible graph
-        // of our world.  Each tile is a node. Each WALKABLE neighbour
-        // from a tile is linked via an edge connection.
+        // of our world.  Each Tile is a node. Each WALKABLE neighbour
+        // from a Tile is linked via an edge connection.
 
         public Dictionary<Tile, Path_Node<Tile>> nodes;
 
         public Path_TileGraph(World world) {
 
             // Loop through all tiles of the world
-            // For each tile, create a node
+            // For each Tile, create a node
             //  Do we create nodes for non-floor tiles?  NO!
             //  Do we create nodes for tiles that are completely unwalkable (i.e. walls)?  NO!
 
@@ -48,7 +48,7 @@ namespace Assets.Scripts.Pathfinding
 
                 List<Path_Edge<Tile>> edges = new List<Path_Edge<Tile>>();
 
-                // Get a list of neighbours for the tile
+                // Get a list of neighbours for the Tile
                 Tile[] neighbours = t.GetNeighbours(true);	// NOTE: Some of the array spots could be null.
 
                 // If neighbour is walkable, create an edge to the relevant node.
@@ -59,7 +59,7 @@ namespace Assets.Scripts.Pathfinding
                         // But first, make sure we're not clipping a diagonal or trying to squeeze innapropriately
                         if (IsClippingCorner(t, neighbours[i]))
                         {
-                            continue; // don't add this tile.
+                            continue; // don't add this Tile.
                         }
 
                         Path_Edge<Tile> e = new Path_Edge<Tile>();

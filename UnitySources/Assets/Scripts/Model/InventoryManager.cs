@@ -14,29 +14,29 @@ namespace Assets.Scripts.Model
 
         private void CleanupInventory(Inventory inv)
         {
-            if (inv.stackSize == 0)
+            if (inv.StackSize == 0)
             {
-                if (Inventories.ContainsKey(inv.objectType))
+                if (Inventories.ContainsKey(inv.ObjectType))
                 {
-                    Inventories[inv.objectType].Remove(inv);
+                    Inventories[inv.ObjectType].Remove(inv);
                 }
 
-                if (inv.tile != null)
+                if (inv.Tile != null)
                 {
-                    inv.tile.inventory = null;
-                    inv.tile = null;
+                    inv.Tile.Inventory = null;
+                    inv.Tile = null;
                 }
-                if (inv.character != null)
+                if (inv.Character != null)
                 {
-                    inv.character.inventory = null;
-                    inv.character = null;
+                    inv.Character.inventory = null;
+                    inv.Character = null;
                 }
             }
         }
 
         public bool PlaceInventory(Tile tile, Inventory source)
         {
-            bool tileWasEmpty = tile.inventory == null;
+            bool tileWasEmpty = tile.Inventory == null;
 
             if (tile.PlaceInventory(source) == false)
             {
@@ -48,13 +48,13 @@ namespace Assets.Scripts.Model
 
             if (tileWasEmpty)
             {
-                if (Inventories.ContainsKey(tile.inventory.objectType) == false)
+                if (Inventories.ContainsKey(tile.Inventory.ObjectType) == false)
                 {
-                    Inventories[tile.inventory.objectType] = new List<Inventory>();
+                    Inventories[tile.Inventory.ObjectType] = new List<Inventory>();
                 }
-                Inventories[tile.inventory.objectType].Add(tile.inventory);
+                Inventories[tile.Inventory.ObjectType].Add(tile.Inventory);
 
-                World.Current.OnInventoryCreated(tile.inventory);
+                World.Current.OnInventoryCreated(tile.Inventory);
             }
 
             return true;
@@ -62,24 +62,24 @@ namespace Assets.Scripts.Model
 
         public bool PlaceInventory(Job job, Inventory source)
         {
-            if (job._inventoryRequirements.ContainsKey(source.objectType) == false)
+            if (job._inventoryRequirements.ContainsKey(source.ObjectType) == false)
             {
-                Debug.LogError("Trying to add inventory to a character that doesn't want it.");
+                Debug.LogError("Trying to add Inventory to a Character that doesn't want it.");
                 return false;
             }
 
-            job._inventoryRequirements[source.objectType].stackSize += source.stackSize;
+            job._inventoryRequirements[source.ObjectType].StackSize += source.StackSize;
 
-            if (job._inventoryRequirements[source.objectType].stackSize >
-                job._inventoryRequirements[source.objectType].maxStackSize)
+            if (job._inventoryRequirements[source.ObjectType].StackSize >
+                job._inventoryRequirements[source.ObjectType].MaxStackSize)
             {
-                source.stackSize = job._inventoryRequirements[source.objectType].stackSize - job._inventoryRequirements[source.objectType].maxStackSize;
-                job._inventoryRequirements[source.objectType].stackSize =
-                    job._inventoryRequirements[source.objectType].maxStackSize;
+                source.StackSize = job._inventoryRequirements[source.ObjectType].StackSize - job._inventoryRequirements[source.ObjectType].MaxStackSize;
+                job._inventoryRequirements[source.ObjectType].StackSize =
+                    job._inventoryRequirements[source.ObjectType].MaxStackSize;
             }
             else
             {
-                source.stackSize = 0;
+                source.StackSize = 0;
             }
 
             // If the stack-size is zero, remove it.
@@ -93,30 +93,30 @@ namespace Assets.Scripts.Model
             // If no Quantity specified, assume 'everything'.
             if (qty < 0)
             {
-                qty = source.stackSize;
+                qty = source.StackSize;
             }
             
             // If the qty is greater than what's available, limit it to what is available
-            qty = Mathf.Min(qty, source.stackSize);
+            qty = Mathf.Min(qty, source.StackSize);
 
             if (character.inventory == null)
             {
                 character.inventory = source.Clone();
-                character.inventory.stackSize = 0;
-                Inventories[character.inventory.objectType].Add(character.inventory);
+                character.inventory.StackSize = 0;
+                Inventories[character.inventory.ObjectType].Add(character.inventory);
 
-            } else if (character.inventory.objectType != source.objectType)
+            } else if (character.inventory.ObjectType != source.ObjectType)
             {
-                Debug.LogError("Character is trying to pick up inventory when already carrying something else.");
+                Debug.LogError("Character is trying to pick up Inventory when already carrying something else.");
                 return false;
             }
 
-            // If the Qty is greater than the character's capacity, limit to capacity
+            // If the Qty is greater than the Character's capacity, limit to capacity
             qty = Mathf.Min(character.inventory.Space, qty);
             
-            // Transfer the items from the source to the character
-            character.inventory.stackSize += qty;
-            source.stackSize -= qty;
+            // Transfer the items from the source to the Character
+            character.inventory.StackSize += qty;
+            source.StackSize -= qty;
 
             // If the stack-size is zero, remove it.
             CleanupInventory(source);
@@ -128,15 +128,15 @@ namespace Assets.Scripts.Model
         {
             if (Inventories.ContainsKey(objectType) == false)
             {
-                // Debug.LogError("Trying to find closest inventory for a type we don't have.");
+                // Debug.LogError("Trying to find closest Inventory for a type we don't have.");
                 return null;
             }
 
             foreach (var inv in Inventories[objectType])
             {
-                if (inv.tile != null)
+                if (inv.Tile != null)
                 {
-                    if (inv.tile.Furniture != null && inv.tile.Furniture.IsStockpile() && searchInStockpiles == false)
+                    if (inv.Tile.Furniture != null && inv.Tile.Furniture.IsStockpile() && searchInStockpiles == false)
                     {
                         return null;
                     }

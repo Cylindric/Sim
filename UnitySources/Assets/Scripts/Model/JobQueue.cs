@@ -59,7 +59,7 @@ namespace Assets.Scripts.Model
             if (_jobQueue.Contains(job) == false)
             {
                 // Debug.LogError("Trying to remove a job that isn't in the queue!");
-                // A character was probably working this job, so it's not on the queue.
+                // A Character was probably working this job, so it's not on the queue.
                 return;
             }
 

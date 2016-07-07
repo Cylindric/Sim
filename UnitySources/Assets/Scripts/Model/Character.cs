@@ -33,7 +33,7 @@ namespace Assets.Scripts.Model
             }
         }
 
-        private Tile nextTile; // The next tile in the pathfinding sequence
+        private Tile nextTile; // The next Tile in the pathfinding sequence
         private Path_AStar pathAStar;
         private float movementPercentage; // Goes from 0 to 1 as we move from CurrentTile to destTile
         private float speed = 5f; // Tiles per second
@@ -109,7 +109,7 @@ namespace Assets.Scripts.Model
         {
             if (CurrentTile.IsNeighbour(tile, true) == false)
             {
-                Debug.Log("Character::SetDestination -- Our destination tile isn't actually our neighbour.");
+                Debug.Log("Character::SetDestination -- Our destination Tile isn't actually our neighbour.");
             }
 
             destTile = tile;
@@ -136,7 +136,7 @@ namespace Assets.Scripts.Model
             if (reader.ReadToDescendant("Inventory"))
             {
                 this.inventory = new Inventory();
-                this.inventory.character = this;
+                this.inventory.Character = this;
                 this.inventory.ReadXml(reader);
             }
         }
@@ -171,7 +171,7 @@ namespace Assets.Scripts.Model
 
             myJob.RegisterOnJobStoppedCallback(OnJobStopped);
 
-            // Check to see if the job is reachable from the character's current position.
+            // Check to see if the job is reachable from the Character's current position.
             // We mmight have to go somewhere else first to get materials.
 
             // If we are already at the worksite, just return, otherwise need to calculate a route there.
@@ -183,7 +183,7 @@ namespace Assets.Scripts.Model
             pathAStar = new Path_AStar(World.Current, CurrentTile, destTile);
             if (pathAStar.Length() == 0)
             {
-                // Debug.LogError("Path_AStar returned no path to target job tile!");
+                // Debug.LogError("Path_AStar returned no path to target job Tile!");
                 AbandonJob();
                 pathAStar = null;
                 destTile = CurrentTile;
@@ -221,17 +221,17 @@ namespace Assets.Scripts.Model
 
                         if (CurrentTile == destTile)
                         {
-                            // We are at the jobsite, so drop the inventory.
+                            // We are at the jobsite, so drop the Inventory.
                             World.Current.InventoryManager.PlaceInventory(myJob, inventory);
                             myJob.DoWork(0); // This will call all the cbJobWorked callbacks
 
-                            if (inventory.stackSize == 0)
+                            if (inventory.StackSize == 0)
                             {
                                 inventory = null;
                             }
                             else
                             {
-                                Debug.LogError("Character is still carrying inventory, which shouldn't be the case.");
+                                Debug.LogError("Character is still carrying Inventory, which shouldn't be the case.");
                                 inventory = null;
                             }
                         }
@@ -246,10 +246,10 @@ namespace Assets.Scripts.Model
                     {
                         // We are carrying something, but the job doesn't want it.
                         // Dump it where we are.
-                        // TODO: actually dump it to an empty tile, as we might be stood on a job tile.
+                        // TODO: actually dump it to an empty Tile, as we might be stood on a job Tile.
                         if (World.Current.InventoryManager.PlaceInventory(CurrentTile, inventory) == false)
                         {
-                            Debug.LogError("Character tried to dump inventory to an invalid tile.");
+                            Debug.LogError("Character tried to dump Inventory to an invalid Tile.");
                             // TODO: At this point we should try to dump this inv somewhere else, but for now we're just deleting it.
                             inventory = null;
                         }
@@ -257,18 +257,18 @@ namespace Assets.Scripts.Model
                 }
                 else
                 {
-                    // At this point, the job still requires inventory, but we don't have it.
+                    // At this point, the job still requires Inventory, but we don't have it.
                     // That means we need to walk towards a Tile that does have the required items.
 
-                    if (CurrentTile.inventory != null && 
+                    if (CurrentTile.Inventory != null && 
                         (myJob.CanTakeFromStockpile || CurrentTile.Furniture == null || CurrentTile.Furniture.IsStockpile() == false) &&
-                        myJob.NeedsMaterial(CurrentTile.inventory) != 0)
+                        myJob.NeedsMaterial(CurrentTile.Inventory) != 0)
                     {
                         // The materials we need are right where we're stood!
                         World.Current.InventoryManager.PlaceInventory(
                             character: this, 
-                            source: CurrentTile.inventory, 
-                            qty: myJob.NeedsMaterial(CurrentTile.inventory));
+                            source: CurrentTile.Inventory, 
+                            qty: myJob.NeedsMaterial(CurrentTile.Inventory));
 
                     }
                     else
@@ -278,19 +278,19 @@ namespace Assets.Scripts.Model
 
                         // Look for the first item that matches
                         var supply = World.Current.InventoryManager.GetClosestInventoryOfType(
-                            objectType: unsatisfied.objectType,
+                            objectType: unsatisfied.ObjectType,
                             t: CurrentTile,
-                            desiredQty: unsatisfied.maxStackSize - unsatisfied.stackSize,
+                            desiredQty: unsatisfied.MaxStackSize - unsatisfied.StackSize,
                             searchInStockpiles: myJob.CanTakeFromStockpile);
 
                         if (supply == null)
                         {
-                            //Debug.LogFormat("No Tile found containing the desired type ({0}).", unsatisfied.objectType);
+                            //Debug.LogFormat("No Tile found containing the desired type ({0}).", unsatisfied.ObjectType);
                             AbandonJob();
                             return;
                         }
 
-                        destTile = supply.tile;
+                        destTile = supply.Tile;
                         return;
                     }
                 }
@@ -300,7 +300,7 @@ namespace Assets.Scripts.Model
             }
 
             // We have all the material that we need
-            // Make sure the destination tile is the job tile
+            // Make sure the destination Tile is the job Tile
             destTile = myJob.Tile;
 
             // Are we there yet?
@@ -322,7 +322,7 @@ namespace Assets.Scripts.Model
             
             if (nextTile == null || nextTile == CurrentTile)
             {
-                // Get the next tile from the pathfinder.
+                // Get the next Tile from the pathfinder.
                 if (pathAStar == null || pathAStar.Length() == 0)
                 {
                     // Generate a path to our destination
@@ -336,8 +336,8 @@ namespace Assets.Scripts.Model
                         return;
                     }
 
-                    // Ignore the first tile in the path, as that's the tile we are currently in,
-                    // and we can always move out of our current tile.
+                    // Ignore the first Tile in the path, as that's the Tile we are currently in,
+                    // and we can always move out of our current Tile.
                     nextTile = pathAStar.Dequeue();
                 }
 
@@ -366,17 +366,17 @@ namespace Assets.Scripts.Model
                     );
             }
 
-            // Before entering a tile, make sure it is not impassable.
-            // This might happen if the tile is changed (e.g. wall built) after the pathfinder runs.
+            // Before entering a Tile, make sure it is not impassable.
+            // This might happen if the Tile is changed (e.g. wall built) after the pathfinder runs.
             if (nextTile.IsEnterable() == Enterability.Never)
             {
-                // Debug.LogError("Error - character was strying to enter an impassable tile!");
+                // Debug.LogError("Error - Character was strying to enter an impassable Tile!");
                 nextTile = null;
                 pathAStar = null;
             }
             else if(nextTile.IsEnterable() == Enterability.Soon)
             {
-                // The next tile we're trying to enter is walkable, but maybe for some reason
+                // The next Tile we're trying to enter is walkable, but maybe for some reason
                 // cannot be entered right now. Perhaps it is occupied, or contains a closed door.
                 return;
             }
@@ -394,7 +394,7 @@ namespace Assets.Scripts.Model
             {
                 // We have reached our destination
 
-                // TODO: Get the next tile from the pathfinding system.
+                // TODO: Get the next Tile from the pathfinding system.
                 //       If there are no more tiles, then we have TRULY
                 //       reached our destination.
 
