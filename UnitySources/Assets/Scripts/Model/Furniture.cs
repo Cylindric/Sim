@@ -509,7 +509,7 @@ namespace Assets.Scripts.Model
             RemoveJob(job);
         }
 
-        public int GetJobCount()
+        public int JobCount()
         {
             return _jobs.Count;
         }

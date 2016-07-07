@@ -107,7 +107,8 @@ namespace Assets.Scripts.Controllers
                     else
                     {
                         Debug.LogError("There is no Furniture Job Prototype for '" + furnitureType + "'");
-                        j = new Job("BuildFurniture", t, furnitureType, FurnitureActions.JobComplete_FurnitureBuilding, 0.1f, null);
+                        j = new Job(t, furnitureType, FurnitureActions.JobComplete_FurnitureBuilding, 0.1f, null);
+                        j.Name = "BuildFurniture";
                     }
 
                     j.FurniturePrototype = WorldController.Instance.World._furniturePrototypes[furnitureType];

@@ -63,8 +63,8 @@
 		<EnclosesRoom>False</EnclosesRoom>
 		<JobSpotOffset>1,-1</JobSpotOffset>
 		<JobSpawnOffset>0,-1</JobSpawnOffset>
-		<BuildingJob time="3" />
-		<OnUpdate>OnUpdate_MiningStation</OnUpdate>
+		<BuildingJob time="1" />
+		<OnUpdate>MiningDroneStation_UpdateAction</OnUpdate>
 	</Furniture>
 			
 </Furnitures>

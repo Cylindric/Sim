@@ -1,40 +1,41 @@
-function OnUpdate_MiningStation(furniture, deltaTime)
-  
-  spawnSpot = furniture.GetSpawnSpotTile()
+function MiningDroneStation_UpdateAction( furniture, deltaTime )
+	
+	spawnSpot = furniture.GetSpawnSpotTile()
 
-  if (furniture.GetJobCount() > 0) then
-    -- If the destination Tile is full of Iron, stop the job.
-    if (spawnSpot.Inventory != nil and (spawnSpot.Inventory.StackSize >= spawnSpot.Inventory.MaxStackSize)) then
-      -- the job spot is full, so cancel
-      furniture.CancelJobs()
-    end
+	if( furniture.JobCount() > 0 ) then
 
-    -- There's already a Job, so nothing to do.
-    return
-  end
+		-- Check to see if the Metal Plate destination tile is full.
+		if( spawnSpot.Inventory != nil and spawnSpot.Inventory.StackSize >= spawnSpot.Inventory.MaxStackSize ) then
+			-- We should stop this job, because it's impossible to make any more items.
+			furniture.CancelJobs()
+		end
 
-  -- If we get here, then we have no current Job. Check to see if our destination is full
-  if (spawnSpot.Inventory != nil and (spawnSpot.Inventory.StackSize >= spawnSpot.Inventory.MaxStackSize)) then
-    -- the job spot is full!
-    return
-  end
+		return
+	end
 
-  jobSpot = furniture.GetJobSpotTile()
+	-- If we get here, then we have no current job. Check to see if our destination is full.
+	if( spawnSpot.Inventory != nil and spawnSpot.Inventory.StackSize >= spawnSpot.Inventory.MaxStackSize ) then
+		-- We are full! Don't make a job!
+		return
+	end
 
-  j = Job.__new()
-  
---  j = Job.__new(
---        "MiningConsole_Work", -- name
---        jobSpot,  -- tile
---        nil, -- jobObjectType
---        nil, -- cb
---        1, -- jobTime
---        nil, -- requirements
---        true -- repeats
---  )
+	-- If we get here, we need to CREATE a new job.
 
-  return jobSpot -- "[" .. jobSpot.x .. "," .. jobSpot.y .. "]"
+	jobSpot = furniture.GetJobSpotTile()
+
+	j = Job.__new(
+		jobSpot,
+		nil,
+		nil,
+		1,
+		nil,
+		true	-- This job repeats until the destination tile is full.
+	)
+	j.RegisterJobCompletedCallback("MiningDroneStation_JobComplete")
+
+	furniture.AddJob( j )
 end
+
 
 function JobComplete_MiningStation(j)
   --return "test"

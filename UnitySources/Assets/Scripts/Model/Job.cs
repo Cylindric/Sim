@@ -44,20 +44,19 @@ namespace Assets.Scripts.Model
             this.cbOnJobWorkedLua = new List<string>();
         }
 
-        public Job(string name, Tile tile, string jobObjectType, Action<Job> cb, float jobTime, IEnumerable<Inventory> requirements, bool repeats = false) : this()
+        public Job(Tile tile, string jobObjectType, Action<Job> cbJobComplete, float jobTime, Inventory[] inventoryRequirements, bool jobRepeats = false) : this()
         {
-            this.Name = name;
             this.Tile = tile;
             this.JobObjectType = jobObjectType;
-            this.cbOnJobCompleted += cb;
+            this.cbOnJobCompleted += cbJobComplete;
             this._jobTime = jobTime;
             this.jobTimeRequired = jobTime;
-            this.jobRepeats = repeats;
+            this.jobRepeats = jobRepeats;
 
             // Make sure the Inventories are COPIED, as we will be making changes to them.
-            if (requirements != null)
+            if (inventoryRequirements != null)
             {
-                foreach (var inv in requirements)
+                foreach (var inv in inventoryRequirements)
                 {
                     this._inventoryRequirements[inv.ObjectType] = inv.Clone();
                 }

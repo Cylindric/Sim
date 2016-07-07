@@ -301,6 +301,14 @@ namespace Assets.Scripts.Model
                         break;
                 }
             }
+
+            Inventory inv = new Inventory("steel_plate", 50, 50);
+            Tile t = GetTileAt(Width / 2, Height / 2);
+            InventoryManager.PlaceInventory(t, inv);
+            if (_cbInventoryCreated != null)
+            {
+                _cbInventoryCreated(t.Inventory);
+            }
         }
 
         public void WriteXml(XmlWriter writer)
@@ -459,13 +467,15 @@ namespace Assets.Scripts.Model
                     this._furnitureJobPrototypes.Add(
                         key: objectType,
                         value: new Job(
-                            name: "Build_" + objectType,
                             tile: null,
                             jobObjectType: objectType,
-                            cb: FurnitureActions.JobComplete_FurnitureBuilding,
+                            cbJobComplete: FurnitureActions.JobComplete_FurnitureBuilding,
                             jobTime: time,
-                            requirements: inventory
+                            inventoryRequirements: inventory.ToArray()
                             )
+                        {
+                            Name = "Build_" + objectType
+                        }
                         );
                     // Debug.LogFormat("Added Job to Furniture {0}...", objectType);
                 }
