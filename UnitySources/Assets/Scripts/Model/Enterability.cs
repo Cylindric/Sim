@@ -2,6 +2,8 @@
 {
     public enum Enterability
     {
-        Yes, Never, Soon
+        Yes = 0,
+        Never = 1,
+        Soon = 2
     }
 }

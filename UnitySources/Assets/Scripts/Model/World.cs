@@ -362,11 +362,14 @@ namespace Assets.Scripts.Model
         {
             var filepath = Application.streamingAssetsPath;
             filepath = Path.Combine(filepath, "LUA");
-            filepath = Path.Combine(filepath, "Furniture.lua");
+            filepath = Path.Combine(filepath, "Furniture");
+            foreach (var filename in Directory.GetFiles(filepath, "*.lua"))
+            {
+                Debug.Log("Loading LUA file " + filename);
+                var myLuaCode = System.IO.File.ReadAllText(filename);
 
-            var myLuaCode = System.IO.File.ReadAllText(filepath);
-
-            var fa = new FurnitureActions(myLuaCode);
+                FurnitureActions.LoadLua(myLuaCode);
+            }
         }
 
         private void CreateFurniturePrototypes()
@@ -388,7 +391,7 @@ namespace Assets.Scripts.Model
             foreach (XmlNode furniture in furnitures.ChildNodes)
             {
                 var objectType = XmlParser.ParseAttributeString(furniture, "objectType");
-                Debug.LogFormat("Loading Furniture {0}...", objectType);
+                // Debug.LogFormat("Loading Furniture {0}...", objectType);
 
                 var furn = new Furniture(
                     objectType: objectType,
@@ -404,7 +407,7 @@ namespace Assets.Scripts.Model
 
                 this._furniturePrototypes.Add(objectType, furn);
 
-                var parameters = furnitures.SelectSingleNode(".//Params");
+                var parameters = furniture.SelectSingleNode(".//Params");
                 if (parameters != null)
                 {
                     foreach (XmlNode param in parameters.ChildNodes)
@@ -417,13 +420,24 @@ namespace Assets.Scripts.Model
                     }
                 }
 
-                var callbacks = furnitures.SelectNodes(".//OnUpdate");
+                var callbacks = furniture.SelectNodes(".//OnUpdate");
                 if (callbacks != null)
                 {
                     foreach (XmlNode callback in callbacks)
                     {
                         var name = callback.InnerText;
                         furn.RegisterUpdateAction(name);
+                    }
+                }
+
+
+                callbacks = furniture.SelectNodes(".//IsEnterable");
+                if (callbacks != null)
+                {
+                    foreach (XmlNode callback in callbacks)
+                    {
+                        var name = callback.InnerText;
+                        furn.RegisterIsEnterableAction(name);
                     }
                 }
 

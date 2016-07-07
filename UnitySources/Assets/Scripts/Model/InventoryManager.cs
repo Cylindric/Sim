@@ -128,7 +128,7 @@ namespace Assets.Scripts.Model
         {
             if (Inventories.ContainsKey(objectType) == false)
             {
-                Debug.LogError("Trying to find closest inventory for a type we don't have.");
+                // Debug.LogError("Trying to find closest inventory for a type we don't have.");
                 return null;
             }
 

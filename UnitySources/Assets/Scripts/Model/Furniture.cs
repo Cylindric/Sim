@@ -18,8 +18,6 @@ namespace Assets.Scripts.Model
         /* #                           FIELDS                                 # */
         /* #################################################################### */
 
-        public Func<Furniture, Enterability> IsEntereable;
-
         private Dictionary<string, float> _parameters;
 
         /// <summary>
@@ -66,6 +64,7 @@ namespace Assets.Scripts.Model
             this.JobSpotOffset = Vector2.zero;
             this.JobSpawnOffset = Vector2.zero;
             this._cbUpdateActions = new List<string>();
+            this._cbIsEnterableAction = string.Empty;
         }
 
         /// <summary>
@@ -73,7 +72,7 @@ namespace Assets.Scripts.Model
         /// </summary>
         /// <remarks>Don't call this directly. Use Clone() instead.</remarks>
         /// <param name="other">The Furniture instance to copy.</param>
-        private Furniture(Furniture other)
+        private Furniture(Furniture other) : this()
         {
             this.ObjectType = other.ObjectType;
             this.Name = other.Name;
@@ -81,20 +80,18 @@ namespace Assets.Scripts.Model
             this._width = other._width;
             this._height = other._height;
             this.LinksToNeighbour = other.LinksToNeighbour;
-            this.IsEntereable = other.IsEntereable;
             this.IsRoomEnclosure = other.IsRoomEnclosure;
             this.Tint = other.Tint;
             this.JobSpotOffset = other.JobSpotOffset;
             this.JobSpawnOffset = other.JobSpawnOffset;
             this._parameters = new Dictionary<string, float>(other._parameters);
             this._cbUpdateActions = new List<string>(other._cbUpdateActions);
+            this._cbIsEnterableAction = other._cbIsEnterableAction;
 
             if (other._funcPositionValidation != null)
             {
                 this._funcPositionValidation = (Func<Tile, bool>)other._funcPositionValidation.Clone();
             }
-
-            this._jobs = new List<Job>();
         }
 
         /// <summary>
@@ -107,7 +104,7 @@ namespace Assets.Scripts.Model
         /// <param name="height">The height in Tiles of the new Furniture.</param>
         /// <param name="linksToNeighbour">Indicates whether this Furniture links to neighbouring Furniture or not.</param>
         /// <param name="isRoomEnclosure">Indicates that this Furnitures defines rooms.</param>
-        public Furniture(string objectType, float movementCost = 1f, int width = 1, int height = 1, bool linksToNeighbour = false, bool isRoomEnclosure = false)
+        public Furniture(string objectType, float movementCost = 1f, int width = 1, int height = 1, bool linksToNeighbour = false, bool isRoomEnclosure = false) : this()
         {
             this.ObjectType = objectType;
             this.MovementCost = movementCost;
@@ -115,13 +112,7 @@ namespace Assets.Scripts.Model
             this._height = height;
             this.LinksToNeighbour = linksToNeighbour;
             this._funcPositionValidation = this.__IsValidPosition;
-            this._parameters = new Dictionary<string, float>();
             this.IsRoomEnclosure = isRoomEnclosure;
-            this._jobs = new List<Job>();
-            this.Tint = Color.white;
-            this.JobSpotOffset = Vector2.zero;
-            this.JobSpawnOffset = Vector2.zero;
-            this._cbUpdateActions = new List<string>();
         }
 
         /* #################################################################### */
@@ -135,8 +126,9 @@ namespace Assets.Scripts.Model
         /// These actions are called on every update. They get called with a Furniture, and the deltaTime.
         /// </summary>
         private List<string> _cbUpdateActions;
-        //private Action<Furniture, float> _cbUpdateActions;
 
+        private string _cbIsEnterableAction;
+         
         private readonly Func<Tile, bool> _funcPositionValidation;
 
         /* #################################################################### */
@@ -186,9 +178,19 @@ namespace Assets.Scripts.Model
         /// Gets the custom Furniture parameter.
         /// </summary>
         /// <param name="key">Key</param>
+        /// <returns>float</returns>
+        public float GetParameter(string key)
+        {
+            return GetParameter(key, 0f);
+        }
+
+        /// <summary>
+        /// Gets the custom Furniture parameter.
+        /// </summary>
+        /// <param name="key">Key</param>
         /// <param name="defaultValue">Default value</param>
         /// <returns>float</returns>
-        public float GetParameter(string key, float defaultValue = 0)
+        public float GetParameter(string key, float defaultValue)
         {
             if (_parameters.ContainsKey(key) == false)
             {
@@ -224,16 +226,34 @@ namespace Assets.Scripts.Model
         /// <summary>
         /// Registers a function that will be called on every Update.
         /// </summary>
-        /// <param name="a">Action to call.</param>
+        /// <param name="fname">Action to call.</param>
         public void RegisterUpdateAction(string fname)
         {
             _cbUpdateActions.Add(fname);
         }
 
         /// <summary>
+        /// Unregisters a function that has been added with <see cref="RegisterIsEnterableAction"/>.
+        /// </summary>
+        /// <param name="fname">Action to remove.</param>
+        public void UnregisterIsEnterableAction()
+        {
+            _cbIsEnterableAction = string.Empty;
+        }
+
+        /// <summary>
+        /// Registers a function that will be called every time something needs to know if this Furniture is walkable.
+        /// </summary>
+        /// <param name="fname">Action to call.</param>
+        public void RegisterIsEnterableAction(string fname)
+        {
+            _cbIsEnterableAction = fname;
+        }
+
+        /// <summary>
         /// Unregisters a function that has been set to be called on every Update.
         /// </summary>
-        /// <param name="a">Action to remove.</param>
+        /// <param name="fname">Action to remove.</param>
         public void UnregisterUpdateAction(string fname)
         {
             _cbUpdateActions.Remove(fname);
@@ -346,6 +366,18 @@ namespace Assets.Scripts.Model
                 FurnitureActions.CallFunctionsWithFurniture(_cbUpdateActions, this, deltaTime);
             }
         }
+
+        public Enterability IsEnterable()
+        {
+            if (string.IsNullOrEmpty(_cbIsEnterableAction))
+            {
+                return Enterability.Yes;
+            }
+
+            var ret = FurnitureActions.CallFunction(_cbIsEnterableAction, this);
+            return (Enterability)ret.Number;
+        }
+
 
         public bool IsValidPosition(Tile t)
         {

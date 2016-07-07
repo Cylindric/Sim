@@ -251,15 +251,15 @@ namespace Assets.Scripts.Model
 
         public Enterability IsEnterable()
         {
-            if (MovementCost == 0)
+            if (Mathf.Approximately(MovementCost, 0))
             {
                 return Enterability.Never;
             }
 
             // Check the furniture to see if it has any special rules on enterability.
-            if (Furniture != null && Furniture.IsEntereable != null)
+            if (Furniture != null)
             {
-                return Furniture.IsEntereable(Furniture);
+                return Furniture.IsEnterable();
             }
 
             return Enterability.Yes;

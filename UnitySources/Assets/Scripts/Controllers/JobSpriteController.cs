@@ -39,7 +39,7 @@ namespace Assets.Scripts.Controllers
 
             if (_jobGameObjectMap.ContainsKey(job))
             {
-                Debug.LogError("OnJobCreated called for a JobGO that already exists.");
+                // Debug.LogError("OnJobCreated called for a JobGO that already exists.");
                 return;
             }
 

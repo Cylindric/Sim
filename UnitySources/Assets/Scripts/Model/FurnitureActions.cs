@@ -8,24 +8,31 @@ namespace Assets.Scripts.Model
     public class FurnitureActions
     {
         private static FurnitureActions _instance;
-        private Script _myLuaScript;
+        private Script myLuaScript;
 
-        public FurnitureActions(string rawLuaCode)
+        static FurnitureActions()
         {
-            // Tell LUA to load all the classes that we have marked as MoonSharpUserData
             UserData.RegisterAssembly();
 
-            _instance = this;
+            _instance = new FurnitureActions();
+            _instance.myLuaScript = new Script();
+        }
 
-            _myLuaScript = new Script();
-            _myLuaScript.DoString(rawLuaCode);
+        public static void LoadLua(string rawLuaCode)
+        {
+            // Tell LUA to load all the classes that we have marked as MoonSharpUserData
+            var result = _instance.myLuaScript.DoString(rawLuaCode);
+            if (result.Type == DataType.String)
+            {
+                Debug.LogError(result.String);
+            }
         }
 
         public static void CallFunctionsWithFurniture(IEnumerable<string> functionNames, Furniture furn, float deltaTime)
         {
             foreach (var fname in functionNames)
             {
-                var func = _instance._myLuaScript.Globals[fname];
+                var func = _instance.myLuaScript.Globals[fname];
 
                 if (func == null)
                 {
@@ -33,44 +40,27 @@ namespace Assets.Scripts.Model
                     return;
                 }
 
-                var result = _instance._myLuaScript.Call(func, new object[] {furn, deltaTime});
-                Debug.Log(result.String);
+                var result = _instance.myLuaScript.Call(func, new object[] { furn, deltaTime });
+                if (result.Type == DataType.String)
+                {
+                    Debug.Log(result.String);
+                }
             }
         }
 
-        //public static void Door_UpdateAction(Furniture furn, float deltaTime)
-        //{
-        //    if (furn.GetParameter("is_opening") >= 1f)
-        //    {
-        //        furn.OffsetParameter("openness", deltaTime*4);
+        public static DynValue CallFunction(string fname, params object[] args)
+        {
+            var func = _instance.myLuaScript.Globals[fname];
 
-        //        if (furn.GetParameter("openness") >= 1f)
-        //        {
-        //            furn.SetParameter("is_opening", 0);
-        //        }
-        //    }
-        //    else
-        //    {
-        //        furn.OffsetParameter("openness", deltaTime*-4);
-        //    }
+            if (func == null)
+            {
+                Debug.LogErrorFormat("Function {0} is not a LUA function.", fname);
+                return DynValue.Nil;
+            }
 
-        //    furn.SetParameter("openness", Mathf.Clamp01(furn.GetParameter("openness")));
-        //    furn.cbOnChanged(furn);
-        //}
+            return _instance.myLuaScript.Call(func, args);
+        }
 
-        //public static Enterability Door_IsEnterable(Furniture furn)
-        //{
-        //    furn.SetParameter("is_opening", 1);
-
-        //    if (furn.GetParameter("openness") >= 1)
-        //    {
-        //        return Enterability.Yes;
-        //    }
-
-        //    return Enterability.Soon;
-        //}
-
-        
         public static void JobComplete_FurnitureBuilding(Job theJob)
         {
             WorldController.Instance.World.PlaceFurniture(theJob.JobObjectType, theJob.Tile);
@@ -164,12 +154,6 @@ namespace Assets.Scripts.Model
         //        }
         //    }
         //}
-
-        ///// <summary>
-        ///// The Oxygen Generator adds Nitrogen and Oxygen to try and maintain a 78/21 balance.
-        ///// </summary>
-        ///// <param name="furn"></param>
-        ///// <param name="deltaTime"></param>
 
         //public static void MiningConsole_UpdateAction(Furniture furn, float deltaTime)
         //{

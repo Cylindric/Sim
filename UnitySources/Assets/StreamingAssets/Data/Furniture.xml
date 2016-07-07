@@ -9,11 +9,8 @@
 		<LinksToNeighbours>True</LinksToNeighbours>
 		<EnclosesRoom>True</EnclosesRoom>
 		<BuildingJob time="1">
-			<Inventory objectType="steel_plate" amount="5" />
+			<!-- Inventory objectType="steel_plate" amount="5" / -->
 		</BuildingJob>
-		<DeconstructJob>
-			<Inventory objectType="steel_plate" amount="3" />
-		</DeconstructJob>
 	</Furniture>
 	
 	<Furniture objectType="furn_door">
@@ -28,15 +25,13 @@
 			<Param name="is_opening">0</Param>
 		</Params>
 		<BuildingJob time="1">
-			<Inventory objectType="steel_plate" amount="2" />
+			<!-- Inventory objectType="steel_plate" amount="2" / -->
 		</BuildingJob>
-		<UpdateAction></UpdateAction>
-		<DeconstructJob>
-			<Inventory objectType="steel_plate" amount="1" />
-		</DeconstructJob>
+		<OnUpdate>OnUpdate_Door</OnUpdate>
+		<IsEnterable>IsEnterable_Door</IsEnterable>
 	</Furniture>
 
- 	<Furniture objectType="stockpile">
+ 	<Furniture objectType="furn_stockpile">
 		<Name>Stockpile</Name>
 		<MovementCost>1</MovementCost>
 		<Width>1</Width>
@@ -44,10 +39,9 @@
 		<LinksToNeighbours>False</LinksToNeighbours>
 		<EnclosesRoom>False</EnclosesRoom>
 		<BuildingJob time="0" />
-		<DeconstructJob />
 	</Furniture>
 
- 	<Furniture objectType="oxygen">
+ 	<Furniture objectType="furn_oxygen">
 		<Name>Oxygen Generator</Name>
 		<MovementCost>0</MovementCost>
 		<Width>2</Width>
@@ -57,11 +51,10 @@
 		<BuildingJob time="3">
 			<Inventory objectType="steel_plate" amount="10" />
 		</BuildingJob>
-		<DeconstructJob />
 		<OnUpdate>OnUpdate_GasGenerator</OnUpdate>
 	</Furniture>
 	
- 	<Furniture objectType="mining_station">
+ 	<Furniture objectType="furn_mining_station">
 		<Name>Mining Drone Station</Name>
 		<MovementCost>0</MovementCost>
 		<Width>3</Width>
@@ -71,11 +64,7 @@
 		<JobSpotOffset>1,-1</JobSpotOffset>
 		<JobSpawnOffset>0,-1</JobSpawnOffset>
 		<BuildingJob time="3" />
-		<DeconstructJob />
-		<Params>
-			<Param name="openess">0</Param>
-			<Param name="is_opening">0</Param>
-		</Params>
+		<OnUpdate>OnUpdate_MiningStation</OnUpdate>
 	</Furniture>
 			
 </Furnitures>
