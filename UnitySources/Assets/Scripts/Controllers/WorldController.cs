@@ -5,7 +5,6 @@ using System.Xml.Serialization;
 using Assets.Scripts.Model;
 using MoonSharp.RemoteDebugger;
 using UnityEngine;
-using UnityEngine.Analytics;
 using UnityEngine.SceneManagement;
 using Debug = UnityEngine.Debug;
 
@@ -92,9 +91,6 @@ namespace Assets.Scripts.Controllers
             reader.Close();
 
             Camera.main.transform.position = new Vector3(World.Width / 2f, World.Height / 2f, Camera.main.transform.position.z);
-
-            //  Use this call for wherever a player triggers a custom event
-            Analytics.CustomEvent("GameLoad", new Dictionary<string, object>() { {"save", "SaveGame000.xml"} });
         }
 
         private void CreateEmptyWorld()

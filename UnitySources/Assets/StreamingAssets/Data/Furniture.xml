@@ -28,6 +28,7 @@
  	<Furniture objectType="furn_stockpile">
 		<Name>Stockpile</Name>
 		<BuildingJob time="0" />
+		<OnUpdate>Stockpile_UpdateAction</OnUpdate>
 	</Furniture>
 
  	<Furniture objectType="furn_oxygen">

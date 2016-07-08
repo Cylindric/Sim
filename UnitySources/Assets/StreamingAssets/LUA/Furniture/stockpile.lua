@@ -8,7 +8,7 @@ function Stockpile_GetItemsFromFilter()
 	-- Since jobs copy arrays automatically, we could already have
 	-- an Inventory[] prepared and just return that (as a sort of example filter)
 
-	return { Inventory.__new("Steel Plate", 50, 0) }
+	return { Inventory.__new("steel_plate", 50, 0) }
 end
 
 function Stockpile_UpdateAction( furniture, deltaTime )
@@ -27,7 +27,7 @@ function Stockpile_UpdateAction( furniture, deltaTime )
 	--		-- The UI's filter of allowed items gets changed
 
 
-	if( furniture.tile.inventory != nil and furniture.tile.inventory.stackSize >= furniture.tile.inventory.maxStackSize ) then
+	if( furniture.Tile.Inventory != nil and furniture.Tile.Inventory.StackSize >= furniture.Tile.Inventory.MaxStackSize ) then
 		-- We are full!
 		furniture.CancelJobs()
 		return
@@ -44,7 +44,7 @@ function Stockpile_UpdateAction( furniture, deltaTime )
 	-- Two possibilities: Either we have SOME inventory, or we have NO inventory.
 
 	-- Third possibility: Something is WHACK
-	if( furniture.tile.inventory != nil and furniture.tile.inventory.stackSize == 0 ) then
+	if( furniture.Tile.Inventory != nil and furniture.Tile.Inventory.StackSize == 0 ) then
 		furniture.CancelJobs()
 		return "Stockpile has a zero-size stack. This is clearly WRONG!"
 	end
@@ -65,15 +65,15 @@ function Stockpile_UpdateAction( furniture, deltaTime )
 	if( furniture.Tile.inventory == nil ) then
 		itemsDesired = Stockpile_GetItemsFromFilter()
 	else
-		desInv = furniture.tile.inventory.Clone()
-		desInv.maxStackSize = desInv.maxStackSize - desInv.stackSize
-		desInv.stackSize = 0
+		desInv = furniture.Tile.Inventory.Clone()
+		desInv.MaxStackSize = desInv.MaxStackSize - desInv.StackSize
+		desInv.StackSize = 0
 
 		itemsDesired = { desInv }
 	end
 
 	j = Job.__new(
-		furniture.tile,
+		furniture.Tile,
 		nil,
 		nil,
 		0,
@@ -83,9 +83,9 @@ function Stockpile_UpdateAction( furniture, deltaTime )
 
 	-- TODO: Later on, add stockpile priorities, so that we can take from a lower
 	-- priority stockpile for a higher priority one.
-	j.canTakeFromStockpile = false
+	j.CanTakeFromStockpile = false
 
-	j.RegisterJobWorkedCallback("Stockpile_JobWorked")
+	j.RegisterOnJobWorkedCallback("Stockpile_JobWorked")
 	furniture.AddJob( j )
 end
 
@@ -94,9 +94,9 @@ function Stockpile_JobWorked(j)
 
 	-- TODO: Change this when we figure out what we're doing for the all/any pickup job.
 	--values = j.GetInventoryRequirementValues();
-	for k, inv in pairs(j.inventoryRequirements) do
+	for k, inv in pairs(j.InventoryRequirements) do
 		if(inv.StackSize > 0) then
-			World.current.inventoryManager.PlaceInventory(j.tile, inv)
+			World.Current.InventoryManager.PlaceInventory(j.tile, inv)
 
 			return  -- There should be no way that we ever end up with more than on inventory requirement with stackSize > 0
 		end

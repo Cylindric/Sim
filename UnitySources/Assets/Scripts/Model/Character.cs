@@ -35,17 +35,20 @@ namespace Assets.Scripts.Model
 
         private Tile nextTile; // The next Tile in the pathfinding sequence
         private Path_AStar pathAStar;
-        private float movementPercentage; // Goes from 0 to 1 as we move from CurrentTile to destTile
+        // private float movementPercentage; // Goes from 0 to 1 as we move from CurrentTile to destTile
         private float speed = 5f; // Tiles per second
         private Job myJob;
 
         /* #################################################################### */
         /* #                        CONSTRUCTORS                              # */
         /* #################################################################### */
-        public Character()
-        { }
 
-        public Character(Tile tile)
+        public Character()
+        {
+            //this.movementPercentage = 0f;
+        }
+
+        public Character(Tile tile) : this()
         {
             CurrentTile = destTile = nextTile = tile;
         }
@@ -65,7 +68,7 @@ namespace Assets.Scripts.Model
             {
                 if (nextTile == null) return CurrentTile.X;
 
-                return Mathf.Lerp(CurrentTile.X, nextTile.X, movementPercentage);
+                return Mathf.Lerp(CurrentTile.X, nextTile.X, MovementPercentage);
             }
         }
 
@@ -75,11 +78,26 @@ namespace Assets.Scripts.Model
             {
                 if (nextTile == null) return CurrentTile.Y;
 
-                return Mathf.Lerp(CurrentTile.Y, nextTile.Y, movementPercentage);
+                return Mathf.Lerp(CurrentTile.Y, nextTile.Y, MovementPercentage);
             }
         }
 
         public Tile CurrentTile { get; protected set; }
+
+        private float _m;
+
+        private float MovementPercentage
+        {
+            get { return _m; }
+            set
+            {
+                if (value == null || float.IsNaN(value) || Single.IsNaN(value))
+                {
+                    Debugger.Break();
+                }
+                _m = value;
+            }
+        }
 
         /* #################################################################### */
         /* #                           METHODS                                # */
@@ -347,9 +365,11 @@ namespace Assets.Scripts.Model
 
                 if (nextTile == CurrentTile)
                 {
-                    Debug.LogError("Update_DoMovement - nextTile is CurrentTile?");
+                    // Debug.LogError("Update_DoMovement - nextTile is CurrentTile?");
                 }
             }
+
+            if (nextTile == null) nextTile = CurrentTile;
 
             // At this point we should have a valid nextTile to move to.
 
@@ -382,15 +402,32 @@ namespace Assets.Scripts.Model
             }
 
             // How much distance can be travel this Update?
-            var distThisFrame = (speed / nextTile.MovementCost) * deltaTime;
+            if (nextTile == null) nextTile = CurrentTile;
+            var distThisFrame = 0f;
+            try
+            {
+                distThisFrame = (speed/nextTile.MovementCost)*deltaTime;
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e.Message);
+            }
 
             // How much is that in terms of percentage to our destination?
-            var percThisFrame = distThisFrame/distToTravel;
+            float percThisFrame;
+            if (Mathf.Approximately(distToTravel, 0f))
+            {
+                percThisFrame = 1f;
+            }
+            else
+            {
+                percThisFrame = distThisFrame/distToTravel;
+            }
 
             // Add that to overall percentage travelled.
-            movementPercentage += percThisFrame;
+            MovementPercentage += percThisFrame;
 
-            if (movementPercentage >= 1)
+            if (MovementPercentage >= 1)
             {
                 // We have reached our destination
 
@@ -399,7 +436,7 @@ namespace Assets.Scripts.Model
                 //       reached our destination.
 
                 CurrentTile = nextTile;
-                movementPercentage = 0;
+                MovementPercentage = 0;
             }
         }
 

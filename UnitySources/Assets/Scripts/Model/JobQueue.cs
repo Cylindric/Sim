@@ -19,7 +19,7 @@ namespace Assets.Scripts.Model
 
         public void Enqueue(Job j)
         {
-            if (j._jobTime < 0)
+            if (j.JobTime < 0)
             {
                 // Jobs with a build-time less than zero get insta-built.
                 j.DoWork(0);

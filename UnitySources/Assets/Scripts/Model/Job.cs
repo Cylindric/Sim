@@ -17,9 +17,9 @@ namespace Assets.Scripts.Model
         /* #                              FIELDS                              # */
         /* #################################################################### */
 
-        public float _jobTime { get; private set; }
+        public float JobTime { get; private set; }
         public string Name { get; set; }
-        public Dictionary<string, Inventory> _inventoryRequirements;
+        public Dictionary<string, Inventory> InventoryRequirements;
         public Furniture FurniturePrototype;
 
         private float jobTimeRequired;
@@ -37,7 +37,7 @@ namespace Assets.Scripts.Model
 
         public Job()
         {
-            this._inventoryRequirements = new Dictionary<string, Inventory>();
+            this.InventoryRequirements = new Dictionary<string, Inventory>();
             this.AcceptsAnyItemType = false;
             this.CanTakeFromStockpile = true;
             this.cbOnJobCompletedLua = new List<string>();
@@ -49,7 +49,7 @@ namespace Assets.Scripts.Model
             this.Tile = tile;
             this.JobObjectType = jobObjectType;
             this.cbOnJobCompleted += cbJobComplete;
-            this._jobTime = jobTime;
+            this.JobTime = jobTime;
             this.jobTimeRequired = jobTime;
             this.jobRepeats = jobRepeats;
 
@@ -58,7 +58,7 @@ namespace Assets.Scripts.Model
             {
                 foreach (var inv in inventoryRequirements)
                 {
-                    this._inventoryRequirements[inv.ObjectType] = inv.Clone();
+                    this.InventoryRequirements[inv.ObjectType] = inv.Clone();
                 }
             }
         }
@@ -70,7 +70,7 @@ namespace Assets.Scripts.Model
             this.JobObjectType = other.JobObjectType;
             this.cbOnJobCompleted += other.cbOnJobCompleted;
             this.cbOnJobStopped += other.cbOnJobStopped;
-            this._jobTime = other._jobTime;
+            this.JobTime = other.JobTime;
             this.jobTimeRequired = other.jobTimeRequired;
             this.jobRepeats = other.jobRepeats;
             this.AcceptsAnyItemType = other.AcceptsAnyItemType;
@@ -79,11 +79,11 @@ namespace Assets.Scripts.Model
             this.cbOnJobWorkedLua = new List<string>(other.cbOnJobWorkedLua);
 
             // Make sure the Inventories are COPIED, as we will be making changes to them.
-            if (other._inventoryRequirements != null)
+            if (other.InventoryRequirements != null)
             {
-                foreach (var inv in other._inventoryRequirements.Values)
+                foreach (var inv in other.InventoryRequirements.Values)
                 {
-                    this._inventoryRequirements[inv.ObjectType] = inv.Clone();
+                    this.InventoryRequirements[inv.ObjectType] = inv.Clone();
                 }
             }
         }
@@ -196,9 +196,9 @@ namespace Assets.Scripts.Model
                 FurnitureActions.CallFunction(funcname, this);
             }
 
-            _jobTime -= workTime;
+            JobTime -= workTime;
 
-            if (_jobTime <= 0)
+            if (JobTime <= 0)
             {
                 // Do whatever is supposed to happen when this Job completes.
                 if (cbOnJobCompleted != null) cbOnJobCompleted(this);
@@ -215,7 +215,7 @@ namespace Assets.Scripts.Model
                 else
                 {
                     // This is a repeating Job, and must be reset.
-                    _jobTime += jobTimeRequired;
+                    JobTime += jobTimeRequired;
                 }
             }
         }
@@ -229,7 +229,7 @@ namespace Assets.Scripts.Model
 
         public bool HasAllMaterial()
         {
-            foreach (var inv in _inventoryRequirements.Values)
+            foreach (var inv in InventoryRequirements.Values)
             {
                 if (inv.MaxStackSize > inv.StackSize)
                 {
@@ -246,23 +246,23 @@ namespace Assets.Scripts.Model
                 return inv.MaxStackSize;
             }
 
-            if (_inventoryRequirements.ContainsKey(inv.ObjectType) == false)
+            if (InventoryRequirements.ContainsKey(inv.ObjectType) == false)
             {
                 return 0;
             }
 
-            if (_inventoryRequirements[inv.ObjectType].StackSize >= _inventoryRequirements[inv.ObjectType].MaxStackSize)
+            if (InventoryRequirements[inv.ObjectType].StackSize >= InventoryRequirements[inv.ObjectType].MaxStackSize)
             {
                 // We already have all that we need.
                 return 0;
             }
 
-            return _inventoryRequirements[inv.ObjectType].MaxStackSize - _inventoryRequirements[inv.ObjectType].StackSize;
+            return InventoryRequirements[inv.ObjectType].MaxStackSize - InventoryRequirements[inv.ObjectType].StackSize;
         }
 
         public Inventory GetFirstRequiredInventory()
         {
-            foreach (var inv in _inventoryRequirements.Values)
+            foreach (var inv in InventoryRequirements.Values)
             {
                 if (inv.MaxStackSize > inv.StackSize)
                 {

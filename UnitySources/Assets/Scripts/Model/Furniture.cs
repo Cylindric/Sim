@@ -475,7 +475,6 @@ namespace Assets.Scripts.Model
 
         private void ClearJobs()
         {
-            var jobs = _jobs.ToArray();
             foreach (var j in _jobs.ToArray())
             {
                 RemoveJob(j);
@@ -492,7 +491,6 @@ namespace Assets.Scripts.Model
 
         public void CancelJobs()
         {
-            var jobs = _jobs.ToArray();
             foreach (var j in _jobs.ToArray())
             {
                 j.CancelJob();

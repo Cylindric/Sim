@@ -402,11 +402,11 @@ namespace Assets.Scripts.Model
 
                 var furn = new Furniture(
                     objectType: objectType,
-                    movementCost: XmlParser.ParseFloat(furniture, ".//MovementCost"),
+                    movementCost: XmlParser.ParseFloat(furniture, ".//MovementCost", 1),
                     width: XmlParser.ParseInt(furniture, ".//Width", 1),
                     height: XmlParser.ParseInt(furniture, ".//Height", 1),
-                    linksToNeighbour: XmlParser.ParseBool(furniture, ".//LinksToNeighbours"),
-                    isRoomEnclosure: XmlParser.ParseBool(furniture, ".//EnclosesRoom")
+                    linksToNeighbour: XmlParser.ParseBool(furniture, ".//LinksToNeighbours", false),
+                    isRoomEnclosure: XmlParser.ParseBool(furniture, ".//EnclosesRoom", false)
                     );
                 furn.Name = XmlParser.ParseString(furniture, ".//Name");
                 furn.JobSpotOffset = XmlParser.ParseVector2(furniture, ".//JobSpotOffset");

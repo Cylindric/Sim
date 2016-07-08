@@ -48,7 +48,6 @@ namespace Assets.Scripts.UI
             foreach (var name in t.Room.GetGasNames())
             {
                 var percentage = t.Room.GetGasPercentage(name);
-                var amount = t.Room.GetGasAmount(name);
                 text += string.Format(template, name, percentage);
             }
 

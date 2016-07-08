@@ -78,7 +78,6 @@ namespace Assets.Scripts.Model
                     if (result.Type == DataType.UserData)
                     {
                         Debug.LogFormat("{0} {1}", fname, result.UserData.Object.ToString());
-                        var j = new Job();
                     }
 
                 }

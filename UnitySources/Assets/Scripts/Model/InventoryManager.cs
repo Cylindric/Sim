@@ -64,20 +64,20 @@ namespace Assets.Scripts.Model
 
         public bool PlaceInventory(Job job, Inventory source)
         {
-            if (job._inventoryRequirements.ContainsKey(source.ObjectType) == false)
+            if (job.InventoryRequirements.ContainsKey(source.ObjectType) == false)
             {
                 Debug.LogError("Trying to add Inventory to a Character that doesn't want it.");
                 return false;
             }
 
-            job._inventoryRequirements[source.ObjectType].StackSize += source.StackSize;
+            job.InventoryRequirements[source.ObjectType].StackSize += source.StackSize;
 
-            if (job._inventoryRequirements[source.ObjectType].StackSize >
-                job._inventoryRequirements[source.ObjectType].MaxStackSize)
+            if (job.InventoryRequirements[source.ObjectType].StackSize >
+                job.InventoryRequirements[source.ObjectType].MaxStackSize)
             {
-                source.StackSize = job._inventoryRequirements[source.ObjectType].StackSize - job._inventoryRequirements[source.ObjectType].MaxStackSize;
-                job._inventoryRequirements[source.ObjectType].StackSize =
-                    job._inventoryRequirements[source.ObjectType].MaxStackSize;
+                source.StackSize = job.InventoryRequirements[source.ObjectType].StackSize - job.InventoryRequirements[source.ObjectType].MaxStackSize;
+                job.InventoryRequirements[source.ObjectType].StackSize =
+                    job.InventoryRequirements[source.ObjectType].MaxStackSize;
             }
             else
             {
