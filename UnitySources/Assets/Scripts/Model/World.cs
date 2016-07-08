@@ -397,14 +397,14 @@ namespace Assets.Scripts.Model
             var furnitures = xml.DocumentElement.SelectSingleNode("/Furnitures");
             foreach (XmlNode furniture in furnitures.ChildNodes)
             {
-                var objectType = XmlParser.ParseAttributeString(furniture, "ObjectType");
+                var objectType = XmlParser.ParseAttributeString(furniture, "objectType");
                 // Debug.LogFormat("Loading Furniture {0}...", ObjectType);
 
                 var furn = new Furniture(
                     objectType: objectType,
                     movementCost: XmlParser.ParseFloat(furniture, ".//MovementCost"),
-                    width: XmlParser.ParseInt(furniture, ".//Width"),
-                    height: XmlParser.ParseInt(furniture, ".//Height"),
+                    width: XmlParser.ParseInt(furniture, ".//Width", 1),
+                    height: XmlParser.ParseInt(furniture, ".//Height", 1),
                     linksToNeighbour: XmlParser.ParseBool(furniture, ".//LinksToNeighbours"),
                     isRoomEnclosure: XmlParser.ParseBool(furniture, ".//EnclosesRoom")
                     );
@@ -455,28 +455,33 @@ namespace Assets.Scripts.Model
                     var time = float.Parse(buildJob.Attributes["time"].InnerText);
 
                     var inventory = new List<Inventory>();
-                    foreach (XmlNode inv in buildJob.SelectNodes(".//Inventory"))
+                    //foreach (XmlNode inv in buildJob.SelectNodes(".//Inventory"))
+                    //{
+                    //    var newReq = new Inventory(
+                    //        objectType: inv.Attributes["objectType"].InnerText,
+                    //        maxStackSize: int.Parse(inv.Attributes["amount"].InnerText),
+                    //        stackSize: 0
+                    //        );
+
+                    //    inventory.Add(newReq);
+                        
+                    //}
+
+                    var newJob = new Job(
+                        tile: null,
+                        jobObjectType: objectType,
+                        cbJobComplete: FurnitureActions.JobComplete_FurnitureBuilding,
+                        jobTime: time,
+                        inventoryRequirements: inventory.ToArray()
+                        )
                     {
-                        inventory.Add(new Inventory(
-                            objectType: inv.Attributes["ObjectType"].InnerText,
-                            maxStackSize: int.Parse(inv.Attributes["amount"].InnerText),
-                            stackSize: 0
-                            ));
-                    }
+                        Name = "Build_" + objectType
+                    };
 
                     this._furnitureJobPrototypes.Add(
                         key: objectType,
-                        value: new Job(
-                            tile: null,
-                            jobObjectType: objectType,
-                            cbJobComplete: FurnitureActions.JobComplete_FurnitureBuilding,
-                            jobTime: time,
-                            inventoryRequirements: inventory.ToArray()
-                            )
-                        {
-                            Name = "Build_" + objectType
-                        }
-                        );
+                        value: newJob
+                    );
                     // Debug.LogFormat("Added Job to Furniture {0}...", objectType);
                 }
 

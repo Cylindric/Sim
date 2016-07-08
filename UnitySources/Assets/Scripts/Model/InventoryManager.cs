@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
+using MoonSharp.Interpreter;
 using UnityEngine;
 
 namespace Assets.Scripts.Model
 {
+    [MoonSharpUserData]
     public class InventoryManager
     {
         public Dictionary<string, List<Inventory>> Inventories { get; private set; }

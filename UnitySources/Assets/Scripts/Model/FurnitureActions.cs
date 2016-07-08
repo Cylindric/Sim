@@ -3,6 +3,7 @@ using System.Diagnostics;
 using Assets.Scripts.Controllers;
 using MoonSharp.Interpreter;
 using MoonSharp.RemoteDebugger;
+using MoonSharp.RemoteDebugger.Network;
 using Debug = UnityEngine.Debug;
 
 namespace Assets.Scripts.Model
@@ -12,31 +13,36 @@ namespace Assets.Scripts.Model
         private static FurnitureActions _instance;
         private Script myLuaScript;
 
+        private RemoteDebuggerService remoteDebugger;
+
+        private void ActivateRemoteDebugger(Script script)
+        {
+            if (remoteDebugger == null)
+            {
+                remoteDebugger = new RemoteDebuggerService(new RemoteDebuggerOptions()
+                {
+                    NetworkOptions = Utf8TcpServerOptions.LocalHostOnly | Utf8TcpServerOptions.SingleClientOnly,
+                    // SingleScriptMode = true,
+                    HttpPort = 2705,
+                    RpcPortBase = 2006,
+                });
+                remoteDebugger.Attach(script, "FurnitureActions", true);
+            }
+            Process.Start(remoteDebugger.HttpUrlStringLocalHost);
+        }
+
+
         static FurnitureActions()
         {
             UserData.RegisterAssembly();
 
             _instance = new FurnitureActions();
             _instance.myLuaScript = new Script();
+            _instance.myLuaScript.Globals["Inventory"] = typeof(Inventory);
+            _instance.myLuaScript.Globals["Job"] = typeof(Job);
+            _instance.myLuaScript.Globals["World"] = typeof(World);
+            //_instance.ActivateRemoteDebugger(_instance.myLuaScript);
         }
-
-        //RemoteDebuggerService remoteDebugger;
-
-        //private void ActivateRemoteDebugger(Script script)
-        //{
-        //    if (remoteDebugger == null)
-        //    {
-        //        remoteDebugger = new RemoteDebuggerService();
-
-        //        // the last boolean is to specify if the script is free to run 
-        //        // after attachment, defaults to false
-        //        remoteDebugger.Attach(script, "Description of the script", false);
-        //    }
-
-        //    // start the web-browser at the correct url. Replace this or just
-        //    // pass the url to the user in some way.
-        //    Process.Start(remoteDebugger.HttpUrlStringLocalHost);
-        //}
 
         public static void LoadLua(string rawLuaCode)
         {
@@ -46,7 +52,6 @@ namespace Assets.Scripts.Model
             {
                 Debug.LogError(result.String);
             }
-            //_instance.ActivateRemoteDebugger(_instance.myLuaScript);
         }
 
         public static void CallFunctionsWithFurniture(IEnumerable<string> functionNames, Furniture furn, float deltaTime)

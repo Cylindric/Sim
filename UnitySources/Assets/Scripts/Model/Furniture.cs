@@ -41,6 +41,8 @@ namespace Assets.Scripts.Model
             this.Tint = Color.white;
             this.JobSpotOffset = Vector2.zero;
             this.JobSpawnOffset = Vector2.zero;
+            this.MovementCost = 1f;
+            this.IsRoomEnclosure = false;
             this.Width = 1;
             this.Height = 1;
             this._parameters = new Dictionary<string, float>();

@@ -5,7 +5,7 @@ function MiningDroneStation_UpdateAction( furniture, deltaTime )
 	if( furniture.JobCount() > 0 ) then
 
 		-- Check to see if the Metal Plate destination tile is full.
-		if( spawnSpot.Inventory != nil and spawnSpot.Inventory.StackSize >= spawnSpot.Inventory.MaxStackSize ) then
+		if( spawnSpot.Inventory ~= nil and spawnSpot.Inventory.StackSize >= spawnSpot.Inventory.MaxStackSize ) then
 			-- We should stop this job, because it's impossible to make any more items.
 			furniture.CancelJobs()
 		end
@@ -14,7 +14,7 @@ function MiningDroneStation_UpdateAction( furniture, deltaTime )
 	end
 
 	-- If we get here, then we have no current job. Check to see if our destination is full.
-	if( spawnSpot.Inventory != nil and spawnSpot.Inventory.StackSize >= spawnSpot.Inventory.MaxStackSize ) then
+	if( spawnSpot.Inventory ~= nil and spawnSpot.Inventory.StackSize >= spawnSpot.Inventory.MaxStackSize ) then
 		-- We are full! Don't make a job!
 		return
 	end
@@ -31,13 +31,14 @@ function MiningDroneStation_UpdateAction( furniture, deltaTime )
 		nil,
 		true	-- This job repeats until the destination tile is full.
 	)
-	j.RegisterJobCompletedCallback("MiningDroneStation_JobComplete")
+	j.RegisterOnJobCompletedCallback("MiningDroneStation_JobComplete")
 
 	furniture.AddJob( j )
 end
 
 
-function JobComplete_MiningStation(j)
+function MiningDroneStation_JobComplete(j)
   --return "test"
-  World.Current.InventoryManager.PlaceInventory(j.Furniture.GetSpawnSpotTile(), Inventory.__new("steel_plate", 50, 20))
+  req = Inventory.__new("steel_plate", 50, 20)
+  World.Current.InventoryManager.PlaceInventory(j.Furniture.GetSpawnSpotTile(), req)
 end

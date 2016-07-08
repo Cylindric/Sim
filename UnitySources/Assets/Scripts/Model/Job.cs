@@ -113,6 +113,11 @@ namespace Assets.Scripts.Model
         /* #                              METHODS                             # */
         /* #################################################################### */
 
+        public static Job CreateNew(Tile tile, string jobObjectType, Action<Job> cbJobComplete, float jobTime, Inventory[] inventoryRequirements, bool jobRepeats = false)
+        {
+            return new Job(tile, jobObjectType, cbJobComplete, jobTime, inventoryRequirements, jobRepeats);
+        }
+
         public virtual Job Clone()
         {
             return new Job(this);
