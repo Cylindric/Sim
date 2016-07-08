@@ -12,13 +12,13 @@ namespace Assets.Scripts.Controllers
         /* #################################################################### */
 
         private readonly Dictionary<Furniture, GameObject> _furnitureGameObjectMap = new Dictionary<Furniture, GameObject>();
-        private readonly Dictionary<string, Sprite> _furnitureSprites = new Dictionary<string, Sprite>();
+        //private readonly Dictionary<string, Sprite> _furnitureSprites = new Dictionary<string, Sprite>();
 
         /* #################################################################### */
         /* #                         PROPERTIES                               # */
         /* #################################################################### */
 
-        public static WorldController Instance { get; protected set; }
+        //public static WorldController Instance { get; protected set; }
 
         /// <summary>
         /// This is just a helper property to make it easier to access World.
@@ -159,50 +159,23 @@ namespace Assets.Scripts.Controllers
                 spriteName = spriteName.Substring(0, spriteName.LastIndexOf("_", StringComparison.Ordinal));
             }
 
-            if (_furnitureSprites.ContainsKey(spriteName) == false)
-            {
-                Debug.LogErrorFormat("Attempt to load missing sprite [{0}] failed!", spriteName);
-                return null;
-            }
-
-            return _furnitureSprites[spriteName];
+            var sprite = SpriteManager.Current.GetSprite(spriteName);
+            return sprite;
         }
 
         public Sprite GetSpriteForFurniture(string objectType)
         {
-            var spritename = objectType;
-
-            if (_furnitureSprites.ContainsKey(spritename))
-            {
-                return _furnitureSprites[spritename];
-            }
-
-            if (_furnitureSprites.ContainsKey(spritename + "_"))
-            {
-                return _furnitureSprites[spritename + "_"];
-            }
-
-            return null;
+            return SpriteManager.Current.GetSprite(objectType);
         }
 
         private void Start()
         {
-            LoadSprites();
             World.RegisterFurnitureCreatedCb(OnFurnitureCreated);
 
             // Go through any existing furniture (i.e. from save) call their onCreate.
             foreach (var furn in World._furnitures)
             {
                 OnFurnitureCreated(furn);
-            }
-        }
-
-        private void LoadSprites()
-        {
-            var sprites = Resources.LoadAll<Sprite>("Furniture/");
-            foreach (var sprite in sprites)
-            {
-                _furnitureSprites.Add(sprite.name, sprite);
             }
         }
     }

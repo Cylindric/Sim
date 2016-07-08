@@ -368,6 +368,7 @@ namespace Assets.Scripts.Model
         public void LoadFurnitureLua()
         {
             var filepath = Application.streamingAssetsPath;
+            filepath = Path.Combine(filepath, "Base");
             filepath = Path.Combine(filepath, "LUA");
             filepath = Path.Combine(filepath, "Furniture");
             foreach (var filename in Directory.GetFiles(filepath, "*.lua"))
@@ -387,6 +388,7 @@ namespace Assets.Scripts.Model
             this._furnitureJobPrototypes = new Dictionary<string, Job>();
 
             var filepath = Application.streamingAssetsPath;
+            filepath = Path.Combine(filepath, "Base");
             filepath = Path.Combine(filepath, "Data");
             filepath = Path.Combine(filepath, "Furniture.xml");
 
