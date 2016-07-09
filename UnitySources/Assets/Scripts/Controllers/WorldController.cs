@@ -1,6 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
+﻿using System.IO;
+using System.Xml;
 using System.Xml.Serialization;
 using Assets.Scripts.Model;
 using MoonSharp.RemoteDebugger;
@@ -29,10 +28,13 @@ namespace Assets.Scripts.Controllers
             Debug.Log("Save World clicked.");
             var filename = Path.Combine(Application.persistentDataPath, "SaveGame000.xml");
 
-            var serializer = new XmlSerializer(typeof(World));
-            TextWriter writer = new StreamWriter(filename);
-            serializer.Serialize(writer, World);
-            writer.Close();
+            var xml = new XmlDocument();
+            var xmlDeclaration = xml.CreateXmlDeclaration("1.0", "UTF-8", null);
+            var root = xml.DocumentElement;
+            xml.InsertBefore(xmlDeclaration, root);
+            var world = this.World.WriteXml(xml);
+            xml.AppendChild(world);
+            xml.Save(filename);
 
             Debug.Log("World saved to " + filename);
         }
@@ -85,11 +87,11 @@ namespace Assets.Scripts.Controllers
                 return;
             }
 
-            var serializer = new XmlSerializer(typeof(World));
-            var reader = new StreamReader(filename);
-            World = (World)serializer.Deserialize(reader);
-            reader.Close();
+            var xml = new XmlDocument();
+            xml.Load(filename);
+            this.World = World.ReadXml(xml);
 
+            // Center the camera.
             Camera.main.transform.position = new Vector3(World.Width / 2f, World.Height / 2f, Camera.main.transform.position.z);
         }
 

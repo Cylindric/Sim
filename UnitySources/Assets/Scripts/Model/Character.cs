@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Xml;
 using System.Xml.Schema;
-using System.Xml.Serialization;
 using Assets.Scripts.Pathfinding;
 using Assets.Scripts.Utilities;
 using UnityEngine;
@@ -13,7 +12,7 @@ namespace Assets.Scripts.Model
 {
     [DebuggerDisplay("Character at [{X}, {Y}]")]
     public class 
-        Character : IXmlSerializable
+        Character
     {
         /* #################################################################### */
         /* #                           FIELDS                                 # */
@@ -140,32 +139,29 @@ namespace Assets.Scripts.Model
             cbCharacterChanged -= cb;
         }
 
-        public XmlSchema GetSchema()
+        public void ReadXml(XmlNode xml)
         {
-            return null;
-        }
-
-        public void ReadXml(XmlReader reader)
-        {
-            // Read a single Inventory item in.
-            if (reader.ReadToDescendant("Inventory"))
+            var inventoryNode = xml.SelectSingleNode("./Inventory");
+            if (inventoryNode != null)
             {
                 this.Inventory = new Inventory();
                 this.Inventory.Character = this;
-                this.Inventory.ReadXml(reader);
+                this.Inventory.ReadXml(inventoryNode);
             }
         }
 
-        public void WriteXml(XmlWriter writer)
+        public XmlElement WriteXml(XmlDocument xml)
         {
-            writer.WriteStartElement("Character");
-            writer.WriteAttributeString("X", CurrentTile.X.ToString());
-            writer.WriteAttributeString("Y", CurrentTile.Y.ToString());
+            var character = xml.CreateElement("Character");
+            character.SetAttribute("x", CurrentTile.X.ToString());
+            character.SetAttribute("y", CurrentTile.Y.ToString());
+
             if (this.Inventory != null)
             {
-                this.Inventory.WriteXml(writer);
+                character.AppendChild(this.Inventory.WriteXml(xml));
             }
-            writer.WriteEndElement();
+
+            return character;
         }
 
         private void GetNewJob()
@@ -202,7 +198,6 @@ namespace Assets.Scripts.Model
                 AbandonJob();
                 _path = null;
                 DestTile = CurrentTile;
-                return;
             }
         }
 
@@ -219,7 +214,6 @@ namespace Assets.Scripts.Model
                     DestTile = CurrentTile;
                     return;
                 }
-
             }
 
             // We have a job, and it is reachable.

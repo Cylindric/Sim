@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
@@ -12,7 +13,7 @@ namespace Assets.Scripts.Model
     /// Furniture represents an object that is 'permanently' installed on a <see cref="Tile"/>.
     /// </summary>
     [MoonSharpUserData]
-    public class Furniture : IXmlSerializable
+    public class Furniture 
     {
         /* #################################################################### */
         /* #                           FIELDS                                 # */
@@ -395,50 +396,46 @@ namespace Assets.Scripts.Model
             //this.OffsetParameter("openness", deltaTime);
         }
 
-        /// <summary>
-        /// Part of the IXmlSerializable interface implementation.
-        /// </summary>
-        /// <returns>null</returns>
-        public XmlSchema GetSchema()
+        public void ReadXml(XmlElement element)
         {
-            return null;
-        }
-
-        public void ReadXmllPrototype(XmlReader reader)
-        {
-            
-        }
-            
-        public void ReadXml(XmlReader reader)
-        {
-            if (reader.ReadToDescendant("Param"))
+            var parameters = (XmlElement)element.SelectSingleNode("./Parameters");
+            if (parameters != null)
             {
-                do
+                var param = parameters.SelectNodes("./Param");
+                if (param != null)
                 {
-                    var k = reader.GetAttribute("name");
-                    var v = float.Parse(reader.GetAttribute("value"));
-                    _parameters[k] = v;
-                } while (reader.ReadToNextSibling("Param"));
+                    foreach (XmlNode p in param)
+                    {
+                        var name = p.Attributes["name"].Value;
+                        var value = float.Parse(p.InnerText);
+                        this.SetParameter(name, value);
+                    }
+                }
             }
         }
 
-        public void WriteXml(XmlWriter writer)
+        public XmlElement WriteXml(XmlDocument xml)
         {
-            writer.WriteStartElement("Furniture");
-            writer.WriteAttributeString("X", this.Tile.X.ToString());
-            writer.WriteAttributeString("Y", this.Tile.Y.ToString());
-            writer.WriteAttributeString("ObjectType", this.ObjectType);
-            // writer.WriteAttributeString("movementCost", this.MovementCost.ToString());
+            var furniture = xml.CreateElement("Furniture");
+            furniture.SetAttribute("x", this.Tile.X.ToString());
+            furniture.SetAttribute("y", this.Tile.Y.ToString());
+            furniture.SetAttribute("objectType", this.ObjectType);
 
-            foreach (var k in _parameters)
+            // Write out all the atmospheric data.
+            if (_parameters.Count > 0)
             {
-                writer.WriteStartElement("Param");
-                writer.WriteAttributeString("name", k.Key);
-                writer.WriteAttributeString("value", k.Value.ToString());
-                writer.WriteEndElement();
+                var paramElement = xml.CreateElement("Parameters");
+                foreach (var k in _parameters)
+                {
+                    var p = xml.CreateElement("Param");
+                    p.SetAttribute("name", k.Key);
+                    p.InnerText = k.Value.ToString(CultureInfo.InvariantCulture);
+                    paramElement.AppendChild(p);
+                }
+                furniture.AppendChild(paramElement);
             }
 
-            writer.WriteEndElement();
+            return furniture;
         }
 
         /// <summary>

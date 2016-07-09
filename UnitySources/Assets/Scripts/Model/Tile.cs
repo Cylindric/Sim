@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Xml;
@@ -12,7 +13,7 @@ namespace Assets.Scripts.Model
 {
     [DebuggerDisplay("Tile [{X},{Y}]")]
     [MoonSharpUserData]
-    public class Tile : IXmlSerializable
+    public class Tile
     {
         /* #################################################################### */
         /* #                         CONSTANT FIELDS                          # */
@@ -263,30 +264,36 @@ namespace Assets.Scripts.Model
             return Enterability.Yes;
         }
 
-        public XmlSchema GetSchema()
+        public void ReadXml(XmlElement element)
         {
-            return null;
+            this.Type = (TileType) int.Parse(element.Attributes["type"].Value);
+            this.Room = World.Instance.GetRoomFromId(int.Parse(element.GetAttribute("room")));
+            if (this.Room == null) return;
+            this.Room.AssignTile(this);
+
+            // Is there any inventory sitting on this tile?
+            var invs = (XmlElement)element.SelectSingleNode("./Inventory");
+            if (invs != null)
+            {
+                var objectType = invs.Attributes["objectType"].Value;
+                var stackSize = int.Parse(invs.Attributes["stackSize"].Value);
+                var maxStackSize = int.Parse(invs.Attributes["maxStackSize"].Value);
+                World.Instance.InventoryManager.PlaceInventory(this, new Inventory(objectType, maxStackSize, stackSize));
+            }
         }
 
-        public void ReadXml(XmlReader reader)
+        public XmlElement WriteXml(XmlDocument xml)
         {
-            //X = int.Parse(reader.GetAttribute("X")); // Already read by the World
-            //Y = int.Parse(reader.GetAttribute("Y")); // Already read by the World
-            Type = (TileType)int.Parse(reader.GetAttribute("Type"));
-            Room = World.Instance.GetRoomFromId(int.Parse(reader.GetAttribute("RoomID")));
-            if (Room == null) return;
-            Room.AssignTile(this);
-            //Debug.LogFormat("Read Tile [{0},{1}] with type {2}.", X, Y, Type.ToString());
-        }
-
-        public void WriteXml(XmlWriter writer)
-        {
-            writer.WriteStartElement("Tile");
-            writer.WriteAttributeString("X", X.ToString());
-            writer.WriteAttributeString("Y", Y.ToString());
-            writer.WriteAttributeString("RoomID", Room == null ? "-1" : Room.Id.ToString());
-            writer.WriteAttributeString("Type", ((int)Type).ToString());
-            writer.WriteEndElement();
+            var element = xml.CreateElement("Tile");
+            element.SetAttribute("x", this.X.ToString());
+            element.SetAttribute("y", this.Y.ToString());
+            element.SetAttribute("room", Room == null ? "-1" : Room.Id.ToString());
+            element.SetAttribute("type", ((int)Type).ToString());
+            if (this.Inventory != null)
+            {
+                element.AppendChild(this.Inventory.WriteXml(xml));
+            }
+            return element;
         }
 
         public Tile NorthNeighbour()

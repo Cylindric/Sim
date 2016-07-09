@@ -15,7 +15,7 @@
 		<Name>Door</Name>
 		<EnclosesRoom>True</EnclosesRoom>
 		<Params>
-			<Param name="openess">0</Param>
+			<Param name="openness">0</Param>
 			<Param name="is_opening">0</Param>
 		</Params>
 		<BuildingJob time="1">
