@@ -39,7 +39,7 @@ namespace Assets.Scripts.Controllers
 
             if (_jobGameObjectMap.ContainsKey(job))
             {
-                Debug.LogError("OnJobCreated called for a JobGO that already exists.");
+                // Debug.LogError("OnJobCreated called for a JobGO that already exists.");
                 return;
             }
 
@@ -49,7 +49,7 @@ namespace Assets.Scripts.Controllers
 
             jobGo.name = "JOB_" + job.JobObjectType + "_" + job.Tile.X + "_" + job.Tile.Y;
 
-            var posOffset = new Vector3((float)(job.FurniturePrototype._width - 1) / 2, (float)(job.FurniturePrototype._height - 1) / 2, 0);
+            var posOffset = new Vector3((float)(job.FurniturePrototype.Width - 1) / 2, (float)(job.FurniturePrototype.Height - 1) / 2, 0);
             jobGo.transform.position = new Vector3(job.Tile.X, job.Tile.Y, 0) + posOffset;
             jobGo.transform.SetParent(this.transform, true);
 
@@ -58,15 +58,15 @@ namespace Assets.Scripts.Controllers
             sr.color = new Color(0.5f, 1f, 0.5f, 0.25f);
             sr.sortingLayerName = "Jobs";
 
-            job.RegisterOnCompleteCallback(OnJobEnded);
-            job.RegisterOnCancelCallback(OnJobEnded);
+            job.RegisterOnJobCompletedCallback(OnJobEnded);
+            job.RegisterOnJobStoppedCallback(OnJobEnded);
         }
 
         private void OnJobEnded(Job job)
         {
             var jobGo = _jobGameObjectMap[job];
-            job.UnregisterOnCancelCallback(OnJobEnded);
-            job.UnregisterOnCompleteCallback(OnJobEnded);
+            job.UnregisterOnJobStoppedCallback(OnJobEnded);
+            job.UnregisterOnJobCompletedCallback(OnJobEnded);
             Destroy(jobGo);
         }
     }

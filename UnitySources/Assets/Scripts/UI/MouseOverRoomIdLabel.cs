@@ -1,4 +1,5 @@
 ﻿using Assets.Scripts.Controllers;
+using Assets.Scripts.Model;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -25,13 +26,12 @@ namespace Assets.Scripts.UI
                 return;
             }
 
-            var r = t.Room;
-            if (r == null)
+            if (t.Room == null)
             {
                 return;
             }
 
-            _myText.text = "Room: " + t.World._rooms.IndexOf(t.Room);
+            _myText.text = "Room: " + t.Room.Id;
         }
     }
 }

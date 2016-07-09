@@ -1,37 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using Debug = UnityEngine.Debug;
 
 namespace Assets.Scripts.Model
 {
     public class JobQueue
     {
-        private Queue<Job> _jobQueue;
+        private readonly List<Job> _jobQueue;
         private Action<Job> cbJobCreated;
 
         public JobQueue()
         {
-            _jobQueue = new Queue<Job>();
+            _jobQueue = new List<Job>();
         }
 
         public void Enqueue(Job j)
         {
-            if (j._jobTime < 0)
+            if (j.JobTime < 0)
             {
                 // Jobs with a build-time less than zero get insta-built.
                 j.DoWork(0);
                 return;
             }
 
-            _jobQueue.Enqueue(j);
+            _jobQueue.Add(j);
 
-            if (cbJobCreated != null)
-            {
-                cbJobCreated(j);
-            }
+            if (cbJobCreated != null) cbJobCreated(j);
         }
 
         public Job Dequeue()
@@ -41,7 +35,9 @@ namespace Assets.Scripts.Model
                 return null;
             }
 
-            return _jobQueue.Dequeue();
+            var job = _jobQueue.First();
+            _jobQueue.Remove(job);
+            return job;
         }
 
         public void RegisterJobCreationCallback(Action<Job> cb)
@@ -59,13 +55,11 @@ namespace Assets.Scripts.Model
             if (_jobQueue.Contains(job) == false)
             {
                 // Debug.LogError("Trying to remove a job that isn't in the queue!");
-                // A character was probably working this job, so it's not on the queue.
+                // A Character was probably working this job, so it's not on the queue.
                 return;
             }
 
-            var jobs = new List<Job>(_jobQueue);
-            jobs.Remove(job);
-            _jobQueue = new Queue<Job>(jobs);
+            _jobQueue.Remove(job);
         }
     }
 }

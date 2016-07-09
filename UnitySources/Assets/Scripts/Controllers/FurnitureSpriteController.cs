@@ -12,13 +12,13 @@ namespace Assets.Scripts.Controllers
         /* #################################################################### */
 
         private readonly Dictionary<Furniture, GameObject> _furnitureGameObjectMap = new Dictionary<Furniture, GameObject>();
-        private readonly Dictionary<string, Sprite> _furnitureSprites = new Dictionary<string, Sprite>();
+        //private readonly Dictionary<string, Sprite> _furnitureSprites = new Dictionary<string, Sprite>();
 
         /* #################################################################### */
         /* #                         PROPERTIES                               # */
         /* #################################################################### */
 
-        public static WorldController Instance { get; protected set; }
+        //public static WorldController Instance { get; protected set; }
 
         /// <summary>
         /// This is just a helper property to make it easier to access World.
@@ -37,7 +37,7 @@ namespace Assets.Scripts.Controllers
             furnGo.name = furn.ObjectType + "_" + furn.Tile.X + "_" + furn.Tile.Y;
             furnGo.transform.localScale = new Vector3(1.001f, 1.001f); // little bit of extra size to help prevent gaps between tiles. TODO: must be a cleverer way of doing this ;)
 
-            var posOffset = new Vector3((float)(furn._width - 1) / 2, (float)(furn._height - 1) / 2, 0);
+            var posOffset = new Vector3((float)(furn.Width - 1) / 2, (float)(furn.Height - 1) / 2, 0);
 
             furnGo.transform.position = new Vector3(furn.Tile.X, furn.Tile.Y, 0) + posOffset;
             furnGo.transform.SetParent(this.transform, true);
@@ -48,6 +48,33 @@ namespace Assets.Scripts.Controllers
             sr.sortingLayerName = "Furniture";
 
             furn.RegisterOnChangedCallback(OnFurnitureChanged);
+            furn.RegisterOnRemovedCallback(OnFurnitureRemoved);
+        }
+
+        private void OnFurnitureChanged(Furniture furn)
+        {
+            if (_furnitureGameObjectMap.ContainsKey(furn) == false)
+            {
+                Debug.LogError("OnFurnitureChanged failed - Furniture requested that is not in the map!");
+                return;
+            }
+
+            var furnGo = _furnitureGameObjectMap[furn];
+            furnGo.GetComponent<SpriteRenderer>().sprite = GetSpriteForFurniture(furn);
+            furnGo.GetComponent<SpriteRenderer>().color = furn.Tint;
+        }
+
+        private void OnFurnitureRemoved(Furniture furn)
+        {
+            if (_furnitureGameObjectMap.ContainsKey(furn) == false)
+            {
+                Debug.LogError("OnFurnitureRemoved failed - Furniture requested that is not in the map!");
+                return;
+            }
+
+            var furnGo = _furnitureGameObjectMap[furn];
+            Destroy(furnGo);
+            _furnitureGameObjectMap.Remove(furn);
         }
 
         public Sprite GetSpriteForFurniture(Furniture obj)
@@ -87,13 +114,13 @@ namespace Assets.Scripts.Controllers
             }
 
             // If it's a door, check openness and update the sprite accordingly.
-            if (obj.ObjectType == "Door") // TODO: fix this hard-coding of types
+            if (obj.ObjectType == "furn_door") // TODO: fix this hard-coding of types
             {
-                spriteName = "Door_";
+                spriteName = "furn_door_";
 
                 // Check for the EW/NS orientation
                 var t = World.GetTileAt(x + 1, y); // East
-                if (t != null && t.Furniture != null && t.Furniture.ObjectType == "Wall")
+                if (t != null && t.Furniture != null && t.Furniture.ObjectType == "furn_wall_steel")
                 {
                     spriteName += "EW_";
                 } else
@@ -132,64 +159,24 @@ namespace Assets.Scripts.Controllers
                 spriteName = spriteName.Substring(0, spriteName.LastIndexOf("_", StringComparison.Ordinal));
             }
 
-            if (_furnitureSprites.ContainsKey(spriteName) == false)
-            {
-                Debug.LogErrorFormat("Attempt to load missing sprite [{0}] failed!", spriteName);
-                return null;
-            }
-
-            return _furnitureSprites[spriteName];
+            var sprite = SpriteManager.Instance.GetSprite(spriteName);
+            return sprite;
         }
 
         public Sprite GetSpriteForFurniture(string objectType)
         {
-            var spritename = objectType;
-
-            if (_furnitureSprites.ContainsKey(spritename))
-            {
-                return _furnitureSprites[spritename];
-            }
-
-            if (_furnitureSprites.ContainsKey(spritename + "_"))
-            {
-                return _furnitureSprites[spritename + "_"];
-            }
-
-            return null;
+            return SpriteManager.Instance.GetSprite(objectType);
         }
 
         private void Start()
         {
-            LoadSprites();
             World.RegisterFurnitureCreatedCb(OnFurnitureCreated);
 
             // Go through any existing furniture (i.e. from save) call their onCreate.
-            foreach (var furn in World._furnitures)
+            foreach (var furn in World.Furnitures)
             {
                 OnFurnitureCreated(furn);
             }
-        }
-
-        private void LoadSprites()
-        {
-            var sprites = Resources.LoadAll<Sprite>("Furniture/");
-            foreach (var sprite in sprites)
-            {
-                _furnitureSprites.Add(sprite.name, sprite);
-            }
-        }
-
-        private void OnFurnitureChanged(Furniture furn)
-        {
-            if (_furnitureGameObjectMap.ContainsKey(furn) == false)
-            {
-                Debug.LogError("OnFurnitureChanged failed - Furniture requested that is not in the map!");
-                return;
-            }
-
-            var furnGo = _furnitureGameObjectMap[furn];
-            furnGo.GetComponent<SpriteRenderer>().sprite = GetSpriteForFurniture(furn);
-            furnGo.GetComponent<SpriteRenderer>().color = furn.Tint;
         }
     }
 }

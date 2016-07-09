@@ -1,10 +1,20 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Net;
+using System.Xml;
+using System.Xml.Schema;
+using System.Xml.Serialization;
+using Assets.Scripts.Controllers;
+using MoonSharp.Interpreter;
 using UnityEngine;
 
 namespace Assets.Scripts.Model
 {
-    public class Room
+    [MoonSharpUserData]
+    public class Room : IXmlSerializable
     {
         /* #################################################################### */
         /* #                         CONSTANT FIELDS                          # */
@@ -18,21 +28,23 @@ namespace Assets.Scripts.Model
 
         private List<Tile> _tiles = new List<Tile>();
 
-        private World _world;
-
         /* #################################################################### */
         /* #                           CONSTRUCTORS                           # */
         /* #################################################################### */
 
-        public Room(World world)
+        public Room()
         {
-            this._world = world;
             atmosphericGasses = new Dictionary<string, float>();
         }
 
-        public float Size
+        public int Size
         {
             get { return _tiles.Count; }
+        }
+
+        public int Id
+        {
+            get { return World.Instance.GetRoomId(this); }
         }
 
         /* #################################################################### */
@@ -54,7 +66,7 @@ namespace Assets.Scripts.Model
                 return true;
             }
 
-            return this == _tiles[0].World.GetOutsideRoom();
+            return this == World.Instance.GetOutsideRoom();
         }
 
         public void ChangeGas(string name, float amount)
@@ -93,7 +105,7 @@ namespace Assets.Scripts.Model
                 return 0f;
             }
 
-            var total = atmosphericGasses.Values.Sum(g => g);
+            var total = GetTotalAtmosphericPressure();
 
             if (Mathf.Approximately(total, 0))
             {
@@ -102,6 +114,17 @@ namespace Assets.Scripts.Model
 
             return atmosphericGasses[name]/total;
         }
+
+        public IEnumerable<string> GetGasNames()
+        {
+            return atmosphericGasses.Keys;
+        }
+
+        public float GetTotalAtmosphericPressure()
+        {
+            return atmosphericGasses.Values.Sum(g => g);
+        }
+
 
         public void AssignTile(Tile t)
         {
@@ -119,41 +142,62 @@ namespace Assets.Scripts.Model
             _tiles.Add(t);
         }
 
-        public void UnassignAllTiles()
+        public void ReturnTilesToOutsideRoom()
         {
             foreach (var t in _tiles)
             {
-                t.Room = t.World.GetOutsideRoom();
+                t.Room = World.Instance.GetOutsideRoom();
             }
             _tiles = new List<Tile>();
         }
 
-        public static void DoRoomFloodfill(Furniture furniture)
+        public static void DoRoomFloodfill(Tile sourceTile, bool onlyIfOutside = false)
         {
             // Get a reference to the World, for convenience.
-            var world = furniture.Tile.World;
+            var world = World.Instance;
+            var oldRoom = sourceTile.Room;
 
-            var oldRoom = furniture.Tile.Room;
-
-            // Create a new Room on each side of the selected Furniture.
-            foreach (var t in furniture.Tile.GetNeighbours())
+            if (oldRoom != null)
             {
-                FloodFill(t, oldRoom);
-            }
+                // The source Tile had a room, so this must be a new piece of Furniture
+                // That is potentially dividing this old Room into some new Rooms.
 
-            // Tiles with unpassable furniture are not in a room.
-            furniture.Tile.Room = null;
-            oldRoom._tiles.Remove(furniture.Tile);
-
-            // Unassign all Tiles from the Room that the Furniture is in.
-            // Never delete the outside Room.
-            if (oldRoom != world.GetOutsideRoom())
-            {
-                if (oldRoom._tiles.Count > 0)
+                // Create a new Room on each side of the selected Furniture.
+                foreach (var t in sourceTile.GetNeighbours())
                 {
-                    Debug.LogError("oldRoom still has tiles assigned to it!");
+                    if (t.Room != null && (onlyIfOutside == false || t.Room.IsOutsideRoom()))
+                    {
+                        FloodFill(t, oldRoom);
+                    }
                 }
-                world.DeleteRoom(oldRoom);
+
+                // Tiles with unpassable furniture are not in a room.
+                sourceTile.Room = null;
+                oldRoom._tiles.Remove(sourceTile);
+
+                // Unassign all Tiles from the Room that the Furniture is in.
+                // Never delete the outside Room.
+                if (oldRoom != world.GetOutsideRoom())
+                {
+                    if (oldRoom._tiles.Count > 0)
+                    {
+                        Debug.LogError("oldRoom still has tiles assigned to it!");
+                    }
+                    world.DeleteRoom(oldRoom);
+                }
+            }
+            else
+            {
+                // The old Room is null, which means the source Tile was probably a Room,
+                // but might not be now - so the wall was probably deconstructed.
+                // Turn any rooms connected to this Tile into one Room.
+
+                FloodFill(sourceTile, null);
+
+                //foreach (var t in sourceTile.GetNeighbours())
+                //{
+                //    FloodFill(t, null);
+                //}
             }
         }
 
@@ -166,13 +210,14 @@ namespace Assets.Scripts.Model
 
             if (tile.Room != oldRoom)
             {
-                // This Tile was already assigned to another new Room, so the direction picked isn'tile isolated.
+                // This Tile was already assigned to another new Room, 
+                // so the direction picked isn'Tile isolated.
                 return;
             }
 
             if (tile.Furniture != null && tile.Furniture.IsRoomEnclosure)
             {
-                // This Tile has a wall or door or something, so doesn'tile have a Room.
+                // This Tile has a wall or door or something, so doesn'Tile have a Room.
                 return;
             }
 
@@ -184,16 +229,19 @@ namespace Assets.Scripts.Model
 
             // If we get this far, we know that we need to create a new Room.
 
-            var newRoom = new Room(tile.World);
-
+            var newRoom = new Room();
             var tilesToCheck = new Queue<Tile>();
             tilesToCheck.Enqueue(tile);
 
+            bool isConnectedToSpace = false;
+            int processedTiles = 0;
+
             while (tilesToCheck.Count > 0)
             {
+                processedTiles++;
                 var t = tilesToCheck.Dequeue();
 
-                if (t.Room == oldRoom)
+                if (t.Room != newRoom)
                 {
                     newRoom.AssignTile(t);
 
@@ -203,23 +251,51 @@ namespace Assets.Scripts.Model
                         {
                             // We've hit an open-space Tile - either edge of the World, or an empty Tile.
                             // That means this new Room is actually now connected to the outside, so it's not valid.
-                            newRoom.UnassignAllTiles();
-                            return;
+                            isConnectedToSpace = true;
+                            //if (oldRoom != null)
+                            //{
+                            //    newRoom.ReturnTilesToOutsideRoom();
+                            //    return;
+                            //}
                         }
-
-                        if (t2.Room == oldRoom && (t2.Furniture == null || t2.Furniture.IsRoomEnclosure == false))
+                        else
                         {
-                            tilesToCheck.Enqueue(t2);
+                            if (
+                                t2.Room != newRoom && 
+                                (t2.Furniture == null || t2.Furniture.IsRoomEnclosure == false))
+                            {
+                                tilesToCheck.Enqueue(t2);
+                            }
                         }
                     }
                 }
             }
 
+            // Debug.LogFormat("Floodfill processed {0} tiles.", processedTiles);
+
+            if (isConnectedToSpace)
+            {
+                newRoom.ReturnTilesToOutsideRoom();
+                return;
+            }
+
             // Copy data from the old room to the new room.
-            newRoom.CopyGas(oldRoom);
+            if (oldRoom != null)
+            {
+                // In this case we are splitting one Room into two or more, so we
+                // can just keep the old gas values.
+                newRoom.CopyGas(oldRoom);
+            }
+            else
+            {
+                // In this case we are merging one or more rooms into one big Room.
+                // This means we have to make a decision on how to merge the gas levels.
+                
+                // TODO: something like newRoom.SplitGas(roomA, roomB);
+            }
 
             // Tell the World that a new Room has been created.
-            tile.World.AddRoom(newRoom);
+            World.Instance.AddRoom(newRoom);
         }
 
         private void CopyGas(Room other)
@@ -228,6 +304,48 @@ namespace Assets.Scripts.Model
             {
                 this.atmosphericGasses[gas.Key] = gas.Value;
             }
+        }
+
+        public XmlSchema GetSchema()
+        {
+            return null;
+        }
+
+        public void ReadXml(XmlReader reader)
+        {
+            if (reader.ReadToDescendant("Gasses"))
+            {
+                if (reader.ReadToDescendant("Gas"))
+                {
+                    do
+                    {
+                        var name = reader.GetAttribute("name");
+                        var value = float.Parse(reader.GetAttribute("amount"));
+                        this.atmosphericGasses[name] = value;
+                    } while (reader.ReadToNextSibling("Gas"));
+                }
+            }
+        }
+
+        public void WriteXml(XmlWriter writer)
+        {
+            writer.WriteStartElement("Room");
+            writer.WriteAttributeString("id", this.Id.ToString());
+
+            if (atmosphericGasses.Count > 0)
+            {
+                writer.WriteStartElement("Gasses");
+                foreach (var gas in atmosphericGasses)
+                {
+                    writer.WriteStartElement("Gas");
+                    writer.WriteAttributeString("name", gas.Key);
+                    writer.WriteAttributeString("amount", gas.Value.ToString(CultureInfo.InvariantCulture));
+                    writer.WriteEndElement();
+                }
+                writer.WriteEndElement();
+            }
+
+            writer.WriteEndElement();
         }
     }
 }

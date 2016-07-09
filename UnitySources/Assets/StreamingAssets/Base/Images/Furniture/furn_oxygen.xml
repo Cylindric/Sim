@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-16"?>
+<Sprites xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Sprite name="furn_oxygen" pixelsPerUnit="64"><Rect x="0" y="0" width="128" height="128" /><Pivot x="0.5" y="0.5" /></Sprite>
+</Sprites>

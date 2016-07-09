@@ -7,11 +7,6 @@ namespace Assets.Scripts.Controllers
 {
     public class TileSpriteController : MonoBehaviour
     {
-        public static WorldController Instance { get; protected set; }
-
-        public Sprite FloorSprite;
-        public Sprite EmptySprite;
-
         private readonly Dictionary<Tile, GameObject> _tileGameObjectMap = new Dictionary<Tile, GameObject>();
 
         private World _world { get { return WorldController.Instance.World; } }
@@ -33,7 +28,8 @@ namespace Assets.Scripts.Controllers
                     tileGo.transform.SetParent(this.transform, true);
 
                     var sr = tileGo.AddComponent<SpriteRenderer>();
-                    sr.sprite = EmptySprite;
+                    sr.sprite = null;
+                    sr.enabled = false;
                     sr.sortingLayerName = "Tiles";
 
                     OnTileChanged(tileData);
@@ -73,11 +69,15 @@ namespace Assets.Scripts.Controllers
 
             if (tileData.Type == TileType.Floor)
             {
-                tileGo.GetComponent<SpriteRenderer>().sprite = FloorSprite;
+                var sr = tileGo.GetComponent<SpriteRenderer>();
+                sr.sprite = SpriteManager.Instance.GetSprite("tile_floor"); ;
+                sr.enabled = true;
             }
             else if (tileData.Type == TileType.Empty)
             {
-                tileGo.GetComponent<SpriteRenderer>().sprite = EmptySprite;
+                var sr = tileGo.GetComponent<SpriteRenderer>();
+                sr.sprite = null;
+                sr.enabled = false;
             }
             else
             {

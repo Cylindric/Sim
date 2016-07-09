@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
+using MoonSharp.Interpreter;
 using UnityEngine;
 
 namespace Assets.Scripts.Model
@@ -10,27 +11,21 @@ namespace Assets.Scripts.Model
     /// <summary>
     /// Furniture represents an object that is 'permanently' installed on a <see cref="Tile"/>.
     /// </summary>
+    [MoonSharpUserData]
     public class Furniture : IXmlSerializable
     {
         /* #################################################################### */
         /* #                           FIELDS                                 # */
         /* #################################################################### */
 
-        public Func<Furniture, Enterability> IsEntereable;
-
-        private Dictionary<string, float> _parameters;
-
         /// <summary>
-        /// Width of the Object in Tiles.
+        /// Backing-field for the property "Name".
         /// </summary>
-        public readonly int _width = 1; // TODO: change to property
+        private string _name = string.Empty;
 
-        /// <summary>
-        /// Height of the Object in Tiles.
-        /// </summary>
-        public readonly int _height = 1; // TODO: change to property
+        private readonly Dictionary<string, float> _parameters;
 
-        private List<Job> _jobs;
+        private readonly List<Job> _jobs;
 
         /* #################################################################### */
         /* #                        CONSTRUCTORS                              # */
@@ -41,10 +36,19 @@ namespace Assets.Scripts.Model
         /// </summary>
         public Furniture()
         {
+            this.Name = string.Empty;
             this.LinksToNeighbour = false;
+            this.Tint = Color.white;
+            this.JobSpotOffset = Vector2.zero;
+            this.JobSpawnOffset = Vector2.zero;
+            this.MovementCost = 1f;
+            this.IsRoomEnclosure = false;
+            this.Width = 1;
+            this.Height = 1;
             this._parameters = new Dictionary<string, float>();
             this._jobs = new List<Job>();
-            this.Tint = Color.white;
+            this._cbUpdateActions = new List<string>();
+            this._cbIsEnterableAction = string.Empty;
         }
 
         /// <summary>
@@ -52,28 +56,28 @@ namespace Assets.Scripts.Model
         /// </summary>
         /// <remarks>Don't call this directly. Use Clone() instead.</remarks>
         /// <param name="other">The Furniture instance to copy.</param>
-        private Furniture(Furniture other)
+        private Furniture(Furniture other) : this()
         {
             this.ObjectType = other.ObjectType;
+            this.Name = other.Name;
             this.MovementCost = other.MovementCost;
-            this._width = other._width;
-            this._height = other._height;
+            this.Width = other.Width;
+            this.Height = other.Height;
             this.LinksToNeighbour = other.LinksToNeighbour;
-            this.IsEntereable = other.IsEntereable;
             this.IsRoomEnclosure = other.IsRoomEnclosure;
             this.Tint = other.Tint;
+            this.JobSpotOffset = other.JobSpotOffset;
+            this.JobSpawnOffset = other.JobSpawnOffset;
             this._parameters = new Dictionary<string, float>(other._parameters);
+            this._cbUpdateActions = new List<string>(other._cbUpdateActions);
+            this._cbIsEnterableAction = other._cbIsEnterableAction;
+            this.Width = other.Width;
+            this.Height = other.Height;
 
-            if (other._cbUpdateActions != null)
-            {
-                this._cbUpdateActions = (Action<Furniture, float>)other._cbUpdateActions.Clone();
-            }
             if (other._funcPositionValidation != null)
             {
                 this._funcPositionValidation = (Func<Tile, bool>)other._funcPositionValidation.Clone();
             }
-
-            this._jobs = new List<Job>();
         }
 
         /// <summary>
@@ -85,18 +89,16 @@ namespace Assets.Scripts.Model
         /// <param name="width">The width in Tiles of the new Furniture.</param>
         /// <param name="height">The height in Tiles of the new Furniture.</param>
         /// <param name="linksToNeighbour">Indicates whether this Furniture links to neighbouring Furniture or not.</param>
-        public Furniture(string objectType, float movementCost = 1f, int width = 1, int height = 1, bool linksToNeighbour = false, bool isRoomEnclosure = false)
+        /// <param name="isRoomEnclosure">Indicates that this Furnitures defines rooms.</param>
+        public Furniture(string objectType, float movementCost = 1f, int width = 1, int height = 1, bool linksToNeighbour = false, bool isRoomEnclosure = false) : this()
         {
             this.ObjectType = objectType;
             this.MovementCost = movementCost;
-            this._width = width;
-            this._height = height;
+            this.Width = width;
+            this.Height = height;
             this.LinksToNeighbour = linksToNeighbour;
             this._funcPositionValidation = this.__IsValidPosition;
-            this._parameters = new Dictionary<string, float>();
             this.IsRoomEnclosure = isRoomEnclosure;
-            this._jobs = new List<Job>();
-            this.Tint = Color.white;
         }
 
         /* #################################################################### */
@@ -104,12 +106,15 @@ namespace Assets.Scripts.Model
         /* #################################################################### */
 
         public Action<Furniture> cbOnChanged;
+        public Action<Furniture> cbOnRemoved;
 
         /// <summary>
         /// These actions are called on every update. They get called with a Furniture, and the deltaTime.
         /// </summary>
-        private Action<Furniture, float> _cbUpdateActions;
+        private List<string> _cbUpdateActions;
 
+        private string _cbIsEnterableAction;
+         
         private readonly Func<Tile, bool> _funcPositionValidation;
 
         /* #################################################################### */
@@ -122,9 +127,16 @@ namespace Assets.Scripts.Model
         public Tile Tile { get; private set; }
 
         /// <summary>
-        /// Gets the ObjectType for this object. Will lbe queried by the visual system to know what sprite to render for this object.
+        /// Gets the ObjectType for this object. Will be queried by the visual system to know what sprite to render for this object.
         /// </summary>
         public string ObjectType { get; private set; }
+
+        /// <summary>
+        /// Gets the Name of this object.
+        /// </summary>
+        public string Name {
+            get { return string.IsNullOrEmpty(_name) ? ObjectType : _name; }
+            set { _name = value; } }
 
         /// <summary>
         /// Gets a value indicating whether this Furniture links to neighbouring furniture of the same type?
@@ -144,6 +156,26 @@ namespace Assets.Scripts.Model
 
         public Color Tint { get; set; }
 
+        /// <summary>
+        /// Width of the Object in Tiles.
+        /// </summary>
+        public int Width { get; set; }
+
+        /// <summary>
+        /// Height of the Object in Tiles.
+        /// </summary>
+        public int Height { get; set; }
+
+        /// <summary>
+        /// If this furniture gets worked by a person, where is the correct place to stand?
+        /// </summary>
+        public Vector2 JobSpotOffset { get; set; }
+
+        /// <summary>
+        /// If this furniture spawns anything, where does it appear?
+        /// </summary>
+        public Vector2 JobSpawnOffset { get; set; }
+
         /* #################################################################### */
         /* #                           METHODS                                # */
         /* #################################################################### */
@@ -152,9 +184,19 @@ namespace Assets.Scripts.Model
         /// Gets the custom Furniture parameter.
         /// </summary>
         /// <param name="key">Key</param>
+        /// <returns>float</returns>
+        public float GetParameter(string key)
+        {
+            return GetParameter(key, 0f);
+        }
+
+        /// <summary>
+        /// Gets the custom Furniture parameter.
+        /// </summary>
+        /// <param name="key">Key</param>
         /// <param name="defaultValue">Default value</param>
         /// <returns>float</returns>
-        public float GetParameter(string key, float defaultValue = 0)
+        public float GetParameter(string key, float defaultValue)
         {
             if (_parameters.ContainsKey(key) == false)
             {
@@ -190,19 +232,37 @@ namespace Assets.Scripts.Model
         /// <summary>
         /// Registers a function that will be called on every Update.
         /// </summary>
-        /// <param name="a">Action to call.</param>
-        public void RegisterUpdateAction(Action<Furniture, float> a)
+        /// <param name="fname">Action to call.</param>
+        public void RegisterUpdateAction(string fname)
         {
-            _cbUpdateActions += a;
+            _cbUpdateActions.Add(fname);
+        }
+
+        /// <summary>
+        /// Unregisters a function that has been added with <see cref="RegisterIsEnterableAction"/>.
+        /// </summary>
+        /// <param name="fname">Action to remove.</param>
+        public void UnregisterIsEnterableAction()
+        {
+            _cbIsEnterableAction = string.Empty;
+        }
+
+        /// <summary>
+        /// Registers a function that will be called every time something needs to know if this Furniture is walkable.
+        /// </summary>
+        /// <param name="fname">Action to call.</param>
+        public void RegisterIsEnterableAction(string fname)
+        {
+            _cbIsEnterableAction = fname;
         }
 
         /// <summary>
         /// Unregisters a function that has been set to be called on every Update.
         /// </summary>
-        /// <param name="a">Action to remove.</param>
-        public void UnregisterUpdateAction(Action<Furniture, float> a)
+        /// <param name="fname">Action to remove.</param>
+        public void UnregisterUpdateAction(string fname)
         {
-            _cbUpdateActions -= a;
+            _cbUpdateActions.Remove(fname);
         }
 
         /// <summary>
@@ -215,7 +275,7 @@ namespace Assets.Scripts.Model
         {
             if (proto._funcPositionValidation(tile) == false)
             {
-                Debug.LogError("PlaceInstance position validity function returned false.");
+                Debug.LogErrorFormat("PlaceInstance position [{0},{1}] validity function for {2} returned false.", tile.X, tile.Y, proto.ObjectType);
                 return null;
             }
 
@@ -235,7 +295,7 @@ namespace Assets.Scripts.Model
                 int x = tile.X;
                 int y = tile.Y;
 
-                var t = tile.World.GetTileAt(x, y + 1);
+                var t = World.Instance.GetTileAt(x, y + 1);
                 if (t != null && t.Furniture != null && t.Furniture.cbOnChanged != null &&
                     t.Furniture.ObjectType == obj.ObjectType)
                 {
@@ -243,7 +303,7 @@ namespace Assets.Scripts.Model
                     t.Furniture.cbOnChanged(t.Furniture);
                 }
 
-                t = tile.World.GetTileAt(x + 1, y);
+                t = World.Instance.GetTileAt(x + 1, y);
                 if (t != null && t.Furniture != null && t.Furniture.cbOnChanged != null &&
                     t.Furniture.ObjectType == obj.ObjectType)
                 {
@@ -251,7 +311,7 @@ namespace Assets.Scripts.Model
                     t.Furniture.cbOnChanged(t.Furniture);
                 }
 
-                t = tile.World.GetTileAt(x, y - 1);
+                t = World.Instance.GetTileAt(x, y - 1);
                 if (t != null && t.Furniture != null && t.Furniture.cbOnChanged != null &&
                     t.Furniture.ObjectType == obj.ObjectType)
                 {
@@ -259,7 +319,7 @@ namespace Assets.Scripts.Model
                     t.Furniture.cbOnChanged(t.Furniture);
                 }
 
-                t = tile.World.GetTileAt(x - 1, y);
+                t = World.Instance.GetTileAt(x - 1, y);
                 if (t != null && t.Furniture != null && t.Furniture.cbOnChanged != null &&
                     t.Furniture.ObjectType == obj.ObjectType)
                 {
@@ -291,6 +351,16 @@ namespace Assets.Scripts.Model
             this.cbOnChanged -= cb;
         }
 
+        public void RegisterOnRemovedCallback(Action<Furniture> cb)
+        {
+            this.cbOnRemoved += cb;
+        }
+
+        public void UnRegisterOnRemovedCallback(Action<Furniture> cb)
+        {
+            this.cbOnRemoved -= cb;
+        }
+
         /// <summary>
         /// Called by the World each 'tick' to update this object.
         /// </summary>
@@ -299,9 +369,21 @@ namespace Assets.Scripts.Model
         {
             if (this._cbUpdateActions != null)
             {
-                this._cbUpdateActions(this, deltaTime);
+                FurnitureActions.CallFunctionsWithFurniture(_cbUpdateActions, this, deltaTime);
             }
         }
+
+        public Enterability IsEnterable()
+        {
+            if (string.IsNullOrEmpty(_cbIsEnterableAction))
+            {
+                return Enterability.Yes;
+            }
+
+            var ret = FurnitureActions.CallFunction(_cbIsEnterableAction, this);
+            return (Enterability)ret.Number;
+        }
+
 
         public bool IsValidPosition(Tile t)
         {
@@ -322,10 +404,13 @@ namespace Assets.Scripts.Model
             return null;
         }
 
+        public void ReadXmllPrototype(XmlReader reader)
+        {
+            
+        }
+            
         public void ReadXml(XmlReader reader)
         {
-            this.MovementCost = float.Parse(reader.GetAttribute("movementCost"));
-
             if (reader.ReadToDescendant("Param"))
             {
                 do
@@ -342,8 +427,8 @@ namespace Assets.Scripts.Model
             writer.WriteStartElement("Furniture");
             writer.WriteAttributeString("X", this.Tile.X.ToString());
             writer.WriteAttributeString("Y", this.Tile.Y.ToString());
-            writer.WriteAttributeString("objectType", this.ObjectType);
-            writer.WriteAttributeString("movementCost", this.MovementCost.ToString());
+            writer.WriteAttributeString("ObjectType", this.ObjectType);
+            // writer.WriteAttributeString("movementCost", this.MovementCost.ToString());
 
             foreach (var k in _parameters)
             {
@@ -363,11 +448,11 @@ namespace Assets.Scripts.Model
         /// <returns>True if the Tile is valid; else false.</returns>
         private bool __IsValidPosition(Tile t)
         {
-            for (var xOff = t.X; xOff < t.X + _width; xOff++)
+            for (var xOff = t.X; xOff < t.X + Width; xOff++)
             {
-                for (var yOff = t.Y; yOff < t.Y + _height; yOff++)
+                for (var yOff = t.Y; yOff < t.Y + Height; yOff++)
                 {
-                    var t2 = t.World.GetTileAt(xOff, yOff);
+                    var t2 = World.Instance.GetTileAt(xOff, yOff);
 
                     // Make sure Tile is of type Floor.
                     if (t2.Type != TileType.Floor)
@@ -388,31 +473,43 @@ namespace Assets.Scripts.Model
             return true;
         }
 
-        public void ClearJobs()
+        private void ClearJobs()
         {
-            foreach (var j in _jobs)
+            foreach (var j in _jobs.ToArray())
             {
-                j.CancelJob();
-                Tile.World.JobQueue.Remove(j);
+                RemoveJob(j);
             }
-
-            _jobs = new List<Job>();
         }
 
         public void AddJob(Job job)
         {
+            job.Furniture = this;
             _jobs.Add(job);
-            Tile.World.JobQueue.Enqueue(job);
+            job.RegisterOnJobStoppedCallback(OnJobStopped);
+            World.Instance.JobQueue.Enqueue(job);
         }
 
-        public void RemoveJob(Job job)
+        public void CancelJobs()
         {
-            _jobs.Remove(job);
-            job.CancelJob();
-            Tile.World.JobQueue.Remove(job);
+            foreach (var j in _jobs.ToArray())
+            {
+                j.CancelJob();
+            }
         }
 
-        public int GetJobCount()
+        private void RemoveJob(Job job)
+        {
+            job.UnregisterOnJobStoppedCallback(OnJobStopped);
+            _jobs.Remove(job);
+            job.Furniture = null;
+        }
+
+        public void OnJobStopped(Job job)
+        {
+            RemoveJob(job);
+        }
+
+        public int JobCount()
         {
             return _jobs.Count;
         }
@@ -420,6 +517,36 @@ namespace Assets.Scripts.Model
         public bool IsStockpile()
         {
             return ObjectType == "Stockpile";
+        }
+
+        public void Deconstruct()
+        {
+            Debug.Log("Deconstructing...");
+
+            Tile.UnplaceFurniture();
+
+            if (cbOnRemoved != null) cbOnRemoved(this);
+
+            // If we removed something that defines a Room, we need to re-set the Rooms around it.
+            if (IsRoomEnclosure)
+            {
+                Room.DoRoomFloodfill(this.Tile);
+            }
+
+            // If we've removed something, there's a fair chance routes to places have changed,
+            // so recalculate the pathfinding graph.
+            World.Instance.InvalidateTileGraph();
+        }
+
+        public Tile GetJobSpotTile()
+        {
+            var t = World.Instance.GetTileAt(Tile.X + (int)JobSpotOffset.x, Tile.Y + (int)JobSpotOffset.y);
+            return t;
+        }
+
+        public Tile GetSpawnSpotTile()
+        {
+            return World.Instance.GetTileAt(Tile.X + (int)JobSpawnOffset.x, Tile.Y + (int)JobSpawnOffset.y);
         }
     }
 }

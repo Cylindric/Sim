@@ -10,7 +10,7 @@ GameObject:
   - 224: {fileID: 22491196}
   - 223: {fileID: 22360976}
   - 114: {fileID: 11444688}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: InventoryUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -28,7 +28,7 @@ GameObject:
   - 222: {fileID: 22237940}
   - 114: {fileID: 11422694}
   - 114: {fileID: 11419110}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: QtyText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -143,7 +143,7 @@ RectTransform:
   m_RootOrder: 0
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: -0.42, y: 0.29}
+  m_AnchoredPosition: {x: -0.5, y: -0.5}
   m_SizeDelta: {x: 1, y: 1}
   m_Pivot: {x: 0, y: 0}
 --- !u!224 &22491196

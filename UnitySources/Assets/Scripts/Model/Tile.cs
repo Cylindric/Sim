@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
+using MoonSharp.Interpreter;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
 namespace Assets.Scripts.Model
 {
     [DebuggerDisplay("Tile [{X},{Y}]")]
+    [MoonSharpUserData]
     public class Tile : IXmlSerializable
     {
         /* #################################################################### */
@@ -20,8 +23,6 @@ namespace Assets.Scripts.Model
         /* #################################################################### */
         /* #                              FIELDS                              # */
         /* #################################################################### */
-
-        public Inventory inventory;
 
         private TileType _type = TileType.Empty;
 
@@ -35,7 +36,6 @@ namespace Assets.Scripts.Model
 
         public Tile(World world, int x, int y)
         {
-            this.World = world;
             this.X = x;
             this.Y = y;
         }
@@ -52,10 +52,10 @@ namespace Assets.Scripts.Model
 
         public int X { get; private set; }
         public int Y { get; private set; }
-        public World World { get; private set; }
         public Furniture Furniture { get; private set; }
         public Job PendingFurnitureJob { get; set; }
         public Room Room { get; set; }
+        public Inventory Inventory { get; set; }
 
         public TileType Type
         {
@@ -108,8 +108,20 @@ namespace Assets.Scripts.Model
             cbTileChanged += callback;
         }
 
-        public bool UninstallFurniture()
+        public bool UnplaceFurniture()
         {
+            if (Furniture == null) return false;
+
+            var f = Furniture;
+            for (var xOff = X; xOff < X + f.Width; xOff++)
+            {
+                for (var yOff = Y; yOff < Y + f.Height; yOff++)
+                {
+                    var t = World.Instance.GetTileAt(xOff, yOff);
+                    t.Furniture = null;
+                }
+            }
+
             Furniture = null;
             return true;
         }
@@ -118,7 +130,7 @@ namespace Assets.Scripts.Model
         {
             if (furn == null)
             {
-                return UninstallFurniture();
+                return UnplaceFurniture();
             }
                 
             if(furn.IsValidPosition(this) == false)
@@ -127,11 +139,11 @@ namespace Assets.Scripts.Model
                 return false;
             }
 
-            for (var x_off = X; x_off < X + furn._width; x_off++)
+            for (var xOff = X; xOff < X + furn.Width; xOff++)
             {
-                for (var y_off = Y; y_off < Y + furn._height; y_off++)
+                for (var yOff = Y; yOff < Y + furn.Height; yOff++)
                 {
-                    var t = World.GetTileAt(x_off, y_off);
+                    var t = World.Instance.GetTileAt(xOff, yOff);
                     t.Furniture = furn;
                 }
             }
@@ -144,35 +156,35 @@ namespace Assets.Scripts.Model
             // If a null inv is provided, clear the current object.
             if (inv == null)
             {
-                inventory = null;
+                Inventory = null;
                 return true;
             }
 
-            if (inventory != null)
+            if (Inventory != null)
             {
                 // Try to combine a stack.
-                if (inventory.objectType != inv.objectType)
+                if (Inventory.ObjectType != inv.ObjectType)
                 {
                     Debug.LogError("Trying to assign an Inventory to a Tile that already has some.");
                     return false;
                 }
 
-                int numToMove = inv.stackSize;
-                if (inventory.stackSize + numToMove > inventory.maxStackSize)
+                int numToMove = inv.StackSize;
+                if (Inventory.StackSize + numToMove > Inventory.MaxStackSize)
                 {
-                    numToMove = inventory.maxStackSize - inventory.stackSize;
+                    numToMove = Inventory.MaxStackSize - Inventory.StackSize;
                 }
 
-                inventory.stackSize += numToMove;
-                inv.stackSize -= numToMove;
+                Inventory.StackSize += numToMove;
+                inv.StackSize -= numToMove;
                 return true;
             }
 
-            // At this point, we know that the inventory is null.
-            inventory = inv.Clone();
-            inventory.tile = this;
-            inventory.character = null;
-            inv.stackSize = 0;
+            // At this point, we know that the Inventory is null.
+            Inventory = inv.Clone();
+            Inventory.Tile = this;
+            Inventory.Character = null;
+            inv.StackSize = 0;
 
             return true;
         }
@@ -219,17 +231,17 @@ namespace Assets.Scripts.Model
                 ns = new Tile[8]; // Tile order N E S W NE SE SW NW
             }
 
-            ns[0] = World.GetTileAt(X, Y + 1); // N
-            ns[1] = World.GetTileAt(X + 1, Y); // E
-            ns[2] = World.GetTileAt(X, Y - 1); // S
-            ns[3] = World.GetTileAt(X - 1, Y); // w
+            ns[0] = World.Instance.GetTileAt(X, Y + 1); // N
+            ns[1] = World.Instance.GetTileAt(X + 1, Y); // E
+            ns[2] = World.Instance.GetTileAt(X, Y - 1); // S
+            ns[3] = World.Instance.GetTileAt(X - 1, Y); // w
 
             if (allowDiagonal == true)
             {
-                ns[4] = World.GetTileAt(X + 1, Y + 1); // NE
-                ns[5] = World.GetTileAt(X + 1, Y - 1); // SE
-                ns[6] = World.GetTileAt(X - 1, Y - 1); // SW
-                ns[7] = World.GetTileAt(X - 1, Y + 1); // NW
+                ns[4] = World.Instance.GetTileAt(X + 1, Y + 1); // NE
+                ns[5] = World.Instance.GetTileAt(X + 1, Y - 1); // SE
+                ns[6] = World.Instance.GetTileAt(X - 1, Y - 1); // SW
+                ns[7] = World.Instance.GetTileAt(X - 1, Y + 1); // NW
             }
 
             return ns;
@@ -237,25 +249,19 @@ namespace Assets.Scripts.Model
 
         public Enterability IsEnterable()
         {
-            if (MovementCost == 0)
+            if (Mathf.Approximately(MovementCost, 0))
             {
                 return Enterability.Never;
             }
 
             // Check the furniture to see if it has any special rules on enterability.
-            if (Furniture != null && Furniture.IsEntereable != null)
+            if (Furniture != null)
             {
-                return Furniture.IsEntereable(Furniture);
+                return Furniture.IsEnterable();
             }
 
             return Enterability.Yes;
         }
-
-        ///////////////////////////////////////////////////////
-        /// 
-        ///                    LOADING / SAVING
-        /// 
-        ///////////////////////////////////////////////////////
 
         public XmlSchema GetSchema()
         {
@@ -264,9 +270,12 @@ namespace Assets.Scripts.Model
 
         public void ReadXml(XmlReader reader)
         {
-            //X = int.Parse(reader.GetAttribute("X"));
-            //Y = int.Parse(reader.GetAttribute("Y"));
+            //X = int.Parse(reader.GetAttribute("X")); // Already read by the World
+            //Y = int.Parse(reader.GetAttribute("Y")); // Already read by the World
             Type = (TileType)int.Parse(reader.GetAttribute("Type"));
+            Room = World.Instance.GetRoomFromId(int.Parse(reader.GetAttribute("RoomID")));
+            if (Room == null) return;
+            Room.AssignTile(this);
             //Debug.LogFormat("Read Tile [{0},{1}] with type {2}.", X, Y, Type.ToString());
         }
 
@@ -275,28 +284,34 @@ namespace Assets.Scripts.Model
             writer.WriteStartElement("Tile");
             writer.WriteAttributeString("X", X.ToString());
             writer.WriteAttributeString("Y", Y.ToString());
+            writer.WriteAttributeString("RoomID", Room == null ? "-1" : Room.Id.ToString());
             writer.WriteAttributeString("Type", ((int)Type).ToString());
             writer.WriteEndElement();
         }
 
         public Tile NorthNeighbour()
         {
-            return World.GetTileAt(X, Y + 1);
+            return World.Instance.GetTileAt(X, Y + 1);
         }
 
         public Tile EastNeighbour()
         {
-            return World.GetTileAt(X + 1, Y);
+            return World.Instance.GetTileAt(X + 1, Y);
         }
 
         public Tile SouthNeighbour()
         {
-            return World.GetTileAt(X, Y - 1);
+            return World.Instance.GetTileAt(X, Y - 1);
         }
 
         public Tile WestNeighbour()
         {
-            return World.GetTileAt(X -1, Y);
+            return World.Instance.GetTileAt(X -1, Y);
+        }
+
+        public override string ToString()
+        {
+            return string.Format("Tile [{0},{1}] T:{2}", X, Y, Type);
         }
     }
 }

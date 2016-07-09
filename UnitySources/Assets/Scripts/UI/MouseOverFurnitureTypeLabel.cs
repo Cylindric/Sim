@@ -30,7 +30,7 @@ namespace Assets.Scripts.UI
                 return;
             }
 
-            _myText.text = "Furniture: " + t.Furniture.ObjectType;
+            _myText.text = "Furniture: " + t.Furniture.Name;
         }
         
     }

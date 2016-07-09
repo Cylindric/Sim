@@ -26,6 +26,7 @@ namespace Assets.Scripts.UI
             }
 
             _myText.text = "Tile Type: " + t.Type;
+            _myText.text += string.Format(" [{0},{1}]", t.X, t.Y);
         }
         
     }

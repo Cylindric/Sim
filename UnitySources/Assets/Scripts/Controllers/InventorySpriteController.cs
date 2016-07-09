@@ -10,7 +10,6 @@ namespace Assets.Scripts.Controllers
         public GameObject inventoryUIPrefab;
 
         private readonly Dictionary<Inventory, GameObject> _inventoryGameObjectMap = new Dictionary<Inventory, GameObject>();
-        private readonly Dictionary<string, Sprite> _inventorySprites = new Dictionary<string, Sprite>();
 
         /// <summary>
         /// This is just a helper property to make it easier to access World.
@@ -19,7 +18,6 @@ namespace Assets.Scripts.Controllers
 
         private void Start()
         {
-            LoadSprites();
             World.RegisterInventoryCreatedCb(OnInventoryCreated);
 
             foreach (var objectType in World.InventoryManager.Inventories.Keys)
@@ -42,25 +40,20 @@ namespace Assets.Scripts.Controllers
             var invGo = new GameObject();
             _inventoryGameObjectMap.Add(inv, invGo);
 
-            invGo.name = "Inv" + inv.objectType;
-            invGo.transform.position = new Vector3(inv.tile.X, inv.tile.Y, 0);
+            invGo.name = "Inv" + inv.ObjectType;
+            invGo.transform.position = new Vector3(inv.Tile.X, inv.Tile.Y, 0);
             invGo.transform.SetParent(this.transform, true);
 
             var sr = invGo.AddComponent<SpriteRenderer>();
-
-            if (_inventorySprites.ContainsKey(inv.objectType) == false)
-            {
-                Debug.Log("Could not find sprite for " + inv.objectType);
-            }
-            sr.sprite = _inventorySprites[inv.objectType];
+            sr.sprite = GetSpriteForInventory(inv);
             sr.sortingLayerName = "Inventory";
 
-            if (inv.maxStackSize > 1)
+            if (inv.MaxStackSize > 1)
             {
                 var uiGo = Instantiate(inventoryUIPrefab);
                 uiGo.transform.SetParent(invGo.transform);
                 uiGo.transform.localPosition = Vector3.zero;
-                uiGo.GetComponentInChildren<Text>().text = inv.stackSize.ToString();
+                uiGo.GetComponentInChildren<Text>().text = inv.StackSize.ToString();
             }
 
             inv.RegisterInventoryChangedCallback(OnInventoryChanged);
@@ -76,13 +69,13 @@ namespace Assets.Scripts.Controllers
 
             var invGo = _inventoryGameObjectMap[inv];
 
-            if (inv.stackSize > 0)
+            if (inv.StackSize > 0)
             {
                 var text = invGo.GetComponentInChildren<Text>();
 
                 if (text != null)
                 {
-                    text.text = inv.stackSize.ToString();
+                    text.text = inv.StackSize.ToString();
                 }
             }
             else
@@ -93,33 +86,12 @@ namespace Assets.Scripts.Controllers
                 inv.UnRegisterInventoryChangedCallback(OnInventoryChanged);
             }
 
-            invGo.transform.position = new Vector3(inv.tile.X, inv.tile.Y, 0);
+            invGo.transform.position = new Vector3(inv.Tile.X, inv.Tile.Y, 0);
         }
 
-        private void LoadSprites()
+        public Sprite GetSpriteForInventory(Inventory obj)
         {
-            var sprites = Resources.LoadAll<Sprite>("Inventory/");
-            if (sprites.Length == 0)
-            {
-                Debug.LogError("Failed to load any sprites from the spritesheet [Inventory/]");
-            }
-            foreach (var sprite in sprites)
-            {
-                _inventorySprites.Add(sprite.name, sprite);
-            }
-        }
-
-        public Sprite GetSpriteForCharacter(Character obj)
-        {
-            var spriteName = "body";
-
-            if (_inventorySprites.ContainsKey(spriteName) == false)
-            {
-                Debug.LogErrorFormat("Attempt to load missing sprite [{0}] failed!", spriteName);
-                return null;
-            }
-
-            return _inventorySprites[spriteName];
+            return SpriteManager.Instance.GetSprite("inventory_" + obj.ObjectType);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿    using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Assets.Scripts.Model;
 using Priority_Queue;
@@ -12,7 +12,7 @@ namespace Assets.Scripts.Pathfinding
 
         public Path_AStar(World world, Tile tileStart, Tile tileEnd) {
 
-            // Check to see if we have a valid tile graph
+            // Check to see if we have a valid Tile graph
             if(world.TileGraph == null) {
                 world.TileGraph = new Path_TileGraph(world);
             }
@@ -22,12 +22,12 @@ namespace Assets.Scripts.Pathfinding
 
             // Make sure our start/end tiles are in the list of nodes!
             if(nodes.ContainsKey(tileStart) == false) {
-                Debug.LogError("Path_AStar: The starting tile isn't in the list of nodes!");
+                Debug.LogError("Path_AStar: The starting Tile isn't in the list of nodes!");
 
                 return;
             }
             if(nodes.ContainsKey(tileEnd) == false) {
-                Debug.LogError("Path_AStar: The ending tile isn't in the list of nodes!");
+                Debug.LogError("Path_AStar: The ending Tile isn't in the list of nodes!");
                 return;
             }
 
@@ -160,7 +160,7 @@ namespace Assets.Scripts.Pathfinding
             }
 
             // At this point, total_path is a queue that is running
-            // backwards from the END tile to the START tile, so let's reverse it.
+            // backwards from the END Tile to the START Tile, so let's reverse it.
 
             _path = new Queue<Tile>( total_path.Reverse() );
 

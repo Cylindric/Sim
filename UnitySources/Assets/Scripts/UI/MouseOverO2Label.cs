@@ -29,8 +29,8 @@ namespace Assets.Scripts.UI
 
         private void Update()
         {
-            const string template = "O<size=6>2</size>: {0:P0}";
-            _myText.text = "O<size=6>2</size>: 0";
+            const string template = "{0}: {1:P0}  "; // Name, Percentage
+            _myText.text = "Unknown Atmosphere";
 
             var t = _mouseController.GetTileUnderMouse();
             if (t == null)
@@ -44,20 +44,25 @@ namespace Assets.Scripts.UI
                 return;
             }
 
-            if (t.Room.GetGasPercentage("O2") < 0.06f)
+            var text = string.Empty;
+            if (t.Room.GetTotalAtmosphericPressure() < 0.035)
             {
-                _myText.color = Color.red;
-            }
-            else if (t.Room.GetGasPercentage("O2") < 0.1f)
-            {
-                _myText.color = Color.red;
-            }
-            else
-            {
-                _myText.color = Color.green;
+                _myText.text = "Vacuum";
+                return;
             }
 
-            _myText.text = string.Format(template, t.Room.GetGasAmount("O2"));
+            foreach (var gas in t.Room.GetGasNames())
+            {
+                var percentage = t.Room.GetGasPercentage(gas);
+                text += string.Format(template, gas, percentage);
+            }
+
+            if (string.IsNullOrEmpty(text))
+            {
+                return;
+            }
+
+            _myText.text = string.Format("Air Pressure: {0:#0} mbar\n{1}", t.Room.GetTotalAtmosphericPressure()*1000, text);
         }
     }
 }

@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Xml.Serialization;
 using Assets.Scripts.Model;
+using MoonSharp.RemoteDebugger;
 using UnityEngine;
-using UnityEngine.Analytics;
 using UnityEngine.SceneManagement;
+using Debug = UnityEngine.Debug;
 
 namespace Assets.Scripts.Controllers
 {
@@ -47,9 +49,10 @@ namespace Assets.Scripts.Controllers
             var x = Mathf.FloorToInt(coord.x + 0.5f);
             var y = Mathf.FloorToInt(coord.y + 0.5f);
 
-            //Debug.LogFormat("Mouse at [{0},{1}]  [{2},{3}]", coord.x, coord.y, x, y);
-            return World.GetTileAt(x, y);
+            return World.Instance.GetTileAt(x, y);
         }
+
+        RemoteDebuggerService remoteDebugger;
 
         /// <summary>
         /// Called by Unity when the controller is created. 
@@ -88,9 +91,6 @@ namespace Assets.Scripts.Controllers
             reader.Close();
 
             Camera.main.transform.position = new Vector3(World.Width / 2f, World.Height / 2f, Camera.main.transform.position.z);
-
-            //  Use this call for wherever a player triggers a custom event
-            Analytics.CustomEvent("GameLoad", new Dictionary<string, object>() { {"save", "SaveGame000.xml"} });
         }
 
         private void CreateEmptyWorld()

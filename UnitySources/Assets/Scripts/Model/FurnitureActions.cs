@@ -1,40 +1,100 @@
-﻿using Assets.Scripts.Controllers;
-using UnityEngine;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
+using Assets.Scripts.Controllers;
+using MoonSharp.Interpreter;
+using MoonSharp.RemoteDebugger;
+using MoonSharp.RemoteDebugger.Network;
+using Debug = UnityEngine.Debug;
 
 namespace Assets.Scripts.Model
 {
-    public static class FurnitureActions
+    public class FurnitureActions
     {
-        public static void Door_UpdateAction(Furniture furn, float deltaTime)
+        private static FurnitureActions _instance;
+        private Script myLuaScript;
+
+        private RemoteDebuggerService remoteDebugger;
+
+        private void ActivateRemoteDebugger(Script script)
         {
-            if (furn.GetParameter("is_opening") >= 1f)
+            if (remoteDebugger == null)
             {
-                furn.OffsetParameter("openness", deltaTime*4);
-
-                if (furn.GetParameter("openness") >= 1f)
+                remoteDebugger = new RemoteDebuggerService(new RemoteDebuggerOptions()
                 {
-                    furn.SetParameter("is_opening", 0);
-                }
+                    NetworkOptions = Utf8TcpServerOptions.LocalHostOnly | Utf8TcpServerOptions.SingleClientOnly,
+                    // SingleScriptMode = true,
+                    HttpPort = 2705,
+                    RpcPortBase = 2006,
+                });
+                remoteDebugger.Attach(script, "FurnitureActions", true);
             }
-            else
-            {
-                furn.OffsetParameter("openness", deltaTime * -4);
-            }
-
-            furn.SetParameter("openness", Mathf.Clamp01(furn.GetParameter("openness")));
-            furn.cbOnChanged(furn);
+            Process.Start(remoteDebugger.HttpUrlStringLocalHost);
         }
 
-        public static Enterability Door_IsEnterable(Furniture furn)
-        {
-            furn.SetParameter("is_opening", 1);
 
-            if (furn.GetParameter("openness") >= 1)
+        static FurnitureActions()
+        {
+            UserData.RegisterAssembly();
+
+            _instance = new FurnitureActions();
+            _instance.myLuaScript = new Script();
+            _instance.myLuaScript.Globals["Inventory"] = typeof(Inventory);
+            _instance.myLuaScript.Globals["Job"] = typeof(Job);
+            _instance.myLuaScript.Globals["World"] = typeof(World);
+            //_instance.ActivateRemoteDebugger(_instance.myLuaScript);
+        }
+
+        public static void LoadLua(string rawLuaCode)
+        {
+            // Tell LUA to load all the classes that we have marked as MoonSharpUserData
+            var result = _instance.myLuaScript.DoString(rawLuaCode);
+            if (result.Type == DataType.String)
             {
-                return Enterability.Yes;
+                Debug.LogError(result.String);
+            }
+        }
+
+        public static void CallFunctionsWithFurniture(IEnumerable<string> functionNames, Furniture furn, float deltaTime)
+        {
+            foreach (var fname in functionNames)
+            {
+                var func = _instance.myLuaScript.Globals[fname];
+
+                if (func == null)
+                {
+                    Debug.LogErrorFormat("Function {0} is not a LUA function.", fname);
+                    return;
+                }
+
+                var result = _instance.myLuaScript.Call(func, new object[] { furn, deltaTime });
+                if (result.Type != DataType.Void)
+                {
+                    if (result.Type == DataType.Number)
+                        Debug.LogFormat("{0} {1}", fname, result.Number);
+
+                    if (result.Type == DataType.String)
+                        Debug.LogFormat("{0} {1}", fname, result.String);
+
+                    if (result.Type == DataType.UserData)
+                    {
+                        Debug.LogFormat("{0} {1}", fname, result.UserData.Object.ToString());
+                    }
+
+                }
+            }
+        }
+
+        public static DynValue CallFunction(string fname, params object[] args)
+        {
+            var func = _instance.myLuaScript.Globals[fname];
+
+            if (func == null)
+            {
+                Debug.LogErrorFormat("Function {0} is not a Lua function.", fname);
+                return DynValue.Nil;
             }
 
-            return Enterability.Soon;
+            return _instance.myLuaScript.Call(func, args);
         }
 
         public static void JobComplete_FurnitureBuilding(Job theJob)
@@ -43,109 +103,17 @@ namespace Assets.Scripts.Model
             theJob.Tile.PendingFurnitureJob = null;
         }
 
-        public static Inventory[] Stockpile_GetItemsFromFilter()
-        {
-            return new Inventory[1] { new Inventory("Steel Plate", 50, 0) };
-        }
+        //public static void MiningConsole_JobComplete(Job job)
+        //{
+        //    // Spawn some Steel Plates from the console
+        //    var steel = new Inventory("steel_plate", 50, 5);
+        //    World.Instance.InventoryManager.PlaceInventory(job.Furniture.GetSpawnSpotTile(), steel);
+        //}
 
-        /// <summary>
-        /// Ensures that there is Job on the queue asking for Inventory for this Stockpile.
-        /// </summary>
-        /// <remarks>
-        /// This doesn't need to run on every Update. It only needs to run whenever:
-        ///   -- It gets created
-        ///   -- An item gets delivered
-        ///   -- An item gets picked up
-        ///   -- This stockpile is reconfigured
-        /// </remarks>
-        /// <param name="furn"></param>
-        /// <param name="deltaTime"></param>
-        public static void Stockpile_UpdateAction(Furniture furn, float deltaTime)
-        {
-            if (furn.Tile.inventory != null && furn.Tile.inventory.stackSize >= furn.Tile.inventory.maxStackSize)
-            {
-                // We are full!
-                furn.ClearJobs();
-                return;
-            }
-
-            // Maybe we already have a job queued up?
-            if (furn.GetJobCount() > 0)
-            {
-                // All done.
-                return;
-            }
-
-            // We currently are NOT full, but we don't have a job either.
-            // We either have some inventory already, or no inventory yet.
-            // Alternatively, something has gone wrong.
-            if (furn.Tile.inventory != null && furn.Tile.inventory.stackSize == 0)
-            {
-                Debug.LogError("Stockpile has a zero-size stack.");
-                furn.ClearJobs();
-                return;
-            }
-
-            Inventory[] itemsDesired;
-
-            // Make sure there's a job on the queue asking for inventory to be brought to us.
-            if (furn.Tile.inventory == null)
-            {
-                itemsDesired = Stockpile_GetItemsFromFilter();
-            }
-            else
-            {
-                // Some stuff is here, but we're not full.
-                var desiredInv = furn.Tile.inventory.Clone();
-                desiredInv.maxStackSize -= desiredInv.stackSize;
-                desiredInv.stackSize = 0;
-
-                itemsDesired = new Inventory[1] {desiredInv};
-            }
-
-            var j = new Job(
-                tile: furn.Tile,
-                jobObjectType: null,
-                cb: null,
-                jobTime: 0f,
-                requirements: itemsDesired);
-
-            j.CanTakeFromStockpile = false;
-            j.RegisteJobWorkedCallback(Stockpile_JobWorked);
-
-            furn.AddJob(j);
-        }
-
-        private static void Stockpile_JobWorked(Job j)
-        {
-            j.Tile.Furniture
-                .RemoveJob(j);
-
-            foreach (var inv in j._inventoryRequirements.Values)
-            {
-                if (inv.stackSize > 0)
-                {
-                    j.Tile.World.InventoryManager.PlaceInventory(j.Tile, inv);
-                    return;
-                }
-            }
-        }
-
-        public static void OygenGenerator_UpdateAction(Furniture furn, float deltaTime)
-        {
-            // The base fill-rate for the O2 Generator.
-            var baseRate = 0.001f;
-
-            // The rate depends on the size of the room being affected.
-            // Larger rooms take longer
-            var roomSizeMulti = 1f/furn.Tile.Room.Size;
-
-            // The final rate
-            var rate = baseRate*roomSizeMulti;
-
-
-            // Debug.LogFormat("Pumping {0} O2", 0.1f/deltaTime);
-            furn.Tile.Room.ChangeGas("O2", rate * deltaTime);
-        }
+        ////public static void MiningConsole_JobStopped(Job job)
+        ////{
+        ////    job.UnregisterOnJobStoppedCallback(MiningConsole_JobStopped);
+        ////    job.Furniture.RemoveJob(job);
+        ////}
     }
 }
