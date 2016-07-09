@@ -159,13 +159,13 @@ namespace Assets.Scripts.Controllers
                 spriteName = spriteName.Substring(0, spriteName.LastIndexOf("_", StringComparison.Ordinal));
             }
 
-            var sprite = SpriteManager.Current.GetSprite(spriteName);
+            var sprite = SpriteManager.Instance.GetSprite(spriteName);
             return sprite;
         }
 
         public Sprite GetSpriteForFurniture(string objectType)
         {
-            return SpriteManager.Current.GetSprite(objectType);
+            return SpriteManager.Instance.GetSprite(objectType);
         }
 
         private void Start()
@@ -173,7 +173,7 @@ namespace Assets.Scripts.Controllers
             World.RegisterFurnitureCreatedCb(OnFurnitureCreated);
 
             // Go through any existing furniture (i.e. from save) call their onCreate.
-            foreach (var furn in World._furnitures)
+            foreach (var furn in World.Furnitures)
             {
                 OnFurnitureCreated(furn);
             }

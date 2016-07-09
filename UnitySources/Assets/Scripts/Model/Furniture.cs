@@ -295,7 +295,7 @@ namespace Assets.Scripts.Model
                 int x = tile.X;
                 int y = tile.Y;
 
-                var t = World.Current.GetTileAt(x, y + 1);
+                var t = World.Instance.GetTileAt(x, y + 1);
                 if (t != null && t.Furniture != null && t.Furniture.cbOnChanged != null &&
                     t.Furniture.ObjectType == obj.ObjectType)
                 {
@@ -303,7 +303,7 @@ namespace Assets.Scripts.Model
                     t.Furniture.cbOnChanged(t.Furniture);
                 }
 
-                t = World.Current.GetTileAt(x + 1, y);
+                t = World.Instance.GetTileAt(x + 1, y);
                 if (t != null && t.Furniture != null && t.Furniture.cbOnChanged != null &&
                     t.Furniture.ObjectType == obj.ObjectType)
                 {
@@ -311,7 +311,7 @@ namespace Assets.Scripts.Model
                     t.Furniture.cbOnChanged(t.Furniture);
                 }
 
-                t = World.Current.GetTileAt(x, y - 1);
+                t = World.Instance.GetTileAt(x, y - 1);
                 if (t != null && t.Furniture != null && t.Furniture.cbOnChanged != null &&
                     t.Furniture.ObjectType == obj.ObjectType)
                 {
@@ -319,7 +319,7 @@ namespace Assets.Scripts.Model
                     t.Furniture.cbOnChanged(t.Furniture);
                 }
 
-                t = World.Current.GetTileAt(x - 1, y);
+                t = World.Instance.GetTileAt(x - 1, y);
                 if (t != null && t.Furniture != null && t.Furniture.cbOnChanged != null &&
                     t.Furniture.ObjectType == obj.ObjectType)
                 {
@@ -452,7 +452,7 @@ namespace Assets.Scripts.Model
             {
                 for (var yOff = t.Y; yOff < t.Y + Height; yOff++)
                 {
-                    var t2 = World.Current.GetTileAt(xOff, yOff);
+                    var t2 = World.Instance.GetTileAt(xOff, yOff);
 
                     // Make sure Tile is of type Floor.
                     if (t2.Type != TileType.Floor)
@@ -486,7 +486,7 @@ namespace Assets.Scripts.Model
             job.Furniture = this;
             _jobs.Add(job);
             job.RegisterOnJobStoppedCallback(OnJobStopped);
-            World.Current.JobQueue.Enqueue(job);
+            World.Instance.JobQueue.Enqueue(job);
         }
 
         public void CancelJobs()
@@ -535,18 +535,18 @@ namespace Assets.Scripts.Model
 
             // If we've removed something, there's a fair chance routes to places have changed,
             // so recalculate the pathfinding graph.
-            World.Current.InvalidateTileGraph();
+            World.Instance.InvalidateTileGraph();
         }
 
         public Tile GetJobSpotTile()
         {
-            var t = World.Current.GetTileAt(Tile.X + (int)JobSpotOffset.x, Tile.Y + (int)JobSpotOffset.y);
+            var t = World.Instance.GetTileAt(Tile.X + (int)JobSpotOffset.x, Tile.Y + (int)JobSpotOffset.y);
             return t;
         }
 
         public Tile GetSpawnSpotTile()
         {
-            return World.Current.GetTileAt(Tile.X + (int)JobSpawnOffset.x, Tile.Y + (int)JobSpawnOffset.y);
+            return World.Instance.GetTileAt(Tile.X + (int)JobSpawnOffset.x, Tile.Y + (int)JobSpawnOffset.y);
         }
     }
 }

@@ -13,7 +13,7 @@ namespace Assets.Scripts.UI
         {
             var bmc = GameObject.FindObjectOfType<BuildModeController>();
 
-            foreach (var s in World.Current._furniturePrototypes.Values)
+            foreach (var s in World.Instance.FurniturePrototypes.Values)
             {
                 var go = (GameObject)Instantiate(BuildButtonPrefab);
                 go.transform.SetParent(this.transform);

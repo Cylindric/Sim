@@ -21,14 +21,15 @@ namespace Assets.Scripts.Model
         /* #                           FIELDS                                 # */
         /* #################################################################### */
         public JobQueue JobQueue;
-        public List<Character> _characters;
-        public List<Furniture> _furnitures;
-        public List<Room> _rooms;
+        public List<Character> Characters;
+        public List<Furniture> Furnitures;
+        public List<Room> Rooms;
         public InventoryManager InventoryManager;
 
+        public Dictionary<string, Furniture> FurniturePrototypes;
+        public Dictionary<string, Job> FurnitureJobPrototypes;
+
         private Tile[,] _tiles;
-        public Dictionary<string, Furniture> _furniturePrototypes;
-        public Dictionary<string, Job> _furnitureJobPrototypes;
 
         /* #################################################################### */
         /* #                        CONSTRUCTORS                              # */
@@ -37,12 +38,12 @@ namespace Assets.Scripts.Model
         public World()
         {
             this.JobQueue = new JobQueue();
-            this._characters = new List<Character>();
-            this._furnitures = new List<Furniture>();
+            this.Characters = new List<Character>();
+            this.Furnitures = new List<Furniture>();
             this.InventoryManager = new InventoryManager();
 
-            this._rooms = new List<Room>();
-            this._rooms.Add(new Room()); // Add the default 'outside' room.
+            this.Rooms = new List<Room>();
+            this.Rooms.Add(new Room()); // Add the default 'outside' room.
         }
 
         public World(int width, int height) : this()
@@ -61,7 +62,7 @@ namespace Assets.Scripts.Model
         /* #################################################################### */
         /* #                         PROPERTIES                               # */
         /* #################################################################### */
-        public static World Current { get; private set; }
+        public static World Instance { get; private set; }
         public Path_TileGraph TileGraph { get; set; } // TODO: this PathTileGraph really shouldn't be fully public like this.
         public int Width { get; private set; }
         public int Height { get; private set; }
@@ -72,12 +73,12 @@ namespace Assets.Scripts.Model
 
         public void Update(float deltaTime)
         {
-            foreach (var c in this._characters)
+            foreach (var c in this.Characters)
             {
                 c.Update(deltaTime);
             }
 
-            foreach (var f in this._furnitures)
+            foreach (var f in this.Furnitures)
             {
                 f.Update(deltaTime);
             }
@@ -86,7 +87,7 @@ namespace Assets.Scripts.Model
         public Character CreateCharacter(Tile t)
         {
             var c = new Character(t);
-            this._characters.Add(c);
+            this.Characters.Add(c);
 
             if (this._cbCharacterCreated != null)
             {
@@ -98,7 +99,7 @@ namespace Assets.Scripts.Model
 
         public Room GetOutsideRoom()
         {
-            return _rooms[0];
+            return Rooms[0];
         }
 
         public void DeleteRoom(Room r)
@@ -110,7 +111,7 @@ namespace Assets.Scripts.Model
             }
 
             // Remove the current room from the list of rooms.
-            _rooms.Remove(r);
+            Rooms.Remove(r);
 
             // Make sure no tiles point to this room.
             r.ReturnTilesToOutsideRoom();
@@ -118,7 +119,7 @@ namespace Assets.Scripts.Model
 
         public void AddRoom(Room r)
         {
-            _rooms.Add(r);
+            Rooms.Add(r);
         }
 
         public Tile GetTileAt(int x, int y)
@@ -133,13 +134,13 @@ namespace Assets.Scripts.Model
 
         public Furniture PlaceFurniture(string objectType, Tile t, bool doRoomFloodFill = true)
         {
-            if (this._furniturePrototypes.ContainsKey(objectType) == false)
+            if (this.FurniturePrototypes.ContainsKey(objectType) == false)
             {
                 Debug.LogErrorFormat("Tried to place an object [{0}] for which we don't have a prototype.", objectType);
                 return null;
             }
 
-            var furn = Furniture.PlaceInstance(this._furniturePrototypes[objectType], t);
+            var furn = Furniture.PlaceInstance(this.FurniturePrototypes[objectType], t);
 
             if (furn == null)
             {
@@ -148,7 +149,7 @@ namespace Assets.Scripts.Model
             }
 
             furn.RegisterOnRemovedCallback(OnFurnitureRemoved);
-            this._furnitures.Add(furn);
+            this.Furnitures.Add(furn);
 
             // Recalculate rooms?
             if (furn.IsRoomEnclosure & doRoomFloodFill)
@@ -222,7 +223,7 @@ namespace Assets.Scripts.Model
 
         public bool IsFurniturePlacementValid(string furnitureType, Tile t)
         {
-            return this._furniturePrototypes[furnitureType].IsValidPosition(t);
+            return this.FurniturePrototypes[furnitureType].IsValidPosition(t);
         }
 
         public void SetupPathfindingTestMap()
@@ -301,6 +302,7 @@ namespace Assets.Scripts.Model
                         break;
                 }
             }
+            reader.Close();
 
             Inventory inv = new Inventory("steel_plate", 50, 50);
             Tile t = GetTileAt(Width / 2, Height / 2);
@@ -318,7 +320,7 @@ namespace Assets.Scripts.Model
 
 
             writer.WriteStartElement("Rooms");
-            foreach (var room in this._rooms.Skip(1)) // Don't save the outside room
+            foreach (var room in this.Rooms.Skip(1)) // Don't save the outside room
             {
                 room.WriteXml(writer);
             }
@@ -346,14 +348,14 @@ namespace Assets.Scripts.Model
             writer.WriteEndElement();
 
             writer.WriteStartElement("Furnitures");
-            foreach (var furn in this._furnitures)
+            foreach (var furn in this.Furnitures)
             {
                 furn.WriteXml(writer);
             }
             writer.WriteEndElement();
 
             writer.WriteStartElement("Characters");
-            foreach (var character in this._characters)
+            foreach (var character in this.Characters)
             {
                 character.WriteXml(writer);
             }
@@ -362,7 +364,7 @@ namespace Assets.Scripts.Model
 
         public void SetFurnitureJobPrototype(Job j, Furniture f)
         {
-            _furnitureJobPrototypes[f.ObjectType] = j;
+            FurnitureJobPrototypes[f.ObjectType] = j;
         }
 
         public void LoadFurnitureLua()
@@ -384,8 +386,8 @@ namespace Assets.Scripts.Model
         {
             LoadFurnitureLua();
 
-            this._furniturePrototypes = new Dictionary<string, Furniture>();
-            this._furnitureJobPrototypes = new Dictionary<string, Job>();
+            this.FurniturePrototypes = new Dictionary<string, Furniture>();
+            this.FurnitureJobPrototypes = new Dictionary<string, Job>();
 
             var filepath = Application.streamingAssetsPath;
             filepath = Path.Combine(filepath, "Base");
@@ -415,7 +417,7 @@ namespace Assets.Scripts.Model
                 furn.JobSpawnOffset = XmlParser.ParseVector2(furniture, ".//JobSpawnOffset");
 
                 Debug.Log("Adding Furniture Prototype " + objectType);
-                this._furniturePrototypes.Add(objectType, furn);
+                this.FurniturePrototypes.Add(objectType, furn);
 
                 var parameters = furniture.SelectSingleNode(".//Params");
                 if (parameters != null)
@@ -426,7 +428,7 @@ namespace Assets.Scripts.Model
 
                         var name = param.Attributes["name"].InnerText;
                         var value = float.Parse(param.InnerText);
-                        this._furniturePrototypes[objectType].SetParameter(name, value);
+                        this.FurniturePrototypes[objectType].SetParameter(name, value);
                     }
                 }
 
@@ -457,17 +459,16 @@ namespace Assets.Scripts.Model
                     var time = float.Parse(buildJob.Attributes["time"].InnerText);
 
                     var inventory = new List<Inventory>();
-                    //foreach (XmlNode inv in buildJob.SelectNodes(".//Inventory"))
-                    //{
-                    //    var newReq = new Inventory(
-                    //        objectType: inv.Attributes["objectType"].InnerText,
-                    //        maxStackSize: int.Parse(inv.Attributes["amount"].InnerText),
-                    //        stackSize: 0
-                    //        );
+                    foreach (XmlNode inv in buildJob.SelectNodes(".//Inventory"))
+                    {
+                        var newReq = new Inventory(
+                            objectType: inv.Attributes["objectType"].InnerText,
+                            maxStackSize: int.Parse(inv.Attributes["amount"].InnerText),
+                            stackSize: 0
+                            );
 
-                    //    inventory.Add(newReq);
-                        
-                    //}
+                        inventory.Add(newReq);
+                    }
 
                     var newJob = new Job(
                         tile: null,
@@ -480,28 +481,19 @@ namespace Assets.Scripts.Model
                         Name = "Build_" + objectType
                     };
 
-                    this._furnitureJobPrototypes.Add(
+                    this.FurnitureJobPrototypes.Add(
                         key: objectType,
                         value: newJob
                     );
-                    // Debug.LogFormat("Added Job to Furniture {0}...", objectType);
                 }
 
                 Debug.LogFormat("Loaded Furniture {0} succeeded.", objectType);
             }
-
-            // TODO: This will come from LUA later
-            //this._furniturePrototypes["furn_door"].RegisterUpdateAction(FurnitureActions.Door_UpdateAction);
-            //this._furniturePrototypes["furn_door"].IsEntereable = FurnitureActions.Door_IsEnterable;
-            //this._furniturePrototypes["mining_station"].RegisterUpdateAction(FurnitureActions.MiningConsole_UpdateAction);
-            //this._furniturePrototypes["stockpile"].RegisterUpdateAction(FurnitureActions.Stockpile_UpdateAction);
-            //this._furniturePrototypes["oxygen"].RegisterUpdateAction(FurnitureActions.OygenGenerator_UpdateAction);
-            //this._furniturePrototypes["stockpile"].Tint = new Color32(255, 158, 158, 255);
         }
 
         private void SetupWorld(int width, int height)
         {
-            Current = this;
+            Instance = this;
 
             this.Width = width;
             this.Height = height;
@@ -514,7 +506,7 @@ namespace Assets.Scripts.Model
                 {
                     this._tiles[x, y] = new Tile(this, x, y);
                     this._tiles[x, y].RegisterTileTypeChangedCallback(this.OnTileChanged);
-                    this._tiles[x, y].Room = _rooms[0];
+                    this._tiles[x, y].Room = Rooms[0];
                 }
             }
 
@@ -522,8 +514,8 @@ namespace Assets.Scripts.Model
 
             this.CreateFurniturePrototypes();
 
-            this._characters = new List<Character>();
-            this._furnitures = new List<Furniture>();
+            this.Characters = new List<Character>();
+            this.Furnitures = new List<Furniture>();
             this.InventoryManager = new InventoryManager();
         }
 
@@ -586,7 +578,7 @@ namespace Assets.Scripts.Model
                     count++;
 
                     var r = new Room();
-                    _rooms.Add(r);
+                    Rooms.Add(r);
                     r.ReadXml(reader);
 
                     //int x = int.Parse(reader.GetAttribute("X"));
@@ -624,21 +616,21 @@ namespace Assets.Scripts.Model
 
         public void OnFurnitureRemoved(Furniture furn)
         {
-            _furnitures.Remove(furn);
+            Furnitures.Remove(furn);
         }
 
         public int GetRoomId(Room room)
         {
-            return _rooms.IndexOf(room);
+            return Rooms.IndexOf(room);
         }
 
         public Room GetRoomFromId(int id)
         {
-            if (id < 0 || id > _rooms.Count - 1)
+            if (id < 0 || id > Rooms.Count - 1)
             {
                 return null;
             }
-            return _rooms[id];
+            return Rooms[id];
         }
     }
 }

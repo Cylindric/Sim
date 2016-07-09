@@ -44,7 +44,7 @@ namespace Assets.Scripts.Model
 
         public int Id
         {
-            get { return World.Current.GetRoomId(this); }
+            get { return World.Instance.GetRoomId(this); }
         }
 
         /* #################################################################### */
@@ -66,7 +66,7 @@ namespace Assets.Scripts.Model
                 return true;
             }
 
-            return this == World.Current.GetOutsideRoom();
+            return this == World.Instance.GetOutsideRoom();
         }
 
         public void ChangeGas(string name, float amount)
@@ -146,7 +146,7 @@ namespace Assets.Scripts.Model
         {
             foreach (var t in _tiles)
             {
-                t.Room = World.Current.GetOutsideRoom();
+                t.Room = World.Instance.GetOutsideRoom();
             }
             _tiles = new List<Tile>();
         }
@@ -154,7 +154,7 @@ namespace Assets.Scripts.Model
         public static void DoRoomFloodfill(Tile sourceTile, bool onlyIfOutside = false)
         {
             // Get a reference to the World, for convenience.
-            var world = World.Current;
+            var world = World.Instance;
             var oldRoom = sourceTile.Room;
 
             if (oldRoom != null)
@@ -295,7 +295,7 @@ namespace Assets.Scripts.Model
             }
 
             // Tell the World that a new Room has been created.
-            World.Current.AddRoom(newRoom);
+            World.Instance.AddRoom(newRoom);
         }
 
         private void CopyGas(Room other)

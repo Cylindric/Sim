@@ -224,7 +224,7 @@ namespace Assets.Scripts.Model
         {
             if (cbOnJobStopped != null) cbOnJobStopped(this);
 
-            World.Current.JobQueue.Remove(this);
+            World.Instance.JobQueue.Remove(this);
         }
 
         public bool HasAllMaterial()

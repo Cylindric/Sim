@@ -96,7 +96,7 @@ function Stockpile_JobWorked(j)
 	--values = j.GetInventoryRequirementValues();
 	for k, inv in pairs(j.InventoryRequirements) do
 		if(inv.StackSize > 0) then
-			World.Current.InventoryManager.PlaceInventory(j.tile, inv)
+			World.Instance.InventoryManager.PlaceInventory(j.tile, inv)
 
 			return  -- There should be no way that we ever end up with more than on inventory requirement with stackSize > 0
 		end

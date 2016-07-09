@@ -38,7 +38,6 @@ end
 
 
 function MiningDroneStation_JobComplete(j)
-  --return "test"
   req = Inventory.__new("steel_plate", 50, 20)
-  World.Current.InventoryManager.PlaceInventory(j.Furniture.GetSpawnSpotTile(), req)
+  World.Instance.InventoryManager.PlaceInventory(j.Furniture.GetSpawnSpotTile(), req)
 end

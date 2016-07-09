@@ -1,20 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using Debug = UnityEngine.Debug;
 
 namespace Assets.Scripts.Model
 {
     public class JobQueue
     {
-        private Queue<Job> _jobQueue;
+        private readonly List<Job> _jobQueue;
         private Action<Job> cbJobCreated;
 
         public JobQueue()
         {
-            _jobQueue = new Queue<Job>();
+            _jobQueue = new List<Job>();
         }
 
         public void Enqueue(Job j)
@@ -26,12 +23,9 @@ namespace Assets.Scripts.Model
                 return;
             }
 
-            _jobQueue.Enqueue(j);
+            _jobQueue.Add(j);
 
-            if (cbJobCreated != null)
-            {
-                cbJobCreated(j);
-            }
+            if (cbJobCreated != null) cbJobCreated(j);
         }
 
         public Job Dequeue()
@@ -41,7 +35,9 @@ namespace Assets.Scripts.Model
                 return null;
             }
 
-            return _jobQueue.Dequeue();
+            var job = _jobQueue.First();
+            _jobQueue.Remove(job);
+            return job;
         }
 
         public void RegisterJobCreationCallback(Action<Job> cb)
@@ -63,9 +59,7 @@ namespace Assets.Scripts.Model
                 return;
             }
 
-            var jobs = new List<Job>(_jobQueue);
-            jobs.Remove(job);
-            _jobQueue = new Queue<Job>(jobs);
+            _jobQueue.Remove(job);
         }
     }
 }

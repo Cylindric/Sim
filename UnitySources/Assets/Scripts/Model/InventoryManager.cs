@@ -30,7 +30,7 @@ namespace Assets.Scripts.Model
                 }
                 if (inv.Character != null)
                 {
-                    inv.Character.inventory = null;
+                    inv.Character.Inventory = null;
                     inv.Character = null;
                 }
             }
@@ -56,7 +56,7 @@ namespace Assets.Scripts.Model
                 }
                 Inventories[tile.Inventory.ObjectType].Add(tile.Inventory);
 
-                World.Current.OnInventoryCreated(tile.Inventory);
+                World.Instance.OnInventoryCreated(tile.Inventory);
             }
 
             return true;
@@ -101,23 +101,23 @@ namespace Assets.Scripts.Model
             // If the qty is greater than what's available, limit it to what is available
             qty = Mathf.Min(qty, source.StackSize);
 
-            if (character.inventory == null)
+            if (character.Inventory == null)
             {
-                character.inventory = source.Clone();
-                character.inventory.StackSize = 0;
-                Inventories[character.inventory.ObjectType].Add(character.inventory);
+                character.Inventory = source.Clone();
+                character.Inventory.StackSize = 0;
+                Inventories[character.Inventory.ObjectType].Add(character.Inventory);
 
-            } else if (character.inventory.ObjectType != source.ObjectType)
+            } else if (character.Inventory.ObjectType != source.ObjectType)
             {
                 Debug.LogError("Character is trying to pick up Inventory when already carrying something else.");
                 return false;
             }
 
             // If the Qty is greater than the Character's capacity, limit to capacity
-            qty = Mathf.Min(character.inventory.Space, qty);
+            qty = Mathf.Min(character.Inventory.Space, qty);
             
             // Transfer the items from the source to the Character
-            character.inventory.StackSize += qty;
+            character.Inventory.StackSize += qty;
             source.StackSize -= qty;
 
             // If the stack-size is zero, remove it.

@@ -49,7 +49,7 @@ namespace Assets.Scripts.Controllers
             var x = Mathf.FloorToInt(coord.x + 0.5f);
             var y = Mathf.FloorToInt(coord.y + 0.5f);
 
-            return World.Current.GetTileAt(x, y);
+            return World.Instance.GetTileAt(x, y);
         }
 
         RemoteDebuggerService remoteDebugger;

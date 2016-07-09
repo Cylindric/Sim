@@ -107,7 +107,7 @@ namespace Assets.Scripts.Model
         //{
         //    // Spawn some Steel Plates from the console
         //    var steel = new Inventory("steel_plate", 50, 5);
-        //    World.Current.InventoryManager.PlaceInventory(job.Furniture.GetSpawnSpotTile(), steel);
+        //    World.Instance.InventoryManager.PlaceInventory(job.Furniture.GetSpawnSpotTile(), steel);
         //}
 
         ////public static void MiningConsole_JobStopped(Job job)

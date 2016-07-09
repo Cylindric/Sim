@@ -117,7 +117,7 @@ namespace Assets.Scripts.Model
             {
                 for (var yOff = Y; yOff < Y + f.Height; yOff++)
                 {
-                    var t = World.Current.GetTileAt(xOff, yOff);
+                    var t = World.Instance.GetTileAt(xOff, yOff);
                     t.Furniture = null;
                 }
             }
@@ -143,7 +143,7 @@ namespace Assets.Scripts.Model
             {
                 for (var yOff = Y; yOff < Y + furn.Height; yOff++)
                 {
-                    var t = World.Current.GetTileAt(xOff, yOff);
+                    var t = World.Instance.GetTileAt(xOff, yOff);
                     t.Furniture = furn;
                 }
             }
@@ -231,17 +231,17 @@ namespace Assets.Scripts.Model
                 ns = new Tile[8]; // Tile order N E S W NE SE SW NW
             }
 
-            ns[0] = World.Current.GetTileAt(X, Y + 1); // N
-            ns[1] = World.Current.GetTileAt(X + 1, Y); // E
-            ns[2] = World.Current.GetTileAt(X, Y - 1); // S
-            ns[3] = World.Current.GetTileAt(X - 1, Y); // w
+            ns[0] = World.Instance.GetTileAt(X, Y + 1); // N
+            ns[1] = World.Instance.GetTileAt(X + 1, Y); // E
+            ns[2] = World.Instance.GetTileAt(X, Y - 1); // S
+            ns[3] = World.Instance.GetTileAt(X - 1, Y); // w
 
             if (allowDiagonal == true)
             {
-                ns[4] = World.Current.GetTileAt(X + 1, Y + 1); // NE
-                ns[5] = World.Current.GetTileAt(X + 1, Y - 1); // SE
-                ns[6] = World.Current.GetTileAt(X - 1, Y - 1); // SW
-                ns[7] = World.Current.GetTileAt(X - 1, Y + 1); // NW
+                ns[4] = World.Instance.GetTileAt(X + 1, Y + 1); // NE
+                ns[5] = World.Instance.GetTileAt(X + 1, Y - 1); // SE
+                ns[6] = World.Instance.GetTileAt(X - 1, Y - 1); // SW
+                ns[7] = World.Instance.GetTileAt(X - 1, Y + 1); // NW
             }
 
             return ns;
@@ -273,7 +273,7 @@ namespace Assets.Scripts.Model
             //X = int.Parse(reader.GetAttribute("X")); // Already read by the World
             //Y = int.Parse(reader.GetAttribute("Y")); // Already read by the World
             Type = (TileType)int.Parse(reader.GetAttribute("Type"));
-            Room = World.Current.GetRoomFromId(int.Parse(reader.GetAttribute("RoomID")));
+            Room = World.Instance.GetRoomFromId(int.Parse(reader.GetAttribute("RoomID")));
             if (Room == null) return;
             Room.AssignTile(this);
             //Debug.LogFormat("Read Tile [{0},{1}] with type {2}.", X, Y, Type.ToString());
@@ -291,22 +291,22 @@ namespace Assets.Scripts.Model
 
         public Tile NorthNeighbour()
         {
-            return World.Current.GetTileAt(X, Y + 1);
+            return World.Instance.GetTileAt(X, Y + 1);
         }
 
         public Tile EastNeighbour()
         {
-            return World.Current.GetTileAt(X + 1, Y);
+            return World.Instance.GetTileAt(X + 1, Y);
         }
 
         public Tile SouthNeighbour()
         {
-            return World.Current.GetTileAt(X, Y - 1);
+            return World.Instance.GetTileAt(X, Y - 1);
         }
 
         public Tile WestNeighbour()
         {
-            return World.Current.GetTileAt(X -1, Y);
+            return World.Instance.GetTileAt(X -1, Y);
         }
 
         public override string ToString()

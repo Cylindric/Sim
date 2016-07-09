@@ -45,17 +45,24 @@ namespace Assets.Scripts.UI
             }
 
             var text = string.Empty;
-            foreach (var name in t.Room.GetGasNames())
+            if (t.Room.GetTotalAtmosphericPressure() < 0.035)
             {
-                var percentage = t.Room.GetGasPercentage(name);
-                text += string.Format(template, name, percentage);
+                _myText.text = "Vacuum";
+                return;
             }
 
-            if (!string.IsNullOrEmpty(text))
+            foreach (var gas in t.Room.GetGasNames())
             {
-                text = string.Format("Air Pressure: {0:#0} mbar\n{1}", t.Room.GetTotalAtmosphericPressure()*1000, text);
-                _myText.text = text;
+                var percentage = t.Room.GetGasPercentage(gas);
+                text += string.Format(template, gas, percentage);
             }
+
+            if (string.IsNullOrEmpty(text))
+            {
+                return;
+            }
+
+            _myText.text = string.Format("Air Pressure: {0:#0} mbar\n{1}", t.Room.GetTotalAtmosphericPressure()*1000, text);
         }
     }
 }

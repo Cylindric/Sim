@@ -7,7 +7,6 @@ namespace Assets.Scripts.Controllers
     class CharacterSpriteController : MonoBehaviour
     {
         private readonly Dictionary<Character, GameObject> _characterGameObjectMap = new Dictionary<Character, GameObject>();
-        private readonly Dictionary<string, Sprite> _characterSprites = new Dictionary<string, Sprite>();
 
         /// <summary>
         /// This is just a helper property to make it easier to access World.
@@ -16,10 +15,9 @@ namespace Assets.Scripts.Controllers
 
         private void Start()
         {
-            LoadSprites();
             World.RegisterCharacterCreatedCb(OnCharacterCreated);
 
-            foreach (var c in World._characters)
+            foreach (var c in World.Characters)
             {
                 OnCharacterCreated(c);
             }
@@ -58,30 +56,9 @@ namespace Assets.Scripts.Controllers
             charGo.transform.position = new Vector3(character.X, character.Y, 0);
         }
 
-        private void LoadSprites()
-        {
-            var sprites = Resources.LoadAll<Sprite>("Characters/Colonist");
-            if (sprites.Length == 0)
-            {
-                Debug.LogError("Failed to load any sprites from the spritesheet [Characters/Colonist]2");
-            }
-            foreach (var sprite in sprites)
-            {
-                _characterSprites.Add(sprite.name, sprite);
-            }
-        }
-
         public Sprite GetSpriteForCharacter(Character obj)
         {
-            var spriteName = "body";
-
-            if (_characterSprites.ContainsKey(spriteName) == false)
-            {
-                Debug.LogErrorFormat("Attempt to load missing sprite [{0}] failed!", spriteName);
-                return null;
-            }
-
-            return _characterSprites[spriteName];
+            return SpriteManager.Instance.GetSprite("colonist_body");
         }
     }
 }

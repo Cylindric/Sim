@@ -12,7 +12,7 @@ namespace Assets.Scripts.Controllers
         /* #                         CONSTANT FIELDS                          # */
         /* #################################################################### */
 
-        enum MouseMode
+        private enum MouseMode
         {
             Select,
             Build
@@ -26,9 +26,9 @@ namespace Assets.Scripts.Controllers
         private Vector3 _currentFramePosition;
         private Vector3 _dragStartPosition;
         private List<GameObject> _dragPreviewGameObjects;
-        private BuildModeController bmc;
-        private FurnitureSpriteController fsc;
-        private bool IsDragging = false;
+        private BuildModeController _bmc;
+        private FurnitureSpriteController _fsc;
+        private bool _isDragging = false;
         private MouseMode _mode = MouseMode.Select;
 
         /* #################################################################### */
@@ -78,7 +78,7 @@ namespace Assets.Scripts.Controllers
             _dragPreviewGameObjects.Add(go);
 
             var sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = fsc.GetSpriteForFurniture(furnType);
+            sr.sprite = _fsc.GetSpriteForFurniture(furnType);
 
             if (WorldController.Instance.World.IsFurniturePlacementValid(furnType, t))
             {
@@ -91,7 +91,7 @@ namespace Assets.Scripts.Controllers
 
             sr.sortingLayerName = "Jobs";
 
-            var proto = World.Current._furniturePrototypes[furnType];
+            var proto = World.Instance.FurniturePrototypes[furnType];
             var posOffset = new Vector3((float) (proto.Width - 1)/2, (float) (proto.Height - 1)/2, 0);
             go.transform.position = new Vector3(t.X, t.Y, 0) + posOffset;
         }
@@ -99,8 +99,8 @@ namespace Assets.Scripts.Controllers
         // Use this for initialization
         private void Start()
         {
-            fsc = GameObject.FindObjectOfType<FurnitureSpriteController>();
-            bmc = GameObject.FindObjectOfType<BuildModeController>();
+            _fsc = GameObject.FindObjectOfType<FurnitureSpriteController>();
+            _bmc = GameObject.FindObjectOfType<BuildModeController>();
             _dragPreviewGameObjects = new List<GameObject>();
         }
 
@@ -117,7 +117,7 @@ namespace Assets.Scripts.Controllers
                 }
                 else if (_mode == MouseMode.Select)
                 {
-                    Debug.Log("Show Game Menu");
+                    Debug.Log("TODO: Show Game Menu");
                 }
             }
 
@@ -166,9 +166,9 @@ namespace Assets.Scripts.Controllers
             if (Input.GetMouseButtonDown(0))
             {
                 _dragStartPosition = _currentFramePosition;
-                IsDragging = true;
+                _isDragging = true;
             }
-            else if (IsDragging == false)
+            else if (_isDragging == false)
             {
                 _dragStartPosition = _currentFramePosition;
             }
@@ -176,10 +176,10 @@ namespace Assets.Scripts.Controllers
             if (Input.GetMouseButtonUp(1) || Input.GetKeyUp(KeyCode.Escape))
             {
                 // The RIGHT mouse button came up or ESC was pressed, so cancel any dragging.
-                IsDragging = false;
+                _isDragging = false;
             }
 
-            if (bmc.IsObjectDraggable() == false)
+            if (_bmc.IsObjectDraggable() == false)
             {
                 _dragStartPosition = _currentFramePosition;
             }
@@ -203,8 +203,6 @@ namespace Assets.Scripts.Controllers
                 startY = temp;
             }
 
-            //if (IsDragging)
-            //{
             // Display dragged area
             for (var x = startX; x <= endX; x++)
             {
@@ -213,34 +211,55 @@ namespace Assets.Scripts.Controllers
                     var t = WorldController.Instance.World.GetTileAt(x, y);
                     if (t != null)
                     {
-                        if (bmc.BuildMode == BuildMode.Furniture)
+                        var actionTile = true;
+
+                        // If shift is being held, just action the perimeter
+                        if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
                         {
-                            ShowFurnitureSpriteAtTile(bmc.BuildModeObjectType, t);
+                            actionTile = (x == startX || x == endX || y == startY || y == endY);
                         }
-                        else
+
+                        if (actionTile)
                         {
-                            var go = SimplePool.Spawn(CircleCursorPrefab, new Vector3(x, y, 0),
-                                Quaternion.identity);
-                            go.transform.SetParent(this.transform, true);
-                            _dragPreviewGameObjects.Add(go);
+                            if (_bmc.BuildMode == BuildMode.Furniture)
+                            {
+                                ShowFurnitureSpriteAtTile(_bmc.BuildModeObjectType, t);
+                            }
+                            else
+                            {
+                                var go = SimplePool.Spawn(CircleCursorPrefab, new Vector3(x, y, 0),
+                                    Quaternion.identity);
+                                go.transform.SetParent(this.transform, true);
+                                _dragPreviewGameObjects.Add(go);
+                            }
                         }
                     }
                 }
             }
-            //}
 
             // End Drag
-            if (IsDragging && Input.GetMouseButtonUp(0))
+            if (_isDragging && Input.GetMouseButtonUp(0))
             {
-                IsDragging = false;
+                _isDragging = false;
                 for (var x = startX; x <= endX; x++)
                 {
                     for (var y = startY; y <= endY; y++)
                     {
-                        var t = WorldController.Instance.World.GetTileAt(x, y);
-                        if (t != null)
+                        var actionTile = true;
+
+                        // If shift is being held, just action the perimeter
+                        if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
                         {
-                            bmc.DoBuild(t);
+                            actionTile = (x == startX || x == endX || y == startY || y == endY);
+                        }
+
+                        if (actionTile)
+                        {
+                            var t = WorldController.Instance.World.GetTileAt(x, y);
+                            if (t != null)
+                            {
+                                _bmc.DoBuild(t);
+                            }
                         }
                     }
                 }

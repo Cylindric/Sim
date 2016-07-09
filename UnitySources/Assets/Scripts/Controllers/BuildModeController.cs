@@ -43,7 +43,7 @@ namespace Assets.Scripts.Controllers
                 return true;
             }
 
-            var proto = WorldController.Instance.World._furniturePrototypes[BuildModeObjectType];
+            var proto = WorldController.Instance.World.FurniturePrototypes[BuildModeObjectType];
 
             return (proto.Width == 1 && proto.Height == 1);
         }
@@ -96,10 +96,10 @@ namespace Assets.Scripts.Controllers
 
                     Job j;
 
-                    if (WorldController.Instance.World._furnitureJobPrototypes.ContainsKey(furnitureType))
+                    if (WorldController.Instance.World.FurnitureJobPrototypes.ContainsKey(furnitureType))
                     {
                         // Make a clone of the Job Prototype.
-                        j = WorldController.Instance.World._furnitureJobPrototypes[furnitureType].Clone();
+                        j = WorldController.Instance.World.FurnitureJobPrototypes[furnitureType].Clone();
 
                         // Assign the correct Tile.
                         j.Tile = t;
@@ -111,7 +111,7 @@ namespace Assets.Scripts.Controllers
                         j.Name = "BuildFurniture";
                     }
 
-                    j.FurniturePrototype = WorldController.Instance.World._furniturePrototypes[furnitureType];
+                    j.FurniturePrototype = WorldController.Instance.World.FurniturePrototypes[furnitureType];
 
                     t.PendingFurnitureJob = j;
                     j.RegisterOnJobStoppedCallback((theJob) => { theJob.Tile.PendingFurnitureJob = null; });
