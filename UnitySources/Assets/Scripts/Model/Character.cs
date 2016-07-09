@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 using Assets.Scripts.Pathfinding;
+using Assets.Scripts.Utilities;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
@@ -38,6 +40,7 @@ namespace Assets.Scripts.Model
         private readonly float _speed;
         private Job _job;
         private float _movementPercentage;
+        private static MarkovNameGenerator _nameGenerator;
 
 
         /* #################################################################### */
@@ -46,7 +49,18 @@ namespace Assets.Scripts.Model
 
         public Character()
         {
+            if (_nameGenerator == null)
+            {
+                var filepath = Application.streamingAssetsPath;
+                filepath = Path.Combine(filepath, "Base");
+                filepath = Path.Combine(filepath, "Data");
+                filepath = Path.Combine(filepath, "names_male.txt");
+                var names = File.ReadAllLines(filepath);
+                _nameGenerator = new MarkovNameGenerator(names, 2, 5);
+            }
+
             this._speed = 5f;
+            this.Name = _nameGenerator.NextName;
         }
 
         public Character(Tile tile) : this()
@@ -84,6 +98,8 @@ namespace Assets.Scripts.Model
         }
 
         public Tile CurrentTile { get; protected set; }
+
+        public string Name { get; set; }
 
         /* #################################################################### */
         /* #                           METHODS                                # */

@@ -116,12 +116,7 @@ namespace Assets.Scripts.Controllers
         {
             World.Update(Time.deltaTime);
 
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                Application.Quit();
-            }
-
-            float scrollSpeed = 4f;
+            var scrollSpeed = 4f;
             if (Input.GetKey(KeyCode.A))
             {
                 Camera.main.transform.position += Vector3.left * Time.deltaTime * scrollSpeed;
