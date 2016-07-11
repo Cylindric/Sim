@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Xml.Serialization;
 using Assets.Scripts.Model.Import;
 using UnityEngine;
@@ -37,21 +38,30 @@ namespace Assets.Scripts.Controllers
             var filepath = Application.streamingAssetsPath;
             filepath = Path.Combine(filepath, "Base");
             filepath = Path.Combine(filepath, "Images");
+            LoadSprites(filepath);
+        }
 
-            LoadSpritesheet(Path.Combine(filepath, "Characters/colonist"));
-            LoadSpritesheet(Path.Combine(filepath, "Furniture/orange_walls"));
-            LoadSpritesheet(Path.Combine(filepath, "Furniture/furn_mining_station"));
-            LoadSpritesheet(Path.Combine(filepath, "Furniture/furn_oxygen"));
-            LoadSpritesheet(Path.Combine(filepath, "Furniture/furn_door_heavy"));
-            LoadSpritesheet(Path.Combine(filepath, "Furniture/furn_stockpile"));
-            LoadSpritesheet(Path.Combine(filepath, "Inventory/steel_plate"));
-            LoadSpritesheet(Path.Combine(filepath, "Tiles/floor"));
+        private void LoadSprites(string filepath)
+        {
+            foreach (var dir in Directory.GetDirectories(filepath))
+            {
+                LoadSprites(dir);
+            }
+
+            foreach (var file in Directory.GetFiles(filepath).Where(f => f.EndsWith(".xml")))
+            {
+                LoadSpritesheet(file);
+            }
         }
 
         private void LoadSpritesheet(string filepath)
         {
+            // Full filename information
+            var datafile = filepath;
+            var imagefile = Path.Combine(Path.GetDirectoryName(datafile), Path.GetFileNameWithoutExtension(datafile) + ".png");
+
             // First get the data about the sprites
-            var filestream = new StreamReader(filepath + ".xml");
+            var filestream = new StreamReader(filepath);
             var serializer = new XmlSerializer(typeof(Model.Import.Sprites));
 
             var sprites = new Sprites();
@@ -65,7 +75,7 @@ namespace Assets.Scripts.Controllers
             }
             
             // Now load the image itself
-            var bytes = File.ReadAllBytes(filepath + ".png");
+            var bytes = File.ReadAllBytes(imagefile);
             var texture = new Texture2D(1, 1);
             texture.filterMode = FilterMode.Point;
             texture.LoadImage(bytes);
@@ -74,7 +84,15 @@ namespace Assets.Scripts.Controllers
             foreach (var s in sprites.SpriteList)
             {
                 var sprite = Sprite.Create(texture, s.Rect.ToRect(), s.Pivot.ToVector2(), s.pixelsPerUnit);
-                _sprites.Add(s.name, sprite);
+                if (_sprites.ContainsKey(s.name))
+                {
+                    Debug.LogWarningFormat("Duplicate sprite ({0}) found in data; overwriting... ", s.name);
+                    _sprites[s.name] = sprite;
+                }
+                else
+                {
+                    _sprites.Add(s.name, sprite);
+                }
             }
         }
     }

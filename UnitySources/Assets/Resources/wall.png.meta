@@ -1,0 +1,326 @@
+fileFormatVersion: 2
+guid: 17c28926c88125e4786ea67059dfae65
+timeCreated: 1468268512
+licenseType: Free
+TextureImporter:
+  fileIDToRecycleName:
+    21300000: es
+    21300002: sw
+    21300004: s
+    21300006: en
+    21300008: nw
+    21300010: e
+    21300012: esw
+    21300014: nsw
+    21300016: wall_8
+    21300018: nes
+    21300020: new
+    21300022: w
+    21300024: ns
+    21300026: n
+    21300028: ew
+    21300030: nesw
+  serializedVersion: 2
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 1
+    linearTexture: 0
+    correctGamma: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+  isReadable: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 0
+  cubemapConvolution: 0
+  cubemapConvolutionSteps: 7
+  cubemapConvolutionExponent: 1.5
+  seamlessCubemap: 0
+  textureFormat: -1
+  maxTextureSize: 2048
+  textureSettings:
+    filterMode: -1
+    aniso: 16
+    mipBias: -1
+    wrapMode: 1
+  nPOTScale: 0
+  lightmap: 0
+  rGBM: 0
+  compressionQuality: 50
+  allowsAlphaSplitting: 0
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spritePixelsToUnits: 64
+  alphaIsTransparency: 1
+  textureType: 8
+  buildTargetSettings: []
+  spriteSheet:
+    sprites:
+    - name: es
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 321
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: -32, y: 29}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 31}
+        - {x: -30, y: 31}
+    - name: sw
+      rect:
+        serializedVersion: 2
+        x: 256
+        y: 321
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 29}
+        - {x: 30, y: 31}
+        - {x: -32, y: 31}
+    - name: s
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 257
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: -32, y: 29}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 29}
+        - {x: 30, y: 31}
+        - {x: -30, y: 31}
+    - name: en
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 257
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: -32, y: 32}
+        - {x: -32, y: -31}
+        - {x: -31, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
+    - name: nw
+      rect:
+        serializedVersion: 2
+        x: 256
+        y: 256
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 30, y: -32}
+        - {x: 32, y: -30}
+        - {x: 32, y: 32}
+    - name: e
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 193
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: -32, y: 29}
+        - {x: -32, y: -31}
+        - {x: -31, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 31}
+        - {x: -30, y: 31}
+    - name: esw
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 193
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 31}
+        - {x: -32, y: 31}
+    - name: nsw
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 193
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
+        - {x: -32, y: 32}
+    - name: wall_8
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 193
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: -32, y: 31}
+        - {x: -32, y: -31}
+        - {x: -31, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 31}
+    - name: nes
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 129
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
+    - name: new
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 129
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
+    - name: w
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 129
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: -32, y: 31}
+        - {x: -32, y: -32}
+        - {x: 31, y: -32}
+        - {x: 32, y: -31}
+        - {x: 32, y: 29}
+        - {x: 30, y: 31}
+    - name: ns
+      rect:
+        serializedVersion: 2
+        x: 256
+        y: 129
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: 32, y: -32}
+        - {x: 32, y: 32}
+        - {x: -32, y: 32}
+        - {x: -32, y: -32}
+    - name: n
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 65
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: -32, y: 32}
+        - {x: -32, y: -31}
+        - {x: -31, y: -32}
+        - {x: 31, y: -32}
+        - {x: 32, y: -31}
+        - {x: 32, y: 32}
+    - name: ew
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 65
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 31}
+        - {x: -32, y: 31}
+    - name: nesw
+      rect:
+        serializedVersion: 2
+        x: 256
+        y: 65
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: -32, y: 32}
+        - {x: -32, y: -32}
+        - {x: 32, y: -32}
+        - {x: 32, y: 32}
+    outline: []
+  spritePackingTag: 
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
