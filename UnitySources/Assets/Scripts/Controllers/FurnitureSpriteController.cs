@@ -47,13 +47,10 @@ namespace Assets.Scripts.Controllers
             sr.color = furn.Tint;
             sr.sortingLayerName = "Furniture";
 
-            if (furn.ObjectType == "furn_door")
+            if (furn.GetParameter("openness", -1f) >= 0f)
             {
-                var t = furn.Tile;
+                var t = furn.Tile.NorthNeighbour();
                 if (t != null && t.Furniture != null && t.Furniture.ObjectType == "furn_wall_steel")
-                {
-                }
-                else
                 {
                     sr.transform.Rotate(Vector3.forward, 90f);
                 }
@@ -126,9 +123,9 @@ namespace Assets.Scripts.Controllers
             }
 
             // If it's a door, check openness and update the sprite accordingly.
-            if (obj.ObjectType == "furn_door") // TODO: fix this hard-coding of types
+            if (obj.GetParameter("openness", -1) >= 0)
             {
-                spriteName = "furn_door_";
+                spriteName += "_";
 
                 if (obj.GetParameter("openness") <= 0.1)
                 {
