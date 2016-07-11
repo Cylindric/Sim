@@ -52,6 +52,14 @@ namespace Assets.Scripts.Model
         /* #                              METHODS                             # */
         /* #################################################################### */
 
+        public Room Clone()
+        {
+            var room = new Room();
+            room._tiles = new List<Tile>(this._tiles);
+            room.atmosphericGasses = new Dictionary<string, float>(this.atmosphericGasses);
+            return room;
+        }
+
         public bool IsOutsideRoom()
         {
             //if (_tiles.Count == 0)
@@ -223,6 +231,8 @@ namespace Assets.Scripts.Model
             var tilesToCheck = new Queue<Tile>();
             tilesToCheck.Enqueue(tile);
 
+            var mergedRooms = new Dictionary<int, Room>();
+
             bool isConnectedToSpace = false;
 
             while (tilesToCheck.Count > 0)
@@ -248,6 +258,11 @@ namespace Assets.Scripts.Model
                                 (t2.Furniture == null || t2.Furniture.IsRoomEnclosure == false))
                             {
                                 tilesToCheck.Enqueue(t2);
+
+                                if (t2.Room != null && mergedRooms.ContainsKey(t2.Room.Id) == false)
+                                {
+                                    mergedRooms.Add(t2.Room.Id, t2.Room.Clone());
+                                }
                             }
                         }
                     }
@@ -271,12 +286,39 @@ namespace Assets.Scripts.Model
             {
                 // In this case we are merging one or more rooms into one big Room.
                 // This means we have to make a decision on how to merge the gas levels.
-                
-                // TODO: something like newRoom.SplitGas(roomA, roomB);
+                newRoom.MergeGas(mergedRooms.Values.ToList());
             }
 
             // Tell the World that a new Room has been created.
             World.Instance.AddRoom(newRoom);
+        }
+
+        private void MergeGas(List<Room> other)
+        {
+            // Spin through and get a list of all available gasses, and the total amount of it.
+            var gasses = new Dictionary<string, float>();
+            var totalTiles = 0;
+            foreach (var room in other)
+            {
+                totalTiles += room.Size;
+                foreach (var gas in room.atmosphericGasses)
+                {
+                    if (gasses.ContainsKey(gas.Key))
+                    {
+                        gasses[gas.Key] += gas.Value * room.Size;
+                    }
+                    else
+                    {
+                        gasses.Add(gas.Key, gas.Value * room.Size);
+                    }
+                }
+            }
+
+            // Now divide the total volume of gas back down by the size of the new room
+            foreach (var gas in gasses)
+            {
+                this.ChangeGas(gas.Key, gas.Value / totalTiles);
+            }
         }
 
         private void CopyGas(Room other)

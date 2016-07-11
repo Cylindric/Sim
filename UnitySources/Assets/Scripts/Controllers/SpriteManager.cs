@@ -42,6 +42,7 @@ namespace Assets.Scripts.Controllers
             LoadSpritesheet(Path.Combine(filepath, "Furniture/orange_walls"));
             LoadSpritesheet(Path.Combine(filepath, "Furniture/furn_mining_station"));
             LoadSpritesheet(Path.Combine(filepath, "Furniture/furn_oxygen"));
+            LoadSpritesheet(Path.Combine(filepath, "Furniture/furn_door_heavy"));
             LoadSpritesheet(Path.Combine(filepath, "Furniture/furn_stockpile"));
             LoadSpritesheet(Path.Combine(filepath, "Inventory/steel_plate"));
             LoadSpritesheet(Path.Combine(filepath, "Tiles/floor"));

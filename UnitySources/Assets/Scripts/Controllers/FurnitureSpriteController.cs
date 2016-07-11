@@ -47,6 +47,18 @@ namespace Assets.Scripts.Controllers
             sr.color = furn.Tint;
             sr.sortingLayerName = "Furniture";
 
+            if (furn.ObjectType == "furn_door")
+            {
+                var t = furn.Tile;
+                if (t != null && t.Furniture != null && t.Furniture.ObjectType == "furn_wall_steel")
+                {
+                }
+                else
+                {
+                    sr.transform.Rotate(Vector3.forward, 90f);
+                }
+            }
+
             furn.RegisterOnChangedCallback(OnFurnitureChanged);
             furn.RegisterOnRemovedCallback(OnFurnitureRemoved);
         }
@@ -117,16 +129,6 @@ namespace Assets.Scripts.Controllers
             if (obj.ObjectType == "furn_door") // TODO: fix this hard-coding of types
             {
                 spriteName = "furn_door_";
-
-                // Check for the EW/NS orientation
-                var t = World.GetTileAt(x + 1, y); // East
-                if (t != null && t.Furniture != null && t.Furniture.ObjectType == "furn_wall_steel")
-                {
-                    spriteName += "EW_";
-                } else
-                {
-                    spriteName += "NS_";
-                }
 
                 if (obj.GetParameter("openness") <= 0.1)
                 {

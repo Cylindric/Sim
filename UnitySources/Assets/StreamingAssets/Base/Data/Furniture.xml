@@ -13,12 +13,26 @@
 	
 	<Furniture objectType="furn_door">
 		<Name>Door</Name>
-		<EnclosesRoom>True</EnclosesRoom>
+		<EnclosesRoom>False</EnclosesRoom>
 		<Params>
 			<Param name="openness">0</Param>
 			<Param name="is_opening">0</Param>
 		</Params>
 		<BuildingJob time="1">
+			<Inventory objectType="steel_plate" amount="1" />
+		</BuildingJob>
+		<OnUpdate>OnUpdate_Door</OnUpdate>
+		<IsEnterable>IsEnterable_Door</IsEnterable>
+	</Furniture>
+
+	<Furniture objectType="furn_door_heavy">
+		<Name>Heavy Door</Name>
+		<EnclosesRoom>True</EnclosesRoom>
+		<Params>
+			<Param name="openness">0</Param>
+			<Param name="is_opening">0</Param>
+		</Params>
+		<BuildingJob time="2">
 			<Inventory objectType="steel_plate" amount="2" />
 		</BuildingJob>
 		<OnUpdate>OnUpdate_Door</OnUpdate>
