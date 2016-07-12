@@ -1,17 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 using MoonSharp.Interpreter;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace Assets.Scripts.Model
 {
     /// <summary>
     /// Furniture represents an object that is 'permanently' installed on a <see cref="Tile"/>.
     /// </summary>
+    [DebuggerDisplay("Furniture ({ObjectType} at [{Tile.X},{Tile.Y}])")]
     [MoonSharpUserData]
     public class Furniture 
     {
@@ -513,7 +516,7 @@ namespace Assets.Scripts.Model
 
         public bool IsStockpile()
         {
-            return ObjectType == "Stockpile";
+            return ObjectType == "furn_stockpile";
         }
 
         public void Deconstruct()

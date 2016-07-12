@@ -77,7 +77,7 @@ namespace Assets.Scripts.Controllers
             // Now load the image itself
             var bytes = File.ReadAllBytes(imagefile);
             var texture = new Texture2D(1, 1);
-            texture.filterMode = FilterMode.Point;
+            texture.filterMode = FilterMode.Trilinear;
             texture.LoadImage(bytes);
 
             // For every sprite defined in the datafile, create a new Sprite object

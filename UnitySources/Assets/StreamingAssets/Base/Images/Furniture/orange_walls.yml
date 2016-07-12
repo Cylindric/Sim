@@ -1,8 +1,0 @@
-    sprites:
-    - name: furn_wall_steel_ES
-      rect:
-        serializedVersion: 2
-        x: 4
-        y: 374
-        width: 64
-        height: 64

@@ -445,7 +445,7 @@ namespace Assets.Scripts.Model
 
             if (j != _job)
             {
-                Debug.LogError("Character being told about job (" + j.Name + ") that isn't his. You forgot to unregister something.");
+                // Debug.LogError("Character being told about job (" + j.Name + ") that isn't his. You forgot to unregister something.");
                 return;
             }
 
