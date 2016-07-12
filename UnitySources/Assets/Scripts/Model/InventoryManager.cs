@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Assets.Scripts.Pathfinding;
 using MoonSharp.Interpreter;
 using UnityEngine;
 
@@ -134,19 +135,38 @@ namespace Assets.Scripts.Model
                 return null;
             }
 
+            Inventory found = null;
+            int distance = int.MaxValue;
+
             foreach (var inv in Inventories[objectType])
             {
                 if (inv.Tile != null)
                 {
                     if (inv.Tile.Furniture != null && inv.Tile.Furniture.IsStockpile() && searchInStockpiles == false)
                     {
-                        return null;
+                        continue;
                     }
-                    return inv;
+
+                    if (t != null)
+                    {
+                        // Calculate the range from the target tile to this stack
+                        var route = new Path_AStar(World.Instance, t, inv.Tile);
+                        if (found == null || route.Length() < distance)
+                        {
+                            found = inv;
+                            distance = route.Length();
+                        }
+                    }
+                    else
+                    {
+                        // No target tile has been set, so just return the first found stack
+                        found = inv;
+                        break;
+                    }
                 }
             }
 
-            return null;
+            return found;
         }
     }
 }
