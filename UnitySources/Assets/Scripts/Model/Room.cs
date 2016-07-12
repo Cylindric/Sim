@@ -375,5 +375,18 @@ namespace Assets.Scripts.Model
 
             return room;
         }
+
+        public bool HasBreathableAtmosphere()
+        {
+            if (GetGasPercentage("O2") < 0.2f)
+            {
+                return false;
+            }
+            if (GetTotalAtmosphericPressure() < 0.3f)
+            {
+                return false;
+            }
+            return true;
+        }
     }
 }

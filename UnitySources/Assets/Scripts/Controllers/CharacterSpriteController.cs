@@ -7,6 +7,7 @@ namespace Assets.Scripts.Controllers
     class CharacterSpriteController : MonoBehaviour
     {
         private readonly Dictionary<Character, GameObject> _characterGameObjectMap = new Dictionary<Character, GameObject>();
+        private Dictionary<Character, Dictionary<string, SpriteRenderer>> _characterSpriteParts = new Dictionary<Character, Dictionary<string, SpriteRenderer>>();
 
         /// <summary>
         /// This is just a helper property to make it easier to access World.
@@ -33,13 +34,14 @@ namespace Assets.Scripts.Controllers
             var characterGo = new GameObject();
             _characterGameObjectMap.Add(character, characterGo);
 
-            characterGo.name = "Character";
+            characterGo.name = "Character " + character.Name;
+
             characterGo.transform.position = new Vector3(character.X, character.Y, 0);
             characterGo.transform.SetParent(this.transform, true);
 
-            var sr = characterGo.AddComponent<SpriteRenderer>();
-            sr.sprite = GetSpriteForCharacter(character);
-            sr.sortingLayerName = "Characters";
+            SetSpriteForCharacter(character, characterGo, "body", true);
+            SetSpriteForCharacter(character, characterGo, "shield", false);
+            SetSpriteForCharacter(character, characterGo, "working", false);
 
             character.RegisterOnChangedCallback(OnCharacterChanged);
         }
@@ -54,11 +56,28 @@ namespace Assets.Scripts.Controllers
 
             var charGo = _characterGameObjectMap[character];
             charGo.transform.position = new Vector3(character.X, character.Y, 0);
+
+            // Set the various subsprite visibility depending on what the situation is for this character.
+            _characterSpriteParts[character]["working"].enabled = character.IsWorking;
+            _characterSpriteParts[character]["shield"].enabled = !character.CanBreathe();
         }
 
-        public Sprite GetSpriteForCharacter(Character obj)
+        public void SetSpriteForCharacter(Character character, GameObject go, string part, bool visible = true)
         {
-            return SpriteManager.Instance.GetSprite("colonist_body");
+            var subpartGo = new GameObject();
+            subpartGo.transform.SetParent(go.transform, false);
+
+            var sprite = subpartGo.AddComponent<SpriteRenderer>();
+            sprite.sprite = SpriteManager.Instance.GetSprite("colonist_" + part);
+            sprite.sortingLayerName = "Characters";
+            sprite.enabled = visible;
+
+            if (_characterSpriteParts.ContainsKey(character) == false)
+            {
+                _characterSpriteParts.Add(character, new Dictionary<string, SpriteRenderer>());
+            }
+
+            _characterSpriteParts[character].Add(part, sprite);
         }
     }
 }

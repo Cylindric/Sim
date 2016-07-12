@@ -13,6 +13,8 @@ namespace Assets.Scripts.Model
     public class Character
     {
         private const float TimeBetweenJobSearches = 1f;
+        private const float OxygenConsumptionRate = -0.001f;
+        private const float BaseMovementSpeed = 5f;
 
         /* #################################################################### */
         /* #                           FIELDS                                 # */
@@ -59,8 +61,9 @@ namespace Assets.Scripts.Model
                 _nameGenerator = new MarkovNameGenerator(names, 2, 5);
             }
 
-            this._speed = 5f;
+            this._speed = BaseMovementSpeed;
             this.Name = _nameGenerator.NextName;
+            this.IsWorking = false;
         }
 
         public Character(Tile tile) : this()
@@ -101,6 +104,8 @@ namespace Assets.Scripts.Model
 
         public string Name { get; set; }
 
+        public bool IsWorking { get; private set; }
+
         /* #################################################################### */
         /* #                           METHODS                                # */
         /* #################################################################### */
@@ -110,12 +115,18 @@ namespace Assets.Scripts.Model
             _nextTile = DestTile = CurrentTile;
             World.Instance.JobQueue.Enqueue(_job);
             _job = null;
+            IsWorking = false;
         }
 
         public void Update(float deltaTime)
         {
             Update_DoJob(deltaTime);
             Update_DoMovement(deltaTime);
+
+            if (this.CanBreathe())
+            {
+                this.Breathe(deltaTime);
+            }
 
             if (cbCharacterChanged != null) cbCharacterChanged(this);
         }
@@ -326,6 +337,8 @@ namespace Assets.Scripts.Model
             // Are we there yet?
             if (CurrentTile == _job.Tile || CurrentTile.IsNeighbour(_job.Tile, true))
             {
+                IsWorking = true;
+
                 // Set dest to current, just in case it was the neighbour-check that got us here
                 DestTile = CurrentTile;
 
@@ -448,6 +461,7 @@ namespace Assets.Scripts.Model
         private void OnJobStopped(Job j)
         {
             // Job completed or was cancelled.
+            IsWorking = false;
 
             j.UnregisterOnJobStoppedCallback(OnJobStopped);
 
@@ -460,5 +474,50 @@ namespace Assets.Scripts.Model
             _job = null;
         }
 
+        public bool CanBreathe()
+        {
+            if (CurrentTile == null) return false;
+            if (CurrentTile.Room == null) return false;
+            return CurrentTile.Room.HasBreathableAtmosphere();
+        }
+
+        /// <summary>
+        /// Perform some gas-exchange calculations and apply to the local environment.
+        /// </summary>
+        /// <remarks>
+        /// It's not as simple as some people think...
+        /// Some numbers at https://en.wikipedia.org/wiki/Breathing#Composition
+        /// Alan Boyd has helpfully put some calculations up at http://biology.stackexchange.com/questions/5642/how-much-gas-is-exchanged-in-one-human-breath
+        /// </remarks>
+        /// <param name="deltaTime">Frame-time</param>
+        public void Breathe(float deltaTime)
+        {
+            if (CurrentTile == null) return;
+            if (CurrentTile.Room == null) return;
+
+            // We can assume an at-rest breathing rate of about 15 breaths per minute (https://en.wikipedia.org/wiki/Lung_volumes)
+            var breaths = (15f/60) * deltaTime; // Breaths-per-second (this frame) 
+
+            // We can assume an average "tidal volume" of air moving in and out of a person is 0.5L (https://en.wikipedia.org/wiki/Lung_volumes)
+            var volume = 0.5f * breaths; // Litres
+            var breathO2 = volume * CurrentTile.Room.GetGasPercentage("O2"); // Litres
+
+            // The air we breathe in is about 21% O2, and what we breathe out is 16%, so we consume 5%.
+            var oxyConsumed = breathO2 * 0.05f; // Litres
+
+            // Each tile represents 1m x 1m x 3m, so the total volume of the space is
+            var roomVolume = 3000; // Litres
+            var roomO2 = 3000*CurrentTile.Room.GetGasPercentage("O2");
+
+
+            // Percentage of the O2 in the room that we've consumed
+            var consumedPercentage = oxyConsumed/roomO2;
+            CurrentTile.Room.ChangeGas("O2", -consumedPercentage);
+
+            // In each breath in, we take in about 18mg of O2, and release back out 36mg of CO2 and 20mg of H2O, which is 0.8 molecules of CO2 for every molecule of O2.
+            // I'm not sure how to convert that into a sensible "CO2 produced" number, so this is MADE UP. TODO: Don't make this up.
+            CurrentTile.Room.ChangeGas("CO2", consumedPercentage);
+
+        }
     }
 }
