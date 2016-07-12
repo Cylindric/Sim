@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.IO;
 using System.Xml;
-using System.Xml.Schema;
 using Assets.Scripts.Pathfinding;
 using Assets.Scripts.Utilities;
 using UnityEngine;
@@ -10,10 +9,11 @@ using Debug = UnityEngine.Debug;
 
 namespace Assets.Scripts.Model
 {
-    [DebuggerDisplay("Character at [{X}, {Y}]")]
-    public class 
-        Character
+    [DebuggerDisplay("Character {Name} at [{X}, {Y}]")]
+    public class Character
     {
+        private const float TimeBetweenJobSearches = 1f;
+
         /* #################################################################### */
         /* #                           FIELDS                                 # */
         /* #################################################################### */
@@ -40,6 +40,7 @@ namespace Assets.Scripts.Model
         private Job _job;
         private float _movementPercentage;
         private static MarkovNameGenerator _nameGenerator;
+        private float _timeSinceLastJobSearch;
 
 
         /* #################################################################### */
@@ -167,7 +168,9 @@ namespace Assets.Scripts.Model
         private void GetNewJob()
         {
             // Grab a new job.
-            _job = World.Instance.JobQueue.Dequeue();
+            // _job = World.Instance.JobQueue.TakeClosestJobToTile(CurrentTile);
+            _job = World.Instance.JobQueue.TakeFirstJobFromQueue();
+            _timeSinceLastJobSearch = 0;
 
             if (_job == null) return;
             
@@ -203,10 +206,15 @@ namespace Assets.Scripts.Model
 
         private void Update_DoJob(float deltaTime)
         {
+            _timeSinceLastJobSearch += deltaTime;
+
             // Do I have a job?
             if (_job == null)
             {
-                GetNewJob();
+                if (_timeSinceLastJobSearch >= TimeBetweenJobSearches)
+                {
+                    GetNewJob();
+                }
 
                 if (_job == null)
                 {

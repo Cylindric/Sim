@@ -282,8 +282,6 @@ namespace Assets.Scripts.Model
 
             var world = new World(width, height);
 
-            var timer = new Stopwatch();
-
             // Load the rooms
             world.ReadFromXmlRooms(element);
             world.ReadFromXmlTiles(element);
