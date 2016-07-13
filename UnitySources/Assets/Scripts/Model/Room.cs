@@ -12,31 +12,9 @@ namespace Assets.Scripts.Model
     [MoonSharpUserData]
     public class Room
     {
-        /* #################################################################### */
-        /* #                         CONSTANT FIELDS                          # */
-        /* #################################################################### */
+        public AtmosphereManager Atmosphere;
 
-        /* #################################################################### */
-        /* #                              FIELDS                              # */
-        /* #################################################################### */
-
-        private Dictionary<string, float> atmosphericGasses;
-
-        private List<Tile> _tiles = new List<Tile>();
-
-        /* #################################################################### */
-        /* #                           CONSTRUCTORS                           # */
-        /* #################################################################### */
-
-        public Room()
-        {
-            Debug.Log("Created new Room");
-            atmosphericGasses = new Dictionary<string, float>();
-        }
-
-        /* #################################################################### */
-        /* #                            PROPERTIES                            # */
-        /* #################################################################### */
+        private List<Tile> _tiles;
 
         public int Size
         {
@@ -48,6 +26,12 @@ namespace Assets.Scripts.Model
             get { return World.Instance.GetRoomId(this); }
         }
 
+        public Room()
+        {
+            _tiles = new List<Tile>();
+            Atmosphere = new AtmosphereManager(this);
+        }
+
         /* #################################################################### */
         /* #                              METHODS                             # */
         /* #################################################################### */
@@ -56,75 +40,61 @@ namespace Assets.Scripts.Model
         {
             var room = new Room();
             room._tiles = new List<Tile>(this._tiles);
-            room.atmosphericGasses = new Dictionary<string, float>(this.atmosphericGasses);
+            room.Atmosphere = this.Atmosphere.Clone();
             return room;
         }
 
         public bool IsOutsideRoom()
         {
-            //if (_tiles.Count == 0)
-            //{
-            //    return true;
-            //}
             return this == World.Instance.GetOutsideRoom();
         }
 
-        public void ChangeGas(string name, float amount)
-        {
-            if (IsOutsideRoom())
-            {
-                return;
-            }
+        /* #################################################################### */
+        /* #                            ATMOSPHERICS                          # */
+        /* #################################################################### */
 
-            if (atmosphericGasses.ContainsKey(name))
-            {
-                atmosphericGasses[name] += amount;
-            }
-            else
-            {
-                atmosphericGasses[name] = amount;
-            }
+        //public bool HasBreathableAtmosphere()
+        //{
+        //    if (GetGasPercentage("O2") < 0.2f)
+        //    {
+        //        return false;
+        //    }
+        //    if (GetTotalAtmosphericPressure() < 0.3f)
+        //    {
+        //        return false;
+        //    }
+        //    return true;
+        //}
 
-            atmosphericGasses[name] = Mathf.Clamp01(atmosphericGasses[name]);
-        }
+        //public void ChangeGas(string name, float amount)
+        //{
+        //    if (IsOutsideRoom())
+        //    {
+        //        return;
+        //    }
 
-        public float GetGasAmount(string name)
-        {
-            if (atmosphericGasses.ContainsKey(name))
-            {
-                return atmosphericGasses[name];
-            }
-            return 0f;
+        //    Atmosphere.ChangeGas(name, amount);
+        //}
 
-        }
+        //public float GetGasAmount(string name)
+        //{
+        //    return Atmosphere.GetGasAmount(name);
+        //}
 
-        public float GetGasPercentage(string name)
-        {
-            if (atmosphericGasses.ContainsKey(name) == false)
-            {
-                return 0f;
-            }
+        //public float GetGasPercentage(string name)
+        //{
+        //    return Atmosphere.GetGasPercentage(name);
+        //}
 
-            var total = GetTotalAtmosphericPressure();
+        //public IEnumerable<string> GetGasNames()
+        //{
+        //    return Atmosphere.GetGasNames();
+        //}
 
-            if (Mathf.Approximately(total, 0))
-            {
-                return 0f;
-            }
-
-            return atmosphericGasses[name]/total;
-        }
-
-        public IEnumerable<string> GetGasNames()
-        {
-            return atmosphericGasses.Keys;
-        }
-
-        public float GetTotalAtmosphericPressure()
-        {
-            return atmosphericGasses.Values.Sum(g => g);
-        }
-
+        //public float GetTotalAtmosphericPressure()
+        //{
+        //    return Atmosphere.GetTotalAtmosphericPressure();
+        //}
 
         public void AssignTile(Tile t)
         {
@@ -293,60 +263,28 @@ namespace Assets.Scripts.Model
             World.Instance.AddRoom(newRoom);
         }
 
+        /* #################################################################### */
+        /* #                            ATMOSPHERICS                          # */
+        /* #################################################################### */
+
         private void MergeGas(List<Room> other)
         {
-            // Spin through and get a list of all available gasses, and the total amount of it.
-            var gasses = new Dictionary<string, float>();
-            var totalTiles = 0;
-            foreach (var room in other)
-            {
-                totalTiles += room.Size;
-                foreach (var gas in room.atmosphericGasses)
-                {
-                    if (gasses.ContainsKey(gas.Key))
-                    {
-                        gasses[gas.Key] += gas.Value * room.Size;
-                    }
-                    else
-                    {
-                        gasses.Add(gas.Key, gas.Value * room.Size);
-                    }
-                }
-            }
-
-            // Now divide the total volume of gas back down by the size of the new room
-            foreach (var gas in gasses)
-            {
-                this.ChangeGas(gas.Key, gas.Value / totalTiles);
-            }
+            this.Atmosphere.MergeAtmosphere(other);
         }
 
         private void CopyGas(Room other)
         {
-            foreach (var gas in other.atmosphericGasses)
-            {
-                this.atmosphericGasses[gas.Key] = gas.Value;
-            }
+            this.Atmosphere = other.Atmosphere.Clone();
         }
+
+        /* #################################################################### */
+        /* #                          SAVE AND RESTORE                        # */
+        /* #################################################################### */
 
         public static Room ReadXml(XmlElement element)
         {
             var room = new Room();
-
-            var atmos = (XmlElement) element.SelectSingleNode("./Gasses");
-            if (atmos != null)
-            {
-                var gasses = atmos.SelectNodes("./Gas");
-                if (gasses != null)
-                {
-                    foreach (XmlNode gasElement in gasses)
-                    {
-                        var gasName = gasElement.Attributes["name"].Value;
-                        var gasAmount = float.Parse(gasElement.InnerText);
-                        room.ChangeGas(gasName, gasAmount);
-                    }
-                }
-            }
+            room.Atmosphere.ReadXml(element);
             return room;
         }
 
@@ -360,33 +298,9 @@ namespace Assets.Scripts.Model
             }
 
             // Write out all the atmospheric data.
-            if (atmosphericGasses.Count > 0)
-            {
-                var gassesElement = xml.CreateElement("Gasses");
-                foreach (var gas in atmosphericGasses)
-                {
-                    var gasElement = xml.CreateElement("Gas");
-                    gasElement.SetAttribute("name", gas.Key);
-                    gasElement.InnerText = gas.Value.ToString(CultureInfo.InvariantCulture);
-                    gassesElement.AppendChild(gasElement);
-                }
-                room.AppendChild(gassesElement);
-            }
+            Atmosphere.WriteXml(xml, room);
 
             return room;
-        }
-
-        public bool HasBreathableAtmosphere()
-        {
-            if (GetGasPercentage("O2") < 0.2f)
-            {
-                return false;
-            }
-            if (GetTotalAtmosphericPressure() < 0.3f)
-            {
-                return false;
-            }
-            return true;
         }
     }
 }

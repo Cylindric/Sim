@@ -478,7 +478,7 @@ namespace Assets.Scripts.Model
         {
             if (CurrentTile == null) return false;
             if (CurrentTile.Room == null) return false;
-            return CurrentTile.Room.HasBreathableAtmosphere();
+            return CurrentTile.Room.Atmosphere.IsBreathable();
         }
 
         /// <summary>
@@ -499,24 +499,13 @@ namespace Assets.Scripts.Model
             var breaths = (15f/60) * deltaTime; // Breaths-per-second (this frame) 
 
             // We can assume an average "tidal volume" of air moving in and out of a person is 0.5L (https://en.wikipedia.org/wiki/Lung_volumes)
-            var volume = 0.5f * breaths; // Litres
-            var breathO2 = volume * CurrentTile.Room.GetGasPercentage("O2"); // Litres
+            var consumedO2Volume = 0.5f * breaths * 0.001f; // Cubic Metres
 
-            // The air we breathe in is about 21% O2, and what we breathe out is 16%, so we consume 5%.
-            var oxyConsumed = breathO2 * 0.05f; // Litres
-
-            // Each tile represents 1m x 1m x 3m, so the total volume of the space is
-            var roomVolume = 3000; // Litres
-            var roomO2 = 3000*CurrentTile.Room.GetGasPercentage("O2");
-
-
-            // Percentage of the O2 in the room that we've consumed
-            var consumedPercentage = oxyConsumed/roomO2;
-            CurrentTile.Room.ChangeGas("O2", -consumedPercentage);
+            CurrentTile.Room.Atmosphere.ChangeGas("O2", -consumedO2Volume);
 
             // In each breath in, we take in about 18mg of O2, and release back out 36mg of CO2 and 20mg of H2O, which is 0.8 molecules of CO2 for every molecule of O2.
             // I'm not sure how to convert that into a sensible "CO2 produced" number, so this is MADE UP. TODO: Don't make this up.
-            CurrentTile.Room.ChangeGas("CO2", consumedPercentage);
+            CurrentTile.Room.Atmosphere.ChangeGas("CO2", consumedO2Volume);
 
         }
     }
