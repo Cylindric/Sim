@@ -495,12 +495,16 @@ namespace Assets.Scripts.Model
             if (CurrentTile == null) return;
             if (CurrentTile.Room == null) return;
 
+            // hack the deltaTime to speed up the simulation a bit
+            deltaTime *= 10;
+
             // We can assume an at-rest breathing rate of about 15 breaths per minute (https://en.wikipedia.org/wiki/Lung_volumes)
             var breaths = (15f/60) * deltaTime; // Breaths-per-second (this frame) 
 
             // We can assume an average "tidal volume" of air moving in and out of a person is 0.5L (https://en.wikipedia.org/wiki/Lung_volumes)
             var consumedO2Volume = 0.5f * breaths * 0.001f; // Cubic Metres
 
+            // Consume some oxygen.
             CurrentTile.Room.Atmosphere.ChangeGas("O2", -consumedO2Volume);
 
             // In each breath in, we take in about 18mg of O2, and release back out 36mg of CO2 and 20mg of H2O, which is 0.8 molecules of CO2 for every molecule of O2.

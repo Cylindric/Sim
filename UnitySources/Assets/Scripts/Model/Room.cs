@@ -48,54 +48,7 @@ namespace Assets.Scripts.Model
         {
             return this == World.Instance.GetOutsideRoom();
         }
-
-        /* #################################################################### */
-        /* #                            ATMOSPHERICS                          # */
-        /* #################################################################### */
-
-        //public bool HasBreathableAtmosphere()
-        //{
-        //    if (GetGasPercentage("O2") < 0.2f)
-        //    {
-        //        return false;
-        //    }
-        //    if (GetTotalAtmosphericPressure() < 0.3f)
-        //    {
-        //        return false;
-        //    }
-        //    return true;
-        //}
-
-        //public void ChangeGas(string name, float amount)
-        //{
-        //    if (IsOutsideRoom())
-        //    {
-        //        return;
-        //    }
-
-        //    Atmosphere.ChangeGas(name, amount);
-        //}
-
-        //public float GetGasAmount(string name)
-        //{
-        //    return Atmosphere.GetGasAmount(name);
-        //}
-
-        //public float GetGasPercentage(string name)
-        //{
-        //    return Atmosphere.GetGasPercentage(name);
-        //}
-
-        //public IEnumerable<string> GetGasNames()
-        //{
-        //    return Atmosphere.GetGasNames();
-        //}
-
-        //public float GetTotalAtmosphericPressure()
-        //{
-        //    return Atmosphere.GetTotalAtmosphericPressure();
-        //}
-
+        
         public void AssignTile(Tile t)
         {
             if (_tiles.Contains(t))
@@ -250,7 +203,7 @@ namespace Assets.Scripts.Model
             {
                 // In this case we are splitting one Room into two or more, so we
                 // can just keep the old gas values.
-                newRoom.CopyGas(oldRoom);
+                newRoom.Atmosphere.CopyGas(oldRoom.Atmosphere);
             }
             else
             {
@@ -272,11 +225,6 @@ namespace Assets.Scripts.Model
             this.Atmosphere.MergeAtmosphere(other);
         }
 
-        private void CopyGas(Room other)
-        {
-            this.Atmosphere = other.Atmosphere.Clone();
-        }
-
         /* #################################################################### */
         /* #                          SAVE AND RESTORE                        # */
         /* #################################################################### */
@@ -292,6 +240,7 @@ namespace Assets.Scripts.Model
         {
             var room = xml.CreateElement("Room");
             room.SetAttribute("id", this.Id.ToString());
+            room.SetAttribute("size", this.Size.ToString());
             if (this.IsOutsideRoom())
             {
                 room.SetAttribute("outside", "true");

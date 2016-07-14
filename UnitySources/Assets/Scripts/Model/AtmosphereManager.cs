@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Xml;
@@ -40,34 +41,43 @@ namespace Assets.Scripts.Model
         /// </summary>
         /// <param name="name">The name of the gas to alter.</param>
         /// <param name="delta">The m³ of gas to add/remove to the room.</param>
-        public void ChangeGas(string name, float delta)
+        /// <param name="scaleForRoom">If true, the passed in delta is scaled down to account for  the room size; otherwise it is applied "as-is".</param>
+        public float ChangeGas(string name, float delta, bool scaleForRoom = true)
         {
+            // Debug.LogFormat("Room {0} adjusting {1} by {2}.", _room.Id, name, delta);
+            
             // The outside room can't have an atmosphere.
             if (this._room.IsOutsideRoom())
             {
-                return;
+                return 0f;
             }
 
             // The amount passed in is the total amount of gas (at sealevel-equivalent volume) to 
-            // add to the whole room, so scale it to the one-tile value we're storing.
+            // add to the whole room, so we usually have to scale it to the one-tile value we're storing.
             // For example, if we're adding 20L of air to a room of 10 tiles, only 2L get added to one tile.
-            var tileDelta = delta/this._room.Size;
+            // If "scaleForRoom" is false, that means we're being a value to "just set it as it is".
+            if (scaleForRoom)
+            {
+                delta = delta/this._room.Size;
+            }
 
             if (_atmosphericGasses.ContainsKey(name))
             {
-                if (float.IsNaN(_atmosphericGasses[name]))
+                if (float.IsNaN(_atmosphericGasses[name]) || float.IsInfinity(_atmosphericGasses[name]))
                 {
                     _atmosphericGasses[name] = 0f;
                 }
-                _atmosphericGasses[name] += tileDelta;
+                _atmosphericGasses[name] += delta;
             }
             else
             {
-                _atmosphericGasses.Add(name, tileDelta);
+                _atmosphericGasses.Add(name, delta);
             }
 
             // If the delta took our total amount less than zero, just set it to zero.
-            if (_atmosphericGasses[name] < 0) _atmosphericGasses[name] = 0;
+            if (_atmosphericGasses[name] < 0f) _atmosphericGasses[name] = 0f;
+
+            return _atmosphericGasses[name];
         }
 
         /// <summary>
@@ -96,7 +106,7 @@ namespace Assets.Scripts.Model
                 return 0f;
             }
 
-            var total = GetTotalAtmosphericPressure();
+            var total = GetTotalAtmosphericVolume();
 
             if (Mathf.Approximately(total, 0))
             {
@@ -135,7 +145,15 @@ namespace Assets.Scripts.Model
         /// <returns>The atmospheric volume.</returns>
         public float GetTotalAtmosphericVolume()
         {
-            return _atmosphericGasses.Values.Sum(g => g);
+            var total = 0f;
+            foreach (var gas in _atmosphericGasses)
+            {
+                if (float.IsNaN(gas.Value)) continue;
+                if (float.IsInfinity(gas.Value)) continue;
+                if (gas.Value < 0f) continue;
+                total += gas.Value;
+            }
+            return total;
         }
 
         /// <summary>
@@ -163,11 +181,22 @@ namespace Assets.Scripts.Model
                 }
             }
 
+            if (totalTiles == 0)
+            {
+                Debug.LogError("Tried to merge gasses with zero-tile rooms!");
+                return;
+            }
+
             // Now divide the total volume of gas back down by the size of the new room
             foreach (var gas in gasses)
             {
-                this.ChangeGas(gas.Key, gas.Value / totalTiles);
+                this.ChangeGas(gas.Key, gas.Value);
             }
+        }
+
+        public void CopyGas(AtmosphereManager atmosphere)
+        {
+            this._atmosphericGasses = new Dictionary<string, float>(atmosphere._atmosphericGasses);
         }
 
         public bool IsBreathable()
@@ -194,8 +223,15 @@ namespace Assets.Scripts.Model
                     foreach (XmlNode gasElement in gasses)
                     {
                         var gasName = gasElement.Attributes["name"].Value;
+
                         var gasAmount = float.Parse(gasElement.InnerText);
-                        this.ChangeGas(gasName, gasAmount);
+                        if (float.IsPositiveInfinity(gasAmount))
+                        {
+                            Debug.LogErrorFormat("Loading gas {0} from save failed due to invalid value ({1}).", gasName, gasAmount.ToString(CultureInfo.InvariantCulture));
+                            gasAmount = 0f;
+                        }
+
+                        this.ChangeGas(gasName, gasAmount, false);
                     }
                 }
             }
@@ -216,5 +252,6 @@ namespace Assets.Scripts.Model
                 room.AppendChild(gassesElement);
             }
         }
+
     }
 }

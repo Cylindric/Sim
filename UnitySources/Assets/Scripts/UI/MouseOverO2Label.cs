@@ -30,7 +30,7 @@ namespace Assets.Scripts.UI
 
         private void Update()
         {
-            const string template = "{0}: {1:P2}  "; // Name, Percentage
+            const string template = "{0}: {1:P3} ({2:F4})  \n"; // Name, Percentage
             _myText.text = "Unknown Atmosphere";
 
             var t = _mouseController.GetTileUnderMouse();
@@ -55,7 +55,8 @@ namespace Assets.Scripts.UI
             foreach (var gas in t.Room.Atmosphere.GetGasNames())
             {
                 var percentage = t.Room.Atmosphere.GetGasPercentage(gas);
-                text += string.Format(template, gas, percentage);
+                var qty = t.Room.Atmosphere.GetGasAmount(gas);
+                text += string.Format(template, gas, percentage, qty);
             }
 
             if (string.IsNullOrEmpty(text))
@@ -63,7 +64,7 @@ namespace Assets.Scripts.UI
                 return;
             }
 
-            _myText.text = string.Format("Air Pressure: {0:#0} mbar\n{1}", t.Room.Atmosphere.GetTotalAtmosphericPressure()* AtmospheresToMillibar, text);
+            _myText.text = string.Format("Air Pressure: {0:F0} mbar\n{1}", t.Room.Atmosphere.GetTotalAtmosphericPressure() * AtmospheresToMillibar, text);
         }
     }
 }
