@@ -475,7 +475,7 @@ namespace Assets.Scripts.Model
             filepath = Path.Combine(filepath, "Furniture");
             foreach (var filename in Directory.GetFiles(filepath, "*.lua"))
             {
-                Debug.Log("Loading LUA file " + filename);
+                // Debug.Log("Loading LUA file " + filename);
                 var myLuaCode = System.IO.File.ReadAllText(filename);
 
                 FurnitureActions.LoadLua(myLuaCode);
@@ -516,7 +516,7 @@ namespace Assets.Scripts.Model
                 furn.JobSpotOffset = XmlParser.ParseVector2(furniture, ".//JobSpotOffset");
                 furn.JobSpawnOffset = XmlParser.ParseVector2(furniture, ".//JobSpawnOffset");
 
-                Debug.Log("Adding Furniture Prototype " + objectType);
+                // Debug.Log("Adding Furniture Prototype " + objectType);
                 this.FurniturePrototypes.Add(objectType, furn);
 
                 var parameters = furniture.SelectSingleNode(".//Params");
@@ -555,7 +555,7 @@ namespace Assets.Scripts.Model
 
                 foreach (XmlNode buildJob in furniture.SelectNodes(".//BuildingJob"))
                 {
-                    Debug.LogFormat("Adding Job to Furniture {0}...", objectType);
+                    // Debug.LogFormat("Adding Job to Furniture {0}...", objectType);
                     var time = float.Parse(buildJob.Attributes["time"].InnerText);
 
                     var inventory = new List<Inventory>();
@@ -587,7 +587,7 @@ namespace Assets.Scripts.Model
                     );
                 }
 
-                Debug.LogFormat("Loaded Furniture {0} succeeded.", objectType);
+                // Debug.LogFormat("Loaded Furniture {0} succeeded.", objectType);
             }
         }
 

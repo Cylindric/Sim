@@ -36,7 +36,7 @@ namespace Assets.Scripts.Controllers
 
         public void OnInventoryCreated(Inventory inv)
         {
-            Debug.Log("InventorySpriteController::OnInventoryCreated()");
+            // Debug.Log("InventorySpriteController::OnInventoryCreated()");
             var invGo = new GameObject();
             _inventoryGameObjectMap.Add(inv, invGo);
 

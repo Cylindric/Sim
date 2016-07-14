@@ -18,14 +18,14 @@ namespace Assets.Scripts.Controllers
 
         public void NewWorld()
         {
-            Debug.Log("New World clicked.");
+            // Debug.Log("New World clicked.");
             loadWorld = false;
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
 
         public void SaveWorld()
         {
-            Debug.Log("Save World clicked.");
+            // Debug.Log("Save World clicked.");
             var filename = Path.Combine(Application.persistentDataPath, "SaveGame000.xml");
 
             var xml = new XmlDocument();
@@ -41,7 +41,7 @@ namespace Assets.Scripts.Controllers
 
         public void LoadWorld()
         {
-            Debug.Log("Load World clicked.");
+            // Debug.Log("Load World clicked.");
             loadWorld = true;
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
@@ -80,7 +80,7 @@ namespace Assets.Scripts.Controllers
 
         private void CreateWorldFromSave()
         {
-            Debug.Log("Creating world from save.");
+            // Debug.Log("Creating world from save.");
             var filename = Path.Combine(Application.persistentDataPath, "SaveGame000.xml");
             if (File.Exists(filename) == false)
             {
@@ -97,7 +97,7 @@ namespace Assets.Scripts.Controllers
 
         private void CreateEmptyWorld()
         {
-            Debug.Log("Creating empty world.");
+            // Debug.Log("Creating empty world.");
             this.World = new World(100, 100);
 
             for (int x = -1; x < 2; x++)
