@@ -51,8 +51,8 @@ function OnUpdate_GasGenerator(furniture, deltaTime)
   end
  
   totalPressure = furniture.Tile.Room.Atmosphere.GetTotalAtmosphericPressure()
-  
   pressureDifference = targetPressure - totalPressure
+  furniture.GasParticlesEnabled = false  
   
   if(pressureDifference < 0 and math.abs(pressureDifference) > tolerance) then
     -- Need to remove atmosphere, so take out Nitrogen
@@ -73,6 +73,10 @@ function OnUpdate_GasGenerator(furniture, deltaTime)
       actionTaken = "Added " .. (baseRate * deltaTime) .. " N2.  "
       furniture.GasParticlesEnabled = true
     end
+  end
+  
+  if(furniture.cbOnChanged != nil) then
+    furniture.cbOnChanged(furniture)
   end
   
   return -- actionTaken
