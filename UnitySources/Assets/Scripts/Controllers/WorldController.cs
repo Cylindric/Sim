@@ -54,7 +54,7 @@ namespace Assets.Scripts.Controllers
             return World.Instance.GetTileAt(x, y);
         }
 
-        RemoteDebuggerService remoteDebugger;
+        // RemoteDebuggerService remoteDebugger;
 
         /// <summary>
         /// Called by Unity when the controller is created. 

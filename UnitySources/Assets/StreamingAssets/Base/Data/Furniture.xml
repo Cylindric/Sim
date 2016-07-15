@@ -54,6 +54,9 @@
 			<Inventory objectType="steel_plate" amount="10" />
 		</BuildingJob>
 		<OnUpdate>OnUpdate_GasGenerator</OnUpdate>
+			<Params>
+			<Param name="gas_generator">1</Param>
+		</Params>	
 	</Furniture>
 	
  	<Furniture objectType="furn_mining_station">

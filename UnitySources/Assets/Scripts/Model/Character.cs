@@ -307,21 +307,33 @@ namespace Assets.Scripts.Model
                         // The Job needs some of this:
                         var unsatisfied = _job.GetFirstRequiredInventory();
 
-                        // Look for the first item that matches
-                        var supply = World.Instance.InventoryManager.GetClosestInventoryOfType(
-                            objectType: unsatisfied.ObjectType,
-                            t: CurrentTile,
-                            desiredQty: unsatisfied.MaxStackSize - unsatisfied.StackSize,
-                            searchInStockpiles: _job.CanTakeFromStockpile);
-
-                        if (supply == null)
+                        // We might have a path to the item we need already
+                        var endTile = _path == null ? null : _path.EndTile();
+                        if (_path != null && endTile != null && endTile.Inventory != null &&
+                            endTile.Inventory.ObjectType == unsatisfied.ObjectType)
                         {
-                            //Debug.LogFormat("No Tile found containing the desired type ({0}).", unsatisfied.ObjectType);
-                            AbandonJob();
-                            return;
+                            // We are already moving towards a tile with the items we want, just keep going.
+                        }
+                        else
+                        {
+                            // Look for the first item that matches
+                            this._path = World.Instance.InventoryManager.GetClosestPathToInventoryOfType(
+                                objectType: unsatisfied.ObjectType,
+                                t: CurrentTile,
+                                desiredQty: unsatisfied.MaxStackSize - unsatisfied.StackSize,
+                                searchInStockpiles: _job.CanTakeFromStockpile);
+
+                            if (this._path == null || this._path.Length() == 0)
+                            {
+                                //Debug.LogFormat("No Tile found containing the desired type ({0}).", unsatisfied.ObjectType);
+                                AbandonJob();
+                                return;
+                            }
+
+                            _destTile = this._path.EndTile();
+                            _nextTile = _path.Dequeue();
                         }
 
-                        DestTile = supply.Tile;
                         return;
                     }
                 }

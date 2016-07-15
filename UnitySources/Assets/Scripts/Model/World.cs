@@ -112,7 +112,7 @@ namespace Assets.Scripts.Model
             // Make sure no tiles point to this room.
             r.ReturnTilesToOutsideRoom();
 
-            Debug.LogFormat("Deleted room {0}.", r.Id);
+            // Debug.LogFormat("Deleted room {0}.", r.Id);
         }
 
         public void DeleteEmptyRooms()

@@ -6,7 +6,7 @@ function OnUpdate_GasGenerator(furniture, deltaTime)
   
   timeSinceLastPump = timeSinceLastPump + deltaTime
   
-  if (timeSinceLastPump < 0.5) then
+  if (timeSinceLastPump < 0.0) then
     return
   end
     
@@ -16,6 +16,7 @@ function OnUpdate_GasGenerator(furniture, deltaTime)
 
   actionTaken = actionTaken .. deltaTime .. ".  "
   
+  tolerance = 0.005
   targetPressure = 1.000 -- 101.3 kPa is the same as they use for the ISS, so should be good enough for us.
   targetN2 =  0.78090 -- 78% Nitrogen
   targetO2 =  0.20950 -- 21% Oxygen
@@ -23,6 +24,7 @@ function OnUpdate_GasGenerator(furniture, deltaTime)
   targetCO2 = 0.00039 -- trace CO2
 
   -- The base fill-rate for the O2 Generator.
+  -- TODO: Will need a way to both add Nitrogen and O2, and scrub them too, probably with different rates for all combos.
   -- TODO: Will need a way to both add Nitrogen and O2, and scrub them too, probably with different rates for all combos.
   baseRate = 1 -- m³ per second
 
@@ -45,27 +47,31 @@ function OnUpdate_GasGenerator(furniture, deltaTime)
   -- Always remove CO2, even if that's all there is. It's never a good thing.
   if (furniture.Tile.Room.Atmosphere.GetGasPercentage("CO2") > 0.0) then
     furniture.Tile.Room.Atmosphere.ChangeGas("CO2", -baseRate * deltaTime)
-    actionTaken = actionTaken .. "Added " .. (-baseRate * deltaTime) .. " CO2.  "
+    actionTaken = actionTaken .. "Removed " .. (-baseRate * deltaTime) .. " CO2.  "
   end
  
   totalPressure = furniture.Tile.Room.Atmosphere.GetTotalAtmosphericPressure()
   
-  if(totalPressure > targetPressure) then
+  pressureDifference = targetPressure - totalPressure
+  
+  if(pressureDifference < 0 and math.abs(pressureDifference) > tolerance) then
     -- Need to remove atmosphere, so take out Nitrogen
     furniture.Tile.Room.Atmosphere.ChangeGas("N2", -baseRate * deltaTime)
     actionTaken = actionTaken .. "Removed " .. (-baseRate * deltaTime) .. " N2.  "
   
-  else
+  elseif(pressureDifference > tolerance) then
     -- Adding atmosphere
-  
-    if (furniture.Tile.Room.Atmosphere.GetGasPercentage("O2") < targetO2) then
+
+    if (targetO2 - furniture.Tile.Room.Atmosphere.GetGasPercentage("O2") > tolerance) then
       -- Pump Oxy!
       furniture.Tile.Room.Atmosphere.ChangeGas("O2", baseRate * deltaTime)
       actionTaken = "Added " .. (baseRate * deltaTime) .. " O2.  "
+      furniture.GasParticlesEnabled = true
     else
       -- Pump Nitro!
       furniture.Tile.Room.Atmosphere.ChangeGas("N2", baseRate * deltaTime)
       actionTaken = "Added " .. (baseRate * deltaTime) .. " N2.  "
+      furniture.GasParticlesEnabled = true
     end
   end
   

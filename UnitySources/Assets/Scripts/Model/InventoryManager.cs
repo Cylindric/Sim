@@ -129,44 +129,19 @@ namespace Assets.Scripts.Model
 
         public Inventory GetClosestInventoryOfType(string objectType, Tile t, int desiredQty, bool searchInStockpiles)
         {
+            var path = GetClosestPathToInventoryOfType(objectType, t, desiredQty, searchInStockpiles);
+            return path.EndTile().Inventory;
+        }
+
+        public Path_AStar GetClosestPathToInventoryOfType(string objectType, Tile t, int desiredQty, bool searchInStockpiles)
+        {
             if (Inventories.ContainsKey(objectType) == false)
             {
-                // Debug.LogError("Trying to find closest Inventory for a type we don't have.");
                 return null;
             }
 
-            Inventory found = null;
-            int distance = int.MaxValue;
-
-            foreach (var inv in Inventories[objectType])
-            {
-                if (inv.Tile != null)
-                {
-                    if (inv.Tile.Furniture != null && inv.Tile.Furniture.IsStockpile() && searchInStockpiles == false)
-                    {
-                        continue;
-                    }
-
-                    if (t != null)
-                    {
-                        // Calculate the range from the target tile to this stack
-                        var route = new Path_AStar(World.Instance, t, inv.Tile);
-                        if (found == null || route.Length() < distance)
-                        {
-                            found = inv;
-                            distance = route.Length();
-                        }
-                    }
-                    else
-                    {
-                        // No target tile has been set, so just return the first found stack
-                        found = inv;
-                        break;
-                    }
-                }
-            }
-
-            return found;
+            var path = new Path_AStar(World.Instance, t, null, objectType, true);
+            return path;
         }
     }
 }

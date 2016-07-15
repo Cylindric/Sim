@@ -13,7 +13,7 @@ end
 function OnUpdate_Door(furniture, deltaTime)
   
   if (furniture.GetParameter("is_opening") >= 1) then
-    furniture.OffsetParameter("openness", deltaTime * 4)
+    furniture.OffsetParameter("openness", deltaTime * 8)
 
     if (furniture.GetParameter("openness") >= 1) then
       furniture.SetParameter("is_opening", 0)

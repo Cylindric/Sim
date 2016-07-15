@@ -12,14 +12,11 @@ namespace Assets.Scripts.Controllers
         /* #################################################################### */
 
         private readonly Dictionary<Furniture, GameObject> _furnitureGameObjectMap = new Dictionary<Furniture, GameObject>();
-        //private readonly Dictionary<string, Sprite> _furnitureSprites = new Dictionary<string, Sprite>();
 
         /* #################################################################### */
         /* #                         PROPERTIES                               # */
         /* #################################################################### */
-
-        //public static WorldController Instance { get; protected set; }
-
+        
         /// <summary>
         /// This is just a helper property to make it easier to access World.
         /// </summary>
@@ -28,6 +25,7 @@ namespace Assets.Scripts.Controllers
         /* #################################################################### */
         /* #                           METHODS                                # */
         /* #################################################################### */
+        public ParticleSystem GasParticles;
 
         public void OnFurnitureCreated(Furniture furn)
         {
@@ -56,6 +54,14 @@ namespace Assets.Scripts.Controllers
                 }
             }
 
+            if(Mathf.Approximately(furn.GetParameter("gas_generator"), 1f))
+            {
+                var particles = Instantiate(GasParticles);
+                particles.transform.SetParent(furnGo.transform, false);
+                var em = particles.emission;
+                em.enabled = true;
+            }
+
             furn.RegisterOnChangedCallback(OnFurnitureChanged);
             furn.RegisterOnRemovedCallback(OnFurnitureRemoved);
         }
@@ -71,6 +77,16 @@ namespace Assets.Scripts.Controllers
             var furnGo = _furnitureGameObjectMap[furn];
             furnGo.GetComponent<SpriteRenderer>().sprite = GetSpriteForFurniture(furn);
             furnGo.GetComponent<SpriteRenderer>().color = furn.Tint;
+
+            if (Mathf.Approximately(furn.GetParameter("gas_generator"), 1f))
+            {
+                if (furn.GasParticlesEnabled)
+                {
+                    var part = _furnitureGameObjectMap[furn].GetComponentInChildren<ParticleSystem>();
+                    var em = part.emission;
+                    em.enabled = furn.GasParticlesEnabled;
+                }
+            }
         }
 
         private void OnFurnitureRemoved(Furniture furn)

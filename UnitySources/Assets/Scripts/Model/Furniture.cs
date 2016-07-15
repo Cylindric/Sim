@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Xml;
-using System.Xml.Schema;
-using System.Xml.Serialization;
 using MoonSharp.Interpreter;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
@@ -53,6 +51,7 @@ namespace Assets.Scripts.Model
             this._jobs = new List<Job>();
             this._cbUpdateActions = new List<string>();
             this._cbIsEnterableAction = string.Empty;
+            this.GasParticlesEnabled = false;
         }
 
         /// <summary>
@@ -77,6 +76,7 @@ namespace Assets.Scripts.Model
             this._cbIsEnterableAction = other._cbIsEnterableAction;
             this.Width = other.Width;
             this.Height = other.Height;
+            this.GasParticlesEnabled = other.GasParticlesEnabled;
 
             if (other._funcPositionValidation != null)
             {
@@ -179,6 +179,8 @@ namespace Assets.Scripts.Model
         /// If this furniture spawns anything, where does it appear?
         /// </summary>
         public Vector2 JobSpawnOffset { get; set; }
+
+        public bool GasParticlesEnabled { get; set; }
 
         /* #################################################################### */
         /* #                           METHODS                                # */
