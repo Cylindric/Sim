@@ -295,41 +295,7 @@ namespace Assets.Scripts.Model
 
             if (obj.LinksToNeighbour)
             {
-                // Notify any linked neighbours of this new item.
-                int x = tile.X;
-                int y = tile.Y;
-
-                var t = World.Instance.GetTileAt(x, y + 1);
-                if (t != null && t.Furniture != null && t.Furniture.cbOnChanged != null &&
-                    t.Furniture.ObjectType == obj.ObjectType)
-                {
-                    // The North Tile needs to be updated.
-                    t.Furniture.cbOnChanged(t.Furniture);
-                }
-
-                t = World.Instance.GetTileAt(x + 1, y);
-                if (t != null && t.Furniture != null && t.Furniture.cbOnChanged != null &&
-                    t.Furniture.ObjectType == obj.ObjectType)
-                {
-                    // The East Tile needs to be updated.
-                    t.Furniture.cbOnChanged(t.Furniture);
-                }
-
-                t = World.Instance.GetTileAt(x, y - 1);
-                if (t != null && t.Furniture != null && t.Furniture.cbOnChanged != null &&
-                    t.Furniture.ObjectType == obj.ObjectType)
-                {
-                    // The South Tile needs to be updated.
-                    t.Furniture.cbOnChanged(t.Furniture);
-                }
-
-                t = World.Instance.GetTileAt(x - 1, y);
-                if (t != null && t.Furniture != null && t.Furniture.cbOnChanged != null &&
-                    t.Furniture.ObjectType == obj.ObjectType)
-                {
-                    // The West Tile needs to be updated.
-                    t.Furniture.cbOnChanged(t.Furniture);
-                }
+                tile.UpdateNeighbours();
             }
 
             return obj;

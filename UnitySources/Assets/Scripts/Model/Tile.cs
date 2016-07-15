@@ -120,6 +120,7 @@ namespace Assets.Scripts.Model
                 {
                     var t = World.Instance.GetTileAt(xOff, yOff);
                     t.Furniture = null;
+                    t.UpdateNeighbours();
                 }
             }
 
@@ -188,6 +189,45 @@ namespace Assets.Scripts.Model
             inv.StackSize = 0;
 
             return true;
+        }
+
+        public void UpdateNeighbours()
+        {
+            int x = this.X;
+            int y = this.Y;
+
+            var t = World.Instance.GetTileAt(x, y + 1);
+            if (t != null && t.Furniture != null && t.Furniture.cbOnChanged != null &&
+                (this.Furniture == null || t.Furniture.ObjectType == this.Furniture.ObjectType))
+            {
+                // The North Tile needs to be updated.
+                t.Furniture.cbOnChanged(t.Furniture);
+            }
+
+            t = World.Instance.GetTileAt(x + 1, y);
+            if (t != null && t.Furniture != null && t.Furniture.cbOnChanged != null &&
+                (this.Furniture == null || t.Furniture.ObjectType == this.Furniture.ObjectType))
+            {
+                // The East Tile needs to be updated.
+                t.Furniture.cbOnChanged(t.Furniture);
+            }
+
+            t = World.Instance.GetTileAt(x, y - 1);
+            if (t != null && t.Furniture != null && t.Furniture.cbOnChanged != null &&
+                (this.Furniture == null || t.Furniture.ObjectType == this.Furniture.ObjectType))
+            {
+                // The South Tile needs to be updated.
+                t.Furniture.cbOnChanged(t.Furniture);
+            }
+
+            t = World.Instance.GetTileAt(x - 1, y);
+            if (t != null && t.Furniture != null && t.Furniture.cbOnChanged != null &&
+                (this.Furniture == null || t.Furniture.ObjectType == this.Furniture.ObjectType))
+            {
+                // The West Tile needs to be updated.
+                t.Furniture.cbOnChanged(t.Furniture);
+            }
+
         }
 
         public bool IsNeighbour(Tile tile, bool allowDiagonal = false)
