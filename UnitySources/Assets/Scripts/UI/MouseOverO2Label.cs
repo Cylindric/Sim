@@ -64,7 +64,7 @@ namespace Assets.Scripts.UI
                 return;
             }
 
-            _myText.text = string.Format("Air Pressure: {0:F0} mbar\n{1}", t.Room.Atmosphere.GetTotalAtmosphericPressure() * AtmospheresToMillibar, text);
+            _myText.text = string.Format("Air Pressure: {0:F4} mbar\n{1}", t.Room.Atmosphere.GetTotalAtmosphericPressure(), text);
         }
     }
 }

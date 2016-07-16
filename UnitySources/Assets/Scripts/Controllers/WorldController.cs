@@ -14,12 +14,12 @@ namespace Assets.Scripts.Controllers
         public static WorldController Instance { get; protected set; }
 
         public World World { get; protected set; }
-        private static bool loadWorld = false;
+        private static bool _loadWorld = false;
 
         public void NewWorld()
         {
             // Debug.Log("New World clicked.");
-            loadWorld = false;
+            _loadWorld = false;
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
 
@@ -42,7 +42,7 @@ namespace Assets.Scripts.Controllers
         public void LoadWorld()
         {
             // Debug.Log("Load World clicked.");
-            loadWorld = true;
+            _loadWorld = true;
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
 
@@ -68,7 +68,7 @@ namespace Assets.Scripts.Controllers
             }
             Instance = this;
 
-            if (loadWorld)
+            if (_loadWorld)
             {
                 CreateWorldFromSave();
             }
@@ -100,13 +100,9 @@ namespace Assets.Scripts.Controllers
             // Debug.Log("Creating empty world.");
             this.World = new World(100, 100);
 
-            for (int x = -1; x < 2; x++)
-            {
-                for (int y = -1; y < 2; y++)
-                {
-                    World.CreateCharacter(World.GetTileAt(World.Width / 2 + x, World.Height / 2 + y));
-                }
-            }
+            // Put two characters into the world
+            World.CreateCharacter(World.GetTileAt(World.Width / 2 - 1, World.Height / 2));
+            World.CreateCharacter(World.GetTileAt(World.Width / 2 + 1, World.Height / 2));
 
             Camera.main.transform.position = new Vector3(World.Width / 2f, World.Height / 2f, Camera.main.transform.position.z);
         }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Xml;
 using MoonSharp.Interpreter;
 using UnityEngine;
@@ -191,6 +192,36 @@ namespace Assets.Scripts.Model
             foreach (var gas in gasses)
             {
                 this.ChangeGas(gas.Key, gas.Value);
+            }
+        }
+
+        public void EqualiseAtmosphere(AtmosphereManager other, float qty)
+        {
+            // This is how much total air we're going to pump
+            var mergeRate = qty;
+
+            // This is a list of all the gasses involved in each room
+            var gasses = this.GetGasNames().Union(other.GetGasNames()).ToList();
+            foreach (var gas in gasses)
+            {
+                var thisAmt = this.GetGasAmount(gas);
+                var otherAmt = other.GetGasAmount(gas);
+                var diffAmt = thisAmt - otherAmt;
+                var transAmt = diffAmt/2;
+                
+                //if (diffAmt > 0)
+                //{
+                    // +ve means pumping this gas from This to Other, -ve means other-to-this.
+                    this.ChangeGas(gas, -transAmt, false);
+                    other.ChangeGas(gas, transAmt, false);
+                //}
+
+                //if (diffAmt < 0)
+                //{
+                //    // Pumping from Other to This.
+                //    this.ChangeGas(gas, transAmt);
+                //    other.ChangeGas(gas, -transAmt);
+                //}
             }
         }
 
