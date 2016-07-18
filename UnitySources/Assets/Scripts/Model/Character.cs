@@ -13,7 +13,6 @@ namespace Assets.Scripts.Model
     public class Character
     {
         private const float TimeBetweenJobSearches = 1f;
-        private const float OxygenConsumptionRate = -0.001f;
         private const float BaseMovementSpeed = 5f;
 
         /* #################################################################### */
@@ -105,6 +104,11 @@ namespace Assets.Scripts.Model
         public string Name { get; set; }
 
         public bool IsWorking { get; private set; }
+
+        public Job CurrentJob
+        {
+            get { return _job; }
+        }
 
         /* #################################################################### */
         /* #                           METHODS                                # */

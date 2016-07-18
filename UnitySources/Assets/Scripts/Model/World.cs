@@ -578,7 +578,8 @@ namespace Assets.Scripts.Model
                         inventoryRequirements: inventory.ToArray()
                         )
                     {
-                        Name = "Build_" + objectType
+                        Name = "Build_" + objectType,
+                        Description = "Building " + furn.Name
                     };
 
                     this.FurnitureJobPrototypes.Add(

@@ -31,6 +31,7 @@ function MiningDroneStation_UpdateAction( furniture, deltaTime )
 		nil,
 		true	-- This job repeats until the destination tile is full.
 	)
+  j.Description = "Replicating iron"
 	j.RegisterOnJobCompletedCallback("MiningDroneStation_JobComplete")
 
 	furniture.AddJob( j )

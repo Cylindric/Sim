@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
 using Assets.Scripts.Model;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace Assets.Scripts.Controllers
 {
     class CharacterSpriteController : MonoBehaviour
     {
+        public GameObject CharacterPrefab;
         private readonly Dictionary<Character, GameObject> _characterGameObjectMap = new Dictionary<Character, GameObject>();
         private Dictionary<Character, Dictionary<string, SpriteRenderer>> _characterSpriteParts = new Dictionary<Character, Dictionary<string, SpriteRenderer>>();
 
@@ -31,17 +33,28 @@ namespace Assets.Scripts.Controllers
 
         public void OnCharacterCreated(Character character)
         {
-            var characterGo = new GameObject();
-            _characterGameObjectMap.Add(character, characterGo);
-
+            var characterGo = Instantiate(CharacterPrefab);
             characterGo.name = "Character " + character.Name;
-
-            characterGo.transform.position = new Vector3(character.X, character.Y, 0);
+            _characterGameObjectMap.Add(character, characterGo);
             characterGo.transform.SetParent(this.transform, true);
+
+            var script = (CharacterCollider)characterGo.GetComponentInChildren<MonoBehaviour>();
+            script.Character = character;
 
             SetSpriteForCharacter(character, characterGo, "body", true);
             SetSpriteForCharacter(character, characterGo, "shield", false);
             SetSpriteForCharacter(character, characterGo, "working", false);
+
+            // Add the collider
+            //var mcl = characterGo.AddComponent<MeshCollider>();
+            //mcl.enabled = true;
+            //mcl.transform.SetParent(characterGo.transform, false);
+
+            //var coll = characterGo.AddComponent<CircleCollider2D>();
+            //coll.name = "Collider";
+            //coll.radius = 1f;
+            //coll.enabled = true;
+            //coll.transform.SetParent(characterGo.transform, false);
 
             character.RegisterOnChangedCallback(OnCharacterChanged);
         }
@@ -65,6 +78,7 @@ namespace Assets.Scripts.Controllers
         public void SetSpriteForCharacter(Character character, GameObject go, string part, bool visible = true)
         {
             var subpartGo = new GameObject();
+            subpartGo.name = part;
             subpartGo.transform.SetParent(go.transform, false);
 
             var sprite = subpartGo.AddComponent<SpriteRenderer>();
