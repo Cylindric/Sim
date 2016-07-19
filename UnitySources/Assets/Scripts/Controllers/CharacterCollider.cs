@@ -1,7 +1,6 @@
 ﻿using Assets.Scripts.Model;
 using Assets.Scripts.UI;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Assets.Scripts.Controllers
 {
@@ -23,12 +22,6 @@ namespace Assets.Scripts.Controllers
         {
             _info.Character = this.Character;
             _info.Enable = true;
-        }
-
-        void OnMouseExit()
-        {
-            _info.Character = null;
-            _info.Enable = false;
         }
     }
 }

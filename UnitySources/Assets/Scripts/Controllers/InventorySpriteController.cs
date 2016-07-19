@@ -7,7 +7,9 @@ namespace Assets.Scripts.Controllers
 {
     class InventorySpriteController : MonoBehaviour
     {
+#pragma warning disable 0649
         public GameObject inventoryUIPrefab;
+#pragma warning restore 0649
 
         private readonly Dictionary<Inventory, GameObject> _inventoryGameObjectMap = new Dictionary<Inventory, GameObject>();
 

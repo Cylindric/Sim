@@ -6,7 +6,10 @@ namespace Assets.Scripts.Controllers
 {
     class CharacterSpriteController : MonoBehaviour
     {
+#pragma warning disable 0649
         public GameObject CharacterPrefab;
+#pragma warning restore 0649
+
         private readonly Dictionary<Character, GameObject> _characterGameObjectMap = new Dictionary<Character, GameObject>();
         private readonly Dictionary<Character, Dictionary<string, SpriteRenderer>> _characterSpriteParts = new Dictionary<Character, Dictionary<string, SpriteRenderer>>();
 
