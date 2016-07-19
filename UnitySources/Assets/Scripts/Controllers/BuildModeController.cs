@@ -120,7 +120,7 @@ namespace Assets.Scripts.Controllers
                     }
 
                     j.FurniturePrototype = WorldController.Instance.World.FurniturePrototypes[furnitureType];
-
+                    j.MinRange = 1;
                     t.PendingFurnitureJob = j;
                     j.RegisterOnJobStoppedCallback((theJob) => { theJob.Tile.PendingFurnitureJob = null; });
                     j.RegisterOnJobCompletedCallback((theJob) => { theJob.Tile.PendingFurnitureJob = null; });

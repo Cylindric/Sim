@@ -11,8 +11,6 @@ namespace Assets.Scripts.Model
         /* #                              FIELDS                              # */
         /* #################################################################### */
 
-        public float JobTime { get; private set; }
-        public string Name { get; set; }
         public Dictionary<string, Inventory> InventoryRequirements;
         public Furniture FurniturePrototype;
 
@@ -37,6 +35,7 @@ namespace Assets.Scripts.Model
             this.cbOnJobCompletedLua = new List<string>();
             this.cbOnJobWorkedLua = new List<string>();
             this.Description = string.Empty;
+            this.MinRange = 0; // Most jobs require the character to be on the target tile.
         }
 
         public Job(Tile tile, string jobObjectType, Action<Job> cbJobComplete, float jobTime, Inventory[] inventoryRequirements, bool jobRepeats = false) : this()
@@ -73,6 +72,7 @@ namespace Assets.Scripts.Model
             this.cbOnJobCompletedLua = new List<string>(other.cbOnJobCompletedLua);
             this.cbOnJobWorkedLua = new List<string>(other.cbOnJobWorkedLua);
             this.Description = other.Description;
+            this.MinRange = other.MinRange;
 
             // Make sure the Inventories are COPIED, as we will be making changes to them.
             if (other.InventoryRequirements != null)
@@ -96,6 +96,12 @@ namespace Assets.Scripts.Model
         public Tile Tile { get; set; }
 
         public string JobObjectType { get; protected set; }
+
+        public float JobTime { get; private set; }
+
+        public string Name { get; set; }
+
+        public int MinRange { get; set; }
 
         public bool AcceptsAnyItemType { get; set; }
 

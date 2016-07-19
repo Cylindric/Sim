@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
-using System.Xml;
 using Assets.Scripts.Pathfinding;
 using Assets.Scripts.Utilities;
 using UnityEngine;
@@ -11,13 +9,26 @@ using Debug = UnityEngine.Debug;
 namespace Assets.Scripts.Model
 {
     [DebuggerDisplay("Character {Name} at [{X}, {Y}]")]
-    public class Character
+    public partial class Character
     {
+        public enum State
+        {
+            Idle,
+            PreparingForJob,
+            FetchingStock,
+            WorkingJob,
+            MovingToJobsite,
+            WaitingForAccess
+        }
+
         private const float TimeBetweenJobSearches = 1f;
         private const float BaseMovementSpeed = 5f;
 
-        private const float EnergyChargeRate = (1f/300); // The internal magic fusion core mcguffin charges the character at this rate.
-        private const float ShieldEnergyUsageRate = (2f/300); // The shield uses power at this rate - should be larger than EnergyChargeRate, otherwise it'll never run out.
+        private const float EnergyChargeRate = (1f/300);
+            // The internal magic fusion core mcguffin charges the character at this rate.
+
+        private const float ShieldEnergyUsageRate = (2f/300);
+            // The shield uses power at this rate - should be larger than EnergyChargeRate, otherwise it'll never run out.
 
         /* #################################################################### */
         /* #                           FIELDS                                 # */
@@ -26,6 +37,7 @@ namespace Assets.Scripts.Model
         public Inventory Inventory;
 
         private Tile _destTile;
+
         private Tile DestTile
         {
             get { return _destTile; }
@@ -39,10 +51,9 @@ namespace Assets.Scripts.Model
             }
         }
 
-        private Tile _nextTile; // The next Tile in the pathfinding sequence
+        private Tile _nextTile;
         private Path_AStar _path;
         private readonly float _speed;
-        private Job _job;
         private float _movementPercentage;
         private float _timeSinceLastJobSearch;
         private readonly Dictionary<string, float> _conditions;
@@ -55,7 +66,7 @@ namespace Assets.Scripts.Model
         {
             this._speed = BaseMovementSpeed;
             this.Name = MarkovNameGenerator.GetNextName("male") + ' ' + MarkovNameGenerator.GetNextName("last");
-            this.IsWorking = false;
+            this.CurrentState = State.Idle;
             _conditions = new Dictionary<string, float> {{"energy", 1f}, {"health", 1f}};
         }
 
@@ -68,7 +79,7 @@ namespace Assets.Scripts.Model
         /* #                         DELEGATES                                # */
         /* #################################################################### */
 
-        private Action<Character> cbCharacterChanged;
+        private Action<Character> _cbCharacterChanged;
 
         /* #################################################################### */
         /* #                         PROPERTIES                               # */
@@ -98,31 +109,32 @@ namespace Assets.Scripts.Model
 
         public string Name { get; set; }
 
-        public bool IsWorking { get; private set; }
-
-        public Job CurrentJob
-        {
-            get { return _job; }
-        }
+        public Job CurrentJob { get; private set; }
 
         public bool ShieldStatus { get; private set; }
+
+        public State CurrentState { get; private set; }
 
         /* #################################################################### */
         /* #                           METHODS                                # */
         /* #################################################################### */
 
+        /// <summary>
+        /// Abandon the current job, and put it back on the queue.
+        /// </summary>
         public void AbandonJob()
         {
             _nextTile = DestTile = CurrentTile;
-            World.Instance.JobQueue.Enqueue(_job);
-            _job = null;
-            IsWorking = false;
+            World.Instance.JobQueue.Enqueue(CurrentJob);
+            CurrentJob = null;
+            CurrentState = State.Idle;
         }
 
         public void Update(float deltaTime)
         {
             Update_DoJob(deltaTime);
             Update_DoMovement(deltaTime);
+            Update_Idle(deltaTime);
 
             // Hack in some environmental effects.
             // Currently breathability is all that affects if the shield is up or not.
@@ -144,109 +156,33 @@ namespace Assets.Scripts.Model
 
             // Charge up the energy store
             this.ChangeCondition("energy", EnergyChargeRate * deltaTime);
-            
 
-            if (cbCharacterChanged != null) cbCharacterChanged(this);
-        }
-
-        public void SetDestination(Tile tile)
-        {
-            if (CurrentTile.IsNeighbour(tile, true) == false)
-            {
-                Debug.Log("Character::SetDestination -- Our destination Tile isn't actually our neighbour.");
-            }
-
-            DestTile = tile;
-        }
-
-        public void RegisterOnChangedCallback(Action<Character> cb)
-        {
-            cbCharacterChanged += cb;
-        }
-
-        public void UnregisterOnChangedCallback(Action<Character> cb)
-        {
-            cbCharacterChanged -= cb;
-        }
-
-        public void ReadXml(XmlNode xml)
-        {
-            if (xml.Attributes != null && xml.Attributes["name"] != null && xml.Attributes["name"].ToString().Length > 0)
-            {
-                this.Name = xml.Attributes["name"].Value;
-            }
-
-            var condsNode = xml.SelectSingleNode("./Conditions");
-            if (condsNode != null)
-            {
-                var condNodes = condsNode.SelectSingleNode("./Condition");
-                if (condNodes != null)
-                {
-                    foreach (XmlElement condNode in condNodes)
-                    {
-                        var name = condNode.Attributes["name"].Value;
-                        var value = float.Parse(condsNode.InnerText);
-                        this.SetCondition(name, value);
-                    }
-                }
-            }
-
-            var inventoryNode = xml.SelectSingleNode("./Inventory");
-            if (inventoryNode != null)
-            {
-                this.Inventory = new Inventory();
-                this.Inventory.Character = this;
-                this.Inventory.ReadXml(inventoryNode);
-            }
-        }
-
-        public XmlElement WriteXml(XmlDocument xml)
-        {
-            var character = xml.CreateElement("Character");
-            character.SetAttribute("x", CurrentTile.X.ToString());
-            character.SetAttribute("y", CurrentTile.Y.ToString());
-            character.SetAttribute("name", this.Name);
-
-            if (_conditions.Count > 0)
-            {
-                var condsXml = xml.CreateElement("Conditions");
-                foreach (var cond in _conditions)
-                {
-                    var condXml = xml.CreateElement("Condition");
-                    condXml.SetAttribute("name", cond.Key);
-                    condXml.InnerText = cond.Value.ToString(CultureInfo.InvariantCulture);
-                    condsXml.AppendChild(condXml);
-                }
-                character.AppendChild(condsXml);
-            }
-
-            if (this.Inventory != null)
-            {
-                character.AppendChild(this.Inventory.WriteXml(xml));
-            }
-
-            return character;
+            if (_cbCharacterChanged != null) _cbCharacterChanged(this);
         }
 
         private void GetNewJob()
         {
+            // Make sure we're starting off in an Idle state
+            CurrentState = State.Idle;
+
             // Grab a new job.
             // _job = World.Instance.JobQueue.TakeClosestJobToTile(CurrentTile);
-            _job = World.Instance.JobQueue.TakeFirstJobFromQueue();
+            CurrentJob = World.Instance.JobQueue.TakeFirstJobFromQueue();
             _timeSinceLastJobSearch = 0;
 
-            if (_job == null) return;
-            
-            if (_job.Furniture != null)
+            if (CurrentJob == null) return;
+            CurrentState = State.PreparingForJob;
+
+            if (CurrentJob.Furniture != null)
             {
-                DestTile = _job.Furniture.GetJobSpotTile();
+                DestTile = CurrentJob.Furniture.GetJobSpotTile();
             }
             else
             {
-                DestTile = _job.Tile;
+                DestTile = CurrentJob.Tile;
             }
 
-            _job.RegisterOnJobStoppedCallback(OnJobStopped);
+            CurrentJob.RegisterOnJobStoppedCallback(OnJobStopped);
 
             // Check to see if the job is reachable from the Character's current position.
             // We mmight have to go somewhere else first to get materials.
@@ -267,46 +203,83 @@ namespace Assets.Scripts.Model
             }
         }
 
+        private void Update_Idle(float deltaTime)
+        {
+            if (CurrentJob != null)
+            {
+                return;
+            }
+
+            if (CurrentTile != _destTile)
+            {
+                return;
+            }
+
+            // If we're standing in a dangerous place and not actually working in it, try and move somewhere safer.
+
+            if (CurrentTile.Room == null || CurrentTile.Room.IsOutsideRoom() || CurrentTile.Room.Atmosphere.IsBreathable() == false)
+            {
+                // No room at all probably means we're stood in a door or some other furniture.
+                // Outside room means we're out in space, so try and find somewhere safe.
+                var targetRoom = FindNearestSafeRoom();
+
+                // Create a new job to flee to safety.
+                CurrentJob = new Job(targetRoom, null, OnJobStopped, 0f, null, false);
+                CurrentJob.Description = "Seeking safety";
+            }
+        }
+
         private void Update_DoJob(float deltaTime)
         {
             _timeSinceLastJobSearch += deltaTime;
 
-            // Do I have a job?
-            if (_job == null)
+            // If I'm not doing anything, look for work to do.
+            if (CurrentState == State.Idle)
             {
+                // Get a new job, but wait for just a bit so we don't immediately pick up a new job.
                 if (_timeSinceLastJobSearch >= TimeBetweenJobSearches)
                 {
                     GetNewJob();
                 }
 
-                if (_job == null)
+                if (CurrentState == State.Idle)
                 {
-                    // There is no job queued, so can just finish.
+                    // There are no jobs queued, so can just finish.
                     DestTile = CurrentTile;
                     return;
                 }
             }
 
-            // We have a job, and it is reachable.
-            if (_job.HasAllMaterial() == false)
+            if (CurrentState == State.Idle)
+            {
+                // If we're still idle, there's nothing more to work out for jobs.
+                // Basically means there either are no more jobs, or we're waiting a bit before getting one.
+                return;
+            }
+
+            // We have a job.
+
+            if (CurrentJob.HasAllMaterial() == false)
             {
                 // We are missing resources required for the job
                 
                 // Are we carrying what we need?
                 if (Inventory != null)
                 {
-                    if (_job.NeedsMaterial(Inventory) > 0)
+                    if (CurrentJob.NeedsMaterial(Inventory) > 0)
                     {
-                        DestTile = _job.Tile;
+                        // We are carrying at least some of what the current job needs, so take it to the job site.
+                        CurrentState = State.MovingToJobsite;
+                        DestTile = CurrentJob.Tile;
 
-                        if (CurrentTile == DestTile || CurrentTile.IsNeighbour(DestTile, true))
+                        if (CurrentTile == DestTile || (_path != null && _path.Length() <= CurrentJob.MinRange))
                         {
                             // Set dest to current, just in case it was the neighbour-check that got us here
                             DestTile = CurrentTile;
 
                             // We are at the jobsite, so drop the Inventory.
-                            World.Instance.InventoryManager.PlaceInventory(_job, Inventory);
-                            _job.DoWork(0); // This will call all the cbJobWorked callbacks
+                            World.Instance.InventoryManager.PlaceInventory(CurrentJob, Inventory);
+                            CurrentJob.DoWork(0); // This will call all the cbJobWorked callbacks
 
                             if (Inventory.StackSize == 0)
                             {
@@ -317,11 +290,16 @@ namespace Assets.Scripts.Model
                                 Debug.LogError("Character is still carrying Inventory, which shouldn't be the case.");
                                 Inventory = null;
                             }
+
+                            // Once the stock is dropped, we're available for work
+                            CurrentState = State.Idle;
+
                         }
                         else
                         {
                             // Still walking to the site.
-                            DestTile = _job.Tile;
+                            CurrentState = State.MovingToJobsite;
+                            DestTile = CurrentJob.Tile;
                             return;
                         }
                     }
@@ -336,28 +314,34 @@ namespace Assets.Scripts.Model
                             // TODO: At this point we should try to dump this inv somewhere else, but for now we're just deleting it.
                             Inventory = null;
                         }
+
+                        // Once the stock is dropped, we're available for work
+                        CurrentState = State.Idle;
                     }
                 }
                 else
                 {
                     // At this point, the job still requires Inventory, but we don't have it.
                     // That means we need to walk towards a Tile that does have the required items.
+                    CurrentState = State.FetchingStock;
 
                     if (CurrentTile.Inventory != null && 
-                        (_job.CanTakeFromStockpile || CurrentTile.Furniture == null || CurrentTile.Furniture.IsStockpile() == false) &&
-                        _job.NeedsMaterial(CurrentTile.Inventory) != 0)
+                        (CurrentJob.CanTakeFromStockpile || CurrentTile.Furniture == null || CurrentTile.Furniture.IsStockpile() == false) &&
+                        CurrentJob.NeedsMaterial(CurrentTile.Inventory) != 0)
                     {
                         // The materials we need are right where we're stood!
                         World.Instance.InventoryManager.PlaceInventory(
                             character: this, 
                             source: CurrentTile.Inventory, 
-                            qty: _job.NeedsMaterial(CurrentTile.Inventory));
+                            qty: CurrentJob.NeedsMaterial(CurrentTile.Inventory));
 
+                        // We've picked up what we need, so wait for further orders.
+                        this.CurrentState = State.Idle;
                     }
                     else
                     {
                         // The Job needs some of this:
-                        var unsatisfied = _job.GetFirstRequiredInventory();
+                        var unsatisfied = CurrentJob.GetFirstRequiredInventory();
 
                         // We might have a path to the item we need already
                         var endTile = _path == null ? null : _path.EndTile();
@@ -373,7 +357,7 @@ namespace Assets.Scripts.Model
                                 objectType: unsatisfied.ObjectType,
                                 t: CurrentTile,
                                 desiredQty: unsatisfied.MaxStackSize - unsatisfied.StackSize,
-                                searchInStockpiles: _job.CanTakeFromStockpile);
+                                searchInStockpiles: CurrentJob.CanTakeFromStockpile);
 
                             if (this._path == null || this._path.Length() == 0)
                             {
@@ -382,6 +366,7 @@ namespace Assets.Scripts.Model
                                 return;
                             }
 
+                            this.CurrentState = State.FetchingStock;
                             _destTile = this._path.EndTile();
                             _nextTile = _path.Dequeue();
                         }
@@ -396,17 +381,20 @@ namespace Assets.Scripts.Model
 
             // We have all the material that we need
             // Make sure the destination Tile is the job Tile
-            DestTile = _job.Tile;
+            DestTile = CurrentJob.Tile;
 
             // Are we there yet?
-            if (CurrentTile == _job.Tile || CurrentTile.IsNeighbour(_job.Tile, true))
+            if ((CurrentTile == CurrentJob.Tile)
+                || (_path != null && _path.Length() <= CurrentJob.MinRange))
             {
-                IsWorking = true;
+                Debug.LogFormat("Standing at [{0},{1}] Working job \"{2}\" at [{3},{4}]", CurrentTile.X, CurrentTile.Y, CurrentJob.Description, CurrentJob.Tile.X, CurrentJob.Tile.Y);
+                CurrentState = State.WorkingJob;
 
                 // Set dest to current, just in case it was the neighbour-check that got us here
                 DestTile = CurrentTile;
+                _path = null;
 
-                _job.DoWork(deltaTime);
+                CurrentJob.DoWork(deltaTime);
             }
 
             // Done.
@@ -414,12 +402,22 @@ namespace Assets.Scripts.Model
 
         private void Update_DoMovement(float deltaTime)
         {
+            if (this.CurrentState != State.FetchingStock && _path != null)
+            {
+                // Debug.LogFormat("Path length {0}.", _path.Length());
+                if (_path.Length() <= CurrentJob.MinRange)
+                {
+                    Debug.Log("Close enough");
+                    DestTile = CurrentTile;
+                }
+            }
+
             if (CurrentTile == DestTile)
             {
                 _path = null;
                 return; // We're already were we want to be.
             }
-            
+
             if (_nextTile == null || _nextTile == CurrentTile)
             {
                 // Get the next Tile from the pathfinder.
@@ -475,11 +473,13 @@ namespace Assets.Scripts.Model
                 // Debug.LogError("Error - Character was strying to enter an impassable Tile!");
                 _nextTile = null;
                 _path = null;
+                CurrentState = State.Idle;
             }
             else if(_nextTile.IsEnterable() == Enterability.Soon)
             {
                 // The next Tile we're trying to enter is walkable, but maybe for some reason
                 // cannot be entered right now. Perhaps it is occupied, or contains a closed door.
+                CurrentState = State.WaitingForAccess;
                 return;
             }
 
@@ -511,12 +511,7 @@ namespace Assets.Scripts.Model
 
             if (_movementPercentage >= 1)
             {
-                // We have reached our destination
-
-                // TODO: Get the next Tile from the pathfinding system.
-                //       If there are no more tiles, then we have TRULY
-                //       reached our destination.
-
+                // We have reached our (current) destination
                 CurrentTile = _nextTile;
                 _movementPercentage = 0;
             }
@@ -524,85 +519,21 @@ namespace Assets.Scripts.Model
 
         private void OnJobStopped(Job j)
         {
+            Debug.LogFormat("Standing at [{0},{1}] Finished job \"{2}\" at [{3},{4}]", CurrentTile.X, CurrentTile.Y, CurrentJob.Description, CurrentJob.Tile.X, CurrentJob.Tile.Y);
+
             // Job completed or was cancelled.
-            IsWorking = false;
+            CurrentState = State.Idle;
 
             j.UnregisterOnJobStoppedCallback(OnJobStopped);
 
-            if (j != _job)
+            if (j != CurrentJob)
             {
                 // Debug.LogError("Character being told about job (" + j.Name + ") that isn't his. You forgot to unregister something.");
                 return;
             }
 
-            _job = null;
+            CurrentJob = null;
         }
 
-        public bool CanBreathe()
-        {
-            if (CurrentTile == null) return false;
-            if (CurrentTile.Room == null) return false;
-            return CurrentTile.Room.Atmosphere.IsBreathable();
-        }
-
-        /// <summary>
-        /// Perform some gas-exchange calculations and apply to the local environment.
-        /// </summary>
-        /// <remarks>
-        /// It's not as simple as some people think...
-        /// Some numbers at https://en.wikipedia.org/wiki/Breathing#Composition
-        /// Alan Boyd has helpfully put some calculations up at http://biology.stackexchange.com/questions/5642/how-much-gas-is-exchanged-in-one-human-breath
-        /// </remarks>
-        /// <param name="deltaTime">Frame-time</param>
-        public void Breathe(float deltaTime)
-        {
-            if (CurrentTile == null) return;
-            if (CurrentTile.Room == null) return;
-
-            // hack the deltaTime to speed up the simulation a bit
-            deltaTime *= 10;
-
-            // We can assume an at-rest breathing rate of about 15 breaths per minute (https://en.wikipedia.org/wiki/Lung_volumes)
-            var breaths = (15f/60) * deltaTime; // Breaths-per-second (this frame) 
-
-            // We can assume an average "tidal volume" of air moving in and out of a person is 0.5L (https://en.wikipedia.org/wiki/Lung_volumes)
-            var consumedO2Volume = 0.5f * breaths * 0.001f; // Cubic Metres
-
-            // Consume some oxygen.
-            CurrentTile.Room.Atmosphere.ChangeGas("O2", -consumedO2Volume);
-
-            // In each breath in, we take in about 18mg of O2, and release back out 36mg of CO2 and 20mg of H2O, which is 0.8 molecules of CO2 for every molecule of O2.
-            // I'm not sure how to convert that into a sensible "CO2 produced" number, so this is MADE UP. TODO: Don't make this up.
-            CurrentTile.Room.Atmosphere.ChangeGas("CO2", consumedO2Volume);
-        }
-
-        public float GetCondition(string name)
-        {
-            return _conditions.ContainsKey(name) ? _conditions[name] : 0f;
-        }
-
-        public float SetCondition(string name, float value, bool clamp = true)
-        {
-            if (clamp)
-            {
-                value = Mathf.Clamp01(value);
-            }
-
-            if (_conditions.ContainsKey(name) == false)
-            {
-                _conditions.Add(name, value);
-            }
-            else
-            {
-                _conditions[name] = value;
-            }
-
-            return _conditions[name];
-        }
-
-        public float ChangeCondition(string name, float delta, bool clamp = true)
-        {
-            return this.SetCondition(name, this.GetCondition(name) + delta, clamp);
-        }
     }
 }
