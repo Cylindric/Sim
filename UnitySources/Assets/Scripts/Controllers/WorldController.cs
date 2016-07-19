@@ -2,6 +2,7 @@
 using System.Xml;
 using System.Xml.Serialization;
 using Assets.Scripts.Model;
+using Assets.Scripts.Utilities;
 using MoonSharp.RemoteDebugger;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -62,6 +63,8 @@ namespace Assets.Scripts.Controllers
         /// </summary>
         private void OnEnable()
         {
+            MarkovNameGenerator.Initialise();
+
             if (Instance != null)
             {
                 Debug.LogError("There shouldn't be an instance already!");

@@ -1,6 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
+using System.Globalization;
 using System.Xml;
 using Assets.Scripts.Pathfinding;
 using Assets.Scripts.Utilities;
@@ -14,6 +15,9 @@ namespace Assets.Scripts.Model
     {
         private const float TimeBetweenJobSearches = 1f;
         private const float BaseMovementSpeed = 5f;
+
+        private const float EnergyChargeRate = (1f/300); // The internal magic fusion core mcguffin charges the character at this rate.
+        private const float ShieldEnergyUsageRate = (2f/300); // The shield uses power at this rate - should be larger than EnergyChargeRate, otherwise it'll never run out.
 
         /* #################################################################### */
         /* #                           FIELDS                                 # */
@@ -40,9 +44,8 @@ namespace Assets.Scripts.Model
         private readonly float _speed;
         private Job _job;
         private float _movementPercentage;
-        private static MarkovNameGenerator _nameGenerator;
         private float _timeSinceLastJobSearch;
-
+        private readonly Dictionary<string, float> _conditions;
 
         /* #################################################################### */
         /* #                        CONSTRUCTORS                              # */
@@ -50,19 +53,10 @@ namespace Assets.Scripts.Model
 
         public Character()
         {
-            if (_nameGenerator == null)
-            {
-                var filepath = Application.streamingAssetsPath;
-                filepath = Path.Combine(filepath, "Base");
-                filepath = Path.Combine(filepath, "Data");
-                filepath = Path.Combine(filepath, "names_male.txt");
-                var names = File.ReadAllLines(filepath);
-                _nameGenerator = new MarkovNameGenerator(names, 2, 5);
-            }
-
             this._speed = BaseMovementSpeed;
-            this.Name = _nameGenerator.NextName;
+            this.Name = MarkovNameGenerator.GetNextName("male") + ' ' + MarkovNameGenerator.GetNextName("last");
             this.IsWorking = false;
+            _conditions = new Dictionary<string, float> {{"energy", 1f}, {"health", 1f}};
         }
 
         public Character(Tile tile) : this()
@@ -79,6 +73,7 @@ namespace Assets.Scripts.Model
         /* #################################################################### */
         /* #                         PROPERTIES                               # */
         /* #################################################################### */
+
         public float X
         {
             get
@@ -99,7 +94,7 @@ namespace Assets.Scripts.Model
             }
         }
 
-        public Tile CurrentTile { get; protected set; }
+        public Tile CurrentTile { get; private set; }
 
         public string Name { get; set; }
 
@@ -109,6 +104,8 @@ namespace Assets.Scripts.Model
         {
             get { return _job; }
         }
+
+        public bool ShieldStatus { get; private set; }
 
         /* #################################################################### */
         /* #                           METHODS                                # */
@@ -127,10 +124,27 @@ namespace Assets.Scripts.Model
             Update_DoJob(deltaTime);
             Update_DoMovement(deltaTime);
 
+            // Hack in some environmental effects.
+            // Currently breathability is all that affects if the shield is up or not.
             if (this.CanBreathe())
             {
                 this.Breathe(deltaTime);
+                ShieldStatus = false;
             }
+            else
+            {
+                ShieldStatus = true;
+            }
+
+            // Consume energy if the shield is enabled.
+            if (ShieldStatus == true)
+            {
+                this.ChangeCondition("energy", -ShieldEnergyUsageRate * deltaTime);
+            }
+
+            // Charge up the energy store
+            this.ChangeCondition("energy", EnergyChargeRate * deltaTime);
+            
 
             if (cbCharacterChanged != null) cbCharacterChanged(this);
         }
@@ -157,6 +171,26 @@ namespace Assets.Scripts.Model
 
         public void ReadXml(XmlNode xml)
         {
+            if (xml.Attributes != null && xml.Attributes["name"] != null && xml.Attributes["name"].ToString().Length > 0)
+            {
+                this.Name = xml.Attributes["name"].Value;
+            }
+
+            var condsNode = xml.SelectSingleNode("./Conditions");
+            if (condsNode != null)
+            {
+                var condNodes = condsNode.SelectSingleNode("./Condition");
+                if (condNodes != null)
+                {
+                    foreach (XmlElement condNode in condNodes)
+                    {
+                        var name = condNode.Attributes["name"].Value;
+                        var value = float.Parse(condsNode.InnerText);
+                        this.SetCondition(name, value);
+                    }
+                }
+            }
+
             var inventoryNode = xml.SelectSingleNode("./Inventory");
             if (inventoryNode != null)
             {
@@ -171,6 +205,20 @@ namespace Assets.Scripts.Model
             var character = xml.CreateElement("Character");
             character.SetAttribute("x", CurrentTile.X.ToString());
             character.SetAttribute("y", CurrentTile.Y.ToString());
+            character.SetAttribute("name", this.Name);
+
+            if (_conditions.Count > 0)
+            {
+                var condsXml = xml.CreateElement("Conditions");
+                foreach (var cond in _conditions)
+                {
+                    var condXml = xml.CreateElement("Condition");
+                    condXml.SetAttribute("name", cond.Key);
+                    condXml.InnerText = cond.Value.ToString(CultureInfo.InvariantCulture);
+                    condsXml.AppendChild(condXml);
+                }
+                character.AppendChild(condsXml);
+            }
 
             if (this.Inventory != null)
             {
@@ -526,7 +574,35 @@ namespace Assets.Scripts.Model
             // In each breath in, we take in about 18mg of O2, and release back out 36mg of CO2 and 20mg of H2O, which is 0.8 molecules of CO2 for every molecule of O2.
             // I'm not sure how to convert that into a sensible "CO2 produced" number, so this is MADE UP. TODO: Don't make this up.
             CurrentTile.Room.Atmosphere.ChangeGas("CO2", consumedO2Volume);
+        }
 
+        public float GetCondition(string name)
+        {
+            return _conditions.ContainsKey(name) ? _conditions[name] : 0f;
+        }
+
+        public float SetCondition(string name, float value, bool clamp = true)
+        {
+            if (clamp)
+            {
+                value = Mathf.Clamp01(value);
+            }
+
+            if (_conditions.ContainsKey(name) == false)
+            {
+                _conditions.Add(name, value);
+            }
+            else
+            {
+                _conditions[name] = value;
+            }
+
+            return _conditions[name];
+        }
+
+        public float ChangeCondition(string name, float delta, bool clamp = true)
+        {
+            return this.SetCondition(name, this.GetCondition(name) + delta, clamp);
         }
     }
 }

@@ -1,5 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.IO;
+using UnityEngine;
+using Random = System.Random;
 
 namespace Assets.Scripts.Utilities
 {
@@ -8,8 +10,33 @@ namespace Assets.Scripts.Utilities
     // http://www.siliconcommandergames.com/MarkovNameGenerator.htm
     public class MarkovNameGenerator
     {
+        private static Dictionary<string, MarkovNameGenerator> _generators;
+
+        public static void Initialise()
+        {
+            _generators = new Dictionary<string, MarkovNameGenerator>();
+            
+            var filepath = Application.streamingAssetsPath;
+            filepath = Path.Combine(filepath, "Base");
+            filepath = Path.Combine(filepath, "Data");
+            foreach (var file in Directory.GetFiles(filepath, "names_*.txt", SearchOption.AllDirectories))
+            {
+                var names = File.ReadAllLines(file);
+                var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(file);
+                if (fileNameWithoutExtension == null) continue;
+
+                var tag = fileNameWithoutExtension.Replace("names_", "");
+                _generators.Add(tag, new MarkovNameGenerator(names, 4, 5));
+            }
+        }
+
+        public static string GetNextName(string list)
+        {
+            return _generators[list].NextName;
+        }
+
         //constructor
-        public MarkovNameGenerator(IEnumerable<string> sampleNames, int order, int minLength)
+        private MarkovNameGenerator(IEnumerable<string> sampleNames, int order, int minLength)
         {
             //fix parameter values
             if (order < 1)
@@ -53,7 +80,7 @@ namespace Assets.Scripts.Utilities
         }
 
         //Get the next random name
-        public string NextName
+        private string NextName
         {
             get
             {
@@ -101,7 +128,7 @@ namespace Assets.Scripts.Utilities
         }
 
         //Reset the used names
-        public void Reset()
+        private void Reset()
         {
             _used.Clear();
         }

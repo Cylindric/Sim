@@ -40,6 +40,14 @@ namespace Assets.Scripts.UI
                         label.text = this.Character.Name;
                         break;
 
+                    case "Character.Energy":
+                        label.text = this.Character.GetCondition("energy").ToString("P0");
+                        break;
+
+                    case "Character.Health":
+                        label.text = this.Character.GetCondition("health").ToString("P0");
+                        break;
+
                     case "Character.Job":
                         if (this.Character.CurrentJob == null)
                         {

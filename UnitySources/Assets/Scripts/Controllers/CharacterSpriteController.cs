@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using Assets.Scripts.Model;
 using UnityEngine;
-using UnityEngine.Networking;
 
 namespace Assets.Scripts.Controllers
 {
@@ -9,7 +8,7 @@ namespace Assets.Scripts.Controllers
     {
         public GameObject CharacterPrefab;
         private readonly Dictionary<Character, GameObject> _characterGameObjectMap = new Dictionary<Character, GameObject>();
-        private Dictionary<Character, Dictionary<string, SpriteRenderer>> _characterSpriteParts = new Dictionary<Character, Dictionary<string, SpriteRenderer>>();
+        private readonly Dictionary<Character, Dictionary<string, SpriteRenderer>> _characterSpriteParts = new Dictionary<Character, Dictionary<string, SpriteRenderer>>();
 
         /// <summary>
         /// This is just a helper property to make it easier to access World.
