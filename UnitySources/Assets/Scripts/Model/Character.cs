@@ -80,7 +80,7 @@ namespace Assets.Scripts.Model
                     .Do("setup-move-to-stocksite", t => SetupMoveToStockSite_Action(t.deltaTime))
                     .Do("move-to-stocksite", t => MoveTowardsDestination_Action(t.deltaTime))
                     .Do("pickup-stock", t => PickUpStock_Action(t.deltaTime))
-                    .Do("movesetup-move-to-jobsite", t=> SetupMoveToJobSite_Action(t.deltaTime))
+                    .Do("movesetup-move-to-jobsite", t => SetupMoveToJobSite_Action(t.deltaTime))
                     .Do("move-to-jobsite", t => { return MoveTowardsDestination_Action(t.deltaTime); })
                     .Do("drop_stock", t => TransferStockToJob_Action(t.deltaTime))
                     .Do("do-work", t => DoWork_Action(t.deltaTime))
