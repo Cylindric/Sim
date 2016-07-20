@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Xml;
 using System.Xml.Schema;
-using System.Xml.Serialization;
 using Assets.Scripts.Pathfinding;
 using Assets.Scripts.Utilities;
 using MoonSharp.Interpreter;
@@ -15,7 +14,7 @@ using Debug = UnityEngine.Debug;
 namespace Assets.Scripts.Model
 {
     [MoonSharpUserData]
-    public class World : IXmlSerializable
+    public class World
     {
         /* #################################################################### */
         /* #                           FIELDS                                 # */
@@ -89,10 +88,7 @@ namespace Assets.Scripts.Model
             var c = new Character(t);
             this.Characters.Add(c);
 
-            if (this._cbCharacterCreated != null)
-            {
-                this._cbCharacterCreated(c);
-            }
+            if (this._cbCharacterCreated != null) this._cbCharacterCreated(c);
 
             return c;
         }
@@ -115,6 +111,19 @@ namespace Assets.Scripts.Model
 
             // Make sure no tiles point to this room.
             r.ReturnTilesToOutsideRoom();
+
+            // Debug.LogFormat("Deleted room {0}.", r.Id);
+        }
+
+        public void DeleteEmptyRooms()
+        {
+            foreach (var room in new List<Room>(Rooms))
+            {
+                if (room.Size == 0)
+                {
+                    DeleteRoom(room);
+                }
+            }
         }
 
         public void AddRoom(Room r)
@@ -253,115 +262,206 @@ namespace Assets.Scripts.Model
             }
         }
 
-        public XmlSchema GetSchema()
+        public static World ReadXml(XmlDocument xml)
         {
-            return null;
+            if (xml.DocumentElement == null)
+            {
+                Debug.LogError("Invalid save - doesn't even have a root element!");
+                return null;
+            }
+
+            var element = (XmlElement)xml.DocumentElement.SelectSingleNode("/World");
+            if (element == null)
+            {
+                Debug.LogError("Invalid save - doesn't even have a root World element!");
+                return null;
+            }
+
+            var width = int.Parse(element.Attributes["width"].Value);
+            var height = int.Parse(element.Attributes["height"].Value);
+
+            var world = new World(width, height);
+
+            // Load the rooms
+            world.ReadFromXmlRooms(element);
+            world.ReadFromXmlTiles(element);
+            world.ReadFromXmlFurniture(element);
+            world.ReadFromXmlCharacters(element);
+
+            return world;
         }
 
-        public void ReadXml(XmlReader reader)
+        private void ReadFromXmlRooms(XmlElement xml)
         {
-            this.Width = int.Parse(reader.GetAttribute("Width"));
-            this.Height = int.Parse(reader.GetAttribute("Height"));
-
-            this.SetupWorld(this.Width, this.Height);
-
-            var timer = new Stopwatch();
-
-            while (reader.Read())
+            var element = (XmlElement)xml.SelectSingleNode("./Rooms");
+            if (element == null)
             {
-                Debug.LogFormat("Parsing section {0}.", reader.Name);
-                switch (reader.Name)
+                Debug.LogError("No rooms found!");
+                return;
+            }
+
+            var rooms = element.SelectNodes("./Room");
+            if (rooms == null || rooms.Count == 0)
+            {
+                Debug.LogError("No rooms found!");
+                return;
+            }
+
+            foreach (XmlElement room in rooms)
+            {
+                AddRoom(Room.ReadXml(room));
+            }
+        }
+
+        private void ReadFromXmlTiles(XmlElement xml)
+        {
+            var element = (XmlElement)xml.SelectSingleNode("./Tiles");
+            if (element == null)
+            {
+                Debug.LogError("No tiles found!");
+                return;
+            }
+
+            var tiles = element.SelectNodes("./Tile");
+            if (tiles == null || tiles.Count == 0)
+            {
+                Debug.LogError("No tiles found!");
+                return;
+            }
+
+            foreach (XmlElement tile in tiles)
+            {
+                try
                 {
-                    case "Tiles":
-                        timer.Start();
-                        this.ReadXml_Tiles(reader);
-                        Debug.LogFormat("Loading Tiles took {0} ms.", timer.ElapsedMilliseconds);
-                        timer.Stop();
-                       timer.Reset();
-                        break;
-                    case "Furnitures":
-                        timer.Start();
-                        this.ReadXml_Furnitures(reader);
-                        Debug.LogFormat("Loading Furniture took {0} ms.", timer.ElapsedMilliseconds);
-                        timer.Stop();
-                        timer.Reset();
-                        break;
-                    case "Rooms":
-                        timer.Start();
-                        this.ReadXml_Rooms(reader);
-                        Debug.LogFormat("Loading Rooms took {0} ms.", timer.ElapsedMilliseconds);
-                        timer.Stop();
-                        timer.Reset();
-                        break;
-                    case "Characters":
-                        timer.Start();
-                        this.ReadXml_Characters(reader);
-                        Debug.LogFormat("Loading Characters took {0} ms.", timer.ElapsedMilliseconds);
-                        timer.Stop();
-                        timer.Reset();
-                        break;
+                    var x = int.Parse(tile.GetAttribute("x"));
+                    var y = int.Parse(tile.GetAttribute("y"));
+                    
+                    var t = World.Instance.GetTileAt(x, y);
+                    t.ReadXml(tile);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError(e.Message);
                 }
             }
-            reader.Close();
+        }
 
-            Inventory inv = new Inventory("steel_plate", 50, 50);
-            Tile t = GetTileAt(Width / 2, Height / 2);
-            InventoryManager.PlaceInventory(t, inv);
-            if (_cbInventoryCreated != null)
+        private void ReadFromXmlCharacters(XmlElement xml)
+        {
+            var element = (XmlElement)xml.SelectSingleNode("./Characters");
+            if (element == null)
             {
-                _cbInventoryCreated(t.Inventory);
+                Debug.LogError("No characters found!");
+                return;
+            }
+
+            var characters = element.SelectNodes("./Character");
+            if (characters == null || characters.Count == 0)
+            {
+                Debug.LogError("No characters found!");
+                return;
+            }
+
+            foreach (XmlElement character in characters)
+            {
+                var x = int.Parse(character.GetAttribute("x"));
+                var y = int.Parse(character.GetAttribute("y"));
+
+                var c = this.CreateCharacter(this.GetTileAt(x,y));
+                c.ReadXml(character);
             }
         }
 
-        public void WriteXml(XmlWriter writer)
+        private void ReadFromXmlFurniture(XmlElement element)
         {
-            writer.WriteAttributeString("Width", this.Width.ToString());
-            writer.WriteAttributeString("Height", this.Height.ToString());
-
-
-            writer.WriteStartElement("Rooms");
-            foreach (var room in this.Rooms.Skip(1)) // Don't save the outside room
+            var furnituresElement = (XmlElement)element.SelectSingleNode("./Furnitures");
+            if (furnituresElement == null)
             {
-                room.WriteXml(writer);
+                Debug.LogError("No furnitures found!");
+                return;
             }
-            writer.WriteEndElement();
 
-
-            writer.WriteStartElement("Tiles");
-
-            // Get a copy of a default Tile - we won't bother writing those out.
-            var defaultTile = new Tile();
-
-            for (int x = 0; x < this.Width; x++)
+            var furnitures = furnituresElement.SelectNodes("./Furniture");
+            if (furnitures == null || furnitures.Count == 0)
             {
-                for (int y = 0; y < this.Height; y++)
+                Debug.LogError("No furniture found!");
+                return;
+            }
+
+            foreach (XmlElement furniture in furnitures)
+            {
+                var x = int.Parse(furniture.GetAttribute("x"));
+                var y = int.Parse(furniture.GetAttribute("y"));
+                var type = furniture.GetAttribute("objectType");
+                var furn = this.PlaceFurniture(type, this._tiles[x, y], false);
+                furn.ReadXml(furniture);
+            }
+        }
+
+        public XmlElement WriteXml(XmlDocument xml)
+        {
+            var world = xml.CreateElement("World");
+
+            // Write the basic World settings.
+            world.SetAttribute("width", this.Width.ToString());
+            world.SetAttribute("height", this.Height.ToString());
+
+            // Write out all the Rooms.
+            if (this.Rooms.Count > 0)
+            {
+                var rooms = xml.CreateElement("Rooms");
+                foreach (var room in this.Rooms.Skip(1))
                 {
-                    // Write out each Tile, if it isn't empty.
-                    if (this._tiles[x, y].Type == defaultTile.Type)
+                    rooms.AppendChild(room.WriteXml(xml));
+                }
+                world.AppendChild(rooms);
+            }
+
+            // Write out all the Tiles.
+            if (this._tiles.Length > 0)
+            {
+                var list = xml.CreateElement("Tiles");
+
+                for (var x = 0; x < this.Width; x++)
+                {
+                    for (var y = 0; y < this.Height; y++)
                     {
-                        continue;
+                        if (_tiles[x, y].Type != TileType.Empty)
+                        {
+                            list.AppendChild(_tiles[x, y].WriteXml(xml));
+                        }
                     }
-                    this._tiles[x, y].WriteXml(writer);
                 }
+                world.AppendChild(list);
             }
 
-            writer.WriteEndElement();
-
-            writer.WriteStartElement("Furnitures");
-            foreach (var furn in this.Furnitures)
+            // Write out the Furniture.
+            if (this.Furnitures.Count > 0)
             {
-                furn.WriteXml(writer);
+                var list = xml.CreateElement("Furnitures");
+                foreach (var item in Furnitures)
+                {
+                    list.AppendChild(item.WriteXml(xml));
+                }
+                world.AppendChild(list);
             }
-            writer.WriteEndElement();
 
-            writer.WriteStartElement("Characters");
-            foreach (var character in this.Characters)
+            // Write out the Characters.
+            if (this.Characters.Count > 0)
             {
-                character.WriteXml(writer);
+                var list = xml.CreateElement("Characters");
+                foreach (var item in Characters)
+                {
+                    list.AppendChild(item.WriteXml(xml));
+                }
+                world.AppendChild(list);
             }
-            writer.WriteEndElement();
+
+
+            // Return the complete World XML to the caller.
+            return world;
         }
-
+        
         public void SetFurnitureJobPrototype(Job j, Furniture f)
         {
             FurnitureJobPrototypes[f.ObjectType] = j;
@@ -375,7 +475,7 @@ namespace Assets.Scripts.Model
             filepath = Path.Combine(filepath, "Furniture");
             foreach (var filename in Directory.GetFiles(filepath, "*.lua"))
             {
-                Debug.Log("Loading LUA file " + filename);
+                // Debug.Log("Loading LUA file " + filename);
                 var myLuaCode = System.IO.File.ReadAllText(filename);
 
                 FurnitureActions.LoadLua(myLuaCode);
@@ -416,7 +516,7 @@ namespace Assets.Scripts.Model
                 furn.JobSpotOffset = XmlParser.ParseVector2(furniture, ".//JobSpotOffset");
                 furn.JobSpawnOffset = XmlParser.ParseVector2(furniture, ".//JobSpawnOffset");
 
-                Debug.Log("Adding Furniture Prototype " + objectType);
+                // Debug.Log("Adding Furniture Prototype " + objectType);
                 this.FurniturePrototypes.Add(objectType, furn);
 
                 var parameters = furniture.SelectSingleNode(".//Params");
@@ -455,7 +555,7 @@ namespace Assets.Scripts.Model
 
                 foreach (XmlNode buildJob in furniture.SelectNodes(".//BuildingJob"))
                 {
-                    Debug.LogFormat("Adding Job to Furniture {0}...", objectType);
+                    // Debug.LogFormat("Adding Job to Furniture {0}...", objectType);
                     var time = float.Parse(buildJob.Attributes["time"].InnerText);
 
                     var inventory = new List<Inventory>();
@@ -478,7 +578,8 @@ namespace Assets.Scripts.Model
                         inventoryRequirements: inventory.ToArray()
                         )
                     {
-                        Name = "Build_" + objectType
+                        Name = "Build_" + objectType,
+                        Description = "Building " + furn.Name
                     };
 
                     this.FurnitureJobPrototypes.Add(
@@ -487,7 +588,7 @@ namespace Assets.Scripts.Model
                     );
                 }
 
-                Debug.LogFormat("Loaded Furniture {0} succeeded.", objectType);
+                // Debug.LogFormat("Loaded Furniture {0} succeeded.", objectType);
             }
         }
 
@@ -521,92 +622,8 @@ namespace Assets.Scripts.Model
 
         private void OnTileChanged(Tile t)
         {
-            if (this._cbTileChanged != null)
-            {
-                this._cbTileChanged(t);
-            }
-
+            if (this._cbTileChanged != null) this._cbTileChanged(t);
             this.InvalidateTileGraph();
-        }
-
-        private void ReadXml_Tiles(XmlReader reader)
-        {
-            var count = 0;
-            if (reader.ReadToDescendant("Tile"))
-            {
-                do
-                {
-                    int x = int.Parse(reader.GetAttribute("X"));
-                    int y = int.Parse(reader.GetAttribute("Y"));
-                    this._tiles[x, y].ReadXml(reader);
-                    count++;
-
-                } while (reader.ReadToNextSibling("Tile"));
-            }
-            Debug.LogFormat("Loaded {0} Tiles from save file.", count);
-        }
-
-        private void ReadXml_Furnitures(XmlReader reader)
-        {
-            if (reader.ReadToDescendant("Furniture"))
-            {
-                var count = 0;
-                do
-                {
-                    count++;
-                    int x = int.Parse(reader.GetAttribute("X"));
-                    int y = int.Parse(reader.GetAttribute("Y"));
-                    string type = reader.GetAttribute("ObjectType");
-                    var furn = this.PlaceFurniture(type, this._tiles[x, y], false);
-                    furn.ReadXml(reader);
-                } while (reader.ReadToNextSibling("Furniture"));
-                Debug.LogFormat("Loaded {0} Furnitures from save file.", count);
-            }
-            else
-            {
-                Debug.LogWarning("No Furniture found in save file!");
-            }
-        }
-
-        private void ReadXml_Rooms(XmlReader reader)
-        {
-            if (reader.ReadToDescendant("Room"))
-            {
-                var count = 0;
-                do
-                {
-                    count++;
-
-                    var r = new Room();
-                    Rooms.Add(r);
-                    r.ReadXml(reader);
-
-                    //int x = int.Parse(reader.GetAttribute("X"));
-                    //int y = int.Parse(reader.GetAttribute("Y"));
-                    //string type = reader.GetAttribute("ObjectType");
-                    //var furn = this.PlaceFurniture(type, this._tiles[x, y], false);
-                    //furn.ReadXml(reader);
-                } while (reader.ReadToNextSibling("Room"));
-                Debug.LogFormat("Loaded {0} Rooms from save file.", count);
-            }
-            else
-            {
-                Debug.LogWarning("No Rooms found in save file!");
-            }
-        }
-
-        private void ReadXml_Characters(XmlReader reader)
-        {
-            if (reader.ReadToDescendant("Character"))
-            {
-                do
-                {
-                    int x = int.Parse(reader.GetAttribute("X"));
-                    int y = int.Parse(reader.GetAttribute("Y"));
-                    var character = this.CreateCharacter(this._tiles[x, y]);
-                    character.ReadXml(reader);
-                } while (reader.ReadToNextSibling("Character"));
-            }
         }
 
         public void OnInventoryCreated(Inventory inv)

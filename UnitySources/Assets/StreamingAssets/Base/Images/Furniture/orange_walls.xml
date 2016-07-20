@@ -1,32 +1,10 @@
 <?xml version="1.0" encoding="utf-16"?>
 <Sprites xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <Sprite name="furn_wall_steel_ES" pixelsPerUnit="64"><Rect x="4" y="374" width="64" height="64" /><Pivot x="0.5" y="0.5" /></Sprite>
-  <Sprite name="furn_wall_steel_SW" pixelsPerUnit="64"><Rect x="78" y="374" width="64" height="64" /><Pivot x="0.5" y="0.5" /></Sprite>
-  <Sprite name="furn_wall_steel_EW" pixelsPerUnit="64"><Rect x="152" y="374" width="64" height="64" /><Pivot x="0.5" y="0.5" /></Sprite>
-  <Sprite name="furn_wall_steel_ESW" pixelsPerUnit="64"><Rect x="226" y="374" width="64" height="64" /><Pivot x="0.5" y="0.5" /></Sprite>
-  <Sprite name="furn_wall_steel_NEW" pixelsPerUnit="64"><Rect x="300" y="374" width="64" height="64" /><Pivot x="0.5" y="0.5" /></Sprite>
-  <Sprite name="furn_wall_steel_W" pixelsPerUnit="64"><Rect x="374" y="374" width="64" height="64" /><Pivot x="0.5" y="0.5" /></Sprite>
-  <Sprite name="furn_wall_steel_N" pixelsPerUnit="64"><Rect x="448" y="374" width="64" height="64" /><Pivot x="0.5" y="0.5" /></Sprite>
-  <Sprite name="furn_wall_steel_NE" pixelsPerUnit="64"><Rect x="4" y="300" width="64" height="64" /><Pivot x="0.5" y="0.5" /></Sprite>
-  <Sprite name="furn_wall_steel_NW" pixelsPerUnit="64"><Rect x="78" y="300" width="64" height="64" /><Pivot x="0.5" y="0.5" /></Sprite>
-  <Sprite name="furn_wall_steel_NS" pixelsPerUnit="64"><Rect x="152" y="300" width="64" height="64" /><Pivot x="0.5" y="0.5" /></Sprite>
-  <Sprite name="furn_wall_steel_NES" pixelsPerUnit="64"><Rect x="226" y="300" width="64" height="64" /><Pivot x="0.5" y="0.5" /></Sprite>
-  <Sprite name="furn_wall_steel_NSW" pixelsPerUnit="64"><Rect x="300" y="300" width="64" height="64" /><Pivot x="0.5" y="0.5" /></Sprite>
-  <Sprite name="furn_wall_steel_S" pixelsPerUnit="64"><Rect x="374" y="300" width="64" height="64" /><Pivot x="0.5" y="0.5" /></Sprite>
-  <Sprite name="furn_wall_steel_E" pixelsPerUnit="64"><Rect x="448" y="300" width="64" height="64" /><Pivot x="0.5" y="0.5" /></Sprite>
-  <Sprite name="furn_wall_steel_NESW" pixelsPerUnit="64"><Rect x="522" y="226" width="64" height="64" /><Pivot x="0.5" y="0.5" /></Sprite>
-  <Sprite name="furn_wall_steel" pixelsPerUnit="64"><Rect x="448" y="152" width="64" height="64" /><Pivot x="0.5" y="0.5" /></Sprite>
-  <Sprite name="furn_door" pixelsPerUnit="64"><Rect x="521" y="152" width="64" height="64" /><Pivot x="0.5" y="0.5" /></Sprite>
-  <Sprite name="furn_door_EW_0" pixelsPerUnit="64"><Rect x="670" y="374" width="64" height="64" /><Pivot x="0.5" y="0.5" /></Sprite>
-  <Sprite name="furn_door_NS_0" pixelsPerUnit="64"><Rect x="742" y="374" width="64" height="64" /><Pivot x="0.5" y="0.5" /></Sprite>
-  <Sprite name="furn_door_EW_20" pixelsPerUnit="64"><Rect x="670" y="300" width="64" height="64" /><Pivot x="0.5" y="0.5" /></Sprite>
-  <Sprite name="furn_door_NS_20" pixelsPerUnit="64"><Rect x="742" y="300" width="64" height="64" /><Pivot x="0.5" y="0.5" /></Sprite>
-  <Sprite name="furn_door_EW_40" pixelsPerUnit="64"><Rect x="670" y="226" width="64" height="64" /><Pivot x="0.5" y="0.5" /></Sprite>
-  <Sprite name="furn_door_NS_40" pixelsPerUnit="64"><Rect x="742" y="225" width="64" height="64" /><Pivot x="0.5" y="0.5" /></Sprite>
-  <Sprite name="furn_door_EW_60" pixelsPerUnit="64"><Rect x="669" y="152" width="64" height="64" /><Pivot x="0.5" y="0.5" /></Sprite>
-  <Sprite name="furn_door_NS_60" pixelsPerUnit="64"><Rect x="742" y="152" width="64" height="64" /><Pivot x="0.5" y="0.5" /></Sprite>
-  <Sprite name="furn_door_EW_80" pixelsPerUnit="64"><Rect x="670" y="78" width="64" height="64" /><Pivot x="0.5" y="0.5" /></Sprite>
-  <Sprite name="furn_door_NS_80" pixelsPerUnit="64"><Rect x="742" y="78" width="64" height="64" /><Pivot x="0.5" y="0.5" /></Sprite>
-  <Sprite name="furn_door_EW_100" pixelsPerUnit="64"><Rect x="670" y="4" width="64" height="64" /><Pivot x="0.5" y="0.5" /></Sprite>
-  <Sprite name="furn_door_NS_100" pixelsPerUnit="64"><Rect x="742" y="4" width="64" height="64" /><Pivot x="0.5" y="0.5" /></Sprite>
+  <Sprite name="xfurn_door" pixelsPerUnit="64"><Rect x="521" y="152" width="64" height="64" /><Pivot x="0.5" y="0.5" /></Sprite>
+  <Sprite name="xfurn_door_0" pixelsPerUnit="64"><Rect x="670" y="374" width="64" height="64" /><Pivot x="0.5" y="0.5" /></Sprite>
+  <Sprite name="xfurn_door_20" pixelsPerUnit="64"><Rect x="670" y="300" width="64" height="64" /><Pivot x="0.5" y="0.5" /></Sprite>
+  <Sprite name="xfurn_door_40" pixelsPerUnit="64"><Rect x="670" y="226" width="64" height="64" /><Pivot x="0.5" y="0.5" /></Sprite>
+  <Sprite name="xfurn_door_60" pixelsPerUnit="64"><Rect x="669" y="152" width="64" height="64" /><Pivot x="0.5" y="0.5" /></Sprite>
+  <Sprite name="xfurn_door_80" pixelsPerUnit="64"><Rect x="670" y="78" width="64" height="64" /><Pivot x="0.5" y="0.5" /></Sprite>
+  <Sprite name="xfurn_door_100" pixelsPerUnit="64"><Rect x="670" y="4" width="64" height="64" /><Pivot x="0.5" y="0.5" /></Sprite>
 </Sprites>

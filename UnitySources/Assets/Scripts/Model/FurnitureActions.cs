@@ -102,18 +102,5 @@ namespace Assets.Scripts.Model
             WorldController.Instance.World.PlaceFurniture(theJob.JobObjectType, theJob.Tile);
             theJob.Tile.PendingFurnitureJob = null;
         }
-
-        //public static void MiningConsole_JobComplete(Job job)
-        //{
-        //    // Spawn some Steel Plates from the console
-        //    var steel = new Inventory("steel_plate", 50, 5);
-        //    World.Instance.InventoryManager.PlaceInventory(job.Furniture.GetSpawnSpotTile(), steel);
-        //}
-
-        ////public static void MiningConsole_JobStopped(Job job)
-        ////{
-        ////    job.UnregisterOnJobStoppedCallback(MiningConsole_JobStopped);
-        ////    job.Furniture.RemoveJob(job);
-        ////}
     }
 }

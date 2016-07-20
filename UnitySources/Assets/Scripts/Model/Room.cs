@@ -1,41 +1,17 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Xml;
-using System.Xml.Schema;
-using System.Xml.Serialization;
-using Assets.Scripts.Controllers;
 using MoonSharp.Interpreter;
 using UnityEngine;
 
 namespace Assets.Scripts.Model
 {
     [MoonSharpUserData]
-    public class Room : IXmlSerializable
+    public class Room
     {
-        /* #################################################################### */
-        /* #                         CONSTANT FIELDS                          # */
-        /* #################################################################### */
+        public AtmosphereManager Atmosphere;
 
-        /* #################################################################### */
-        /* #                              FIELDS                              # */
-        /* #################################################################### */
-
-        private Dictionary<string, float> atmosphericGasses;
-
-        private List<Tile> _tiles = new List<Tile>();
-
-        /* #################################################################### */
-        /* #                           CONSTRUCTORS                           # */
-        /* #################################################################### */
-
-        public Room()
-        {
-            atmosphericGasses = new Dictionary<string, float>();
-        }
+        private List<Tile> _tiles;
 
         public int Size
         {
@@ -47,85 +23,29 @@ namespace Assets.Scripts.Model
             get { return World.Instance.GetRoomId(this); }
         }
 
-        /* #################################################################### */
-        /* #                             DELEGATES                            # */
-        /* #################################################################### */
-
-        /* #################################################################### */
-        /* #                            PROPERTIES                            # */
-        /* #################################################################### */
+        public Room()
+        {
+            _tiles = new List<Tile>();
+            Atmosphere = new AtmosphereManager(this);
+        }
 
         /* #################################################################### */
         /* #                              METHODS                             # */
         /* #################################################################### */
 
+        public Room Clone()
+        {
+            var room = new Room();
+            room._tiles = new List<Tile>(this._tiles);
+            room.Atmosphere = this.Atmosphere.Clone();
+            return room;
+        }
+
         public bool IsOutsideRoom()
         {
-            if (_tiles.Count == 0)
-            {
-                return true;
-            }
-
             return this == World.Instance.GetOutsideRoom();
         }
-
-        public void ChangeGas(string name, float amount)
-        {
-            if (IsOutsideRoom())
-            {
-                return;
-            }
-
-            if (atmosphericGasses.ContainsKey(name))
-            {
-                atmosphericGasses[name] += amount;
-            }
-            else
-            {
-                atmosphericGasses[name] = amount;
-            }
-
-            atmosphericGasses[name] = Mathf.Clamp01(atmosphericGasses[name]);
-        }
-
-        public float GetGasAmount(string name)
-        {
-            if (atmosphericGasses.ContainsKey(name))
-            {
-                return atmosphericGasses[name];
-            }
-            return 0f;
-
-        }
-
-        public float GetGasPercentage(string name)
-        {
-            if (atmosphericGasses.ContainsKey(name) == false)
-            {
-                return 0f;
-            }
-
-            var total = GetTotalAtmosphericPressure();
-
-            if (Mathf.Approximately(total, 0))
-            {
-                return 0f;
-            }
-
-            return atmosphericGasses[name]/total;
-        }
-
-        public IEnumerable<string> GetGasNames()
-        {
-            return atmosphericGasses.Keys;
-        }
-
-        public float GetTotalAtmosphericPressure()
-        {
-            return atmosphericGasses.Values.Sum(g => g);
-        }
-
-
+        
         public void AssignTile(Tile t)
         {
             if (_tiles.Contains(t))
@@ -177,7 +97,7 @@ namespace Assets.Scripts.Model
 
                 // Unassign all Tiles from the Room that the Furniture is in.
                 // Never delete the outside Room.
-                if (oldRoom != world.GetOutsideRoom())
+                if (oldRoom.IsOutsideRoom() == false)
                 {
                     if (oldRoom._tiles.Count > 0)
                     {
@@ -194,10 +114,8 @@ namespace Assets.Scripts.Model
 
                 FloodFill(sourceTile, null);
 
-                //foreach (var t in sourceTile.GetNeighbours())
-                //{
-                //    FloodFill(t, null);
-                //}
+                // Purge any leftover rooms that don't have any tiles in them any more.
+                world.DeleteEmptyRooms();
             }
         }
 
@@ -233,12 +151,12 @@ namespace Assets.Scripts.Model
             var tilesToCheck = new Queue<Tile>();
             tilesToCheck.Enqueue(tile);
 
+            var mergedRooms = new Dictionary<int, Room>();
+
             bool isConnectedToSpace = false;
-            int processedTiles = 0;
 
             while (tilesToCheck.Count > 0)
             {
-                processedTiles++;
                 var t = tilesToCheck.Dequeue();
 
                 if (t.Room != newRoom)
@@ -252,11 +170,6 @@ namespace Assets.Scripts.Model
                             // We've hit an open-space Tile - either edge of the World, or an empty Tile.
                             // That means this new Room is actually now connected to the outside, so it's not valid.
                             isConnectedToSpace = true;
-                            //if (oldRoom != null)
-                            //{
-                            //    newRoom.ReturnTilesToOutsideRoom();
-                            //    return;
-                            //}
                         }
                         else
                         {
@@ -265,13 +178,16 @@ namespace Assets.Scripts.Model
                                 (t2.Furniture == null || t2.Furniture.IsRoomEnclosure == false))
                             {
                                 tilesToCheck.Enqueue(t2);
+
+                                if (t2.Room != null && mergedRooms.ContainsKey(t2.Room.Id) == false)
+                                {
+                                    mergedRooms.Add(t2.Room.Id, t2.Room.Clone());
+                                }
                             }
                         }
                     }
                 }
             }
-
-            // Debug.LogFormat("Floodfill processed {0} tiles.", processedTiles);
 
             if (isConnectedToSpace)
             {
@@ -284,68 +200,53 @@ namespace Assets.Scripts.Model
             {
                 // In this case we are splitting one Room into two or more, so we
                 // can just keep the old gas values.
-                newRoom.CopyGas(oldRoom);
+                newRoom.Atmosphere.CopyGas(oldRoom.Atmosphere);
             }
             else
             {
                 // In this case we are merging one or more rooms into one big Room.
                 // This means we have to make a decision on how to merge the gas levels.
-                
-                // TODO: something like newRoom.SplitGas(roomA, roomB);
+                newRoom.MergeGas(mergedRooms.Values.ToList());
             }
 
             // Tell the World that a new Room has been created.
             World.Instance.AddRoom(newRoom);
         }
 
-        private void CopyGas(Room other)
+        /* #################################################################### */
+        /* #                            ATMOSPHERICS                          # */
+        /* #################################################################### */
+
+        private void MergeGas(List<Room> other)
         {
-            foreach (var gas in other.atmosphericGasses)
-            {
-                this.atmosphericGasses[gas.Key] = gas.Value;
-            }
+            this.Atmosphere.MergeAtmosphere(other);
         }
 
-        public XmlSchema GetSchema()
+        /* #################################################################### */
+        /* #                          SAVE AND RESTORE                        # */
+        /* #################################################################### */
+
+        public static Room ReadXml(XmlElement element)
         {
-            return null;
+            var room = new Room();
+            room.Atmosphere.ReadXml(element);
+            return room;
         }
 
-        public void ReadXml(XmlReader reader)
+        public XmlElement WriteXml(XmlDocument xml)
         {
-            if (reader.ReadToDescendant("Gasses"))
+            var room = xml.CreateElement("Room");
+            room.SetAttribute("id", this.Id.ToString());
+            room.SetAttribute("size", this.Size.ToString());
+            if (this.IsOutsideRoom())
             {
-                if (reader.ReadToDescendant("Gas"))
-                {
-                    do
-                    {
-                        var name = reader.GetAttribute("name");
-                        var value = float.Parse(reader.GetAttribute("amount"));
-                        this.atmosphericGasses[name] = value;
-                    } while (reader.ReadToNextSibling("Gas"));
-                }
-            }
-        }
-
-        public void WriteXml(XmlWriter writer)
-        {
-            writer.WriteStartElement("Room");
-            writer.WriteAttributeString("id", this.Id.ToString());
-
-            if (atmosphericGasses.Count > 0)
-            {
-                writer.WriteStartElement("Gasses");
-                foreach (var gas in atmosphericGasses)
-                {
-                    writer.WriteStartElement("Gas");
-                    writer.WriteAttributeString("name", gas.Key);
-                    writer.WriteAttributeString("amount", gas.Value.ToString(CultureInfo.InvariantCulture));
-                    writer.WriteEndElement();
-                }
-                writer.WriteEndElement();
+                room.SetAttribute("outside", "true");
             }
 
-            writer.WriteEndElement();
+            // Write out all the atmospheric data.
+            Atmosphere.WriteXml(xml, room);
+
+            return room;
         }
     }
 }

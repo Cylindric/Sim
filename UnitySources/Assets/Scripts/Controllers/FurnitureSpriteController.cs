@@ -12,13 +12,11 @@ namespace Assets.Scripts.Controllers
         /* #################################################################### */
 
         private readonly Dictionary<Furniture, GameObject> _furnitureGameObjectMap = new Dictionary<Furniture, GameObject>();
-        //private readonly Dictionary<string, Sprite> _furnitureSprites = new Dictionary<string, Sprite>();
+        private readonly Dictionary<Furniture, ParticleSystem> _furnitureParticleSystemMap = new Dictionary<Furniture, ParticleSystem>();
 
         /* #################################################################### */
         /* #                         PROPERTIES                               # */
         /* #################################################################### */
-
-        //public static WorldController Instance { get; protected set; }
 
         /// <summary>
         /// This is just a helper property to make it easier to access World.
@@ -28,6 +26,7 @@ namespace Assets.Scripts.Controllers
         /* #################################################################### */
         /* #                           METHODS                                # */
         /* #################################################################### */
+        public ParticleSystem GasParticles;
 
         public void OnFurnitureCreated(Furniture furn)
         {
@@ -46,6 +45,23 @@ namespace Assets.Scripts.Controllers
             sr.sprite = GetSpriteForFurniture(furn);
             sr.color = furn.Tint;
             sr.sortingLayerName = "Furniture";
+
+            if (furn.GetParameter("openness", -1f) >= 0f)
+            {
+                var t = furn.Tile.NorthNeighbour();
+                if (t != null && t.Furniture != null && t.Furniture.ObjectType == "furn_wall_steel")
+                {
+                    sr.transform.Rotate(Vector3.forward, 90f);
+                }
+            }
+
+            if(Mathf.Approximately(furn.GetParameter("gas_generator"), 1f))
+            {
+                _furnitureParticleSystemMap[furn] = Instantiate(GasParticles);
+                _furnitureParticleSystemMap[furn].transform.SetParent(furnGo.transform, false);
+                var em = _furnitureParticleSystemMap[furn].emission;
+                em.enabled = false;
+            }
 
             furn.RegisterOnChangedCallback(OnFurnitureChanged);
             furn.RegisterOnRemovedCallback(OnFurnitureRemoved);
@@ -77,13 +93,13 @@ namespace Assets.Scripts.Controllers
             _furnitureGameObjectMap.Remove(furn);
         }
 
-        public Sprite GetSpriteForFurniture(Furniture obj)
+        public Sprite GetSpriteForFurniture(Furniture furn)
         {
-            var spriteName = obj.ObjectType;
-            var x = obj.Tile.X;
-            var y = obj.Tile.Y;
+            var spriteName = furn.ObjectType;
+            var x = furn.Tile.X;
+            var y = furn.Tile.Y;
 
-            if (obj.LinksToNeighbour == true)
+            if (furn.LinksToNeighbour == true)
             {
                 spriteName = spriteName + "_";
 
@@ -92,63 +108,53 @@ namespace Assets.Scripts.Controllers
                 Tile t;
 
                 t = World.GetTileAt(x, y + 1);
-                if (t != null && t.Furniture != null && t.Furniture.ObjectType == obj.ObjectType)
+                if (t != null && t.Furniture != null && t.Furniture.ObjectType == furn.ObjectType)
                 {
                     spriteName += "N";
                 }
                 t = World.GetTileAt(x + 1, y);
-                if (t != null && t.Furniture != null && t.Furniture.ObjectType == obj.ObjectType)
+                if (t != null && t.Furniture != null && t.Furniture.ObjectType == furn.ObjectType)
                 {
                     spriteName += "E";
                 }
                 t = World.GetTileAt(x, y - 1);
-                if (t != null && t.Furniture != null && t.Furniture.ObjectType == obj.ObjectType)
+                if (t != null && t.Furniture != null && t.Furniture.ObjectType == furn.ObjectType)
                 {
                     spriteName += "S";
                 }
                 t = World.GetTileAt(x - 1, y);
-                if (t != null && t.Furniture != null && t.Furniture.ObjectType == obj.ObjectType)
+                if (t != null && t.Furniture != null && t.Furniture.ObjectType == furn.ObjectType)
                 {
                     spriteName += "W";
                 }
             }
 
             // If it's a door, check openness and update the sprite accordingly.
-            if (obj.ObjectType == "furn_door") // TODO: fix this hard-coding of types
+            if (furn.GetParameter("openness", -1) >= 0)
             {
-                spriteName = "furn_door_";
+                spriteName += "_";
 
-                // Check for the EW/NS orientation
-                var t = World.GetTileAt(x + 1, y); // East
-                if (t != null && t.Furniture != null && t.Furniture.ObjectType == "furn_wall_steel")
-                {
-                    spriteName += "EW_";
-                } else
-                {
-                    spriteName += "NS_";
-                }
-
-                if (obj.GetParameter("openness") <= 0.1)
+                if (furn.GetParameter("openness") <= 0.1)
                 {
                     spriteName += "0";
                 }
-                else if (obj.GetParameter("openness") <= 0.2)
+                else if (furn.GetParameter("openness") <= 0.2)
                 {
                     spriteName += "20";
                 }
-                else if (obj.GetParameter("openness") <= 0.4)
+                else if (furn.GetParameter("openness") <= 0.4)
                 {
                     spriteName += "40";
                 }
-                else if (obj.GetParameter("openness") <= 0.6)
+                else if (furn.GetParameter("openness") <= 0.6)
                 {
                     spriteName += "60";
                 }
-                else if (obj.GetParameter("openness") <= 0.8)
+                else if (furn.GetParameter("openness") <= 0.8)
                 {
                     spriteName += "80";
                 }
-                else if (obj.GetParameter("openness") <= 1.0)
+                else if (furn.GetParameter("openness") <= 1.0)
                 {
                     spriteName += "100";
                 }
@@ -160,6 +166,17 @@ namespace Assets.Scripts.Controllers
             }
 
             var sprite = SpriteManager.Instance.GetSprite(spriteName);
+
+
+            if (Mathf.Approximately(furn.GetParameter("gas_generator"), 1f))
+            {
+                if (_furnitureParticleSystemMap.ContainsKey(furn))
+                {
+                    var part = _furnitureParticleSystemMap[furn].emission;
+                    part.enabled = furn.GasParticlesEnabled;
+                }
+            }
+
             return sprite;
         }
 

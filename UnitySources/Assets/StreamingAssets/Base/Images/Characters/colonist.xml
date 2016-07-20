@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-16"?>
 <Sprites xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <Sprite name="colonist_body" pixelsPerUnit="64"><Rect x="1" y="1" width="64" height="64" /><Pivot x="0.5" y="0.5" /></Sprite>
-  <Sprite name="colonist_shield" pixelsPerUnit="64"><Rect x="65" y="1" width="64" height="64" /><Pivot x="0.5" y="0.5" /></Sprite>
+  <Sprite name="colonist_body" pixelsPerUnit="64"><Rect x="0" y="64" width="64" height="64" /><Pivot x="0.5" y="0.5" /></Sprite>
+  <Sprite name="colonist_shield" pixelsPerUnit="64"><Rect x="64" y="64" width="64" height="64" /><Pivot x="0.5" y="0.5" /></Sprite>
+  <Sprite name="colonist_working" pixelsPerUnit="64"><Rect x="0" y="0" width="64" height="64" /><Pivot x="0.5" y="0.5" /></Sprite>
 </Sprites>

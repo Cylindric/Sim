@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using System.Xml;
-using System.Xml.Schema;
-using System.Xml.Serialization;
 using MoonSharp.Interpreter;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
@@ -12,7 +9,7 @@ namespace Assets.Scripts.Model
 {
     [DebuggerDisplay("Tile [{X},{Y}]")]
     [MoonSharpUserData]
-    public class Tile : IXmlSerializable
+    public class Tile
     {
         /* #################################################################### */
         /* #                         CONSTANT FIELDS                          # */
@@ -119,6 +116,7 @@ namespace Assets.Scripts.Model
                 {
                     var t = World.Instance.GetTileAt(xOff, yOff);
                     t.Furniture = null;
+                    t.UpdateNeighbours();
                 }
             }
 
@@ -187,6 +185,45 @@ namespace Assets.Scripts.Model
             inv.StackSize = 0;
 
             return true;
+        }
+
+        public void UpdateNeighbours()
+        {
+            int x = this.X;
+            int y = this.Y;
+
+            var t = World.Instance.GetTileAt(x, y + 1);
+            if (t != null && t.Furniture != null && t.Furniture.cbOnChanged != null &&
+                (this.Furniture == null || t.Furniture.ObjectType == this.Furniture.ObjectType))
+            {
+                // The North Tile needs to be updated.
+                t.Furniture.cbOnChanged(t.Furniture);
+            }
+
+            t = World.Instance.GetTileAt(x + 1, y);
+            if (t != null && t.Furniture != null && t.Furniture.cbOnChanged != null &&
+                (this.Furniture == null || t.Furniture.ObjectType == this.Furniture.ObjectType))
+            {
+                // The East Tile needs to be updated.
+                t.Furniture.cbOnChanged(t.Furniture);
+            }
+
+            t = World.Instance.GetTileAt(x, y - 1);
+            if (t != null && t.Furniture != null && t.Furniture.cbOnChanged != null &&
+                (this.Furniture == null || t.Furniture.ObjectType == this.Furniture.ObjectType))
+            {
+                // The South Tile needs to be updated.
+                t.Furniture.cbOnChanged(t.Furniture);
+            }
+
+            t = World.Instance.GetTileAt(x - 1, y);
+            if (t != null && t.Furniture != null && t.Furniture.cbOnChanged != null &&
+                (this.Furniture == null || t.Furniture.ObjectType == this.Furniture.ObjectType))
+            {
+                // The West Tile needs to be updated.
+                t.Furniture.cbOnChanged(t.Furniture);
+            }
+
         }
 
         public bool IsNeighbour(Tile tile, bool allowDiagonal = false)
@@ -263,30 +300,36 @@ namespace Assets.Scripts.Model
             return Enterability.Yes;
         }
 
-        public XmlSchema GetSchema()
+        public void ReadXml(XmlElement element)
         {
-            return null;
+            this.Type = (TileType) int.Parse(element.Attributes["type"].Value);
+            this.Room = World.Instance.GetRoomFromId(int.Parse(element.GetAttribute("room")));
+            if (this.Room == null) return;
+            this.Room.AssignTile(this);
+
+            // Is there any inventory sitting on this tile?
+            var invs = (XmlElement)element.SelectSingleNode("./Inventory");
+            if (invs != null)
+            {
+                var objectType = invs.Attributes["objectType"].Value;
+                var stackSize = int.Parse(invs.Attributes["stackSize"].Value);
+                var maxStackSize = int.Parse(invs.Attributes["maxStackSize"].Value);
+                World.Instance.InventoryManager.PlaceInventory(this, new Inventory(objectType, maxStackSize, stackSize));
+            }
         }
 
-        public void ReadXml(XmlReader reader)
+        public XmlElement WriteXml(XmlDocument xml)
         {
-            //X = int.Parse(reader.GetAttribute("X")); // Already read by the World
-            //Y = int.Parse(reader.GetAttribute("Y")); // Already read by the World
-            Type = (TileType)int.Parse(reader.GetAttribute("Type"));
-            Room = World.Instance.GetRoomFromId(int.Parse(reader.GetAttribute("RoomID")));
-            if (Room == null) return;
-            Room.AssignTile(this);
-            //Debug.LogFormat("Read Tile [{0},{1}] with type {2}.", X, Y, Type.ToString());
-        }
-
-        public void WriteXml(XmlWriter writer)
-        {
-            writer.WriteStartElement("Tile");
-            writer.WriteAttributeString("X", X.ToString());
-            writer.WriteAttributeString("Y", Y.ToString());
-            writer.WriteAttributeString("RoomID", Room == null ? "-1" : Room.Id.ToString());
-            writer.WriteAttributeString("Type", ((int)Type).ToString());
-            writer.WriteEndElement();
+            var element = xml.CreateElement("Tile");
+            element.SetAttribute("x", this.X.ToString());
+            element.SetAttribute("y", this.Y.ToString());
+            element.SetAttribute("room", Room == null ? "-1" : Room.Id.ToString());
+            element.SetAttribute("type", ((int)Type).ToString());
+            if (this.Inventory != null)
+            {
+                element.AppendChild(this.Inventory.WriteXml(xml));
+            }
+            return element;
         }
 
         public Tile NorthNeighbour()

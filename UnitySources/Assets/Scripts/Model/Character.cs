@@ -1,18 +1,24 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Xml;
-using System.Xml.Schema;
-using System.Xml.Serialization;
 using Assets.Scripts.Pathfinding;
+using Assets.Scripts.Utilities;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
 namespace Assets.Scripts.Model
 {
-    [DebuggerDisplay("Character at [{X}, {Y}]")]
-    public class 
-        Character : IXmlSerializable
+    [DebuggerDisplay("Character {Name} at [{X}, {Y}]")]
+    public class Character
     {
+        private const float TimeBetweenJobSearches = 1f;
+        private const float BaseMovementSpeed = 5f;
+
+        private const float EnergyChargeRate = (1f/300); // The internal magic fusion core mcguffin charges the character at this rate.
+        private const float ShieldEnergyUsageRate = (2f/300); // The shield uses power at this rate - should be larger than EnergyChargeRate, otherwise it'll never run out.
+
         /* #################################################################### */
         /* #                           FIELDS                                 # */
         /* #################################################################### */
@@ -38,7 +44,8 @@ namespace Assets.Scripts.Model
         private readonly float _speed;
         private Job _job;
         private float _movementPercentage;
-
+        private float _timeSinceLastJobSearch;
+        private readonly Dictionary<string, float> _conditions;
 
         /* #################################################################### */
         /* #                        CONSTRUCTORS                              # */
@@ -46,7 +53,10 @@ namespace Assets.Scripts.Model
 
         public Character()
         {
-            this._speed = 5f;
+            this._speed = BaseMovementSpeed;
+            this.Name = MarkovNameGenerator.GetNextName("male") + ' ' + MarkovNameGenerator.GetNextName("last");
+            this.IsWorking = false;
+            _conditions = new Dictionary<string, float> {{"energy", 1f}, {"health", 1f}};
         }
 
         public Character(Tile tile) : this()
@@ -63,6 +73,7 @@ namespace Assets.Scripts.Model
         /* #################################################################### */
         /* #                         PROPERTIES                               # */
         /* #################################################################### */
+
         public float X
         {
             get
@@ -83,7 +94,18 @@ namespace Assets.Scripts.Model
             }
         }
 
-        public Tile CurrentTile { get; protected set; }
+        public Tile CurrentTile { get; private set; }
+
+        public string Name { get; set; }
+
+        public bool IsWorking { get; private set; }
+
+        public Job CurrentJob
+        {
+            get { return _job; }
+        }
+
+        public bool ShieldStatus { get; private set; }
 
         /* #################################################################### */
         /* #                           METHODS                                # */
@@ -94,12 +116,35 @@ namespace Assets.Scripts.Model
             _nextTile = DestTile = CurrentTile;
             World.Instance.JobQueue.Enqueue(_job);
             _job = null;
+            IsWorking = false;
         }
 
         public void Update(float deltaTime)
         {
             Update_DoJob(deltaTime);
             Update_DoMovement(deltaTime);
+
+            // Hack in some environmental effects.
+            // Currently breathability is all that affects if the shield is up or not.
+            if (this.CanBreathe())
+            {
+                this.Breathe(deltaTime);
+                ShieldStatus = false;
+            }
+            else
+            {
+                ShieldStatus = true;
+            }
+
+            // Consume energy if the shield is enabled.
+            if (ShieldStatus == true)
+            {
+                this.ChangeCondition("energy", -ShieldEnergyUsageRate * deltaTime);
+            }
+
+            // Charge up the energy store
+            this.ChangeCondition("energy", EnergyChargeRate * deltaTime);
+            
 
             if (cbCharacterChanged != null) cbCharacterChanged(this);
         }
@@ -124,38 +169,71 @@ namespace Assets.Scripts.Model
             cbCharacterChanged -= cb;
         }
 
-        public XmlSchema GetSchema()
+        public void ReadXml(XmlNode xml)
         {
-            return null;
-        }
+            if (xml.Attributes != null && xml.Attributes["name"] != null && xml.Attributes["name"].ToString().Length > 0)
+            {
+                this.Name = xml.Attributes["name"].Value;
+            }
 
-        public void ReadXml(XmlReader reader)
-        {
-            // Read a single Inventory item in.
-            if (reader.ReadToDescendant("Inventory"))
+            var condsNode = xml.SelectSingleNode("./Conditions");
+            if (condsNode != null)
+            {
+                var condNodes = condsNode.SelectSingleNode("./Condition");
+                if (condNodes != null)
+                {
+                    foreach (XmlElement condNode in condNodes)
+                    {
+                        var name = condNode.Attributes["name"].Value;
+                        var value = float.Parse(condsNode.InnerText);
+                        this.SetCondition(name, value);
+                    }
+                }
+            }
+
+            var inventoryNode = xml.SelectSingleNode("./Inventory");
+            if (inventoryNode != null)
             {
                 this.Inventory = new Inventory();
                 this.Inventory.Character = this;
-                this.Inventory.ReadXml(reader);
+                this.Inventory.ReadXml(inventoryNode);
             }
         }
 
-        public void WriteXml(XmlWriter writer)
+        public XmlElement WriteXml(XmlDocument xml)
         {
-            writer.WriteStartElement("Character");
-            writer.WriteAttributeString("X", CurrentTile.X.ToString());
-            writer.WriteAttributeString("Y", CurrentTile.Y.ToString());
+            var character = xml.CreateElement("Character");
+            character.SetAttribute("x", CurrentTile.X.ToString());
+            character.SetAttribute("y", CurrentTile.Y.ToString());
+            character.SetAttribute("name", this.Name);
+
+            if (_conditions.Count > 0)
+            {
+                var condsXml = xml.CreateElement("Conditions");
+                foreach (var cond in _conditions)
+                {
+                    var condXml = xml.CreateElement("Condition");
+                    condXml.SetAttribute("name", cond.Key);
+                    condXml.InnerText = cond.Value.ToString(CultureInfo.InvariantCulture);
+                    condsXml.AppendChild(condXml);
+                }
+                character.AppendChild(condsXml);
+            }
+
             if (this.Inventory != null)
             {
-                this.Inventory.WriteXml(writer);
+                character.AppendChild(this.Inventory.WriteXml(xml));
             }
-            writer.WriteEndElement();
+
+            return character;
         }
 
         private void GetNewJob()
         {
             // Grab a new job.
-            _job = World.Instance.JobQueue.Dequeue();
+            // _job = World.Instance.JobQueue.TakeClosestJobToTile(CurrentTile);
+            _job = World.Instance.JobQueue.TakeFirstJobFromQueue();
+            _timeSinceLastJobSearch = 0;
 
             if (_job == null) return;
             
@@ -186,16 +264,20 @@ namespace Assets.Scripts.Model
                 AbandonJob();
                 _path = null;
                 DestTile = CurrentTile;
-                return;
             }
         }
 
         private void Update_DoJob(float deltaTime)
         {
+            _timeSinceLastJobSearch += deltaTime;
+
             // Do I have a job?
             if (_job == null)
             {
-                GetNewJob();
+                if (_timeSinceLastJobSearch >= TimeBetweenJobSearches)
+                {
+                    GetNewJob();
+                }
 
                 if (_job == null)
                 {
@@ -203,7 +285,6 @@ namespace Assets.Scripts.Model
                     DestTile = CurrentTile;
                     return;
                 }
-
             }
 
             // We have a job, and it is reachable.
@@ -278,21 +359,33 @@ namespace Assets.Scripts.Model
                         // The Job needs some of this:
                         var unsatisfied = _job.GetFirstRequiredInventory();
 
-                        // Look for the first item that matches
-                        var supply = World.Instance.InventoryManager.GetClosestInventoryOfType(
-                            objectType: unsatisfied.ObjectType,
-                            t: CurrentTile,
-                            desiredQty: unsatisfied.MaxStackSize - unsatisfied.StackSize,
-                            searchInStockpiles: _job.CanTakeFromStockpile);
-
-                        if (supply == null)
+                        // We might have a path to the item we need already
+                        var endTile = _path == null ? null : _path.EndTile();
+                        if (_path != null && endTile != null && endTile.Inventory != null &&
+                            endTile.Inventory.ObjectType == unsatisfied.ObjectType)
                         {
-                            //Debug.LogFormat("No Tile found containing the desired type ({0}).", unsatisfied.ObjectType);
-                            AbandonJob();
-                            return;
+                            // We are already moving towards a tile with the items we want, just keep going.
+                        }
+                        else
+                        {
+                            // Look for the first item that matches
+                            this._path = World.Instance.InventoryManager.GetClosestPathToInventoryOfType(
+                                objectType: unsatisfied.ObjectType,
+                                t: CurrentTile,
+                                desiredQty: unsatisfied.MaxStackSize - unsatisfied.StackSize,
+                                searchInStockpiles: _job.CanTakeFromStockpile);
+
+                            if (this._path == null || this._path.Length() == 0)
+                            {
+                                //Debug.LogFormat("No Tile found containing the desired type ({0}).", unsatisfied.ObjectType);
+                                AbandonJob();
+                                return;
+                            }
+
+                            _destTile = this._path.EndTile();
+                            _nextTile = _path.Dequeue();
                         }
 
-                        DestTile = supply.Tile;
                         return;
                     }
                 }
@@ -308,6 +401,8 @@ namespace Assets.Scripts.Model
             // Are we there yet?
             if (CurrentTile == _job.Tile || CurrentTile.IsNeighbour(_job.Tile, true))
             {
+                IsWorking = true;
+
                 // Set dest to current, just in case it was the neighbour-check that got us here
                 DestTile = CurrentTile;
 
@@ -430,17 +525,84 @@ namespace Assets.Scripts.Model
         private void OnJobStopped(Job j)
         {
             // Job completed or was cancelled.
+            IsWorking = false;
 
             j.UnregisterOnJobStoppedCallback(OnJobStopped);
 
             if (j != _job)
             {
-                Debug.LogError("Character being told about job (" + j.Name + ") that isn't his. You forgot to unregister something.");
+                // Debug.LogError("Character being told about job (" + j.Name + ") that isn't his. You forgot to unregister something.");
                 return;
             }
 
             _job = null;
         }
 
+        public bool CanBreathe()
+        {
+            if (CurrentTile == null) return false;
+            if (CurrentTile.Room == null) return false;
+            return CurrentTile.Room.Atmosphere.IsBreathable();
+        }
+
+        /// <summary>
+        /// Perform some gas-exchange calculations and apply to the local environment.
+        /// </summary>
+        /// <remarks>
+        /// It's not as simple as some people think...
+        /// Some numbers at https://en.wikipedia.org/wiki/Breathing#Composition
+        /// Alan Boyd has helpfully put some calculations up at http://biology.stackexchange.com/questions/5642/how-much-gas-is-exchanged-in-one-human-breath
+        /// </remarks>
+        /// <param name="deltaTime">Frame-time</param>
+        public void Breathe(float deltaTime)
+        {
+            if (CurrentTile == null) return;
+            if (CurrentTile.Room == null) return;
+
+            // hack the deltaTime to speed up the simulation a bit
+            deltaTime *= 10;
+
+            // We can assume an at-rest breathing rate of about 15 breaths per minute (https://en.wikipedia.org/wiki/Lung_volumes)
+            var breaths = (15f/60) * deltaTime; // Breaths-per-second (this frame) 
+
+            // We can assume an average "tidal volume" of air moving in and out of a person is 0.5L (https://en.wikipedia.org/wiki/Lung_volumes)
+            var consumedO2Volume = 0.5f * breaths * 0.001f; // Cubic Metres
+
+            // Consume some oxygen.
+            CurrentTile.Room.Atmosphere.ChangeGas("O2", -consumedO2Volume);
+
+            // In each breath in, we take in about 18mg of O2, and release back out 36mg of CO2 and 20mg of H2O, which is 0.8 molecules of CO2 for every molecule of O2.
+            // I'm not sure how to convert that into a sensible "CO2 produced" number, so this is MADE UP. TODO: Don't make this up.
+            CurrentTile.Room.Atmosphere.ChangeGas("CO2", consumedO2Volume);
+        }
+
+        public float GetCondition(string name)
+        {
+            return _conditions.ContainsKey(name) ? _conditions[name] : 0f;
+        }
+
+        public float SetCondition(string name, float value, bool clamp = true)
+        {
+            if (clamp)
+            {
+                value = Mathf.Clamp01(value);
+            }
+
+            if (_conditions.ContainsKey(name) == false)
+            {
+                _conditions.Add(name, value);
+            }
+            else
+            {
+                _conditions[name] = value;
+            }
+
+            return _conditions[name];
+        }
+
+        public float ChangeCondition(string name, float delta, bool clamp = true)
+        {
+            return this.SetCondition(name, this.GetCondition(name) + delta, clamp);
+        }
     }
 }

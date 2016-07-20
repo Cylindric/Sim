@@ -1,18 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
 using System.Xml;
-using System.Xml.Schema;
-using System.Xml.Serialization;
 using MoonSharp.Interpreter;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace Assets.Scripts.Model
 {
     /// <summary>
     /// Furniture represents an object that is 'permanently' installed on a <see cref="Tile"/>.
     /// </summary>
+    [DebuggerDisplay("Furniture ({ObjectType} at [{Tile.X},{Tile.Y}])")]
     [MoonSharpUserData]
-    public class Furniture : IXmlSerializable
+    public class Furniture 
     {
         /* #################################################################### */
         /* #                           FIELDS                                 # */
@@ -49,6 +51,7 @@ namespace Assets.Scripts.Model
             this._jobs = new List<Job>();
             this._cbUpdateActions = new List<string>();
             this._cbIsEnterableAction = string.Empty;
+            this.GasParticlesEnabled = false;
         }
 
         /// <summary>
@@ -73,6 +76,7 @@ namespace Assets.Scripts.Model
             this._cbIsEnterableAction = other._cbIsEnterableAction;
             this.Width = other.Width;
             this.Height = other.Height;
+            this.GasParticlesEnabled = other.GasParticlesEnabled;
 
             if (other._funcPositionValidation != null)
             {
@@ -175,6 +179,8 @@ namespace Assets.Scripts.Model
         /// If this furniture spawns anything, where does it appear?
         /// </summary>
         public Vector2 JobSpawnOffset { get; set; }
+
+        public bool GasParticlesEnabled { get; set; }
 
         /* #################################################################### */
         /* #                           METHODS                                # */
@@ -291,41 +297,7 @@ namespace Assets.Scripts.Model
 
             if (obj.LinksToNeighbour)
             {
-                // Notify any linked neighbours of this new item.
-                int x = tile.X;
-                int y = tile.Y;
-
-                var t = World.Instance.GetTileAt(x, y + 1);
-                if (t != null && t.Furniture != null && t.Furniture.cbOnChanged != null &&
-                    t.Furniture.ObjectType == obj.ObjectType)
-                {
-                    // The North Tile needs to be updated.
-                    t.Furniture.cbOnChanged(t.Furniture);
-                }
-
-                t = World.Instance.GetTileAt(x + 1, y);
-                if (t != null && t.Furniture != null && t.Furniture.cbOnChanged != null &&
-                    t.Furniture.ObjectType == obj.ObjectType)
-                {
-                    // The East Tile needs to be updated.
-                    t.Furniture.cbOnChanged(t.Furniture);
-                }
-
-                t = World.Instance.GetTileAt(x, y - 1);
-                if (t != null && t.Furniture != null && t.Furniture.cbOnChanged != null &&
-                    t.Furniture.ObjectType == obj.ObjectType)
-                {
-                    // The South Tile needs to be updated.
-                    t.Furniture.cbOnChanged(t.Furniture);
-                }
-
-                t = World.Instance.GetTileAt(x - 1, y);
-                if (t != null && t.Furniture != null && t.Furniture.cbOnChanged != null &&
-                    t.Furniture.ObjectType == obj.ObjectType)
-                {
-                    // The West Tile needs to be updated.
-                    t.Furniture.cbOnChanged(t.Furniture);
-                }
+                tile.UpdateNeighbours();
             }
 
             return obj;
@@ -395,50 +367,46 @@ namespace Assets.Scripts.Model
             //this.OffsetParameter("openness", deltaTime);
         }
 
-        /// <summary>
-        /// Part of the IXmlSerializable interface implementation.
-        /// </summary>
-        /// <returns>null</returns>
-        public XmlSchema GetSchema()
+        public void ReadXml(XmlElement element)
         {
-            return null;
-        }
-
-        public void ReadXmllPrototype(XmlReader reader)
-        {
-            
-        }
-            
-        public void ReadXml(XmlReader reader)
-        {
-            if (reader.ReadToDescendant("Param"))
+            var parameters = (XmlElement)element.SelectSingleNode("./Parameters");
+            if (parameters != null)
             {
-                do
+                var param = parameters.SelectNodes("./Param");
+                if (param != null)
                 {
-                    var k = reader.GetAttribute("name");
-                    var v = float.Parse(reader.GetAttribute("value"));
-                    _parameters[k] = v;
-                } while (reader.ReadToNextSibling("Param"));
+                    foreach (XmlNode p in param)
+                    {
+                        var name = p.Attributes["name"].Value;
+                        var value = float.Parse(p.InnerText);
+                        this.SetParameter(name, value);
+                    }
+                }
             }
         }
 
-        public void WriteXml(XmlWriter writer)
+        public XmlElement WriteXml(XmlDocument xml)
         {
-            writer.WriteStartElement("Furniture");
-            writer.WriteAttributeString("X", this.Tile.X.ToString());
-            writer.WriteAttributeString("Y", this.Tile.Y.ToString());
-            writer.WriteAttributeString("ObjectType", this.ObjectType);
-            // writer.WriteAttributeString("movementCost", this.MovementCost.ToString());
+            var furniture = xml.CreateElement("Furniture");
+            furniture.SetAttribute("x", this.Tile.X.ToString());
+            furniture.SetAttribute("y", this.Tile.Y.ToString());
+            furniture.SetAttribute("objectType", this.ObjectType);
 
-            foreach (var k in _parameters)
+            // Write out all the atmospheric data.
+            if (_parameters.Count > 0)
             {
-                writer.WriteStartElement("Param");
-                writer.WriteAttributeString("name", k.Key);
-                writer.WriteAttributeString("value", k.Value.ToString());
-                writer.WriteEndElement();
+                var paramElement = xml.CreateElement("Parameters");
+                foreach (var k in _parameters)
+                {
+                    var p = xml.CreateElement("Param");
+                    p.SetAttribute("name", k.Key);
+                    p.InnerText = k.Value.ToString(CultureInfo.InvariantCulture);
+                    paramElement.AppendChild(p);
+                }
+                furniture.AppendChild(paramElement);
             }
 
-            writer.WriteEndElement();
+            return furniture;
         }
 
         /// <summary>
@@ -516,7 +484,7 @@ namespace Assets.Scripts.Model
 
         public bool IsStockpile()
         {
-            return ObjectType == "Stockpile";
+            return ObjectType == "furn_stockpile";
         }
 
         public void Deconstruct()

@@ -1,18 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using MoonSharp.Interpreter;
-using UnityEngine;
 
 namespace Assets.Scripts.Model
 {
     [MoonSharpUserData]
     public class Job
     {
-        /* #################################################################### */
-        /* #                         CONSTANT FIELDS                          # */
-        /* #################################################################### */
-
         /* #################################################################### */
         /* #                              FIELDS                              # */
         /* #################################################################### */
@@ -42,6 +36,7 @@ namespace Assets.Scripts.Model
             this.CanTakeFromStockpile = true;
             this.cbOnJobCompletedLua = new List<string>();
             this.cbOnJobWorkedLua = new List<string>();
+            this.Description = string.Empty;
         }
 
         public Job(Tile tile, string jobObjectType, Action<Job> cbJobComplete, float jobTime, Inventory[] inventoryRequirements, bool jobRepeats = false) : this()
@@ -77,6 +72,7 @@ namespace Assets.Scripts.Model
             this.CanTakeFromStockpile = other.CanTakeFromStockpile;
             this.cbOnJobCompletedLua = new List<string>(other.cbOnJobCompletedLua);
             this.cbOnJobWorkedLua = new List<string>(other.cbOnJobWorkedLua);
+            this.Description = other.Description;
 
             // Make sure the Inventories are COPIED, as we will be making changes to them.
             if (other.InventoryRequirements != null)
@@ -87,10 +83,6 @@ namespace Assets.Scripts.Model
                 }
             }
         }
-
-        /* #################################################################### */
-        /* #                             DELEGATES                            # */
-        /* #################################################################### */
 
         /* #################################################################### */
         /* #                            PROPERTIES                            # */
@@ -106,8 +98,10 @@ namespace Assets.Scripts.Model
         public string JobObjectType { get; protected set; }
 
         public bool AcceptsAnyItemType { get; set; }
+
         public bool CanTakeFromStockpile { get; set; }
 
+        public string Description { get; set; }
 
         /* #################################################################### */
         /* #                              METHODS                             # */

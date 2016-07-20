@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
+﻿using System.IO;
+using System.Xml;
 using System.Xml.Serialization;
 using Assets.Scripts.Model;
+using Assets.Scripts.Utilities;
 using MoonSharp.RemoteDebugger;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -15,32 +15,35 @@ namespace Assets.Scripts.Controllers
         public static WorldController Instance { get; protected set; }
 
         public World World { get; protected set; }
-        private static bool loadWorld = false;
+        private static bool _loadWorld = false;
 
         public void NewWorld()
         {
-            Debug.Log("New World clicked.");
-            loadWorld = false;
+            // Debug.Log("New World clicked.");
+            _loadWorld = false;
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
 
         public void SaveWorld()
         {
-            Debug.Log("Save World clicked.");
+            // Debug.Log("Save World clicked.");
             var filename = Path.Combine(Application.persistentDataPath, "SaveGame000.xml");
 
-            var serializer = new XmlSerializer(typeof(World));
-            TextWriter writer = new StreamWriter(filename);
-            serializer.Serialize(writer, World);
-            writer.Close();
+            var xml = new XmlDocument();
+            var xmlDeclaration = xml.CreateXmlDeclaration("1.0", "UTF-8", null);
+            var root = xml.DocumentElement;
+            xml.InsertBefore(xmlDeclaration, root);
+            var world = this.World.WriteXml(xml);
+            xml.AppendChild(world);
+            xml.Save(filename);
 
             Debug.Log("World saved to " + filename);
         }
 
         public void LoadWorld()
         {
-            Debug.Log("Load World clicked.");
-            loadWorld = true;
+            // Debug.Log("Load World clicked.");
+            _loadWorld = true;
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
 
@@ -52,7 +55,7 @@ namespace Assets.Scripts.Controllers
             return World.Instance.GetTileAt(x, y);
         }
 
-        RemoteDebuggerService remoteDebugger;
+        // RemoteDebuggerService remoteDebugger;
 
         /// <summary>
         /// Called by Unity when the controller is created. 
@@ -60,13 +63,15 @@ namespace Assets.Scripts.Controllers
         /// </summary>
         private void OnEnable()
         {
+            MarkovNameGenerator.Initialise();
+
             if (Instance != null)
             {
                 Debug.LogError("There shouldn't be an instance already!");
             }
             Instance = this;
 
-            if (loadWorld)
+            if (_loadWorld)
             {
                 CreateWorldFromSave();
             }
@@ -78,33 +83,29 @@ namespace Assets.Scripts.Controllers
 
         private void CreateWorldFromSave()
         {
-            Debug.Log("Creating world from save.");
+            // Debug.Log("Creating world from save.");
             var filename = Path.Combine(Application.persistentDataPath, "SaveGame000.xml");
             if (File.Exists(filename) == false)
             {
                 return;
             }
 
-            var serializer = new XmlSerializer(typeof(World));
-            var reader = new StreamReader(filename);
-            World = (World)serializer.Deserialize(reader);
-            reader.Close();
+            var xml = new XmlDocument();
+            xml.Load(filename);
+            this.World = World.ReadXml(xml);
 
+            // Center the camera.
             Camera.main.transform.position = new Vector3(World.Width / 2f, World.Height / 2f, Camera.main.transform.position.z);
         }
 
         private void CreateEmptyWorld()
         {
-            Debug.Log("Creating empty world.");
+            // Debug.Log("Creating empty world.");
             this.World = new World(100, 100);
 
-            for (int x = -1; x < 2; x++)
-            {
-                for (int y = -1; y < 2; y++)
-                {
-                    World.CreateCharacter(World.GetTileAt(World.Width / 2 + x, World.Height / 2 + y));
-                }
-            }
+            // Put two characters into the world
+            World.CreateCharacter(World.GetTileAt(World.Width / 2 - 1, World.Height / 2));
+            World.CreateCharacter(World.GetTileAt(World.Width / 2 + 1, World.Height / 2));
 
             Camera.main.transform.position = new Vector3(World.Width / 2f, World.Height / 2f, Camera.main.transform.position.z);
         }
@@ -116,12 +117,7 @@ namespace Assets.Scripts.Controllers
         {
             World.Update(Time.deltaTime);
 
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                Application.Quit();
-            }
-
-            float scrollSpeed = 4f;
+            var scrollSpeed = 4f;
             if (Input.GetKey(KeyCode.A))
             {
                 Camera.main.transform.position += Vector3.left * Time.deltaTime * scrollSpeed;

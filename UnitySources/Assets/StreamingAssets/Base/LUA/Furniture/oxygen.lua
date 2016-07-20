@@ -1,57 +1,83 @@
+local timeSinceLastPump = 0
+
 -- The Oxygen Generator adds Nitrogen and Oxygen to try and maintain an 80/20 balance.
 function OnUpdate_GasGenerator(furniture, deltaTime)
+  actionTaken = ""
+  
+  timeSinceLastPump = timeSinceLastPump + deltaTime
+  
+  if (timeSinceLastPump < 0.0) then
+    return
+  end
     
-    targetPressure = 1.013 -- 101.3 kPa is the same as they use for the ISS, so should be good enough for us.
-    targetN2 =  0.78090 -- 78% Nitrogen
-    targetO2 =  0.20950 -- 21% Oxygen
-    targetAr =  0.00930 --  1% Argon
-    targetCO2 = 0.00039 -- trace CO2
+  -- Speed up the deltaTime a bit to make it more interesting
+  deltaTime = timeSinceLastPump * 1
+  timeSinceLastPump = 0
 
-    if (furniture == nil) then
-      return "Furn is nil!"
-    end
+  actionTaken = actionTaken .. deltaTime .. ".  "
   
-    if (furniture.Tile == nil) then
-      return "Furn Tile is null!"
-    end
-  
-    if (furniture.Tile.Room == nil) then
-      return "Oxygen Generator at [" .. furniture.Tile.X .. "," .. furniture.Tile.Y .. "] has no Room!"
-    end
-  
-    if (furniture.Tile.Room.Size == 0) then
-      return "Oxygen Generator at [" .. furniture.Tile.X .. "," .. furniture.Tile.Y .. "] is in a Room with no Tiles!"
-    end
+  tolerance = 0.005
+  targetPressure = 1.000 -- 101.3 kPa is the same as they use for the ISS, so should be good enough for us.
+  targetN2 =  0.78090 -- 78% Nitrogen
+  targetO2 =  0.20950 -- 21% Oxygen
+  targetAr =  0.00930 --  1% Argon
+  targetCO2 = 0.00039 -- trace CO2
 
-  currentPressure = furniture.Tile.Room.GetTotalAtmosphericPressure()
-  space = targetPressure - currentPressure
-  
   -- The base fill-rate for the O2 Generator.
   -- TODO: Will need a way to both add Nitrogen and O2, and scrub them too, probably with different rates for all combos.
-  baseRate = 1
+  -- TODO: Will need a way to both add Nitrogen and O2, and scrub them too, probably with different rates for all combos.
+  baseRate = 1 -- m³ per second
 
-  -- The rate depends on the size of the room being affected.
-  -- Larger rooms take longer
-  roomSizeMulti = 1/furniture.Tile.Room.Size
+  if (furniture == nil) then
+    return "Furn is nil!"
+  end
+
+  if (furniture.Tile == nil) then
+    return "Furn Tile is null!"
+  end
+
+  if (furniture.Tile.Room == nil) then
+    return "Oxygen Generator at [" .. furniture.Tile.X .. "," .. furniture.Tile.Y .. "] has no Room!"
+  end 
+
+  if (furniture.Tile.Room.Size == 0) then
+    return "Oxygen Generator at [" .. furniture.Tile.X .. "," .. furniture.Tile.Y .. "] is in a Room with no Tiles!"
+  end
+ 
+  -- Always remove CO2, even if that's all there is. It's never a good thing.
+  if (furniture.Tile.Room.Atmosphere.GetGasPercentage("CO2") > 0.0) then
+    furniture.Tile.Room.Atmosphere.ChangeGas("CO2", -baseRate * deltaTime)
+    actionTaken = actionTaken .. "Removed " .. (-baseRate * deltaTime) .. " CO2.  "
+  end
+ 
+  totalPressure = furniture.Tile.Room.Atmosphere.GetTotalAtmosphericPressure()
+  pressureDifference = targetPressure - totalPressure
+  furniture.GasParticlesEnabled = false  
   
-  -- The final rate
-  rate = baseRate * roomSizeMulti -- the amount to add per-second.
-  qty = rate * deltaTime -- the amount to add on this frame-tick.
-  qty = math.min(qty, space) -- Try not to go into over-pressure.
+  if(pressureDifference < 0 and math.abs(pressureDifference) > tolerance) then
+    -- Need to remove atmosphere, so take out Nitrogen
+    furniture.Tile.Room.Atmosphere.ChangeGas("N2", -baseRate * deltaTime)
+    actionTaken = actionTaken .. "Removed " .. (-baseRate * deltaTime) .. " N2.  "
   
-  
-  if (currentPressure >= targetPressure) then
-    -- Already at target pressure, so will not add any more! Otherwise ears go pop!
-    return
-  
-  else
-    -- Add various gases from the tanks until they're reached the desired concentrations.
-    if (furniture.Tile.Room.GetGasPercentage("O2") < targetO2) then
+  elseif(pressureDifference > tolerance) then
+    -- Adding atmosphere
+
+    if (targetO2 - furniture.Tile.Room.Atmosphere.GetGasPercentage("O2") > tolerance) then
       -- Pump Oxy!
-      furniture.Tile.Room.ChangeGas("O2", qty)
+      furniture.Tile.Room.Atmosphere.ChangeGas("O2", baseRate * deltaTime)
+      actionTaken = "Added " .. (baseRate * deltaTime) .. " O2.  "
+      furniture.GasParticlesEnabled = true
     else
       -- Pump Nitro!
-      furniture.Tile.Room.ChangeGas("N", qty)
+      furniture.Tile.Room.Atmosphere.ChangeGas("N2", baseRate * deltaTime)
+      actionTaken = "Added " .. (baseRate * deltaTime) .. " N2.  "
+      furniture.GasParticlesEnabled = true
     end
   end
+  
+  if(furniture.cbOnChanged != nil) then
+    furniture.cbOnChanged(furniture)
+  end
+  
+  return -- actionTaken
 end

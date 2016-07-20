@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Assets.Scripts.Pathfinding;
 using MoonSharp.Interpreter;
 using UnityEngine;
 
@@ -128,25 +129,19 @@ namespace Assets.Scripts.Model
 
         public Inventory GetClosestInventoryOfType(string objectType, Tile t, int desiredQty, bool searchInStockpiles)
         {
+            var path = GetClosestPathToInventoryOfType(objectType, t, desiredQty, searchInStockpiles);
+            return path.EndTile().Inventory;
+        }
+
+        public Path_AStar GetClosestPathToInventoryOfType(string objectType, Tile t, int desiredQty, bool searchInStockpiles)
+        {
             if (Inventories.ContainsKey(objectType) == false)
             {
-                // Debug.LogError("Trying to find closest Inventory for a type we don't have.");
                 return null;
             }
 
-            foreach (var inv in Inventories[objectType])
-            {
-                if (inv.Tile != null)
-                {
-                    if (inv.Tile.Furniture != null && inv.Tile.Furniture.IsStockpile() && searchInStockpiles == false)
-                    {
-                        return null;
-                    }
-                    return inv;
-                }
-            }
-
-            return null;
+            var path = new Path_AStar(World.Instance, t, null, objectType, true);
+            return path;
         }
     }
 }

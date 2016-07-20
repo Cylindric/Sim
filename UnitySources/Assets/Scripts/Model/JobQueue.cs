@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Assets.Scripts.Pathfinding;
 
 namespace Assets.Scripts.Model
 {
@@ -28,7 +29,7 @@ namespace Assets.Scripts.Model
             if (cbJobCreated != null) cbJobCreated(j);
         }
 
-        public Job Dequeue()
+        public Job TakeFirstJobFromQueue()
         {
             if (_jobQueue.Count == 0)
             {
@@ -38,6 +39,29 @@ namespace Assets.Scripts.Model
             var job = _jobQueue.First();
             _jobQueue.Remove(job);
             return job;
+        }
+
+        public Job TakeClosestJobToTile(Tile t)
+        {
+            Job found = null;
+            int distance = int.MaxValue;
+
+            foreach (var job in _jobQueue)
+            {
+                var route = new Path_AStar(World.Instance, t, job.Tile);
+                if (found == null || route.Length() < distance)
+                {
+                    found = job;
+                    distance = route.Length();
+                }
+            }
+
+            if (found != null)
+            {
+                _jobQueue.Remove(found);
+            }
+
+            return found;
         }
 
         public void RegisterJobCreationCallback(Action<Job> cb)

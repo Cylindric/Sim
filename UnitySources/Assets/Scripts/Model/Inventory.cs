@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Xml;
 using System.Xml.Schema;
-using System.Xml.Serialization;
 using MoonSharp.Interpreter;
 
 namespace Assets.Scripts.Model
 {
     [MoonSharpUserData]
-    public class Inventory : IXmlSerializable
+    public class Inventory
     {
         /* #################################################################### */
         /* #                              FIELDS                              # */
@@ -93,29 +92,20 @@ namespace Assets.Scripts.Model
             return new Inventory(this);
         }
 
-        public XmlSchema GetSchema()
+        public void ReadXml(XmlNode xml)
         {
-            return null;
+            this.ObjectType = xml.Attributes["objectType"].Value;
+            this.StackSize = int.Parse(xml.Attributes["stackSize"].Value);
+            this.MaxStackSize = int.Parse(xml.Attributes["maxStackSize"].Value);
         }
 
-        public void ReadXml(XmlReader reader)
+        public XmlElement WriteXml(XmlDocument xml)
         {
-            this.ObjectType = reader.GetAttribute("ObjectType");
-
-            int stackSize = int.Parse(reader.GetAttribute("StackSize"));
-            int maxStackSize = int.Parse(reader.GetAttribute("MaxStackSize"));
-
-            this.StackSize = stackSize;
-            this.MaxStackSize = maxStackSize;
-        }
-
-        public void WriteXml(XmlWriter writer)
-        {
-            writer.WriteStartElement("Inventory");
-            writer.WriteAttributeString("ObjectType", this.ObjectType);
-            writer.WriteAttributeString("StackSize", this.StackSize.ToString());
-            writer.WriteAttributeString("MaxStackSize", this.MaxStackSize.ToString());
-            writer.WriteEndElement();
+            var element = xml.CreateElement("Inventory");
+            element.SetAttribute("objectType", this.ObjectType);
+            element.SetAttribute("stackSize", this.StackSize.ToString());
+            element.SetAttribute("maxStackSize", this.MaxStackSize.ToString());
+            return element;
         }
     }
 }

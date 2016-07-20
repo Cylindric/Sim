@@ -27,6 +27,14 @@ namespace Assets.Scripts.Controllers
         /* #                              METHODS                             # */
         /* #################################################################### */
 
+        void Awake()
+        {
+            //#if UNITY_EDITOR
+            //QualitySettings.vSyncCount = 0;  // VSync must be disabled
+            //Application.targetFrameRate = 10;
+            //#endif
+        }
+
         private void Start()
         {
         }
