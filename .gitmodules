@@ -1,0 +1,3 @@
+[submodule "Tools/Fluent-Behaviour-Tree"]
+	path = Tools/Fluent-Behaviour-Tree
+	url = https://github.com/codecapers/Fluent-Behaviour-Tree.git

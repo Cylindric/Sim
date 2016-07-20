@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Assets.Scripts.Pathfinding;
 using Assets.Scripts.Utilities;
+using FluentBehaviourTree;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
@@ -58,6 +59,8 @@ namespace Assets.Scripts.Model
         private float _timeSinceLastJobSearch;
         private readonly Dictionary<string, float> _conditions;
 
+        private IBehaviourTreeNode _tree;
+
         /* #################################################################### */
         /* #                        CONSTRUCTORS                              # */
         /* #################################################################### */
@@ -68,6 +71,25 @@ namespace Assets.Scripts.Model
             this.Name = MarkovNameGenerator.GetNextName("male") + ' ' + MarkovNameGenerator.GetNextName("last");
             this.CurrentState = State.Idle;
             _conditions = new Dictionary<string, float> {{"energy", 1f}, {"health", 1f}};
+
+            var builder = new BehaviourTreeBuilder();
+            _tree = builder
+                .Sequence("work-job")
+                    .Do("get-next-job", t => GetNextJob_Action(t.deltaTime))
+                    .Sequence("acquire-stock")
+                        .Do("find-required-stock", t => FindRequiredStock_Action(t.deltaTime))
+                        .Do("setup-move-to-stocksite", t => SetupMoveToStockSite_Action(t.deltaTime))
+                        .Do("move-to-stocksite", t => MoveTowardsDestination_Action(t.deltaTime))
+                        .Do("pickup-stock", t => PickUpStock_Action(t.deltaTime))
+                    .End()
+                    .Sequence("build")
+                        .Do("movesetup-move-to-jobsite", t=> SetupMoveToJobSite_Action(t.deltaTime))
+                        .Do("move-to-jobsite", t => MoveTowardsDestination_Action(t.deltaTime))
+                        .Do("drop_stock", t => TransferStockToJob_Action(t.deltaTime))
+                        .Do("do-work", t => DoWork_Action(t.deltaTime))
+                    .End()
+                .End()
+                .Build();
         }
 
         public Character(Tile tile) : this()
@@ -130,11 +152,316 @@ namespace Assets.Scripts.Model
             CurrentState = State.Idle;
         }
 
+        private BehaviourTreeStatus GetNextJob_Action(float deltaTime)
+        {
+            Debug.Log("GetNextJob_Action");
+            CurrentJob = World.Instance.JobQueue.TakeFirstJobFromQueue();
+
+            if (CurrentJob == null) return BehaviourTreeStatus.Failure;
+
+            return BehaviourTreeStatus.Success;
+        }
+
+        private BehaviourTreeStatus FindRequiredStock_Action(float deltaTime)
+        {
+            Debug.Log("FindRequiredStock_Action");
+
+            // If the current job has all the materials it needs already, we can just skip this step.
+            if (CurrentJob.HasAllMaterial())
+            {
+                DestTile = CurrentJob.Tile;
+                return BehaviourTreeStatus.Success;
+            }
+
+            // The job needs some more materials, perhaps we're holding them already so don't need to go anywhere.
+            if (Inventory != null && CurrentJob.NeedsMaterial(Inventory) > 0)
+            {
+                // We are carrying at least some of what the current job needs, so continue on our merry way.
+                DestTile = CurrentJob.Tile;
+                return BehaviourTreeStatus.Success;
+            }
+
+            // The job needs some more materials, and we're not carrying it already, so we need to move to where there are some.
+
+            // Perhaps the stock is right where we're stood?
+            if (CurrentTile.Inventory != null &&
+               (CurrentJob.CanTakeFromStockpile || CurrentTile.Furniture == null || CurrentTile.Furniture.IsStockpile() == false) &&
+               (CurrentJob.NeedsMaterial(CurrentTile.Inventory) != 0))
+            {
+                // The materials we need are right where we're stood!
+                DestTile = CurrentTile;
+                return BehaviourTreeStatus.Success;
+            }
+
+            // The Job needs some of this:
+            var unsatisfied = CurrentJob.GetFirstRequiredInventory();
+
+            // We might have a path to the item we need already
+            var endTile = _path == null ? null : _path.EndTile();
+            if (_path != null && endTile != null && endTile.Inventory != null && endTile.Inventory.ObjectType == unsatisfied.ObjectType)
+            {
+                // We are already moving towards a tile with the items we want, just keep going.
+                return BehaviourTreeStatus.Success;
+            }
+
+            // Look for the first item that matches.
+            _path = World.Instance.InventoryManager.GetClosestPathToInventoryOfType(
+                objectType: unsatisfied.ObjectType,
+                t: CurrentTile,
+                desiredQty: unsatisfied.MaxStackSize - unsatisfied.StackSize,
+                searchInStockpiles: CurrentJob.CanTakeFromStockpile);
+
+
+            // If there are no items anywhere that satisfy the requirements, we have to give up on this job.
+            if (_path == null || _path.Length() == 0)
+            {
+                //Debug.LogFormat("No Tile found containing the desired type ({0}).", unsatisfied.ObjectType);
+                AbandonJob();
+                return BehaviourTreeStatus.Failure;
+            }
+
+            // We've identified where the missing items can be found, so head there.
+            _destTile = _path.EndTile();
+            _nextTile = _path.Dequeue();
+            return BehaviourTreeStatus.Success;
+        }
+
+        public BehaviourTreeStatus SetupMoveToStockSite_Action(float deltaTime)
+        {
+            Debug.Log("SetupMoveToStockSite_Action");
+
+            // If we've already arrived at our destination, just continue.
+            if (CurrentTile == _destTile)
+            {
+                return BehaviourTreeStatus.Success;
+            }
+
+            // Keep walking towards the destination.
+            if (_nextTile == null || _nextTile == CurrentTile)
+            {
+                // Get the next Tile from the pathfinder.
+                if (_path == null || _path.Length() == 0)
+                {
+                    // Generate a path to our destination
+                    _path = new Path_AStar(World.Instance, CurrentTile, DestTile);
+
+                    if (_path.Length() == 0)
+                    {
+                        //Debug.LogError("Path_AStar returned no path to destination!");
+                        AbandonJob();
+                        _path = null;
+                        return BehaviourTreeStatus.Failure;
+                    }
+
+                    // Ignore the first Tile in the path, as that's the Tile we are currently in,
+                    // and we can always move out of our current Tile.
+                    _nextTile = _path.Dequeue();
+                }
+
+                // Grab the next waypoint from the pathing system!
+                _nextTile = _path.Dequeue();
+            }
+
+            if (_nextTile == null) _nextTile = CurrentTile;
+
+            // At this point we should have a valid _nextTile to move to.
+            return BehaviourTreeStatus.Success;
+        }
+
+        public BehaviourTreeStatus MoveTowardsDestination_Action(float deltaTime)
+        {
+            // What's the total distance from point A to point B?
+            // We are going to use Euclidean distance FOR NOW...
+            // But when we do the pathfinding system, we'll likely
+            // switch to something like Manhattan or Chebyshev distance
+            float distToTravel = 0;
+            if (_nextTile != CurrentTile)
+            {
+                distToTravel = Mathf.Sqrt(
+                    Mathf.Pow(CurrentTile.X - _nextTile.X, 2) +
+                    Mathf.Pow(CurrentTile.Y - _nextTile.Y, 2)
+                    );
+            }
+
+            // Before entering a Tile, make sure it is not impassable.
+            // This might happen if the Tile is changed (e.g. wall built) after the pathfinder runs.
+            if (_nextTile.IsEnterable() == Enterability.Never)
+            {
+                // Debug.LogError("Error - Character was strying to enter an impassable Tile!");
+                _nextTile = null;
+                _path = null;
+                return BehaviourTreeStatus.Failure;
+            }
+
+            if (_nextTile.IsEnterable() == Enterability.Soon)
+            {
+                // The next Tile we're trying to enter is walkable, but maybe for some reason
+                // cannot be entered right now. Perhaps it is occupied, or contains a closed door.
+                CurrentState = State.WaitingForAccess;
+                return BehaviourTreeStatus.Running;
+            }
+
+            // How much distance can be travel this Update?
+            if (_nextTile == null) _nextTile = CurrentTile;
+            var distThisFrame = 0f;
+            try
+            {
+                distThisFrame = (_speed / _nextTile.MovementCost) * deltaTime;
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e.Message);
+            }
+
+            // How much is that in terms of percentage to our destination?
+            float percThisFrame;
+            if (Mathf.Approximately(distToTravel, 0f))
+            {
+                percThisFrame = 1f;
+            }
+            else
+            {
+                percThisFrame = distThisFrame / distToTravel;
+            }
+
+            // Add that to overall percentage travelled.
+            _movementPercentage += percThisFrame;
+
+            if (_movementPercentage >= 1)
+            {
+                // We have reached our (current) destination
+                CurrentTile = _nextTile;
+                _movementPercentage = 0;
+            }
+
+            return BehaviourTreeStatus.Running;
+        }
+
+        public BehaviourTreeStatus PickUpStock_Action(float deltaTime)
+        {
+            Debug.Log("PickUpStock_Action");
+
+            // Quickly check to see if the job still needs the stuff we're stood on, in case someone else has already taken it there.
+            if (CurrentJob.HasAllMaterial())
+            {
+                return BehaviourTreeStatus.Success;
+            }
+
+            // We should be standing on the stuff we were looking for, but check again just to be sure.
+            // TODO: someone else migh have nicked this stuff already. Should we "reserve" distant stock as soon as we decide we're going to go and get it?
+            if (CurrentTile.Inventory != null &&
+                (CurrentJob.CanTakeFromStockpile || CurrentTile.Furniture == null || CurrentTile.Furniture.IsStockpile() == false) &&
+                (CurrentJob.NeedsMaterial(CurrentTile.Inventory) != 0))
+            {
+                // The materials we need are right where we're stood!
+                World.Instance.InventoryManager.TransferInventory(
+                    character: this,
+                    source: CurrentTile.Inventory,
+                    qty: CurrentJob.NeedsMaterial(CurrentTile.Inventory));
+
+                // We've picked up what we need, so wait for further orders.
+                return BehaviourTreeStatus.Success;
+            }
+
+            return BehaviourTreeStatus.Failure;
+        }
+
+        public BehaviourTreeStatus SetupMoveToJobSite_Action(float deltaTime)
+        {
+            Debug.Log("SetupMoveToJobSite_Action");
+
+            // Make sure we're heading for the site.
+            DestTile = CurrentJob.Tile;
+
+            // See if we're already stood on the tile.
+            if (CurrentTile == DestTile)
+            {
+                return BehaviourTreeStatus.Success;
+            }
+            
+            // See if we're "close enough" to the job.
+            if (_path != null && _path.Length() <= CurrentJob.MinRange)
+            {
+                // Set dest to current, just in case it was the proximity-check that got us here
+                DestTile = CurrentTile;
+                return BehaviourTreeStatus.Success;
+            }
+
+            // At this point we should have a valid _nextTile to move to.
+            return BehaviourTreeStatus.Success;
+        }
+
+        public BehaviourTreeStatus TransferStockToJob_Action(float deltaTime)
+        {
+            Debug.Log("TransferStockToJob_Action");
+
+            // We are at the jobsite, so drop the Inventory.
+            World.Instance.InventoryManager.TransferInventory(CurrentJob, Inventory);
+            CurrentJob.DoWork(0); // This will call all the cbJobWorked callbacks
+
+            if (Inventory.StackSize == 0)
+            {
+                Inventory = null;
+            }
+            else
+            {
+                Debug.LogError("Character is still carrying Inventory, which shouldn't be the case.");
+                Inventory = null;
+            }
+
+            // Once the stock is dropped, we're available for work
+            return BehaviourTreeStatus.Success;
+        }
+
+        public BehaviourTreeStatus DoWork_Action(float deltaTime)
+        {
+            Debug.Log("DoWork_Action");
+
+            // If there isn't a current job, that probably means while this step was running, the job was completed.
+            if (CurrentJob == null)
+            {
+                return BehaviourTreeStatus.Success;
+            }
+
+            // TODO: Not sure if we need to check this - that should've been handled by the preceeding actions.
+            var rangeToJob = 0;
+
+            if (CurrentTile == CurrentJob.Tile)
+            {
+                // We're stood on the Job site.
+                rangeToJob = 0;
+            }
+
+            if (_path != null)
+            {
+                // We're stood close enough to the job site.
+                rangeToJob = _path.Length();
+            }
+
+            // If we're too far from the job site, something went wrong.
+            if (rangeToJob > CurrentJob.MinRange)
+            {
+                return BehaviourTreeStatus.Failure;
+            }
+                
+            CurrentState = State.WorkingJob;
+
+            // Set dest to current, just in case it was the proximity-check that got us here.
+            DestTile = CurrentTile;
+            _path = null;
+
+            // Do some work.
+            CurrentJob.DoWork(deltaTime);
+            return BehaviourTreeStatus.Running;
+        }
+
         public void Update(float deltaTime)
         {
-            Update_DoJob(deltaTime);
-            Update_DoMovement(deltaTime);
-            Update_Idle(deltaTime);
+            _tree.Tick(new TimeData(deltaTime));
+
+            //Update_DoJob(deltaTime);
+            //Update_DoMovement(deltaTime);
+            //Update_Idle(deltaTime);
 
             // Hack in some environmental effects.
             // Currently breathability is all that affects if the shield is up or not.
@@ -278,7 +605,7 @@ namespace Assets.Scripts.Model
                             DestTile = CurrentTile;
 
                             // We are at the jobsite, so drop the Inventory.
-                            World.Instance.InventoryManager.PlaceInventory(CurrentJob, Inventory);
+                            World.Instance.InventoryManager.TransferInventory(CurrentJob, Inventory);
                             CurrentJob.DoWork(0); // This will call all the cbJobWorked callbacks
 
                             if (Inventory.StackSize == 0)
@@ -308,7 +635,7 @@ namespace Assets.Scripts.Model
                         // We are carrying something, but the job doesn't want it.
                         // Dump it where we are.
                         // TODO: actually dump it to an empty Tile, as we might be stood on a job Tile.
-                        if (World.Instance.InventoryManager.PlaceInventory(CurrentTile, Inventory) == false)
+                        if (World.Instance.InventoryManager.TransferInventory(CurrentTile, Inventory) == false)
                         {
                             Debug.LogError("Character tried to dump Inventory to an invalid Tile.");
                             // TODO: At this point we should try to dump this inv somewhere else, but for now we're just deleting it.
@@ -330,7 +657,7 @@ namespace Assets.Scripts.Model
                         CurrentJob.NeedsMaterial(CurrentTile.Inventory) != 0)
                     {
                         // The materials we need are right where we're stood!
-                        World.Instance.InventoryManager.PlaceInventory(
+                        World.Instance.InventoryManager.TransferInventory(
                             character: this, 
                             source: CurrentTile.Inventory, 
                             qty: CurrentJob.NeedsMaterial(CurrentTile.Inventory));

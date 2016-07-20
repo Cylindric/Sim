@@ -314,7 +314,7 @@ namespace Assets.Scripts.Model
                 var objectType = invs.Attributes["objectType"].Value;
                 var stackSize = int.Parse(invs.Attributes["stackSize"].Value);
                 var maxStackSize = int.Parse(invs.Attributes["maxStackSize"].Value);
-                World.Instance.InventoryManager.PlaceInventory(this, new Inventory(objectType, maxStackSize, stackSize));
+                World.Instance.InventoryManager.TransferInventory(this, new Inventory(objectType, maxStackSize, stackSize));
             }
         }
 
