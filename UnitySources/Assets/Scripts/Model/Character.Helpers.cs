@@ -165,7 +165,7 @@ namespace Assets.Scripts.Model
                 Debug.Log("Character::SetDestination -- Our destination Tile isn't actually our neighbour.");
             }
 
-            DestTile = tile;
+            DestinationTile = tile;
         }
     }
 }

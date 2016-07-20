@@ -172,7 +172,8 @@ namespace Assets.Scripts.Pathfinding
                 );
         }
 
-        void reconstruct_path(Dictionary<Path_Node<Tile>, Path_Node<Tile>> cameFrom, Path_Node<Tile> current) {
+        void reconstruct_path(Dictionary<Path_Node<Tile>, Path_Node<Tile>> cameFrom, Path_Node<Tile> current)
+        {
             // So at this point, current IS the goal.
             // So what we want to do is walk backwards through the Came_From
             // map, until we reach the "end" of that map...which will be
@@ -180,7 +181,8 @@ namespace Assets.Scripts.Pathfinding
             var totalPath = new LinkedList<Tile>();
             totalPath.AddLast(current.data); // This "final" step is the path is the goal!
 
-            while( cameFrom.ContainsKey(current) ) {
+            while (cameFrom.ContainsKey(current))
+            {
                 // Came_From is a map, where the
                 //    key => value relation is real saying
                 //    some_node => we_got_there_from_this_node
@@ -189,12 +191,13 @@ namespace Assets.Scripts.Pathfinding
                 totalPath.AddLast(current.data);
             }
 
+            // We don't need to have the start tile in the path, because that's where we already are.
+            totalPath.RemoveLast();
+
             // At this point, total_path is a queue that is running
             // backwards from the END Tile to the START Tile, so let's reverse it.
-
-            _path = new LinkedList<Tile>( totalPath.Reverse() );
-
-            }
+            _path = new LinkedList<Tile>(totalPath.Reverse());
+        }
 
         public Tile Dequeue()
         {

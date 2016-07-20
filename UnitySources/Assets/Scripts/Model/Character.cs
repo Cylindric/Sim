@@ -37,16 +37,16 @@ namespace Assets.Scripts.Model
 
         public Inventory Inventory;
 
-        private Tile _destTile;
+        private Tile _destinationTile;
 
-        private Tile DestTile
+        private Tile DestinationTile
         {
-            get { return _destTile; }
+            get { return _destinationTile; }
             set
             {
-                if (_destTile != value)
+                if (_destinationTile != value)
                 {
-                    _destTile = value;
+                    _destinationTile = value;
                     _path = null;
                 }
             }
@@ -76,25 +76,21 @@ namespace Assets.Scripts.Model
             _tree = builder
                 .Sequence("work-job")
                     .Do("get-next-job", t => GetNextJob_Action(t.deltaTime))
-                    .Sequence("acquire-stock")
-                        .Do("find-required-stock", t => FindRequiredStock_Action(t.deltaTime))
-                        .Do("setup-move-to-stocksite", t => SetupMoveToStockSite_Action(t.deltaTime))
-                        .Do("move-to-stocksite", t => MoveTowardsDestination_Action(t.deltaTime))
-                        .Do("pickup-stock", t => PickUpStock_Action(t.deltaTime))
-                    .End()
-                    .Sequence("build")
-                        .Do("movesetup-move-to-jobsite", t=> SetupMoveToJobSite_Action(t.deltaTime))
-                        .Do("move-to-jobsite", t => MoveTowardsDestination_Action(t.deltaTime))
-                        .Do("drop_stock", t => TransferStockToJob_Action(t.deltaTime))
-                        .Do("do-work", t => DoWork_Action(t.deltaTime))
-                    .End()
+                    .Do("find-required-stock", t => FindRequiredStock_Action(t.deltaTime))
+                    .Do("setup-move-to-stocksite", t => SetupMoveToStockSite_Action(t.deltaTime))
+                    .Do("move-to-stocksite", t => MoveTowardsDestination_Action(t.deltaTime))
+                    .Do("pickup-stock", t => PickUpStock_Action(t.deltaTime))
+                    .Do("movesetup-move-to-jobsite", t=> SetupMoveToJobSite_Action(t.deltaTime))
+                    .Do("move-to-jobsite", t => { return MoveTowardsDestination_Action(t.deltaTime); })
+                    .Do("drop_stock", t => TransferStockToJob_Action(t.deltaTime))
+                    .Do("do-work", t => DoWork_Action(t.deltaTime))
                 .End()
                 .Build();
         }
 
         public Character(Tile tile) : this()
         {
-            CurrentTile = DestTile = _nextTile = tile;
+            CurrentTile = DestinationTile = _nextTile = tile;
         }
 
         /* #################################################################### */
@@ -146,18 +142,26 @@ namespace Assets.Scripts.Model
         /// </summary>
         public void AbandonJob()
         {
-            _nextTile = DestTile = CurrentTile;
+            _nextTile = DestinationTile = CurrentTile;
             World.Instance.JobQueue.Enqueue(CurrentJob);
             CurrentJob = null;
             CurrentState = State.Idle;
         }
 
+        private void AbandonMove()
+        {
+            DestinationTile = CurrentTile;
+        }
+
         private BehaviourTreeStatus GetNextJob_Action(float deltaTime)
         {
-            Debug.Log("GetNextJob_Action");
+            //Debug.Log("GetNextJob_Action");
             CurrentJob = World.Instance.JobQueue.TakeFirstJobFromQueue();
 
-            if (CurrentJob == null) return BehaviourTreeStatus.Failure;
+            if (CurrentJob == null)
+            {
+                return BehaviourTreeStatus.Failure;
+            }
 
             return BehaviourTreeStatus.Success;
         }
@@ -169,7 +173,7 @@ namespace Assets.Scripts.Model
             // If the current job has all the materials it needs already, we can just skip this step.
             if (CurrentJob.HasAllMaterial())
             {
-                DestTile = CurrentJob.Tile;
+                AbandonMove();
                 return BehaviourTreeStatus.Success;
             }
 
@@ -177,7 +181,7 @@ namespace Assets.Scripts.Model
             if (Inventory != null && CurrentJob.NeedsMaterial(Inventory) > 0)
             {
                 // We are carrying at least some of what the current job needs, so continue on our merry way.
-                DestTile = CurrentJob.Tile;
+                AbandonMove();
                 return BehaviourTreeStatus.Success;
             }
 
@@ -189,7 +193,7 @@ namespace Assets.Scripts.Model
                (CurrentJob.NeedsMaterial(CurrentTile.Inventory) != 0))
             {
                 // The materials we need are right where we're stood!
-                DestTile = CurrentTile;
+                AbandonMove();
                 return BehaviourTreeStatus.Success;
             }
 
@@ -221,7 +225,7 @@ namespace Assets.Scripts.Model
             }
 
             // We've identified where the missing items can be found, so head there.
-            _destTile = _path.EndTile();
+            _destinationTile = _path.EndTile();
             _nextTile = _path.Dequeue();
             return BehaviourTreeStatus.Success;
         }
@@ -231,8 +235,15 @@ namespace Assets.Scripts.Model
             Debug.Log("SetupMoveToStockSite_Action");
 
             // If we've already arrived at our destination, just continue.
-            if (CurrentTile == _destTile)
+            if (CurrentTile == _destinationTile)
             {
+                return BehaviourTreeStatus.Success;
+            }
+
+            // If the Job doesn't need anything, we're done too.
+            if (CurrentJob.HasAllMaterial())
+            {
+                AbandonMove();
                 return BehaviourTreeStatus.Success;
             }
 
@@ -243,7 +254,7 @@ namespace Assets.Scripts.Model
                 if (_path == null || _path.Length() == 0)
                 {
                     // Generate a path to our destination
-                    _path = new Path_AStar(World.Instance, CurrentTile, DestTile);
+                    _path = new Path_AStar(World.Instance, CurrentTile, DestinationTile);
 
                     if (_path.Length() == 0)
                     {
@@ -252,10 +263,6 @@ namespace Assets.Scripts.Model
                         _path = null;
                         return BehaviourTreeStatus.Failure;
                     }
-
-                    // Ignore the first Tile in the path, as that's the Tile we are currently in,
-                    // and we can always move out of our current Tile.
-                    _nextTile = _path.Dequeue();
                 }
 
                 // Grab the next waypoint from the pathing system!
@@ -270,6 +277,22 @@ namespace Assets.Scripts.Model
 
         public BehaviourTreeStatus MoveTowardsDestination_Action(float deltaTime)
         {
+            Debug.Log("MoveTowardsDestination_Action");
+
+            // If we've already arrived at our destination, just continue.
+            if (CurrentTile == _destinationTile)
+            {
+                return BehaviourTreeStatus.Success;
+            }
+
+            // If we don't have a route to the current destination, plan one.
+            if (_path == null || _path.EndTile() != DestinationTile)
+            {
+                _path = new Path_AStar(World.Instance, CurrentTile, DestinationTile);
+            }
+
+            _nextTile = _path.Dequeue();
+
             // What's the total distance from point A to point B?
             // We are going to use Euclidean distance FOR NOW...
             // But when we do the pathfinding system, we'll likely
@@ -371,19 +394,25 @@ namespace Assets.Scripts.Model
             Debug.Log("SetupMoveToJobSite_Action");
 
             // Make sure we're heading for the site.
-            DestTile = CurrentJob.Tile;
+            DestinationTile = CurrentJob.Tile;
 
             // See if we're already stood on the tile.
-            if (CurrentTile == DestTile)
+            if (CurrentTile == DestinationTile)
             {
                 return BehaviourTreeStatus.Success;
             }
-            
+
+            // Make sure we have a route to the job.
+            if (_path == null || _path.EndTile() != DestinationTile)
+            {
+                _path = new Path_AStar(World.Instance, CurrentTile, DestinationTile);
+            }
+
             // See if we're "close enough" to the job.
             if (_path != null && _path.Length() <= CurrentJob.MinRange)
             {
                 // Set dest to current, just in case it was the proximity-check that got us here
-                DestTile = CurrentTile;
+                DestinationTile = CurrentTile;
                 return BehaviourTreeStatus.Success;
             }
 
@@ -447,7 +476,7 @@ namespace Assets.Scripts.Model
             CurrentState = State.WorkingJob;
 
             // Set dest to current, just in case it was the proximity-check that got us here.
-            DestTile = CurrentTile;
+            DestinationTile = CurrentTile;
             _path = null;
 
             // Do some work.
@@ -502,11 +531,11 @@ namespace Assets.Scripts.Model
 
             if (CurrentJob.Furniture != null)
             {
-                DestTile = CurrentJob.Furniture.GetJobSpotTile();
+                DestinationTile = CurrentJob.Furniture.GetJobSpotTile();
             }
             else
             {
-                DestTile = CurrentJob.Tile;
+                DestinationTile = CurrentJob.Tile;
             }
 
             CurrentJob.RegisterOnJobStoppedCallback(OnJobStopped);
@@ -515,18 +544,18 @@ namespace Assets.Scripts.Model
             // We mmight have to go somewhere else first to get materials.
 
             // If we are already at the worksite, just return, otherwise need to calculate a route there.
-            if (DestTile == CurrentTile)
+            if (DestinationTile == CurrentTile)
             {
                 return;
             }
 
-            _path = new Path_AStar(World.Instance, CurrentTile, DestTile);
+            _path = new Path_AStar(World.Instance, CurrentTile, DestinationTile);
             if (_path.Length() == 0)
             {
-                Debug.LogErrorFormat("Path_AStar returned no path from [{0},{1}] to target job Tile [{2},{3}]!", CurrentTile.X, CurrentTile.Y, DestTile.X, DestTile.Y);
+                Debug.LogErrorFormat("Path_AStar returned no path from [{0},{1}] to target job Tile [{2},{3}]!", CurrentTile.X, CurrentTile.Y, DestinationTile.X, DestinationTile.Y);
                 AbandonJob();
                 _path = null;
-                DestTile = CurrentTile;
+                DestinationTile = CurrentTile;
             }
         }
 
@@ -537,7 +566,7 @@ namespace Assets.Scripts.Model
                 return;
             }
 
-            if (CurrentTile != _destTile)
+            if (CurrentTile != _destinationTile)
             {
                 return;
             }
@@ -572,7 +601,7 @@ namespace Assets.Scripts.Model
                 if (CurrentState == State.Idle)
                 {
                     // There are no jobs queued, so can just finish.
-                    DestTile = CurrentTile;
+                    DestinationTile = CurrentTile;
                     return;
                 }
             }
@@ -597,12 +626,12 @@ namespace Assets.Scripts.Model
                     {
                         // We are carrying at least some of what the current job needs, so take it to the job site.
                         CurrentState = State.MovingToJobsite;
-                        DestTile = CurrentJob.Tile;
+                        DestinationTile = CurrentJob.Tile;
 
-                        if (CurrentTile == DestTile || (_path != null && _path.Length() <= CurrentJob.MinRange))
+                        if (CurrentTile == DestinationTile || (_path != null && _path.Length() <= CurrentJob.MinRange))
                         {
                             // Set dest to current, just in case it was the neighbour-check that got us here
-                            DestTile = CurrentTile;
+                            DestinationTile = CurrentTile;
 
                             // We are at the jobsite, so drop the Inventory.
                             World.Instance.InventoryManager.TransferInventory(CurrentJob, Inventory);
@@ -626,7 +655,7 @@ namespace Assets.Scripts.Model
                         {
                             // Still walking to the site.
                             CurrentState = State.MovingToJobsite;
-                            DestTile = CurrentJob.Tile;
+                            DestinationTile = CurrentJob.Tile;
                             return;
                         }
                     }
@@ -694,7 +723,7 @@ namespace Assets.Scripts.Model
                             }
 
                             this.CurrentState = State.FetchingStock;
-                            _destTile = this._path.EndTile();
+                            _destinationTile = this._path.EndTile();
                             _nextTile = _path.Dequeue();
                         }
 
@@ -708,7 +737,7 @@ namespace Assets.Scripts.Model
 
             // We have all the material that we need
             // Make sure the destination Tile is the job Tile
-            DestTile = CurrentJob.Tile;
+            DestinationTile = CurrentJob.Tile;
 
             // Are we there yet?
             if ((CurrentTile == CurrentJob.Tile)
@@ -718,7 +747,7 @@ namespace Assets.Scripts.Model
                 CurrentState = State.WorkingJob;
 
                 // Set dest to current, just in case it was the neighbour-check that got us here
-                DestTile = CurrentTile;
+                DestinationTile = CurrentTile;
                 _path = null;
 
                 CurrentJob.DoWork(deltaTime);
@@ -735,11 +764,11 @@ namespace Assets.Scripts.Model
                 if (_path.Length() <= CurrentJob.MinRange)
                 {
                     Debug.Log("Close enough");
-                    DestTile = CurrentTile;
+                    DestinationTile = CurrentTile;
                 }
             }
 
-            if (CurrentTile == DestTile)
+            if (CurrentTile == DestinationTile)
             {
                 _path = null;
                 return; // We're already were we want to be.
@@ -751,7 +780,7 @@ namespace Assets.Scripts.Model
                 if (_path == null || _path.Length() == 0)
                 {
                     // Generate a path to our destination
-                    _path = new Path_AStar(World.Instance, CurrentTile, DestTile);
+                    _path = new Path_AStar(World.Instance, CurrentTile, DestinationTile);
                     // This will calculate a path from curr to dest.
                     if (_path.Length() == 0)
                     {
@@ -760,10 +789,6 @@ namespace Assets.Scripts.Model
                         _path = null;
                         return;
                     }
-
-                    // Ignore the first Tile in the path, as that's the Tile we are currently in,
-                    // and we can always move out of our current Tile.
-                    _nextTile = _path.Dequeue();
                 }
 
                 // Grab the next waypoint from the pathing system!
