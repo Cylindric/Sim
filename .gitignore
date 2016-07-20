@@ -2,6 +2,7 @@
 /[Tt]ools/
 
 
+/[Bb]uild/Android/*
 /[Bb]uild/PC
 /[Bb]uild/WebGL/*/
 !Build/WebGL/web.config
