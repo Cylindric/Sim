@@ -15,6 +15,11 @@ namespace Assets.Scripts.Model
             _jobQueue = new List<Job>();
         }
 
+        public int Count()
+        {
+            return _jobQueue.Count;
+        }
+
         public void Enqueue(Job j)
         {
             if (j.JobTime < 0)

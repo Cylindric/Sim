@@ -37,7 +37,7 @@ namespace Assets.Scripts.Model
             }
         }
 
-        public bool PlaceInventory(Tile tile, Inventory source)
+        public bool TransferInventory(Tile tile, Inventory source)
         {
             bool tileWasEmpty = tile.Inventory == null;
 
@@ -63,7 +63,7 @@ namespace Assets.Scripts.Model
             return true;
         }
 
-        public bool PlaceInventory(Job job, Inventory source)
+        public bool TransferInventory(Job job, Inventory source)
         {
             if (job.InventoryRequirements.ContainsKey(source.ObjectType) == false)
             {
@@ -91,7 +91,7 @@ namespace Assets.Scripts.Model
             return true;
         }
 
-        public bool PlaceInventory(Character character, Inventory source, int qty = -1)
+        public bool TransferInventory(Character character, Inventory source, int qty = -1)
         {
             // If no Quantity specified, assume 'everything'.
             if (qty < 0)

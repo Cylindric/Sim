@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using MoonSharp.Interpreter;
+using UnityEngine;
 
 namespace Assets.Scripts.Model
 {
@@ -11,12 +12,9 @@ namespace Assets.Scripts.Model
         /* #                              FIELDS                              # */
         /* #################################################################### */
 
-        public float JobTime { get; private set; }
-        public string Name { get; set; }
         public Dictionary<string, Inventory> InventoryRequirements;
         public Furniture FurniturePrototype;
 
-        private float jobTimeRequired;
         private bool jobRepeats = false;
 
         private Action<Job> cbOnJobCompleted;
@@ -37,6 +35,7 @@ namespace Assets.Scripts.Model
             this.cbOnJobCompletedLua = new List<string>();
             this.cbOnJobWorkedLua = new List<string>();
             this.Description = string.Empty;
+            this.MinRange = 0; // Most jobs require the character to be on the target tile.
         }
 
         public Job(Tile tile, string jobObjectType, Action<Job> cbJobComplete, float jobTime, Inventory[] inventoryRequirements, bool jobRepeats = false) : this()
@@ -45,7 +44,7 @@ namespace Assets.Scripts.Model
             this.JobObjectType = jobObjectType;
             this.cbOnJobCompleted += cbJobComplete;
             this.JobTime = jobTime;
-            this.jobTimeRequired = jobTime;
+            this.JobTimeRequired = jobTime;
             this.jobRepeats = jobRepeats;
 
             // Make sure the Inventories are COPIED, as we will be making changes to them.
@@ -66,13 +65,14 @@ namespace Assets.Scripts.Model
             this.cbOnJobCompleted += other.cbOnJobCompleted;
             this.cbOnJobStopped += other.cbOnJobStopped;
             this.JobTime = other.JobTime;
-            this.jobTimeRequired = other.jobTimeRequired;
+            this.JobTimeRequired = other.JobTimeRequired;
             this.jobRepeats = other.jobRepeats;
             this.AcceptsAnyItemType = other.AcceptsAnyItemType;
             this.CanTakeFromStockpile = other.CanTakeFromStockpile;
             this.cbOnJobCompletedLua = new List<string>(other.cbOnJobCompletedLua);
             this.cbOnJobWorkedLua = new List<string>(other.cbOnJobWorkedLua);
             this.Description = other.Description;
+            this.MinRange = other.MinRange;
 
             // Make sure the Inventories are COPIED, as we will be making changes to them.
             if (other.InventoryRequirements != null)
@@ -97,11 +97,29 @@ namespace Assets.Scripts.Model
 
         public string JobObjectType { get; protected set; }
 
+        public float JobTimeRequired { get; private set; }
+
+        public float JobTime { get; private set; }
+
+        public string Name { get; set; }
+
+        public int MinRange { get; set; }
+
         public bool AcceptsAnyItemType { get; set; }
 
         public bool CanTakeFromStockpile { get; set; }
 
         public string Description { get; set; }
+
+        public float Progress
+        {
+            get
+            {
+                if (Mathf.Approximately(JobTime, 0)) return 1f;
+                if (Mathf.Approximately(JobTimeRequired, 0)) return 1f;
+                return 1f-(JobTime/JobTimeRequired);
+            }
+        }
 
         /* #################################################################### */
         /* #                              METHODS                             # */
@@ -209,7 +227,7 @@ namespace Assets.Scripts.Model
                 else
                 {
                     // This is a repeating Job, and must be reset.
-                    JobTime += jobTimeRequired;
+                    JobTime += JobTimeRequired;
                 }
             }
         }

@@ -10,9 +10,23 @@ namespace Assets.Scripts.Pathfinding
 
         private LinkedList<Tile> _path;
 
+        private bool _reachable;
+
+        public bool IsReachable
+        {
+            get
+            {
+                return _path != null && _reachable;
+            }
+        }
+
+        public bool IsUnReachable { get { return !IsReachable; } }
+
         public Path_AStar(World world, Tile tileStart, Tile tileEnd, string objectType = null, bool canTakeFromStockpile = false) {
             // If tileEnd is null, simply search for the nearest objectType, ignoring the A* Heuristic element.
             // Basically, use Dijkstra's algorithm.
+
+            _reachable = true;
 
             // Check to see if we have a valid Tile graph
             if(world.TileGraph == null) {
@@ -25,7 +39,7 @@ namespace Assets.Scripts.Pathfinding
             // Make sure our start/end tiles are in the list of nodes!
             if(nodes.ContainsKey(tileStart) == false) {
                 Debug.LogError("Path_AStar: The starting Tile isn't in the list of nodes!");
-
+                _reachable = false;
                 return;
             }
 
@@ -37,6 +51,7 @@ namespace Assets.Scripts.Pathfinding
                 if (nodes.ContainsKey(tileEnd) == false)
                 {
                     Debug.LogError("Path_AStar: The ending Tile isn't in the list of nodes!");
+                    _reachable = false;
                     return;
                 }
 
@@ -78,6 +93,7 @@ namespace Assets.Scripts.Pathfinding
                         // Let's convert this into an actual sequene of
                         // tiles to walk on, then end this constructor function!
                         reconstruct_path(cameFrom, current);
+                        _reachable = true;
                         return;
                     }
                 }
@@ -91,6 +107,7 @@ namespace Assets.Scripts.Pathfinding
                             current.data.Furniture.IsStockpile() == false)
                         {
                             reconstruct_path(cameFrom, current);
+                            _reachable = true;
                             return;
                         }
                     }
@@ -131,6 +148,7 @@ namespace Assets.Scripts.Pathfinding
             // OpenSet without ever reaching a point where current == goal.
             // This happens when there is no path from start to goal
             // (so there's a wall or missing floor or something).
+            _reachable = false;
 
             // We don't have a failure state, maybe? It's just that the
             // path list will be null.
@@ -172,7 +190,8 @@ namespace Assets.Scripts.Pathfinding
                 );
         }
 
-        void reconstruct_path(Dictionary<Path_Node<Tile>, Path_Node<Tile>> cameFrom, Path_Node<Tile> current) {
+        void reconstruct_path(Dictionary<Path_Node<Tile>, Path_Node<Tile>> cameFrom, Path_Node<Tile> current)
+        {
             // So at this point, current IS the goal.
             // So what we want to do is walk backwards through the Came_From
             // map, until we reach the "end" of that map...which will be
@@ -180,7 +199,8 @@ namespace Assets.Scripts.Pathfinding
             var totalPath = new LinkedList<Tile>();
             totalPath.AddLast(current.data); // This "final" step is the path is the goal!
 
-            while( cameFrom.ContainsKey(current) ) {
+            while (cameFrom.ContainsKey(current))
+            {
                 // Came_From is a map, where the
                 //    key => value relation is real saying
                 //    some_node => we_got_there_from_this_node
@@ -189,12 +209,13 @@ namespace Assets.Scripts.Pathfinding
                 totalPath.AddLast(current.data);
             }
 
+            // We don't need to have the start tile in the path, because that's where we already are.
+            totalPath.RemoveLast();
+
             // At this point, total_path is a queue that is running
             // backwards from the END Tile to the START Tile, so let's reverse it.
-
-            _path = new LinkedList<Tile>( totalPath.Reverse() );
-
-            }
+            _path = new LinkedList<Tile>(totalPath.Reverse());
+        }
 
         public Tile Dequeue()
         {

@@ -31,6 +31,7 @@ function MiningDroneStation_UpdateAction( furniture, deltaTime )
 		nil,
 		true	-- This job repeats until the destination tile is full.
 	)
+  j.Name = "replicating_iron"
   j.Description = "Replicating iron"
 	j.RegisterOnJobCompletedCallback("MiningDroneStation_JobComplete")
 
@@ -40,5 +41,5 @@ end
 
 function MiningDroneStation_JobComplete(j)
   req = Inventory.__new("steel_plate", 50, 20)
-  World.Instance.InventoryManager.PlaceInventory(j.Furniture.GetSpawnSpotTile(), req)
+  World.Instance.InventoryManager.TransferInventory(j.Furniture.GetSpawnSpotTile(), req)
 end

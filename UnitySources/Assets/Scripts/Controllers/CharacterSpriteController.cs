@@ -73,8 +73,8 @@ namespace Assets.Scripts.Controllers
             charGo.transform.position = new Vector3(character.X, character.Y, 0);
 
             // Set the various subsprite visibility depending on what the situation is for this character.
-            _characterSpriteParts[character]["working"].enabled = character.IsWorking;
-            _characterSpriteParts[character]["shield"].enabled = !character.CanBreathe();
+            _characterSpriteParts[character]["working"].enabled = character.CurrentState == Character.State.WorkingJob;
+            _characterSpriteParts[character]["shield"].enabled = character.ShieldStatus;
         }
 
         public void SetSpriteForCharacter(Character character, GameObject go, string part, bool visible = true)
