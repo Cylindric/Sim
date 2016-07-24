@@ -36,6 +36,14 @@ namespace FluentBehaviourTree
         }
 
         /// <summary>
+        /// Create an action node.
+        /// </summary>
+        public BehaviourTreeBuilder Do(Func<TimeData, BehaviourTreeStatus> fn)
+        {
+            return this.Do("do", fn);
+        }
+
+        /// <summary>
         /// Like an action node... but the function can return true/false and is mapped to success/failure.
         /// </summary>
         public BehaviourTreeBuilder Condition(string name, Func<TimeData, bool> fn)
@@ -44,9 +52,17 @@ namespace FluentBehaviourTree
         }
 
         /// <summary>
+        /// Like an action node... but the function can return true/false and is mapped to success/failure.
+        /// </summary>
+        public BehaviourTreeBuilder Condition(Func<TimeData, bool> fn)
+        {
+            return this.Condition("condition", fn);
+        }
+
+        /// <summary>
         /// Create an inverter node that inverts the success/failure of its children.
         /// </summary>
-        public BehaviourTreeBuilder Inverter(string name = "-")
+        public BehaviourTreeBuilder Inverter(string name = "inverter")
         {
             var inverterNode = new InverterNode(name);
 
@@ -62,7 +78,7 @@ namespace FluentBehaviourTree
         /// <summary>
         /// Create a sequence node.
         /// </summary>
-        public BehaviourTreeBuilder Sequence(string name)
+        public BehaviourTreeBuilder Sequence(string name = "sequence")
         {
             var sequenceNode = new SequenceNode(name);
 
@@ -92,9 +108,17 @@ namespace FluentBehaviourTree
         }
 
         /// <summary>
+        /// Create a parallel node.
+        /// </summary>
+        public BehaviourTreeBuilder Parallel(int numRequiredToFail, int numRequiredToSucceed)
+        {
+            return this.Parallel("parallel", numRequiredToFail, numRequiredToSucceed);
+        }
+
+        /// <summary>
         /// Create a selector node.
         /// </summary>
-        public BehaviourTreeBuilder Selector(string name)
+        public BehaviourTreeBuilder Selector(string name = "selector")
         {
             var selectorNode = new SelectorNode(name);
 

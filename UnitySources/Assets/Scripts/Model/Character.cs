@@ -5,6 +5,7 @@ using Assets.Scripts.Pathfinding;
 using Assets.Scripts.Utilities;
 using FluentBehaviourTree;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using Debug = UnityEngine.Debug;
 
 namespace Assets.Scripts.Model
@@ -73,8 +74,8 @@ namespace Assets.Scripts.Model
             _conditions = new Dictionary<string, float> {{"energy", 1f}, {"health", 1f}};
             _timeSinceLastJobSearch = TimeBetweenJobSearches;
 
-            var builder = new BehaviourTreeBuilder();
-            _tree = builder
+            // This Behaviour Tree specifies the process for getting a job, fetching any materials it needs, and then executing that job.
+            var jobBehaviour = new BehaviourTreeBuilder()
                 .Sequence("work")
                 
                     .Selector("get-job")
@@ -83,16 +84,8 @@ namespace Assets.Scripts.Model
                     .End()
 
                     .Selector("get-materials")
-                        .Condition("job-needs-materials", t =>
-                        {
-                            var result = JobHasAllNeedMaterials_Condition();
-                            return result;
-                        })
-                        .Condition("am-carrying-materials", t =>
-                        {
-                            var result = IsCarryingMaterials_Condition();
-                            return result;
-                        })
+                        .Condition("job-needs-materials", t => JobHasAllNeedMaterials_Condition())
+                        .Condition("am-carrying-materials", t => IsCarryingMaterials_Condition())
                         .Inverter().Do("find-material", t => FindRequiredStock_Action()).End()
                         .Inverter().Do("move-to-material", t => MoveTowardsDestination_Action(t.deltaTime)).End()
                         .Do("pickup-material", t => PickUpStock_Action())
@@ -105,6 +98,13 @@ namespace Assets.Scripts.Model
                         .Do("do-work", t => DoWork_Action(t.deltaTime))
                     .End()
 
+                .End()
+                .Build();
+
+            // Combine all the BTs.
+            _tree = new BehaviourTreeBuilder()
+                .Sequence("worker")
+                    .Splice(jobBehaviour)
                 .End()
                 .Build();
         }

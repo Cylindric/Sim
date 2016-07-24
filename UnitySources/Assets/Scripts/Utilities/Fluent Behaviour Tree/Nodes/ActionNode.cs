@@ -27,6 +27,10 @@ namespace FluentBehaviourTree
             this.fn=fn;
         }
 
+        public ActionNode(Func<TimeData, BehaviourTreeStatus> fn) : this("action", fn)
+        {
+        }
+
         public BehaviourTreeStatus Tick(TimeData time)
         {
             return fn(time);

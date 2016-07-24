@@ -20,7 +20,7 @@ namespace FluentBehaviourTree
         /// </summary>
         private IBehaviourTreeNode childNode;
 
-        public InverterNode(string name)
+        public InverterNode(string name = "inverter")
         {
             this.name = name;
         }

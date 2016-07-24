@@ -37,6 +37,10 @@ namespace FluentBehaviourTree
             this.numRequiredToSucceed = numRequiredToSucceed;
         }
 
+        public ParallelNode(int numRequiredToFail, int numRequiredToSucceed) : this("parallel", numRequiredToFail, numRequiredToSucceed)
+        {
+        }
+
         public BehaviourTreeStatus Tick(TimeData time)
         {
             var numChildrenSuceeded = 0;
