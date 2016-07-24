@@ -46,7 +46,7 @@ namespace FluentBehaviourTree
         /// <summary>
         /// Create an inverter node that inverts the success/failure of its children.
         /// </summary>
-        public BehaviourTreeBuilder Inverter(string name)
+        public BehaviourTreeBuilder Inverter(string name = "-")
         {
             var inverterNode = new InverterNode(name);
 

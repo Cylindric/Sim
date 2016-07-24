@@ -22,7 +22,7 @@ namespace Assets.Scripts.Model
             WaitingForAccess
         }
 
-        private const float TimeBetweenJobSearches = 1f;
+        private const float TimeBetweenJobSearches = 3f;
         private const float BaseMovementSpeed = 5f;
 
         private const float EnergyChargeRate = (1f/300);
@@ -71,19 +71,39 @@ namespace Assets.Scripts.Model
             this.Name = MarkovNameGenerator.GetNextName("male") + ' ' + MarkovNameGenerator.GetNextName("last");
             this.CurrentState = State.Idle;
             _conditions = new Dictionary<string, float> {{"energy", 1f}, {"health", 1f}};
+            _timeSinceLastJobSearch = TimeBetweenJobSearches;
 
             var builder = new BehaviourTreeBuilder();
             _tree = builder
-                .Sequence("work-job")
-                    .Do("get-next-job", t => GetNextJob_Action(t.deltaTime))
-                    .Do("find-required-stock", t => FindRequiredStock_Action(t.deltaTime))
-                    .Do("setup-move-to-stocksite", t => SetupMoveToStockSite_Action(t.deltaTime))
-                    .Do("move-to-stocksite", t => MoveTowardsDestination_Action(t.deltaTime))
-                    .Do("pickup-stock", t => PickUpStock_Action(t.deltaTime))
-                    .Do("movesetup-move-to-jobsite", t => SetupMoveToJobSite_Action(t.deltaTime))
-                    .Do("move-to-jobsite", t => { return MoveTowardsDestination_Action(t.deltaTime); })
-                    .Do("drop_stock", t => TransferStockToJob_Action(t.deltaTime))
-                    .Do("do-work", t => DoWork_Action(t.deltaTime))
+                .Sequence("work")
+                
+                    .Selector("get-job")
+                        .Condition("have-a-job", t => DoesCharacterHaveAJob_Condition())
+                        .Do("get-next-job", t => GetNextJob_Action(t.deltaTime))
+                    .End()
+                    
+                    //.Selector("get-materials")
+                    //    .Condition("job-needs-materials", t => {
+                    //        var result = JobHasAllNeedMaterials_Condition();
+                    //        return result;
+                    //    })
+                    //    .Condition("am-carrying-materials", t =>
+                    //    {
+                    //        var result = IsCarryingMaterials_Condition();
+                    //        return result;
+                    //    })
+                    //    .Inverter().Do("find-material", t => FindRequiredStock_Action()).End()
+                    //    .Inverter().Do("move-to-material", t => MoveTowardsDestination_Action(t.deltaTime)).End()
+                    //    .Do("pickup-material", t => PickUpStock_Action())
+                    //.End()
+                    
+                    .Sequence("work-job")
+                        .Do("movesetup-move-to-jobsite", t => SetupMoveToJobSite_Action())
+                        .Do("move-to-jobsite", t => MoveTowardsDestination_Action(t.deltaTime))
+                        .Do("drop_stock", t => TransferStockToJob_Action())
+                        .Do("do-work", t => DoWork_Action(t.deltaTime))
+                    .End()
+
                 .End()
                 .Build();
         }
@@ -153,9 +173,44 @@ namespace Assets.Scripts.Model
             DestinationTile = CurrentTile;
         }
 
+        private bool DoesCharacterHaveAJob_Condition()
+        {
+            return CurrentJob != null;
+        }
+
+        private bool JobHasAllNeedMaterials_Condition()
+        {
+            return CurrentJob.HasAllMaterial();
+        }
+
+        private bool IsCarryingMaterials_Condition()
+        {
+            if (Inventory != null)
+            {
+                if (CurrentJob.NeedsMaterial(Inventory) > 0)
+                {
+                    // We are carrying at least some of what the current job needs, so take it to the job site.
+                    return true;
+                }
+            }
+            return false;
+        }
+
         private BehaviourTreeStatus GetNextJob_Action(float deltaTime)
         {
             //Debug.Log("GetNextJob_Action");
+
+            _timeSinceLastJobSearch += deltaTime;
+            if (_timeSinceLastJobSearch < TimeBetweenJobSearches)
+            {
+                return BehaviourTreeStatus.Failure;
+            }
+
+            if (World.Instance.JobQueue.Count() == 0)
+            {
+                return BehaviourTreeStatus.Failure;
+            }
+
             CurrentJob = World.Instance.JobQueue.TakeFirstJobFromQueue();
 
             if (CurrentJob == null)
@@ -163,10 +218,12 @@ namespace Assets.Scripts.Model
                 return BehaviourTreeStatus.Failure;
             }
 
+            // Debug.LogFormat("GetNextJob_Action got new job {0} at [{1},{2}]", CurrentJob.Name, CurrentJob.Tile.X, CurrentJob.Tile.Y);
+            CurrentJob.RegisterOnJobStoppedCallback(OnJobStopped);
             return BehaviourTreeStatus.Success;
         }
 
-        private BehaviourTreeStatus FindRequiredStock_Action(float deltaTime)
+        private BehaviourTreeStatus FindRequiredStock_Action()
         {
             Debug.Log("FindRequiredStock_Action");
 
@@ -219,7 +276,7 @@ namespace Assets.Scripts.Model
             // If there are no items anywhere that satisfy the requirements, we have to give up on this job.
             if (_path == null || _path.Length() == 0)
             {
-                //Debug.LogFormat("No Tile found containing the desired type ({0}).", unsatisfied.ObjectType);
+                //// Debug.LogFormat("No Tile found containing the desired type ({0}).", unsatisfied.ObjectType);
                 AbandonJob();
                 return BehaviourTreeStatus.Failure;
             }
@@ -230,7 +287,7 @@ namespace Assets.Scripts.Model
             return BehaviourTreeStatus.Success;
         }
 
-        public BehaviourTreeStatus SetupMoveToStockSite_Action(float deltaTime)
+        public BehaviourTreeStatus SetupMoveToStockSite_Action()
         {
             Debug.Log("SetupMoveToStockSite_Action");
 
@@ -277,21 +334,41 @@ namespace Assets.Scripts.Model
 
         public BehaviourTreeStatus MoveTowardsDestination_Action(float deltaTime)
         {
-            Debug.Log("MoveTowardsDestination_Action");
+            // Debug.Log("MoveTowardsDestination_Action");
 
             // If we've already arrived at our destination, just continue.
             if (CurrentTile == _destinationTile)
             {
+                // Debug.Log("MoveTowardsDestination_Action: Destination Reached");
                 return BehaviourTreeStatus.Success;
             }
 
-            // If we don't have a route to the current destination, plan one.
-            if (_path == null || _path.EndTile() != DestinationTile)
+            // If we don't have a next tile yet, get one.
+            if (_nextTile == null || _nextTile == CurrentTile)
             {
-                _path = new Path_AStar(World.Instance, CurrentTile, DestinationTile);
+                // If we don't have a route to the current destination, plan one.
+                if (_path == null || _path.Length() == 0 || _path.EndTile() != DestinationTile)
+                {
+                    // Debug.LogFormat("MoveTowardsDestination_Action: calculating new path from [{0},{1}] to [{2},{3}]", CurrentTile.X, CurrentTile.Y, DestinationTile.X, DestinationTile.Y);
+                    _path = new Path_AStar(World.Instance, CurrentTile, DestinationTile);
+                }
+
+                // If Path is still null, we were not able to find a route to our goal
+                if (_path == null)
+                {
+                    AbandonJob();
+                    // Debug.LogFormat("MoveTowardsDestination_Action: Could not find a route to the next tile!");
+                    return BehaviourTreeStatus.Failure;
+                }
+
+                _nextTile = _path.Dequeue();
+                // Debug.LogFormat("MoveTowardsDestination_Action: moving to next adjacent tile from [{0},{1}] to [{2},{3}]", CurrentTile.X, CurrentTile.Y, _nextTile.X, _nextTile.Y);
             }
 
-            _nextTile = _path.Dequeue();
+            if (_nextTile == null)
+            {
+                _nextTile = CurrentTile; // TODO: Not sure when this might apply
+            }
 
             // What's the total distance from point A to point B?
             // We are going to use Euclidean distance FOR NOW...
@@ -310,9 +387,9 @@ namespace Assets.Scripts.Model
             // This might happen if the Tile is changed (e.g. wall built) after the pathfinder runs.
             if (_nextTile.IsEnterable() == Enterability.Never)
             {
-                // Debug.LogError("Error - Character was strying to enter an impassable Tile!");
                 _nextTile = null;
                 _path = null;
+                // Debug.LogFormat("MoveTowardsDestination_Action: failed trying to move into a blocked tile.");
                 return BehaviourTreeStatus.Failure;
             }
 
@@ -357,10 +434,12 @@ namespace Assets.Scripts.Model
                 _movementPercentage = 0;
             }
 
+            // Debug.LogFormat("MoveTowardsDestination_Action: Character at [{0:F2},{1:F2}] {2:P2}", this.X, this.Y, _movementPercentage);
+            
             return BehaviourTreeStatus.Running;
         }
 
-        public BehaviourTreeStatus PickUpStock_Action(float deltaTime)
+        public BehaviourTreeStatus PickUpStock_Action()
         {
             Debug.Log("PickUpStock_Action");
 
@@ -389,12 +468,19 @@ namespace Assets.Scripts.Model
             return BehaviourTreeStatus.Failure;
         }
 
-        public BehaviourTreeStatus SetupMoveToJobSite_Action(float deltaTime)
+        public BehaviourTreeStatus SetupMoveToJobSite_Action()
         {
-            Debug.Log("SetupMoveToJobSite_Action");
+            //Debug.Log("SetupMoveToJobSite_Action");
+
+            if (DestinationTile == CurrentJob.Tile)
+            {
+                // Already moving towards job, so just carry on.
+                return BehaviourTreeStatus.Success;
+            }
 
             // Make sure we're heading for the site.
             DestinationTile = CurrentJob.Tile;
+            // Debug.LogFormat("SetupMoveToJobSite_Action moving to [{0},{1}] ", DestinationTile.X, DestinationTile.Y);
 
             // See if we're already stood on the tile.
             if (CurrentTile == DestinationTile)
@@ -408,8 +494,15 @@ namespace Assets.Scripts.Model
                 _path = new Path_AStar(World.Instance, CurrentTile, DestinationTile);
             }
 
+            // If we still don't have a path, there is no path.
+            if (_path.IsUnReachable)
+            {
+                AbandonJob();
+                return BehaviourTreeStatus.Failure;
+            }
+
             // See if we're "close enough" to the job.
-            if (_path != null && _path.Length() <= CurrentJob.MinRange)
+            if (_path.Length() <= CurrentJob.MinRange)
             {
                 // Set dest to current, just in case it was the proximity-check that got us here
                 DestinationTile = CurrentTile;
@@ -420,9 +513,23 @@ namespace Assets.Scripts.Model
             return BehaviourTreeStatus.Success;
         }
 
-        public BehaviourTreeStatus TransferStockToJob_Action(float deltaTime)
+        public BehaviourTreeStatus TransferStockToJob_Action()
         {
-            Debug.Log("TransferStockToJob_Action");
+            // Debug.Log("TransferStockToJob_Action");
+
+            // If we're not carrying anything, nothing to do.
+            if (this.Inventory == null || this.Inventory.StackSize == 0)
+            {
+                return BehaviourTreeStatus.Success;
+            }
+
+            // Only drop what we're carrying if it is what the job wants.
+            if (CurrentJob.NeedsMaterial(Inventory) == 0)
+            {
+                return BehaviourTreeStatus.Success;
+            }
+
+            Debug.Log("TransferStockToJob_Action is transfering stock to job.");
 
             // We are at the jobsite, so drop the Inventory.
             World.Instance.InventoryManager.TransferInventory(CurrentJob, Inventory);
@@ -444,7 +551,7 @@ namespace Assets.Scripts.Model
 
         public BehaviourTreeStatus DoWork_Action(float deltaTime)
         {
-            Debug.Log("DoWork_Action");
+            // Debug.Log("DoWork_Action");
 
             // If there isn't a current job, that probably means while this step was running, the job was completed.
             if (CurrentJob == null)
@@ -452,7 +559,7 @@ namespace Assets.Scripts.Model
                 return BehaviourTreeStatus.Success;
             }
 
-            // TODO: Not sure if we need to check this - that should've been handled by the preceeding actions.
+            // TODO: Not sure if we need to check this - that should've been handled by the preceeding actions. Can jobs move by themselves?
             var rangeToJob = 0;
 
             if (CurrentTile == CurrentJob.Tile)
@@ -472,7 +579,9 @@ namespace Assets.Scripts.Model
             {
                 return BehaviourTreeStatus.Failure;
             }
-                
+
+            // Debug.LogFormat("DoWork_Action working job \"{3}\" at [{0},{1}] ({2:F2})", CurrentTile.X, CurrentTile.Y, CurrentJob.JobTime, CurrentJob.Name);
+
             CurrentState = State.WorkingJob;
 
             // Set dest to current, just in case it was the proximity-check that got us here.
@@ -717,7 +826,7 @@ namespace Assets.Scripts.Model
 
                             if (this._path == null || this._path.Length() == 0)
                             {
-                                //Debug.LogFormat("No Tile found containing the desired type ({0}).", unsatisfied.ObjectType);
+                                //// Debug.LogFormat("No Tile found containing the desired type ({0}).", unsatisfied.ObjectType);
                                 AbandonJob();
                                 return;
                             }
@@ -743,7 +852,7 @@ namespace Assets.Scripts.Model
             if ((CurrentTile == CurrentJob.Tile)
                 || (_path != null && _path.Length() <= CurrentJob.MinRange))
             {
-                Debug.LogFormat("Standing at [{0},{1}] Working job \"{2}\" at [{3},{4}]", CurrentTile.X, CurrentTile.Y, CurrentJob.Description, CurrentJob.Tile.X, CurrentJob.Tile.Y);
+                // Debug.LogFormat("Standing at [{0},{1}] Working job \"{2}\" at [{3},{4}]", CurrentTile.X, CurrentTile.Y, CurrentJob.Description, CurrentJob.Tile.X, CurrentJob.Tile.Y);
                 CurrentState = State.WorkingJob;
 
                 // Set dest to current, just in case it was the neighbour-check that got us here
@@ -760,7 +869,7 @@ namespace Assets.Scripts.Model
         {
             if (this.CurrentState != State.FetchingStock && _path != null)
             {
-                // Debug.LogFormat("Path length {0}.", _path.Length());
+                // // Debug.LogFormat("Path length {0}.", _path.Length());
                 if (_path.Length() <= CurrentJob.MinRange)
                 {
                     Debug.Log("Close enough");
@@ -871,7 +980,7 @@ namespace Assets.Scripts.Model
 
         private void OnJobStopped(Job j)
         {
-            Debug.LogFormat("Standing at [{0},{1}] Finished job \"{2}\" at [{3},{4}]", CurrentTile.X, CurrentTile.Y, CurrentJob.Description, CurrentJob.Tile.X, CurrentJob.Tile.Y);
+            // Debug.LogFormat("Standing at [{0},{1}] Finished job \"{2}\" at [{3},{4}]", CurrentTile.X, CurrentTile.Y, CurrentJob.Description, CurrentJob.Tile.X, CurrentJob.Tile.Y);
 
             // Job completed or was cancelled.
             CurrentState = State.Idle;
