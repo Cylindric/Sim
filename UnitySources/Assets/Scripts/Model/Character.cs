@@ -81,22 +81,23 @@ namespace Assets.Scripts.Model
                         .Condition("have-a-job", t => DoesCharacterHaveAJob_Condition())
                         .Do("get-next-job", t => GetNextJob_Action(t.deltaTime))
                     .End()
-                    
-                    //.Selector("get-materials")
-                    //    .Condition("job-needs-materials", t => {
-                    //        var result = JobHasAllNeedMaterials_Condition();
-                    //        return result;
-                    //    })
-                    //    .Condition("am-carrying-materials", t =>
-                    //    {
-                    //        var result = IsCarryingMaterials_Condition();
-                    //        return result;
-                    //    })
-                    //    .Inverter().Do("find-material", t => FindRequiredStock_Action()).End()
-                    //    .Inverter().Do("move-to-material", t => MoveTowardsDestination_Action(t.deltaTime)).End()
-                    //    .Do("pickup-material", t => PickUpStock_Action())
-                    //.End()
-                    
+
+                    .Selector("get-materials")
+                        .Condition("job-needs-materials", t =>
+                        {
+                            var result = JobHasAllNeedMaterials_Condition();
+                            return result;
+                        })
+                        .Condition("am-carrying-materials", t =>
+                        {
+                            var result = IsCarryingMaterials_Condition();
+                            return result;
+                        })
+                        .Inverter().Do("find-material", t => FindRequiredStock_Action()).End()
+                        .Inverter().Do("move-to-material", t => MoveTowardsDestination_Action(t.deltaTime)).End()
+                        .Do("pickup-material", t => PickUpStock_Action())
+                    .End()
+
                     .Sequence("work-job")
                         .Do("movesetup-move-to-jobsite", t => SetupMoveToJobSite_Action())
                         .Do("move-to-jobsite", t => MoveTowardsDestination_Action(t.deltaTime))
@@ -225,7 +226,7 @@ namespace Assets.Scripts.Model
 
         private BehaviourTreeStatus FindRequiredStock_Action()
         {
-            Debug.Log("FindRequiredStock_Action");
+            //Debug.Log("FindRequiredStock_Action");
 
             // If the current job has all the materials it needs already, we can just skip this step.
             if (CurrentJob.HasAllMaterial())
@@ -441,7 +442,7 @@ namespace Assets.Scripts.Model
 
         public BehaviourTreeStatus PickUpStock_Action()
         {
-            Debug.Log("PickUpStock_Action");
+            //Debug.Log("PickUpStock_Action");
 
             // Quickly check to see if the job still needs the stuff we're stood on, in case someone else has already taken it there.
             if (CurrentJob.HasAllMaterial())
@@ -865,119 +866,6 @@ namespace Assets.Scripts.Model
             // Done.
         }
 
-        private void Update_DoMovement(float deltaTime)
-        {
-            if (this.CurrentState != State.FetchingStock && _path != null)
-            {
-                // // Debug.LogFormat("Path length {0}.", _path.Length());
-                if (_path.Length() <= CurrentJob.MinRange)
-                {
-                    Debug.Log("Close enough");
-                    DestinationTile = CurrentTile;
-                }
-            }
-
-            if (CurrentTile == DestinationTile)
-            {
-                _path = null;
-                return; // We're already were we want to be.
-            }
-
-            if (_nextTile == null || _nextTile == CurrentTile)
-            {
-                // Get the next Tile from the pathfinder.
-                if (_path == null || _path.Length() == 0)
-                {
-                    // Generate a path to our destination
-                    _path = new Path_AStar(World.Instance, CurrentTile, DestinationTile);
-                    // This will calculate a path from curr to dest.
-                    if (_path.Length() == 0)
-                    {
-                        //Debug.LogError("Path_AStar returned no path to destination!");
-                        AbandonJob();
-                        _path = null;
-                        return;
-                    }
-                }
-
-                // Grab the next waypoint from the pathing system!
-                _nextTile = _path.Dequeue();
-
-
-                if (_nextTile == CurrentTile)
-                {
-                    // Debug.LogError("Update_DoMovement - _nextTile is CurrentTile?");
-                }
-            }
-
-            if (_nextTile == null) _nextTile = CurrentTile;
-
-            // At this point we should have a valid _nextTile to move to.
-
-            // What's the total distance from point A to point B?
-            // We are going to use Euclidean distance FOR NOW...
-            // But when we do the pathfinding system, we'll likely
-            // switch to something like Manhattan or Chebyshev distance
-            float distToTravel = 0;
-            if (_nextTile != CurrentTile)
-            {
-                distToTravel = Mathf.Sqrt(
-                    Mathf.Pow(CurrentTile.X - _nextTile.X, 2) +
-                    Mathf.Pow(CurrentTile.Y - _nextTile.Y, 2)
-                    );
-            }
-
-            // Before entering a Tile, make sure it is not impassable.
-            // This might happen if the Tile is changed (e.g. wall built) after the pathfinder runs.
-            if (_nextTile.IsEnterable() == Enterability.Never)
-            {
-                // Debug.LogError("Error - Character was strying to enter an impassable Tile!");
-                _nextTile = null;
-                _path = null;
-                CurrentState = State.Idle;
-            }
-            else if(_nextTile.IsEnterable() == Enterability.Soon)
-            {
-                // The next Tile we're trying to enter is walkable, but maybe for some reason
-                // cannot be entered right now. Perhaps it is occupied, or contains a closed door.
-                CurrentState = State.WaitingForAccess;
-                return;
-            }
-
-            // How much distance can be travel this Update?
-            if (_nextTile == null) _nextTile = CurrentTile;
-            var distThisFrame = 0f;
-            try
-            {
-                distThisFrame = (_speed/_nextTile.MovementCost)*deltaTime;
-            }
-            catch (Exception e)
-            {
-                Debug.LogError(e.Message);
-            }
-
-            // How much is that in terms of percentage to our destination?
-            float percThisFrame;
-            if (Mathf.Approximately(distToTravel, 0f))
-            {
-                percThisFrame = 1f;
-            }
-            else
-            {
-                percThisFrame = distThisFrame/distToTravel;
-            }
-
-            // Add that to overall percentage travelled.
-            _movementPercentage += percThisFrame;
-
-            if (_movementPercentage >= 1)
-            {
-                // We have reached our (current) destination
-                CurrentTile = _nextTile;
-                _movementPercentage = 0;
-            }
-        }
-
         private void OnJobStopped(Job j)
         {
             // Debug.LogFormat("Standing at [{0},{1}] Finished job \"{2}\" at [{3},{4}]", CurrentTile.X, CurrentTile.Y, CurrentJob.Description, CurrentJob.Tile.X, CurrentJob.Tile.Y);
@@ -995,6 +883,5 @@ namespace Assets.Scripts.Model
 
             CurrentJob = null;
         }
-
     }
 }
