@@ -54,6 +54,7 @@ namespace Assets.Scripts.UI
                             label.text = "idle";
                         } else {
                             label.text = this.Character.CurrentJob.Description;
+                            label.text = string.Format("{0} ({1:P0})", label.text, this.Character.CurrentJob.Progress);
                         }
                         break;
 
@@ -64,7 +65,7 @@ namespace Assets.Scripts.UI
                         }
                         else
                         {
-                            label.text = string.Format("{0} {1}", Character.Inventory.StackSize, Character.Inventory.ObjectType);
+                            label.text = string.Format("{0} {1}", Character.Inventory.StackSize, Character.Inventory.Name);
                         }
                         break;
 

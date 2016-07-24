@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Globalization;
 using System.Xml;
-using System.Xml.Schema;
 using MoonSharp.Interpreter;
 
 namespace Assets.Scripts.Model
@@ -41,6 +41,9 @@ namespace Assets.Scripts.Model
             this.ObjectType = objectType;
             this.MaxStackSize = maxStackSize;
             this.StackSize = stackSize;
+
+            this.Name = new CultureInfo("en-GB", false).TextInfo.ToTitleCase(this.ObjectType.Replace("_", " "));
+
         }
 
         private Inventory(Inventory other) : this()
@@ -48,6 +51,7 @@ namespace Assets.Scripts.Model
             this.ObjectType = other.ObjectType;
             this.MaxStackSize = other.MaxStackSize;
             this.StackSize = other.StackSize;
+            this.Name = new CultureInfo("en-GB", false).TextInfo.ToTitleCase(other.ObjectType.Replace("_", " "));
         }
 
         /* #################################################################### */
@@ -55,6 +59,8 @@ namespace Assets.Scripts.Model
         /* #################################################################### */
 
         public string ObjectType { get; set; }
+
+        public string Name { get; set; }
 
         public int StackSize
         {
