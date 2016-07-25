@@ -77,6 +77,13 @@ namespace Assets.Scripts.Model
             return character;
         }
 
+        private bool RoomIsSafe(Tile tile)
+        {
+            if (tile == null) return false;
+            if (tile.Room == null) return false;
+            return RoomIsSafe(tile.Room);
+        }
+
         private bool RoomIsSafe(Room room)
         {
             if (room == null) return false;

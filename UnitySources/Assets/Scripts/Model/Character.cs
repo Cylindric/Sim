@@ -83,7 +83,8 @@ namespace Assets.Scripts.Model
                     .End()
                     .Do("breathe_suit", t => BreatheSuit_Action(t.deltaTime))
                     .Sequence("flee")
-                        .Do("flee", t => Flee_Action())
+                        .Do("find_safety", t => FindSafety_Action())
+                        .Do("flee", t => MoveTowardsDestination_Action(t.deltaTime))
                     .End()
                 .End()
                 .Build();
@@ -593,8 +594,8 @@ namespace Assets.Scripts.Model
         /// <param name="deltaTime">Frame-time</param>
         private BehaviourTreeStatus Breathe_Action(float deltaTime)
         {
-            if (CurrentTile == null) return BehaviourTreeStatus.Success;
-            if (CurrentTile.Room == null) return BehaviourTreeStatus.Success;
+            if (CurrentTile == null) return BehaviourTreeStatus.Failure;
+            if (CurrentTile.Room == null) return BehaviourTreeStatus.Failure;
 
             // Consume some oxygen.
             CurrentTile.Room.Atmosphere.ChangeGas("O2", -this.BreathVolume() * deltaTime);
@@ -626,26 +627,31 @@ namespace Assets.Scripts.Model
             return BehaviourTreeStatus.Success;
         }
 
-        private BehaviourTreeStatus Flee_Action()
+        private BehaviourTreeStatus FindSafety_Action()
         {
-            if (CurrentTile.Room == null || CurrentTile.Room.IsOutsideRoom() || CurrentTile.Room.Atmosphere.IsBreathable() == false)
+            if (this.RoomIsSafe(CurrentTile))
             {
-                // No room at all probably means we're stood in a door or some other furniture.
-                // Outside room means we're out in space, so try and find somewhere safe.
-                var targetRoom = FindNearestSafeRoom();
-
-                if (targetRoom == null)
-                {
-                    Debug.Log("Could not find a safe room!");
-                    return BehaviourTreeStatus.Failure;
-                }
-
-                // Create a new job to flee to safety.
-                AbandonJob();
-                CurrentJob = new Job(targetRoom, null, OnJobStopped, 0f, null, false);
-                CurrentJob.Description = "Seeking safety";
+                // Already in a safe place.
+                AbandonMove();
+                return BehaviourTreeStatus.Success;
             }
 
+            if (this.RoomIsSafe(DestinationTile))
+            {
+                // Already heading to a safe place.
+                AbandonMove();
+                return BehaviourTreeStatus.Success;
+            }
+
+            // Look for a safe room nearby.
+            var targetRoomTile = FindNearestSafeRoom();
+            if (targetRoomTile == null)
+            {
+                Debug.Log("Could not find a safe room!");
+                return BehaviourTreeStatus.Failure;
+            }
+
+            DestinationTile = targetRoomTile;
             return BehaviourTreeStatus.Success;
         }
 
