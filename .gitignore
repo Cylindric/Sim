@@ -1,5 +1,6 @@
 /[Ll]ibrary/
-/[Tt]ools/
+/[Tt]ools/*.zip
+/[Tt]ools/Installers
 
 
 /[Bb]uild/PC

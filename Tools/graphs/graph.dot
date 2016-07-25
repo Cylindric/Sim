@@ -1,0 +1,129 @@
+digraph G {
+	node [shape=rectangle,fillcolor=lightgrey,color=black,style=filled];
+	edge [arrowhead=none;color=black];
+	ordering=out;
+	compound=true;
+
+	subgraph cluster_behaviour_tree {
+		style=filled;
+		fillcolor=lightblue1;
+		color=slategrey;
+
+		subgraph worker {	
+			worker [label="Worker"/*sequence*/];
+
+			subgraph cluster_drain_suit {
+				style=filled;fillcolor=lightblue3;
+				drain_suit [label="Drain\nsuit power"];
+			}
+
+			subgraph cluster_breathe_or_flee {
+				style=filled;fillcolor=lightblue2;
+				breathe_or_flee [label="Breathe or Flee"/*selector*/];
+			
+				subgraph cluster_breathe_ambient {
+					style=filled;fillcolor=lightblue3;
+					breathe [label="Breathe ambient air"/*sequence*/];
+
+					breathable [label="Breathable?"/*condition*/];
+					do_breathing [label="Breathe"];
+				}
+
+				subgraph cluster_breathe_suit {
+					style=filled;fillcolor=lightblue3;
+					breathe_suit [label="Breathe\nsuit air"];
+				}
+				subgraph cluster_flee {
+					style=filled;fillcolor=lightblue3;
+					flee [label="Flee"/*sequence*/];
+					move_to_somewhere_else [label="Move\nsomewhere"];
+				}
+			}
+
+			subgraph cluster_work {
+				style=filled;fillcolor=lightblue2;
+				work [label="Work"/*sequence*/];
+				
+				subgraph cluster_get_job {
+					style=filled;fillcolor=lightblue3;
+					get_job [label="Get job"/*selector*/];
+					have_a_job [label="Have\njob?"/*condition*/];
+					get_next_job [label="Get next\njob"];
+				}
+
+				subgraph cluster_get_materials {
+					style=filled;fillcolor=lightblue3;
+					get_materials [label="Get materials"/*selector*/];
+					job_has_materials [label="Job has all\nmaterials?"/*condition*/];
+					am_carrying_materials [label="Already carrying\nmaterials?"/*condition*/];
+					find_materials [label="Find\nmaterials"];
+					move_to_materials [label="Move to\nmaterials"];
+					pickup_materials [label="Pick up\nmaterials"];
+				}
+
+				subgraph cluster_work_job {
+					style=filled;fillcolor=lightblue3;
+					work_job [label="Work job"/*sequence*/];
+					
+					setup_move_to_job [label="Plan\nmove"];
+					move_to_job [label="Move to\njob"];
+					drop_stock [label="Drop\nmaterials"];
+					do_work [label="Work"];
+				}
+			}
+		}
+
+		worker -> drain_suit;
+		
+		worker -> breathe_or_flee;
+			breathe_or_flee -> breathe;
+				breathe -> breathable;
+				breathe -> do_breathing;
+			breathe_or_flee -> breathe_suit;
+			breathe_or_flee -> flee;
+				flee -> move_to_somewhere_else;
+
+				worker -> work;
+			work -> get_job;
+				get_job -> have_a_job;
+				get_job -> get_next_job;
+
+				work -> get_materials;
+				get_materials -> job_has_materials;
+				get_materials -> am_carrying_materials;
+				get_materials -> find_materials [arrowhead=dot];
+				get_materials -> move_to_materials [arrowhead=dot];
+				get_materials -> pickup_materials;
+
+				work -> work_job;
+				work_job -> setup_move_to_job;
+				work_job -> move_to_job;
+				work_job -> drop_stock;
+				work_job -> do_work;
+
+
+
+		subgraph cluster_key {
+			style=filled;fillcolor=lightblue2;
+
+			subgraph selectors {
+				node [shape=trapezium,style="filled",fillcolor=lightskyblue3];
+				key_selector [label="Selector"];
+			}
+
+			subgraph sequences {
+				node [shape=hexagon,fillcolor=lightsalmon1,style=filled];
+				key_sequence [label="Sequence"];
+			}
+
+			subgraph conditions {
+				node [shape=diamond];
+				key_condiion [label="Condition"];
+			}
+
+			subgraph actions {
+				key_action [label="Action"];
+			}
+		}
+	}
+}
