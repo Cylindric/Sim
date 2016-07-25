@@ -98,37 +98,6 @@ namespace Assets.Scripts.Model
             return CurrentTile.Room.Atmosphere.IsBreathable();
         }
 
-        /// <summary>
-        /// Perform some gas-exchange calculations and apply to the local environment.
-        /// </summary>
-        /// <remarks>
-        /// It's not as simple as some people think...
-        /// Some numbers at https://en.wikipedia.org/wiki/Breathing#Composition
-        /// Alan Boyd has helpfully put some calculations up at http://biology.stackexchange.com/questions/5642/how-much-gas-is-exchanged-in-one-human-breath
-        /// </remarks>
-        /// <param name="deltaTime">Frame-time</param>
-        public void Breathe(float deltaTime)
-        {
-            if (CurrentTile == null) return;
-            if (CurrentTile.Room == null) return;
-
-            // hack the deltaTime to speed up the simulation a bit
-            deltaTime *= 10;
-
-            // We can assume an at-rest breathing rate of about 15 breaths per minute (https://en.wikipedia.org/wiki/Lung_volumes)
-            var breaths = (15f / 60) * deltaTime; // Breaths-per-second (this frame) 
-
-            // We can assume an average "tidal volume" of air moving in and out of a person is 0.5L (https://en.wikipedia.org/wiki/Lung_volumes)
-            var consumedO2Volume = 0.5f * breaths * 0.001f; // Cubic Metres
-
-            // Consume some oxygen.
-            CurrentTile.Room.Atmosphere.ChangeGas("O2", -consumedO2Volume);
-
-            // In each breath in, we take in about 18mg of O2, and release back out 36mg of CO2 and 20mg of H2O, which is 0.8 molecules of CO2 for every molecule of O2.
-            // I'm not sure how to convert that into a sensible "CO2 produced" number, so this is MADE UP. TODO: Don't make this up.
-            CurrentTile.Room.Atmosphere.ChangeGas("CO2", consumedO2Volume);
-        }
-
         public float GetCondition(string name)
         {
             return _conditions.ContainsKey(name) ? _conditions[name] : 0f;
@@ -166,6 +135,20 @@ namespace Assets.Scripts.Model
             }
 
             DestinationTile = tile;
+        }
+
+        private float BreathVolume()
+        {
+            // hack the deltaTime to speed up the simulation a bit
+            var speedModifier = 10;
+
+            // We can assume an at-rest breathing rate of about 15 breaths per minute (https://en.wikipedia.org/wiki/Lung_volumes)
+            var breaths = (15f / 60) * speedModifier; // Breaths-per-second (this frame) 
+
+            // We can assume an average "tidal volume" of air moving in and out of a person is 0.5L (https://en.wikipedia.org/wiki/Lung_volumes)
+            var consumedO2Volume = 0.5f * breaths * 0.001f; // Cubic Metres
+
+            return consumedO2Volume;
         }
     }
 }
