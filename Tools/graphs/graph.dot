@@ -2,7 +2,6 @@ digraph G {
 	node [shape=rectangle,fillcolor=lightgrey,color=black,style=filled];
 	edge [arrowhead=none;color=black];
 	ordering=out;
-	compound=true;
 
 	subgraph cluster_behaviour_tree {
 		style=filled;
@@ -34,9 +33,11 @@ digraph G {
 					breathe [label="Breathe ambient air"/*sequence*/];
 					breathable [label="Breathable?"/*condition*/];					
 					do_breathing [label="Breathe"];
+					replenish_suit [label="Replenish\nsuit"];
 					
 					breathe -> breathable;
 					breathe -> do_breathing;
+					breathe -> replenish_suit;
 				}
 								
 				subgraph cluster_breathe_suit {

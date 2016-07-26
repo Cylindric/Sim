@@ -101,7 +101,7 @@ namespace Assets.Scripts.Controllers
         private void CreateEmptyWorld()
         {
             // Debug.Log("Creating empty world.");
-            this.World = new World(100, 100);
+            this.World = new World(20, 20);
 
             // Put some characters into the world
             World.CreateCharacter(World.GetTileAt(World.Width / 2 - 1, World.Height / 2));

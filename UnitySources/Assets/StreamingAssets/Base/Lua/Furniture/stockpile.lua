@@ -1,4 +1,4 @@
-function Stockpile_GetItemsFromFilter()
+function tockpile_GetItemsFromFilter()
 	-- TODO: This should be reading from some kind of UI for this
 	-- particular stockpile
 
@@ -11,7 +11,7 @@ function Stockpile_GetItemsFromFilter()
 	return { Inventory.__new("steel_plate", 50, 0) }
 end
 
-function Stockpile_UpdateAction( furniture, deltaTime )
+function OnUpdate_Stockpile( furniture, deltaTime )
 	-- We need to ensure that we have a job on the queue
 	-- asking for either:
 	--  (if we are empty): That ANY loose inventory be brought to us.
@@ -60,7 +60,7 @@ function Stockpile_UpdateAction( furniture, deltaTime )
 	-- could be a lot smarter, in that even if the stockpile has some stuff in it, it
 	-- can also still be requestion different object types in its job creation.
 
-	itemsDesired = {}
+	local itemsDesired = {}
 
 	if( furniture.Tile.inventory == nil ) then
 		itemsDesired = Stockpile_GetItemsFromFilter()
@@ -96,7 +96,7 @@ function Stockpile_JobWorked(j)
 	--values = j.GetInventoryRequirementValues();
 	for k, inv in pairs(j.InventoryRequirements) do
 		if(inv.StackSize > 0) then
-			World.Instance.InventoryManager.PlaceInventory(j.tile, inv)
+			World.Instance.InventoryManager.TransferInventory(j.tile, inv)
 
 			return  -- There should be no way that we ever end up with more than on inventory requirement with stackSize > 0
 		end

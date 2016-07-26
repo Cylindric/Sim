@@ -49,7 +49,6 @@ local function EqualizeGasses(furniture, deltaTime)
   end
 
 end
-
 function OnUpdate_Door(furniture, deltaTime)
   
   if (furniture.GetParameter("is_opening") >= 1) then
@@ -81,3 +80,4 @@ function IsEnterable_Door(furniture)
 
   return 2 -- Enterability.Soon
 end
+

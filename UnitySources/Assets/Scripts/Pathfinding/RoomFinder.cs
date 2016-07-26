@@ -36,12 +36,14 @@ namespace Assets.Scripts.Pathfinding
 
             Path_Node<Tile> current = null;
 
+            var found = false;
             while (frontier.Count > 0)
             {
                 current = frontier.Dequeue();
 
                 if (isValid(current.data.Room))
                 {
+                    found = true;
                     break;
                 }
 
@@ -59,7 +61,7 @@ namespace Assets.Scripts.Pathfinding
                 }
             }
 
-            if (current == null) return null;
+            if (found == false || current == null) return null;
 
             return current.data;
         }

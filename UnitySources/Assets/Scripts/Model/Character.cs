@@ -5,7 +5,6 @@ using Assets.Scripts.Pathfinding;
 using Assets.Scripts.Utilities;
 using FluentBehaviourTree;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using Debug = UnityEngine.Debug;
 
 namespace Assets.Scripts.Model
@@ -31,6 +30,14 @@ namespace Assets.Scripts.Model
 
         // The shield uses power at this rate - should be larger than EnergyChargeRate, otherwise it'll never run out.
         private const float ShieldEnergyUsageRate = (2f/300);
+
+        // Below this value, jobs will be abandoned in favour of seeking breathable air.
+        private const float TankDangerLevel = 0.2f;
+
+        // The air tank will be charged to this level before moving off and doing something else.
+        private const float TankMinLevel = 0.8f;
+
+        private const float TankRechargeRate = 10f;
 
         /* #################################################################### */
         /* #                           FIELDS                                 # */
@@ -80,6 +87,7 @@ namespace Assets.Scripts.Model
                     .Sequence("breathe")
                         .Condition("breathable", t => CanBreathe_Condition())
                         .Do("do_breathing", t => Breathe_Action(t.deltaTime))
+                        .Do("replenish_suit", t => ReplenishSuit_Action(t.deltaTime))
                     .End()
                     .Do("breathe_suit", t => BreatheSuit_Action(t.deltaTime))
                     .Sequence("flee")
@@ -614,17 +622,30 @@ namespace Assets.Scripts.Model
         /// <returns>Failure if reserve &lt; 20%; otherwise success.</returns>
         private BehaviourTreeStatus BreatheSuit_Action(float deltaTime)
         {
-            if (this.GetCondition("suit_air") > 0)
-            {
-                this.ChangeCondition("suit_air", -this.BreathVolume() * deltaTime);
-            }
+            this.ChangeCondition("suit_air", -this.BreathVolume() * deltaTime);
+            this.SetCondition("suit_air", Mathf.Clamp01(this.GetCondition("suit_air")));
 
-            if (this.GetCondition("suit_air") < 0.2)
+            if (this.GetCondition("suit_air") < TankDangerLevel)
             {
+                // Debug.LogFormat("{0} Running out of air. ({1})", this.Name, this.GetCondition("suit_air"));
                 return BehaviourTreeStatus.Failure;
             }
 
             return BehaviourTreeStatus.Success;
+        }
+
+        private BehaviourTreeStatus ReplenishSuit_Action(float deltaTime)
+        {
+            this.ChangeCondition("suit_air", this.BreathVolume() * TankRechargeRate * deltaTime);
+            this.SetCondition("suit_air", Mathf.Clamp01(this.GetCondition("suit_air")));
+
+            if (this.GetCondition("suit_air") >= TankMinLevel)
+            {
+                return BehaviourTreeStatus.Success;
+            }
+
+            // Debug.LogFormat("{0} Topping up suit air. ({1})", this.Name, this.GetCondition("suit_air"));
+            return BehaviourTreeStatus.Running;
         }
 
         private BehaviourTreeStatus FindSafety_Action()
@@ -639,7 +660,6 @@ namespace Assets.Scripts.Model
             if (this.RoomIsSafe(DestinationTile))
             {
                 // Already heading to a safe place.
-                AbandonMove();
                 return BehaviourTreeStatus.Success;
             }
 
@@ -647,7 +667,7 @@ namespace Assets.Scripts.Model
             var targetRoomTile = FindNearestSafeRoom();
             if (targetRoomTile == null)
             {
-                Debug.Log("Could not find a safe room!");
+                // Debug.Log("Could not find a safe room!");
                 return BehaviourTreeStatus.Failure;
             }
 

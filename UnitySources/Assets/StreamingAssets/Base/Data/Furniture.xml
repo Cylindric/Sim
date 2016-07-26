@@ -42,7 +42,7 @@
  	<Furniture objectType="furn_stockpile">
 		<Name>Stockpile</Name>
 		<BuildingJob time="0" />
-		<OnUpdate>Stockpile_UpdateAction</OnUpdate>
+		<OnUpdate>OnUpdate_Stockpile</OnUpdate>
 	</Furniture>
 
  	<Furniture objectType="furn_oxygen">
@@ -59,6 +59,17 @@
 		</Params>	
 	</Furniture>
 	
+ 	<Furniture objectType="furn_air_recharger">
+		<Name>Suit Air Recharger</Name>
+		<MovementCost>1</MovementCost>
+		<Width>1</Width>
+		<Height>1</Height>
+		<BuildingJob time="1" />
+		<Params>
+			<Param name="air_recharger">1</Param>
+		</Params>	
+	</Furniture>
+		
  	<Furniture objectType="furn_mining_station">
 		<Name>Mining Drone Station</Name>
 		<MovementCost>0</MovementCost>
@@ -67,7 +78,20 @@
 		<JobSpotOffset>1,-1</JobSpotOffset>
 		<JobSpawnOffset>0,-1</JobSpawnOffset>
 		<BuildingJob time="1" />
-		<OnUpdate>MiningDroneStation_UpdateAction</OnUpdate>
+		<OnUpdate>OnUpdate_MiningDroneStation</OnUpdate>
 	</Furniture>
 			
+ 	<Furniture objectType="furn_bed">
+		<Name>Bed</Name>
+		<MovementCost>0</MovementCost>
+		<Width>2</Width>
+		<Height>1</Height>
+		<BuildingJob time="3">
+			<Inventory objectType="steel_plate" amount="1" />
+		</BuildingJob>
+		<Params>
+			<Param name="rest">5</Param>
+		</Params>	
+	</Furniture>
+	
 </Furnitures>

@@ -1,4 +1,4 @@
-function MiningDroneStation_UpdateAction( furniture, deltaTime )
+function OnUpdate_MiningDroneStation( furniture, deltaTime )
 	
 	spawnSpot = furniture.GetSpawnSpotTile()
 

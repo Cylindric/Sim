@@ -2,9 +2,8 @@ local timeSinceLastPump = 0
 
 -- The Oxygen Generator adds Nitrogen and Oxygen to try and maintain an 80/20 balance.
 function OnUpdate_GasGenerator(furniture, deltaTime)
-  actionTaken = ""
-  
-  timeSinceLastPump = timeSinceLastPump + deltaTime
+  local actionTaken = ""
+  local timeSinceLastPump = timeSinceLastPump + deltaTime
   
   if (timeSinceLastPump < 0.0) then
     return
@@ -16,17 +15,17 @@ function OnUpdate_GasGenerator(furniture, deltaTime)
 
   actionTaken = actionTaken .. deltaTime .. ".  "
   
-  tolerance = 0.005
-  targetPressure = 1.000 -- 101.3 kPa is the same as they use for the ISS, so should be good enough for us.
-  targetN2 =  0.78090 -- 78% Nitrogen
-  targetO2 =  0.20950 -- 21% Oxygen
-  targetAr =  0.00930 --  1% Argon
-  targetCO2 = 0.00039 -- trace CO2
+  local tolerance = 0.005
+  local targetPressure = 1.000 -- 101.3 kPa is the same as they use for the ISS, so should be good enough for us.
+  local targetN2 =  0.78090 -- 78% Nitrogen
+  local targetO2 =  0.20950 -- 21% Oxygen
+  local targetAr =  0.00930 --  1% Argon
+  local targetCO2 = 0.00039 -- trace CO2
 
   -- The base fill-rate for the O2 Generator.
   -- TODO: Will need a way to both add Nitrogen and O2, and scrub them too, probably with different rates for all combos.
   -- TODO: Will need a way to both add Nitrogen and O2, and scrub them too, probably with different rates for all combos.
-  baseRate = 1 -- m³ per second
+  local baseRate = 1 -- m³ per second
 
   if (furniture == nil) then
     return "Furn is nil!"
@@ -41,7 +40,7 @@ function OnUpdate_GasGenerator(furniture, deltaTime)
   end 
 
   if (furniture.Tile.Room.Size == 0) then
-    return "Oxygen Generator at [" .. furniture.Tile.X .. "," .. furniture.Tile.Y .. "] is in a Room with no Tiles!"
+    return -- "Oxygen Generator at [" .. furniture.Tile.X .. "," .. furniture.Tile.Y .. "] is in a Room with no Tiles!"
   end
  
   -- Always remove CO2, even if that's all there is. It's never a good thing.
@@ -50,8 +49,8 @@ function OnUpdate_GasGenerator(furniture, deltaTime)
     actionTaken = actionTaken .. "Removed " .. (-baseRate * deltaTime) .. " CO2.  "
   end
  
-  totalPressure = furniture.Tile.Room.Atmosphere.GetTotalAtmosphericPressure()
-  pressureDifference = targetPressure - totalPressure
+  local totalPressure = furniture.Tile.Room.Atmosphere.GetTotalAtmosphericPressure()
+  local pressureDifference = targetPressure - totalPressure
   furniture.GasParticlesEnabled = false  
   
   if(pressureDifference < 0 and math.abs(pressureDifference) > tolerance) then
