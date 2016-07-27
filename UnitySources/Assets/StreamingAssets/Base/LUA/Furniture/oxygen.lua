@@ -25,7 +25,7 @@ function OnUpdate_GasGenerator(furniture, deltaTime)
   -- The base fill-rate for the O2 Generator.
   -- TODO: Will need a way to both add Nitrogen and O2, and scrub them too, probably with different rates for all combos.
   -- TODO: Will need a way to both add Nitrogen and O2, and scrub them too, probably with different rates for all combos.
-  local baseRate = 1 -- m³ per second
+  local baseRate = 5 -- m³ per second
 
   if (furniture == nil) then
     return "Furn is nil!"

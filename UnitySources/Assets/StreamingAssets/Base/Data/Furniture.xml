@@ -68,6 +68,7 @@
 		<Params>
 			<Param name="air_recharger">1</Param>
 		</Params>	
+		<OnUpdate>OnUpdate_AirRecharger</OnUpdate>
 	</Furniture>
 		
  	<Furniture objectType="furn_mining_station">

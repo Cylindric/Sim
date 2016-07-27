@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace FluentBehaviourTree
 {
@@ -13,7 +10,10 @@ namespace FluentBehaviourTree
         /// <summary>
         /// Name of the node.
         /// </summary>
+#pragma warning disable 0414
         private string name;
+#pragma warning restore 0414
+
 
         /// <summary>
         /// The child to be inverted.

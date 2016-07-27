@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace FluentBehaviourTree
 {
@@ -13,7 +10,10 @@ namespace FluentBehaviourTree
         /// <summary>
         /// The name of the node.
         /// </summary>
+#pragma warning disable 0414
         private string name;
+#pragma warning restore 0414
+
 
         /// <summary>
         /// List of child nodes.

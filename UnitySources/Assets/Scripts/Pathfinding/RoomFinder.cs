@@ -16,6 +16,15 @@ namespace Assets.Scripts.Pathfinding
                 return null;
             }
 
+            return FindClosestTile(startTile, t =>
+            {
+                if (t.Room == null) return false;
+                return isValid(t.Room);
+            });
+        }
+
+        public Tile FindClosestTile(Tile startTile, Func<Tile, bool> isValid)
+        {
             // Check to see if we have a valid Tile graph
             if (World.Instance.TileGraph == null)
             {
@@ -41,7 +50,7 @@ namespace Assets.Scripts.Pathfinding
             {
                 current = frontier.Dequeue();
 
-                if (isValid(current.data.Room))
+                if (isValid(current.data))
                 {
                     found = true;
                     break;

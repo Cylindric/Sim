@@ -197,9 +197,6 @@ namespace Assets.Scripts.Model
 
         public void EqualiseAtmosphere(AtmosphereManager other, float qty)
         {
-            // This is how much total air we're going to pump
-            var mergeRate = qty;
-
             // This is a list of all the gasses involved in each room
             var gasses = this.GetGasNames().Union(other.GetGasNames()).ToList();
             foreach (var gas in gasses)

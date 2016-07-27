@@ -91,11 +91,27 @@ namespace Assets.Scripts.Model
             return true;
         }
 
+        private bool TileIsAirRecharger(Tile tile)
+        {
+            if (tile == null) return false;
+            if (tile.Furniture == null) return false;
+            if (Mathf.Approximately(tile.Furniture.GetParameter("air_recharger"), 0)) return false;
+            if (tile.Furniture.WorkingCharacter != null) return false;
+            return true;
+        }
+
         private Tile FindNearestSafeRoom()
         {
             var rf = new RoomFinder();
             var room = rf.FindClosestRoom(CurrentTile, RoomIsSafe);
             return room;
+        }
+
+        private Tile FindNearestReplenisher()
+        {
+            var rf = new RoomFinder();
+            var tile = rf.FindClosestTile(CurrentTile, TileIsAirRecharger);
+            return tile;
         }
 
         public bool CanBreathe()

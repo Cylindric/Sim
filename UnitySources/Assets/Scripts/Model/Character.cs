@@ -35,10 +35,10 @@ namespace Assets.Scripts.Model
         private const float TankDangerLevel = 0.2f;
 
         // The air tank will be charged to this level before moving off and doing something else.
-        private const float TankMinLevel = 0.8f;
+        private const float TankMinLevel = 0.5f;
 
-        private const float TankRechargeRate = 10f;
-
+        private const int TankTopupRate = 10;
+        
         /* #################################################################### */
         /* #                           FIELDS                                 # */
         /* #################################################################### */
@@ -86,7 +86,7 @@ namespace Assets.Scripts.Model
                 .Selector("breathe_or_flee")
                     .Sequence("breathe")
                         .Condition("breathable", t => CanBreathe_Condition())
-                        .Do("do_breathing", t => Breathe_Action(t.deltaTime))
+                        // .Do("do_breathing", t => Breathe_Action(t.deltaTime))
                         .Do("replenish_suit", t => ReplenishSuit_Action(t.deltaTime))
                     .End()
                     .Do("breathe_suit", t => BreatheSuit_Action(t.deltaTime))
@@ -191,6 +191,10 @@ namespace Assets.Scripts.Model
             _nextTile = DestinationTile = CurrentTile;
             if (CurrentJob != null)
             {
+                if (CurrentJob.Furniture != null)
+                {
+                    CurrentJob.Furniture.WorkingCharacter = null;
+                }
                 World.Instance.JobQueue.Enqueue(CurrentJob);
                 CurrentJob = null;
             }
@@ -255,6 +259,10 @@ namespace Assets.Scripts.Model
             }
 
             // Debug.LogFormat("GetNextJob_Action got new job {0} at [{1},{2}]", CurrentJob.Name, CurrentJob.Tile.X, CurrentJob.Tile.Y);
+            if (CurrentJob.Furniture != null)
+            {
+                CurrentJob.Furniture.WorkingCharacter = this;
+            }
             CurrentJob.RegisterOnJobStoppedCallback(OnJobStopped);
             return BehaviourTreeStatus.Success;
         }
@@ -636,10 +644,17 @@ namespace Assets.Scripts.Model
 
         private BehaviourTreeStatus ReplenishSuit_Action(float deltaTime)
         {
-            this.ChangeCondition("suit_air", this.BreathVolume() * TankRechargeRate * deltaTime);
+            this.ChangeCondition("suit_air", this.BreathVolume() * TankTopupRate * deltaTime);
             this.SetCondition("suit_air", Mathf.Clamp01(this.GetCondition("suit_air")));
 
-            if (this.GetCondition("suit_air") >= TankMinLevel)
+            // If we have a job, stop charging at the min level
+            if (this.CurrentJob != null && this.GetCondition("suit_air") >= TankMinLevel)
+            {
+                return BehaviourTreeStatus.Success;
+            }
+
+            // If we don't have a job, just carry on until the tank is full.
+            if (this.GetCondition("suit_air") >= 1)
             {
                 return BehaviourTreeStatus.Success;
             }

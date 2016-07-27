@@ -52,6 +52,7 @@ namespace Assets.Scripts.Model
             this._cbUpdateActions = new List<string>();
             this._cbIsEnterableAction = string.Empty;
             this.GasParticlesEnabled = false;
+            this.WorkingCharacter = null;
         }
 
         /// <summary>
@@ -77,6 +78,7 @@ namespace Assets.Scripts.Model
             this.Width = other.Width;
             this.Height = other.Height;
             this.GasParticlesEnabled = other.GasParticlesEnabled;
+            this.WorkingCharacter = other.WorkingCharacter;
 
             if (other._funcPositionValidation != null)
             {
@@ -181,6 +183,8 @@ namespace Assets.Scripts.Model
         public Vector2 JobSpawnOffset { get; set; }
 
         public bool GasParticlesEnabled { get; set; }
+
+        public Character WorkingCharacter { get; set; }
 
         /* #################################################################### */
         /* #                           METHODS                                # */
@@ -489,7 +493,7 @@ namespace Assets.Scripts.Model
 
         public void Deconstruct()
         {
-            Debug.Log("Deconstructing...");
+            // Debug.Log("Deconstructing...");
 
             Tile.UnplaceFurniture();
 

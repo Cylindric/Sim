@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-16"?>
-<Sprites xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<Sprites>
   <Sprite name="furn_wall_steel_ES"   pixelsPerUnit="64"><Rect x="0"   y="448" width="64" height="64" /><Pivot x="0.5" y="0.5" /></Sprite>
   <Sprite name="furn_wall_steel_SW"   pixelsPerUnit="64"><Rect x="64"  y="448" width="64" height="64" /><Pivot x="0.5" y="0.5" /></Sprite>
   <Sprite name="furn_wall_steel_NE"   pixelsPerUnit="64"><Rect x="0"   y="384" width="64" height="64" /><Pivot x="0.5" y="0.5" /></Sprite>
