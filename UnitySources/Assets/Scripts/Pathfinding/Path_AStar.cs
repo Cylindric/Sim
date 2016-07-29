@@ -219,6 +219,10 @@ namespace Assets.Scripts.Pathfinding
 
         public Tile Dequeue()
         {
+            if (_path == null || _path.Count == 0)
+            {
+                return null;
+            }
             var first = _path.First();
             _path.RemoveFirst();
             return first;
