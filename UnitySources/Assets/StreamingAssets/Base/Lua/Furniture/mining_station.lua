@@ -1,6 +1,19 @@
+-- Time (in seconds) it takes to go from 100% to 0% condition.
+local wearRate = 600
+
+
+
 function OnUpdate_MiningDroneStation( furniture, deltaTime )
-	
-	spawnSpot = furniture.GetSpawnSpotTile()
+ 
+ -- First we see if we need to damage this object a little bit.
+  local newCondition = furniture.OffsetParameter("condition", -(1/wearRate) * deltaTime, 0, 1);
+
+  -- If it's knackered, don't do any work
+  if(newCondition <= 0.0) then
+    return
+  end
+  	
+	local spawnSpot = furniture.GetSpawnSpotTile()
 
 	if( furniture.JobCount() > 0 ) then
 
@@ -21,7 +34,7 @@ function OnUpdate_MiningDroneStation( furniture, deltaTime )
 
 	-- If we get here, we need to CREATE a new job.
 
-	jobSpot = furniture.GetJobSpotTile()
+	local jobSpot = furniture.GetJobSpotTile()
 
 	j = Job.__new(
 		jobSpot,
@@ -40,6 +53,6 @@ end
 
 
 function MiningDroneStation_JobComplete(j)
-  req = Inventory.__new("steel_plate", 50, 20)
+  local req = Inventory.__new("steel_plate", 50, 20)
   World.Instance.InventoryManager.TransferInventory(j.Furniture.GetSpawnSpotTile(), req)
 end
