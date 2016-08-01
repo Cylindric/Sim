@@ -461,14 +461,6 @@ namespace Assets.Scripts.Model
             return true;
         }
 
-        private void ClearJobs()
-        {
-            foreach (var j in _jobs.ToArray())
-            {
-                RemoveJob(j);
-            }
-        }
-
         public void AddJob(Job job)
         {
             job.Furniture = this;

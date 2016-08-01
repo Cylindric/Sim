@@ -1,20 +1,21 @@
-﻿using System.Xml.Serialization;
+﻿using System.Xml.Schema;
+using System.Xml.Serialization;
 
 namespace Assets.Scripts.Model.Import
 {
     public class Rect
     {
-        [XmlAttribute]
-        public int x;
+        [XmlAttribute] public int x;
 
-        [XmlAttribute]
-        public int y;
+        [XmlAttribute] public int y;
 
-        [XmlAttribute]
-        public int width;
+        [XmlAttribute] public int width;
 
-        [XmlAttribute]
-        public int height;
+        [XmlAttribute] public int height;
+
+        [XmlAttribute] public string name;
+
+        [XmlAttribute] public string type;
 
         public UnityEngine.Rect ToRect()
         {
