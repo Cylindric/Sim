@@ -1,4 +1,5 @@
-﻿using System.Xml.Schema;
+﻿using System.Collections.Generic;
+using System.Xml.Schema;
 using System.Xml.Serialization;
 
 namespace Assets.Scripts.Model.Import
@@ -11,7 +12,8 @@ namespace Assets.Scripts.Model.Import
         [XmlAttribute]
         public int pixelsPerUnit;
 
-        public Rect Rect;
+        public List<Rect> Rects = new List<Rect>();
+
         public Pivot Pivot;
     }
 }

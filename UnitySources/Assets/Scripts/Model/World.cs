@@ -102,7 +102,7 @@ namespace Assets.Scripts.Model
         {
             if (r == GetOutsideRoom())
             {
-                Debug.LogError("Tried to delete the outside room!");
+                // Debug.LogError("Tried to delete the outside room!");
                 return;
             }
 

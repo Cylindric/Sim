@@ -38,21 +38,21 @@ namespace Assets.Scripts.Model
         /// </summary>
         public Furniture()
         {
-            this.Name = string.Empty;
-            this.LinksToNeighbour = false;
-            this.Tint = Color.white;
-            this.JobSpotOffset = Vector2.zero;
-            this.JobSpawnOffset = Vector2.zero;
-            this.MovementCost = 1f;
-            this.IsRoomEnclosure = false;
-            this.Width = 1;
-            this.Height = 1;
-            this._parameters = new Dictionary<string, float>();
-            this._jobs = new List<Job>();
-            this._cbUpdateActions = new List<string>();
-            this._cbIsEnterableAction = string.Empty;
-            this.GasParticlesEnabled = false;
-            this.WorkingCharacter = null;
+            Name = string.Empty;
+            LinksToNeighbour = false;
+            Tint = Color.white;
+            JobSpotOffset = Vector2.zero;
+            JobSpawnOffset = Vector2.zero;
+            MovementCost = 1f;
+            IsRoomEnclosure = false;
+            Width = 1;
+            Height = 1;
+            _parameters = new Dictionary<string, float> {{"condition", 1f}};
+            _jobs = new List<Job>();
+            _cbUpdateActions = new List<string>();
+            _cbIsEnterableAction = string.Empty;
+            GasParticlesEnabled = false;
+            WorkingCharacter = null;
         }
 
         /// <summary>
@@ -230,13 +230,23 @@ namespace Assets.Scripts.Model
         /// </summary>
         /// <param name="key">Key</param>
         /// <param name="value">Delta value</param>
-        public void OffsetParameter(string key, float value)
+        public float OffsetParameter(string key, float value)
         {
             if (_parameters.ContainsKey(key) == false)
             {
                 _parameters[key] = value;
             }
             _parameters[key] += value;
+
+            return _parameters[key];
+        }
+
+        public float OffsetParameter(string key, float value, float clampMin, float clampMax)
+        {
+            OffsetParameter(key, value);
+            _parameters[key] = Mathf.Max(_parameters[key], clampMin);
+            _parameters[key] = Mathf.Min(_parameters[key], clampMax);
+            return _parameters[key];
         }
 
         /// <summary>
@@ -251,7 +261,6 @@ namespace Assets.Scripts.Model
         /// <summary>
         /// Unregisters a function that has been added with <see cref="RegisterIsEnterableAction"/>.
         /// </summary>
-        /// <param name="fname">Action to remove.</param>
         public void UnregisterIsEnterableAction()
         {
             _cbIsEnterableAction = string.Empty;
@@ -402,12 +411,19 @@ namespace Assets.Scripts.Model
                 var paramElement = xml.CreateElement("Parameters");
                 foreach (var k in _parameters)
                 {
+                    if (k.Key == "condition" && Mathf.Approximately(k.Value, 1f))
+                    {
+                        continue;
+                    }
                     var p = xml.CreateElement("Param");
                     p.SetAttribute("name", k.Key);
                     p.InnerText = k.Value.ToString(CultureInfo.InvariantCulture);
                     paramElement.AppendChild(p);
                 }
-                furniture.AppendChild(paramElement);
+                if (paramElement.ChildNodes.Count > 0)
+                {
+                    furniture.AppendChild(paramElement);
+                }
             }
 
             return furniture;
@@ -443,14 +459,6 @@ namespace Assets.Scripts.Model
             }
 
             return true;
-        }
-
-        private void ClearJobs()
-        {
-            foreach (var j in _jobs.ToArray())
-            {
-                RemoveJob(j);
-            }
         }
 
         public void AddJob(Job job)

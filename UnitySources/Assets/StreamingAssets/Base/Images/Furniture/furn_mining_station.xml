@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-16"?>
 <Sprites>
-  <Sprite name="furn_mining_station" pixelsPerUnit="64"><Rect x="0" y="0" width="192" height="128" /><Pivot x="0.5" y="0.5" /></Sprite>
+  <Sprite name="furn_mining_station" pixelsPerUnit="64"><Rects><Rect x="0" y="0" width="192" height="128" /></Rects><Pivot x="0.5" y="0.5" /></Sprite>
 </Sprites>
