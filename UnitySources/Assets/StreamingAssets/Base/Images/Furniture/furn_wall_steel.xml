@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-16"?>
+<SpriteSheet name="furn_wall_steel" pixelsPerUnit="64" width="64" height="64">
+	<Pivot x="0.5" y="0.5" />
+	<SpriteSet name="default">
+		<Sprite x="128" y="448" />
+	</SpriteSet>
+	<SpriteSet name="wall">
+		<Sprite value="ES"    x="0"   y="448" />
+		<Sprite value="SW"    x="64"  y="448" />
+		<Sprite value="NE"    x="0"   y="384" />
+		<Sprite value="NW"    x="64"  y="384" />
+		<Sprite value="E"     x="0"   y="320" />
+		<Sprite value="S"     x="128" y="384" />
+		<Sprite value="W"     x="192" y="256" />
+		<Sprite value="N"     x="64"  y="192" />
+		<Sprite value="ESW"   x="64"  y="320" />
+		<Sprite value="NSW"   x="128" y="320" />
+		<Sprite value="NEW"   x="128" y="256" />
+		<Sprite value="NES"   x="64"  y="256" />
+		<Sprite value="EW"    x="64"  y="64"  />
+		<Sprite value="NS"    x="128" y="128" />
+		<Sprite value="NESW"  x="128" y="64"  />
+	</SpriteSet>
+</SpriteSheet>
+
+
+
+<?xml version="1.0" encoding="utf-16"?>
+<Sprites>
+
+  <Sprite name="tile_floor_steel"      x="0"   y="256" />
+  
+</Sprites>

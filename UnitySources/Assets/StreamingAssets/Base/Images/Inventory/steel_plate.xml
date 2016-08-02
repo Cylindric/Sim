@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-16"?>
-<Sprites>
-  <Sprite name="inventory_steel_plate" pixelsPerUnit="64"><Rects><Rect x="0" y="0" width="64" height="64" /></Rects><Pivot x="0.5" y="0.5" /></Sprite>
-</Sprites>
+<SpriteSheet name="inventory_steel_plate" pixelsPerUnit="64" width="64" height="64">
+	<Pivot x="0.5" y="0.5" />
+	<SpriteSet name="default">
+		<Sprite x="0"   y="0" />
+	</SpriteSet>
+</SpriteSheet>

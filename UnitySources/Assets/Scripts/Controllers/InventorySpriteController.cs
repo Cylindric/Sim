@@ -2,6 +2,7 @@
 using Assets.Scripts.Model;
 using UnityEngine;
 using UnityEngine.UI;
+using Sprite = UnityEngine.Sprite;
 
 namespace Assets.Scripts.Controllers
 {

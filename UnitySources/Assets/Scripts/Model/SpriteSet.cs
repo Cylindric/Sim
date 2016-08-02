@@ -1,32 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
+﻿using System.Collections.Generic;
 
 namespace Assets.Scripts.Model
 {
-    class SpriteSet
+    public class SpriteSet
     {
-        private List<SpriteFrame> _frames = new List<SpriteFrame>();
+        public List<Sprite> Sprites { get; set; }
 
-        public Sprite GetDefaultSprite()
+        public SpriteSet()
         {
-            if (_frames.Count == 0)
-            {
-                return null;
-            }
-
-            return _frames.First().Sprite;
-        }
-
-        public void SetSprite(Sprite sprite)
-        {
-            if (_frames.Count == 0)
-            {
-                _frames.Add(new SpriteFrame());
-            }
-            _frames.First().Sprite = sprite;
+            Sprites = new List<Sprite>();
         }
     }
 }

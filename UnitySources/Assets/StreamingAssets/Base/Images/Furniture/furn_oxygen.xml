@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-16"?>
-<Sprites>
-  <Sprite name="furn_oxygen" pixelsPerUnit="64">
-    <Rects>
-		<Rect name="default" x="0" y="128" width="128" height="128" type="default" />
-		<Rect name="damaged" x="128" y="0" width="128" height="128" type="damaged" />
-	</Rects>
+<SpriteSheet name="furn_oxygen" pixelsPerUnit="64" width="128" height="128">
 	<Pivot x="0.5" y="0.5" />
-  </Sprite>
-</Sprites>
+	<SpriteSet name="default">
+		<Sprite x="0"   y="128" />
+		<Sprite x="128" y="128" />
+	</SpriteSet>
+	<SpriteSet name="damage">
+		<Sprite x="128" y="0" />
+	</SpriteSet>
+</SpriteSheet>

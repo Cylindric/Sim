@@ -8,8 +8,6 @@ using Assets.Scripts.Model.Import;
 using UnityEngine;
 
 using Debug = UnityEngine.Debug;
-using Rect = UnityEngine.Rect;
-using Sprite = UnityEngine.Sprite;
 
 namespace Assets.Scripts.Controllers
 {
@@ -17,7 +15,7 @@ namespace Assets.Scripts.Controllers
     {
         public static SpriteManager Instance;
 
-        private Dictionary<string, SpriteSet> _sprites = new Dictionary<string, SpriteSet>();
+        private Dictionary<string, SpriteSheet> _sprites = new Dictionary<string, SpriteSheet>();
 
         private void OnEnable ()
         {
@@ -25,7 +23,7 @@ namespace Assets.Scripts.Controllers
             LoadSprites();
         }
 	
-        public Sprite GetSprite(string spriteName)
+        public UnityEngine.Sprite GetSprite(string spriteName)
         {
             if (_sprites.ContainsKey(spriteName) == false)
             {
@@ -52,19 +50,6 @@ namespace Assets.Scripts.Controllers
 
             foreach (var file in Directory.GetFiles(filepath).Where(f => f.EndsWith(".xml")))
             {
-                //var sprites = new Sprites();
-                //var sprite1 = new Model.Import.Sprite() { name = "colonist_body", pixelsPerUnit = 64 };
-                //sprite1.Rect.Add(new Model.Import.Rect() { x = 0, y = 64, width = 64, height = 64 });
-                //sprite1.Pivot = new Model.Import.Pivot() { x = 0.5f, y = 0.5f };
-                //sprites.SpriteList.Add(sprite1);
-                //var sprite2 = new Model.Import.Sprite() { name = "colonist_shield", pixelsPerUnit = 64 };
-                //sprite2.Rect.Add(new Model.Import.Rect() { x = 64, y = 64, width = 64, height = 64 });
-                //sprite2.Pivot = new Model.Import.Pivot() { x = 0.5f, y = 0.5f };
-                //sprites.SpriteList.Add(sprite1);
-                //var serializer = new XmlSerializer(typeof(Model.Import.Sprites));
-                //var txt = new StringWriter();
-                //serializer.Serialize(txt, sprites);
-                
                 LoadSpritesheet(file);
             }
         }
@@ -79,12 +64,12 @@ namespace Assets.Scripts.Controllers
 
             // First get the data about the sprites
             var filestream = new StreamReader(filepath);
-            var serializer = new XmlSerializer(typeof(Model.Import.Sprites));
+            var serializer = new XmlSerializer(typeof(Model.Import.XmlSpriteSheet));
 
-            var sprites = new Sprites();
+            var spriteSheetData = new XmlSpriteSheet();
             try
             {
-                sprites = (Sprites) serializer.Deserialize(filestream);
+                spriteSheetData = (XmlSpriteSheet) serializer.Deserialize(filestream);
             }
             catch (Exception e)
             {
@@ -97,23 +82,28 @@ namespace Assets.Scripts.Controllers
             texture.filterMode = FilterMode.Trilinear;
             texture.LoadImage(bytes);
 
-            // For every sprite defined in the datafile, create a new Sprite object
-            foreach (var s in sprites.SpriteList)
+            // Set up the basic SpriteSheet data.
+            var spritesheet = new SpriteSheet()
             {
-                foreach (var r in s.Rects)
+                Name = spriteSheetData.name
+            };
+
+            // Add each sprite-set to the sheet.
+            foreach (var spritesetData in spriteSheetData.SpriteSets)
+            {
+                var spriteset = new SpriteSet();
+
+                // Add all the sprites to the sprite-set
+                foreach (var spriteData in spritesetData.Sprites)
                 {
-                    var sprite = Sprite.Create(texture, r.ToRect(), s.Pivot.ToVector2(), s.pixelsPerUnit);
-                    if (_sprites.ContainsKey(s.name))
-                    {
-                        Debug.LogWarningFormat("Duplicate sprite ({0}) found in data; overwriting... ", s.name);
-                        _sprites[s.name].SetSprite(sprite);
-                    }
-                    else
-                    {
-                        _sprites.Add(s.name, new SpriteSet());
-                        _sprites[s.name].SetSprite(sprite);
-                    }
+                    var sprite = new Model.Sprite(texture,
+                        new Rect(spriteData.x, spriteData.y, spriteSheetData.width, spriteSheetData.height),
+                        new Vector2(spriteSheetData.Pivot.x, spriteSheetData.Pivot.y), spriteSheetData.pixelsPerUnit);
+
+                    spriteset.Sprites.Add(sprite);
                 }
+
+                spritesheet.SpriteSets.Add(spritesetData.name, spriteset);
             }
         }
     }
