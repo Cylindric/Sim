@@ -70,7 +70,7 @@ namespace Assets.Scripts.Controllers
             if (tileData.Type == TileType.Floor)
             {
                 var sr = tileGo.GetComponent<SpriteRenderer>();
-                sr.sprite = SpriteManager.Instance.GetSprite("tile_floor_steel"); ;
+                sr.sprite = SpriteManager.Instance.GetSprite("floor", "default"); ;
                 sr.enabled = true;
             }
             else if (tileData.Type == TileType.Empty)

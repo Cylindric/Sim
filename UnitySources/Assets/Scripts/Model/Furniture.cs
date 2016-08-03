@@ -6,6 +6,7 @@ using System.Xml;
 using MoonSharp.Interpreter;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
+using Random = UnityEngine.Random;
 
 namespace Assets.Scripts.Model
 {
@@ -28,6 +29,8 @@ namespace Assets.Scripts.Model
         private readonly Dictionary<string, float> _parameters;
 
         private readonly List<Job> _jobs;
+
+        private float _lastFrameChange = 0f;
 
         /* #################################################################### */
         /* #                        CONSTRUCTORS                              # */
@@ -53,6 +56,8 @@ namespace Assets.Scripts.Model
             _cbIsEnterableAction = string.Empty;
             GasParticlesEnabled = false;
             WorkingCharacter = null;
+            IdleSprites = 0;
+            _lastFrameChange = Random.Range(0f, 1f);
         }
 
         /// <summary>
@@ -79,6 +84,7 @@ namespace Assets.Scripts.Model
             this.Height = other.Height;
             this.GasParticlesEnabled = other.GasParticlesEnabled;
             this.WorkingCharacter = other.WorkingCharacter;
+            this.IdleSprites = other.IdleSprites;
 
             if (other._funcPositionValidation != null)
             {
@@ -185,6 +191,10 @@ namespace Assets.Scripts.Model
         public bool GasParticlesEnabled { get; set; }
 
         public Character WorkingCharacter { get; set; }
+
+        public int IdleSprites { get; set; }
+
+        public int CurrentIdleFrame { get; set; }
 
         /* #################################################################### */
         /* #                           METHODS                                # */
@@ -352,6 +362,14 @@ namespace Assets.Scripts.Model
         /// <param name="deltaTime">The amount of time that has passed since the last tick.</param>
         public void Update(float deltaTime)
         {
+            if (_lastFrameChange > 1f)
+            {
+                CurrentIdleFrame++;
+                CurrentIdleFrame = IdleSprites == 0 ? 0 : CurrentIdleFrame % IdleSprites;
+                _lastFrameChange = 0;
+            }
+            _lastFrameChange += deltaTime;
+
             if (this._cbUpdateActions != null)
             {
                 FurnitureActions.CallFunctionsWithFurniture(_cbUpdateActions, this, deltaTime);

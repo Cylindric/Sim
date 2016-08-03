@@ -1,7 +1,4 @@
-<?xml version="1.0" encoding="utf-16"?>
-<SpriteSheet name="floor" pixelsPerUnit="64" width="64" height="64">
-	<Pivot x="0.5" y="0.5" />
-	<SpriteSet name="default">
-		<Sprite x="0" y="0" />
-	</SpriteSet>
-</SpriteSheet>
+<?xml version="1.0" encoding="UTF-8"?>
+<TextureAtlas imagePath="floor.png" width="64" height="64">
+    <sprite n="default" x="0" y="0" w="64" h="64" pX="0.5" pY="0.5"/>
+</TextureAtlas>

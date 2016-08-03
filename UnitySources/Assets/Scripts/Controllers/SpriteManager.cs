@@ -6,7 +6,6 @@ using System.Xml.Serialization;
 using Assets.Scripts.Model;
 using Assets.Scripts.Model.Import;
 using UnityEngine;
-
 using Debug = UnityEngine.Debug;
 
 namespace Assets.Scripts.Controllers
@@ -15,22 +14,24 @@ namespace Assets.Scripts.Controllers
     {
         public static SpriteManager Instance;
 
-        private Dictionary<string, SpriteSheet> _sprites = new Dictionary<string, SpriteSheet>();
+        private const int PPU = 64;
+
+        private readonly Dictionary<string, SpriteSheet> _sprites = new Dictionary<string, SpriteSheet>();
 
         private void OnEnable ()
         {
-            Instance = this;
+            Instance = this; // TODO: Not sure why this gets called twice
             LoadSprites();
         }
 	
-        public UnityEngine.Sprite GetSprite(string spriteName)
+        public UnityEngine.Sprite GetSprite(string atlasName, string spriteName)
         {
-            if (_sprites.ContainsKey(spriteName) == false)
+            if (_sprites.ContainsKey(atlasName) == false || _sprites[atlasName].Sprites.ContainsKey(spriteName) == false)
             {
-                Debug.LogErrorFormat("No prite with name {0}!", spriteName);
+                Debug.LogErrorFormat("No sprite with name {0} in atlas {1}!", spriteName, atlasName);
                 return null;
             }
-            return _sprites[spriteName].GetDefaultSprite();
+            return _sprites[atlasName].Sprites[spriteName].GetSprite();
         }
 
         private void LoadSprites()
@@ -56,26 +57,16 @@ namespace Assets.Scripts.Controllers
 
         private void LoadSpritesheet(string filepath)
         {
-            Debug.LogFormat("Loading Spritesheet {0}.", filepath);
-
-            // Full filename information
-            var datafile = filepath;
-            var imagefile = Path.Combine(Path.GetDirectoryName(datafile), Path.GetFileNameWithoutExtension(datafile) + ".png");
+            // Debug.LogFormat("Loading Spritesheet {0}.", filepath);
 
             // First get the data about the sprites
             var filestream = new StreamReader(filepath);
-            var serializer = new XmlSerializer(typeof(Model.Import.XmlSpriteSheet));
+            var serializer = new XmlSerializer(typeof (XmlTextureAtlas));
+            var atlas = (XmlTextureAtlas) serializer.Deserialize(filestream);
 
-            var spriteSheetData = new XmlSpriteSheet();
-            try
-            {
-                spriteSheetData = (XmlSpriteSheet) serializer.Deserialize(filestream);
-            }
-            catch (Exception e)
-            {
-                Debug.LogError(e.Message);
-            }
-            
+            // Full filename information
+            var imagefile = Path.Combine(Path.GetDirectoryName(filepath), atlas.imagePath);
+
             // Now load the image itself
             var bytes = File.ReadAllBytes(imagefile);
             var texture = new Texture2D(1, 1);
@@ -85,26 +76,22 @@ namespace Assets.Scripts.Controllers
             // Set up the basic SpriteSheet data.
             var spritesheet = new SpriteSheet()
             {
-                Name = spriteSheetData.name
+                Name = Path.GetFileNameWithoutExtension(atlas.imagePath)
             };
 
             // Add each sprite-set to the sheet.
-            foreach (var spritesetData in spriteSheetData.SpriteSets)
+            foreach (var data in atlas.Sprites)
             {
-                var spriteset = new SpriteSet();
+                data.y = atlas.height - data.y - data.height;
 
-                // Add all the sprites to the sprite-set
-                foreach (var spriteData in spritesetData.Sprites)
-                {
-                    var sprite = new Model.Sprite(texture,
-                        new Rect(spriteData.x, spriteData.y, spriteSheetData.width, spriteSheetData.height),
-                        new Vector2(spriteSheetData.Pivot.x, spriteSheetData.Pivot.y), spriteSheetData.pixelsPerUnit);
+                var sprite = new Model.Sprite(texture,
+                    new Rect(data.x, data.y, data.width, data.height),
+                    new Vector2(data.pivotX, data.pivotY), PPU);
 
-                    spriteset.Sprites.Add(sprite);
-                }
-
-                spritesheet.SpriteSets.Add(spritesetData.name, spriteset);
+                spritesheet.Sprites.Add(data.name, sprite);
             }
+
+            _sprites.Add(spritesheet.Name, spritesheet);
         }
     }
 }

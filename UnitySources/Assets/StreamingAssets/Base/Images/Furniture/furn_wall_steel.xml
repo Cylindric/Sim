@@ -1,33 +1,39 @@
-<?xml version="1.0" encoding="utf-16"?>
-<SpriteSheet name="furn_wall_steel" pixelsPerUnit="64" width="64" height="64">
-	<Pivot x="0.5" y="0.5" />
-	<SpriteSet name="default">
-		<Sprite x="128" y="448" />
-	</SpriteSet>
-	<SpriteSet name="wall">
-		<Sprite value="ES"    x="0"   y="448" />
-		<Sprite value="SW"    x="64"  y="448" />
-		<Sprite value="NE"    x="0"   y="384" />
-		<Sprite value="NW"    x="64"  y="384" />
-		<Sprite value="E"     x="0"   y="320" />
-		<Sprite value="S"     x="128" y="384" />
-		<Sprite value="W"     x="192" y="256" />
-		<Sprite value="N"     x="64"  y="192" />
-		<Sprite value="ESW"   x="64"  y="320" />
-		<Sprite value="NSW"   x="128" y="320" />
-		<Sprite value="NEW"   x="128" y="256" />
-		<Sprite value="NES"   x="64"  y="256" />
-		<Sprite value="EW"    x="64"  y="64"  />
-		<Sprite value="NS"    x="128" y="128" />
-		<Sprite value="NESW"  x="128" y="64"  />
-	</SpriteSet>
-</SpriteSheet>
-
-
-
-<?xml version="1.0" encoding="utf-16"?>
-<Sprites>
-
-  <Sprite name="tile_floor_steel"      x="0"   y="256" />
-  
-</Sprites>
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with TexturePacker http://www.codeandweb.com/texturepacker-->
+<!-- $TexturePacker:SmartUpdate:f3d5dfeef6dc8d501316b423535a0243:f17486e12c0096a060cf56bafbfb5032:a2b1f0db2fe583b4d3d59185c447c034$ -->
+<!--Format:
+n  => name of the sprite
+x  => sprite x pos in texture
+y  => sprite y pos in texture
+w  => sprite width (may be trimmed)
+h  => sprite height (may be trimmed)
+pX => x pos of the pivot point (relative to sprite width)
+pY => y pos of the pivot point (relative to sprite height)
+oX => sprite's x-corner offset (only available if trimmed)
+oY => sprite's y-corner offset (only available if trimmed)
+oW => sprite's original width (only available if trimmed)
+oH => sprite's original height (only available if trimmed)
+r => 'y' only set if sprite is rotated
+with polygon mode enabled:
+vertices   => points in sprite coordinate system (x0,y0,x1,y1,x2,y2, ...)
+verticesUV => points in sheet coordinate system (x0,y0,x1,y1,x2,y2, ...)
+triangles  => sprite triangulation, 3 vertex indices per triangle
+-->
+<TextureAtlas imagePath="furn_wall_steel.png" width="256" height="256">
+    <sprite n="default" x="0" y="0" w="64" h="64" pX="0.5" pY="0.5"/>
+    <sprite n="e" x="64" y="0" w="64" h="64" pX="0.5" pY="0.5"/>
+    <sprite n="es" x="128" y="0" w="64" h="64" pX="0.5" pY="0.5"/>
+    <sprite n="esw" x="192" y="0" w="64" h="64" pX="0.5" pY="0.5"/>
+    <sprite n="ew" x="0" y="64" w="64" h="64" pX="0.5" pY="0.5"/>
+    <sprite n="n" x="64" y="64" w="64" h="64" pX="0.5" pY="0.5"/>
+    <sprite n="ne" x="128" y="64" w="64" h="64" pX="0.5" pY="0.5"/>
+    <sprite n="nes" x="192" y="64" w="64" h="64" pX="0.5" pY="0.5"/>
+    <sprite n="nesw" x="0" y="128" w="64" h="64" pX="0.5" pY="0.5"/>
+    <sprite n="new" x="64" y="128" w="64" h="64" pX="0.5" pY="0.5"/>
+    <sprite n="ns" x="128" y="128" w="64" h="64" pX="0.5" pY="0.5"/>
+    <sprite n="nsw" x="192" y="128" w="64" h="64" pX="0.5" pY="0.5"/>
+    <sprite n="nw" x="0" y="192" w="64" h="64" pX="0.5" pY="0.5"/>
+    <sprite n="s" x="64" y="192" w="64" h="64" pX="0.5" pY="0.5"/>
+    <sprite n="sw" x="128" y="192" w="64" h="64" pX="0.5" pY="0.5"/>
+    <sprite n="w" x="192" y="192" w="64" h="64" pX="0.5" pY="0.5"/>
+</TextureAtlas>

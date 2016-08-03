@@ -6,16 +6,16 @@ namespace Assets.Scripts.Model
     public class SpriteSheet
     {
         public string Name { get; set; }
-        public Dictionary<string, SpriteSet> SpriteSets; 
+        public Dictionary<string, Sprite> Sprites;
 
         public SpriteSheet()
         {
-            SpriteSets = new Dictionary<string, SpriteSet>();
+            Sprites = new Dictionary<string, Sprite>();
         }
 
         public UnityEngine.Sprite GetDefaultSprite()
         {
-            return SpriteSets["default"].Sprites[0].GetSprite();
+            return Sprites[Name].GetSprite();
         }
     }
 }

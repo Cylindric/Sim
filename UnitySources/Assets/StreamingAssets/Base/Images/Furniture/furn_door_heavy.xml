@@ -1,15 +1,30 @@
-<?xml version="1.0" encoding="utf-16"?>
-<SpriteSheet name="furn_door_heavy" pixelsPerUnit="64" width="192" height="64">
-	<Pivot x="0.5" y="0.5" />
-	<SpriteSet name="default">
-		<Sprite x="0" y="448" />
-	</SpriteSet>
-	<SpriteSet name="openness">
-		<Sprite value="0"   x="0" y="448" />
-		<Sprite value="20"  x="0" y="384" />
-		<Sprite value="40"  x="0" y="320" />
-		<Sprite value="60"  x="0" y="256" />
-		<Sprite value="80"  x="0" y="192" />
-		<Sprite value="100" x="0" y="128" />
-	</SpriteSet>
-</SpriteSheet>
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with TexturePacker http://www.codeandweb.com/texturepacker-->
+<!-- $TexturePacker:SmartUpdate:f2c58676bbc6a2d6479e006e393e2be3:4c52b56774e7e474217d3e4bea625e07:1a28d74643e80e18639b778cf102ec95$ -->
+<!--Format:
+n  => name of the sprite
+x  => sprite x pos in texture
+y  => sprite y pos in texture
+w  => sprite width (may be trimmed)
+h  => sprite height (may be trimmed)
+pX => x pos of the pivot point (relative to sprite width)
+pY => y pos of the pivot point (relative to sprite height)
+oX => sprite's x-corner offset (only available if trimmed)
+oY => sprite's y-corner offset (only available if trimmed)
+oW => sprite's original width (only available if trimmed)
+oH => sprite's original height (only available if trimmed)
+r => 'y' only set if sprite is rotated
+with polygon mode enabled:
+vertices   => points in sprite coordinate system (x0,y0,x1,y1,x2,y2, ...)
+verticesUV => points in sheet coordinate system (x0,y0,x1,y1,x2,y2, ...)
+triangles  => sprite triangulation, 3 vertex indices per triangle
+-->
+<TextureAtlas imagePath="furn_door_heavy.png" width="128" height="256">
+    <sprite n="default" x="0" y="0" w="74" h="34" pX="0.5" pY="0.5"/>
+    <sprite n="openness_0" x="0" y="34" w="74" h="34" pX="0.5" pY="0.5"/>
+    <sprite n="openness_20" x="0" y="68" w="74" h="34" pX="0.5" pY="0.5"/>
+    <sprite n="openness_40" x="0" y="102" w="74" h="34" pX="0.5" pY="0.5"/>
+    <sprite n="openness_60" x="0" y="136" w="74" h="34" pX="0.5" pY="0.5"/>
+    <sprite n="openness_80" x="0" y="170" w="74" h="34" pX="0.5" pY="0.5"/>
+    <sprite n="openness_100" x="0" y="204" w="74" h="34" pX="0.5" pY="0.5"/>
+</TextureAtlas>
