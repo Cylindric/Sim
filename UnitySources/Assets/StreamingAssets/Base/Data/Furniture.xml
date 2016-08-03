@@ -50,6 +50,7 @@
 		<MovementCost>0</MovementCost>
 		<Width>2</Width>
 		<Height>2</Height>
+		<IdleSprites>2</IdleSprites>
 		<BuildingJob time="3">
 			<Inventory objectType="steel_plate" amount="10" />
 		</BuildingJob>
@@ -58,41 +59,17 @@
 			<Param name="gas_generator">1</Param>
 		</Params>	
 	</Furniture>
-	
- 	<Furniture objectType="furn_air_recharger">
-		<Name>Suit Air Recharger</Name>
-		<MovementCost>1</MovementCost>
-		<Width>1</Width>
-		<Height>1</Height>
-		<BuildingJob time="1" />
-		<Params>
-			<Param name="air_recharger">1</Param>
-		</Params>	
-		<OnUpdate>OnUpdate_AirRecharger</OnUpdate>
-	</Furniture>
-		
+
  	<Furniture objectType="furn_mining_station">
 		<Name>Mining Drone Station</Name>
 		<MovementCost>0</MovementCost>
 		<Width>3</Width>
 		<Height>2</Height>
+		<IdleSprites>2</IdleSprites>
 		<JobSpotOffset>1,-1</JobSpotOffset>
 		<JobSpawnOffset>0,-1</JobSpawnOffset>
 		<BuildingJob time="1" />
 		<OnUpdate>OnUpdate_MiningDroneStation</OnUpdate>
 	</Furniture>
 			
- 	<Furniture objectType="furn_bed">
-		<Name>Bed</Name>
-		<MovementCost>0</MovementCost>
-		<Width>2</Width>
-		<Height>1</Height>
-		<BuildingJob time="3">
-			<Inventory objectType="steel_plate" amount="1" />
-		</BuildingJob>
-		<Params>
-			<Param name="rest">5</Param>
-		</Params>	
-	</Furniture>
-	
 </Furnitures>

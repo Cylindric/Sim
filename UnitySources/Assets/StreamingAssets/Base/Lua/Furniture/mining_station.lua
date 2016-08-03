@@ -7,48 +7,59 @@ function OnUpdate_MiningDroneStation( furniture, deltaTime )
  
  -- First we see if we need to damage this object a little bit.
   local newCondition = furniture.OffsetParameter("condition", -(1/wearRate) * deltaTime, 0, 1);
-
+  local active = true
+  
   -- If it's knackered, don't do any work
-  if(newCondition <= 0.0) then
-    return
+  if(newCondition > 0.0) then
+    active = false
   end
-  	
-	local spawnSpot = furniture.GetSpawnSpotTile()
+  
+  if(active) then
+    local spawnSpot = furniture.GetSpawnSpotTile()
 
-	if( furniture.JobCount() > 0 ) then
+    if( furniture.JobCount() > 0 ) then
 
-		-- Check to see if the Metal Plate destination tile is full.
-		if( spawnSpot.Inventory ~= nil and spawnSpot.Inventory.StackSize >= spawnSpot.Inventory.MaxStackSize ) then
-			-- We should stop this job, because it's impossible to make any more items.
-			furniture.CancelJobs()
-		end
+      -- Check to see if the Metal Plate destination tile is full.
+      if( spawnSpot.Inventory ~= nil and spawnSpot.Inventory.StackSize >= spawnSpot.Inventory.MaxStackSize ) then
+        -- We should stop this job, because it's impossible to make any more items.
+        furniture.CancelJobs()
+      end
 
-		return
-	end
+      active = false
+    end
 
-	-- If we get here, then we have no current job. Check to see if our destination is full.
-	if( spawnSpot.Inventory ~= nil and spawnSpot.Inventory.StackSize >= spawnSpot.Inventory.MaxStackSize ) then
-		-- We are full! Don't make a job!
-		return
-	end
+    -- If we get here, then we have no current job. Check to see if our destination is full.
+    if(active) then
+      if( spawnSpot.Inventory ~= nil and spawnSpot.Inventory.StackSize >= spawnSpot.Inventory.MaxStackSize ) then
+        -- We are full! Don't make a job!
+        active = false
+      end
+    end
+  end
+  
+  -- If we get here, we need to CREATE a new job.
+  if(active) then
+    local jobSpot = furniture.GetJobSpotTile()
 
-	-- If we get here, we need to CREATE a new job.
+    j = Job.__new(
+      jobSpot,
+      nil,
+      nil,
+      1,
+      nil,
+      true	-- This job repeats until the destination tile is full.
+    )
+    j.Name = "replicating_iron"
+    j.Description = "Replicating iron"
+    j.RegisterOnJobCompletedCallback("MiningDroneStation_JobComplete")
 
-	local jobSpot = furniture.GetJobSpotTile()
+    furniture.AddJob( j )
+  end
 
-	j = Job.__new(
-		jobSpot,
-		nil,
-		nil,
-		1,
-		nil,
-		true	-- This job repeats until the destination tile is full.
-	)
-  j.Name = "replicating_iron"
-  j.Description = "Replicating iron"
-	j.RegisterOnJobCompletedCallback("MiningDroneStation_JobComplete")
-
-	furniture.AddJob( j )
+  if(furniture.cbOnChanged != nil) then
+    furniture.cbOnChanged(furniture)
+  end
+  
 end
 
 

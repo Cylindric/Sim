@@ -1,6 +1,26 @@
-<?xml version="1.0" encoding="utf-16"?>
-<Sprites>
-  <Sprite name="colonist_body" pixelsPerUnit="64"><Rects><Rect x="0" y="64" width="64" height="64" /></Rects><Pivot x="0.5" y="0.5" /></Sprite>
-  <Sprite name="colonist_shield" pixelsPerUnit="64"><Rects><Rect x="64" y="64" width="64" height="64" /></Rects><Pivot x="0.5" y="0.5" /></Sprite>
-  <Sprite name="colonist_working" pixelsPerUnit="64"><Rects><Rect x="0" y="0" width="64" height="64" /></Rects><Pivot x="0.5" y="0.5" /></Sprite>
-</Sprites>
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with TexturePacker http://www.codeandweb.com/texturepacker-->
+<!-- $TexturePacker:SmartUpdate:6d5ebb21ca59d2aa460e3e3331a882d6:9d78285c6ba5602940239bc725c21bea:17dcee1c5a7e27f20908e1a4bc55df8f$ -->
+<!--Format:
+n  => name of the sprite
+x  => sprite x pos in texture
+y  => sprite y pos in texture
+w  => sprite width (may be trimmed)
+h  => sprite height (may be trimmed)
+pX => x pos of the pivot point (relative to sprite width)
+pY => y pos of the pivot point (relative to sprite height)
+oX => sprite's x-corner offset (only available if trimmed)
+oY => sprite's y-corner offset (only available if trimmed)
+oW => sprite's original width (only available if trimmed)
+oH => sprite's original height (only available if trimmed)
+r => 'y' only set if sprite is rotated
+with polygon mode enabled:
+vertices   => points in sprite coordinate system (x0,y0,x1,y1,x2,y2, ...)
+verticesUV => points in sheet coordinate system (x0,y0,x1,y1,x2,y2, ...)
+triangles  => sprite triangulation, 3 vertex indices per triangle
+-->
+<TextureAtlas imagePath="colonist.png" width="128" height="128">
+    <sprite n="default" x="28" y="0" w="46" h="46" pX="0.5" pY="0.5"/>
+    <sprite n="shield" x="0" y="46" w="64" h="64" pX="0.5" pY="0.5"/>
+    <sprite n="working" x="0" y="0" w="28" h="28" pX="0.5" pY="0.5"/>
+</TextureAtlas>

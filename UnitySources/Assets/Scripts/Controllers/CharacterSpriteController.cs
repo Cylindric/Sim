@@ -28,11 +28,6 @@ namespace Assets.Scripts.Controllers
             }
         }
 
-        void Update()
-        {
-            
-        }
-
         public void OnCharacterCreated(Character character)
         {
             var characterGo = Instantiate(CharacterPrefab);
@@ -43,20 +38,9 @@ namespace Assets.Scripts.Controllers
             var script = (CharacterCollider)characterGo.GetComponentInChildren<MonoBehaviour>();
             script.Character = character;
 
-            SetSpriteForCharacter(character, characterGo, "body", true);
+            SetSpriteForCharacter(character, characterGo, "default", true);
             SetSpriteForCharacter(character, characterGo, "shield", false);
             SetSpriteForCharacter(character, characterGo, "working", false);
-
-            // Add the collider
-            //var mcl = characterGo.AddComponent<MeshCollider>();
-            //mcl.enabled = true;
-            //mcl.transform.SetParent(characterGo.transform, false);
-
-            //var coll = characterGo.AddComponent<CircleCollider2D>();
-            //coll.name = "Collider";
-            //coll.radius = 1f;
-            //coll.enabled = true;
-            //coll.transform.SetParent(characterGo.transform, false);
 
             character.RegisterOnChangedCallback(OnCharacterChanged);
         }
@@ -84,7 +68,7 @@ namespace Assets.Scripts.Controllers
             subpartGo.transform.SetParent(go.transform, false);
 
             var sprite = subpartGo.AddComponent<SpriteRenderer>();
-            sprite.sprite = SpriteManager.Instance.GetSprite("colonist_" + part);
+            sprite.sprite = SpriteManager.Instance.GetSprite("colonist", part);
             sprite.sortingLayerName = "Characters";
             sprite.enabled = visible;
 
