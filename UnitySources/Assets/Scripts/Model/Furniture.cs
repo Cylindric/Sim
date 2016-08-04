@@ -57,6 +57,7 @@ namespace Assets.Scripts.Model
             GasParticlesEnabled = false;
             WorkingCharacter = null;
             IdleSprites = 0;
+            ActiveSprites = 0;
             _lastFrameChange = Random.Range(0f, 1f);
         }
 
@@ -85,6 +86,7 @@ namespace Assets.Scripts.Model
             this.GasParticlesEnabled = other.GasParticlesEnabled;
             this.WorkingCharacter = other.WorkingCharacter;
             this.IdleSprites = other.IdleSprites;
+            this.ActiveSprites = other.ActiveSprites;
 
             if (other._funcPositionValidation != null)
             {
@@ -193,6 +195,8 @@ namespace Assets.Scripts.Model
         public Character WorkingCharacter { get; set; }
 
         public int IdleSprites { get; set; }
+
+        public int ActiveSprites { get; set; }
 
         public int CurrentIdleFrame { get; set; }
 

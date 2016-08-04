@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with TexturePacker http://www.codeandweb.com/texturepacker-->
-<!-- $TexturePacker:SmartUpdate:cb459e72c7feb100caea48de254e5d36:c6d0b90e434755b7995d68f6360f68c5:95ac41fa94ad6007b697a223f12e20cf$ -->
+<!-- $TexturePacker:SmartUpdate:7b4c7772b49f3750950e74c8762246f5:ec48ade988a74ae7de7bd171f12b58e4:95ac41fa94ad6007b697a223f12e20cf$ -->
 <!--Format:
 n  => name of the sprite
 x  => sprite x pos in texture
@@ -20,8 +20,8 @@ verticesUV => points in sheet coordinate system (x0,y0,x1,y1,x2,y2, ...)
 triangles  => sprite triangulation, 3 vertex indices per triangle
 -->
 <TextureAtlas imagePath="furn_oxygen.png" width="256" height="256">
-    <sprite n="damaged" x="0" y="0" w="128" h="120" pX="0.5" pY="0.5"/>
-    <sprite n="default" x="128" y="0" w="128" h="120" pX="0.5" pY="0.5"/>
-    <sprite n="idle_0" x="0" y="120" w="128" h="120" pX="0.5" pY="0.5"/>
-    <sprite n="idle_1" x="128" y="120" w="128" h="120" pX="0.5" pY="0.5"/>
+    <sprite n="active_0" x="0" y="0" w="128" h="120" pX="0.5" pY="0.5"/>
+    <sprite n="active_1" x="128" y="0" w="128" h="120" pX="0.5" pY="0.5"/>
+    <sprite n="damaged" x="0" y="120" w="128" h="120" pX="0.5" pY="0.5"/>
+    <sprite n="default" x="128" y="120" w="128" h="120" pX="0.5" pY="0.5"/>
 </TextureAtlas>

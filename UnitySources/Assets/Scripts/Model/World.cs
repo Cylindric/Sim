@@ -513,6 +513,7 @@ namespace Assets.Scripts.Model
                     isRoomEnclosure: XmlParser.ParseBool(furniture, ".//EnclosesRoom", false)
                     );
                 furn.IdleSprites = XmlParser.ParseInt(furniture, ".//IdleSprites", 0);
+                furn.ActiveSprites = XmlParser.ParseInt(furniture, ".//ActiveSprites", 0);
                 furn.Name = XmlParser.ParseString(furniture, ".//Name");
                 furn.JobSpotOffset = XmlParser.ParseVector2(furniture, ".//JobSpotOffset");
                 furn.JobSpawnOffset = XmlParser.ParseVector2(furniture, ".//JobSpawnOffset");
