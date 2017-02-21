@@ -6,6 +6,7 @@
 /[Bb]uild/PC
 /[Bb]uild/WebGL/*/
 !Build/WebGL/web.config
+*.apk
 
 
 # OS Files
