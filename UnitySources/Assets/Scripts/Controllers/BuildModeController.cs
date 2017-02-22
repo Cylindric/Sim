@@ -10,7 +10,8 @@ namespace Assets.Scripts.Controllers
     {
         Floor,
         Furniture,
-        Deconstruct
+        Deconstruct,
+        Colonist
     }
 
     public class BuildModeController : MonoBehaviour
@@ -45,7 +46,7 @@ namespace Assets.Scripts.Controllers
 
         public bool IsObjectDraggable()
         {
-            if (BuildMode == BuildMode.Floor || BuildMode == BuildMode.Deconstruct)
+            if (BuildMode == BuildMode.Floor || BuildMode == BuildMode.Deconstruct || BuildMode == BuildMode.Colonist)
             {
                 // Floors are draggable.
                 return true;
@@ -85,6 +86,12 @@ namespace Assets.Scripts.Controllers
         {
             BuildModeObjectType = type;
             BuildMode = BuildMode.Furniture;
+            GameObject.FindObjectOfType<MouseController>().StartBuildMode();
+        }
+
+        public void SetMode_BuildColonist()
+        {
+            BuildMode = BuildMode.Colonist;
             GameObject.FindObjectOfType<MouseController>().StartBuildMode();
         }
 
@@ -140,6 +147,10 @@ namespace Assets.Scripts.Controllers
                     t.Furniture.Deconstruct();
                 }
 
+            }
+            else if (BuildMode == BuildMode.Colonist)
+            {
+                World.Instance.CreateCharacter(t);
             }
             else
             {
