@@ -38,6 +38,8 @@ namespace Assets.Scripts.Model
         private const float TankMinLevel = 0.5f;
 
         private const int TankTopupRate = 10;
+
+        public bool DebugAi = false;
         
         /* #################################################################### */
         /* #                           FIELDS                                 # */
@@ -99,39 +101,58 @@ namespace Assets.Scripts.Model
 
             // This Behaviour Tree specifies the process for getting a job, fetching any materials it needs, and then executing that job.
             var jobBehaviour = new BehaviourTreeBuilder()
-                .Sequence("work")
-                
-                    .Selector("get-job")
-                        .Condition("have-a-job", t => DoesCharacterHaveAJob_Condition())
-                        .Do("get-next-job", t => GetNextJob_Action(t.deltaTime))
-                    .End()
+                .Selector()
+                    // Sequence fails for the first child node that fails. Moves to the next child when the current running child succeeds. Succeeds when all child nodes have succeeded.
+                    .Sequence("work")
 
-                    .Selector("get-materials")
-                        .Condition("job-has-materials", t => JobHasAllNeedMaterials_Condition())
-                        .Condition("am-carrying-materials", t => IsCarryingMaterials_Condition())
-                        .Inverter().Do("find-material", t => FindRequiredStock_Action()).End()
-                        .Inverter().Do("move-to-material", t => MoveTowardsDestination_Action(t.deltaTime)).End()
-                        .Do("pickup-material", t => PickUpStock_Action())
-                    .End()
+                        // Selector runs until a child succeeds. For each child that fails, move to next child.
+                        // Fails if there are no jobs.
+                        .Selector("get_job")
+                            .Condition("have_a_job", t => DoesCharacterHaveAJob_Condition())
+                            .Do("get_next_job", t => GetNextJob_Action(t.deltaTime)) // Fails if there are no jobs.
+                        .End()
 
-                    .Sequence("work-job")
-                        .Do("movesetup-move-to-jsobsite", t => SetupMoveToJobSite_Action())
-                        .Do("move-to-jobsite", t => MoveTowardsDestination_Action(t.deltaTime))
-                        .Do("drop_stock", t => TransferStockToJob_Action())
-                        .Do("do-work", t => DoWork_Action(t.deltaTime))
-                        .Do("clear-jobsite", t => FindNearestRoom_Action(t.deltaTime))
-                        .Do("move-to-room", t => MoveTowardsDestination_Action(t.deltaTime))
-                    .End()
+                        // Selector runs until a child succeeds. For each child that fails, move to next child.
+                        // Fails if no materials available
+                        .Selector("get_materials")
+                            .Condition("job_has_materials", t => JobHasAllNeedMaterials_Condition())
+                            .Condition("am_carrying_materials", t => IsCarryingMaterials_Condition())
+                            .Inverter().Do("find_material", t => FindRequiredStock_Action()).End()
+                            .Inverter().Do("move_to_material", t => MoveTowardsDestination_Action(t.deltaTime)).End()
+                            .Do("pickup_material", t => PickUpStock_Action())
+                        .End()
 
+                        // Sequence fails for the first child node that fails. Moves to the next child when the current running child succeeds. 
+                        // Fails if too far from job site, succeeds when job complete
+                        .Sequence("work_job")
+                            .Do("movesetup_move_to_jobsite", t => SetupMoveToJobSite_Action())
+                            .Do("move_to_jobsite", t => MoveTowardsDestination_Action(t.deltaTime))
+                            .Do("drop_stock", t => TransferStockToJob_Action())
+                            .Do("do_work", t => DoWork_Action(t.deltaTime))
+                        .End()
+
+                    .End()
+                    .Do("", t => { return BehaviourTreeStatus.Success; })
+                .End()
+                .Build();
+
+            var idleBehaviour = new BehaviourTreeBuilder()
+                // Selector runs until a child succeeds. For each child that fails, move to next child.
+                .Selector("ensure_in_room")
+                    .Condition("is_in_room", t => IsInRoom_Condition())
+                    .Inverter().Do("find_nearrest_room", t => FindNearestRoom_Action(t.deltaTime)).End()
+                    .Do("move_to_room", t => MoveTowardsDestination_Action(t.deltaTime))
                 .End()
                 .Build();
 
             // Combine all the BTs.
             _tree = new BehaviourTreeBuilder()
+                // Sequence fails for the first child node that fails.
                 .Sequence("worker")
                     .Do("drain_suit", t => DrainSuit_Action(t.deltaTime))
-                    .Splice(environmentBehaviour)
-                    .Splice(jobBehaviour)
+                    .Splice(environmentBehaviour) // Selector runs until a child succeeds. For each child that fails, move to next child.
+                    .Splice(jobBehaviour) // Succeeds
+                    .Splice(idleBehaviour) // Selector runs until a child succeeds. For each child that fails, move to next child.
                 .End()
                 .Build();
         }
@@ -215,6 +236,14 @@ namespace Assets.Scripts.Model
             return CurrentTile.Room.Atmosphere.IsBreathable();
         }
 
+        private bool IsInRoom_Condition()
+        {
+            if (DebugAi) Debug.Log(this.Name + ": checking if I am in a room");
+            if (CurrentTile == null) return false;
+            if (CurrentTile.Room == null) return false;
+            return true;
+        }
+
         private bool DoesCharacterHaveAJob_Condition()
         {
             return CurrentJob != null;
@@ -240,21 +269,26 @@ namespace Assets.Scripts.Model
 
         private BehaviourTreeStatus FindNearestRoom_Action(float deltaTime)
         {
+            if (DebugAi) Debug.Log(this.Name + " Looking for nearest room");
+
             _timeSinceLastJobSearch += deltaTime;
             if (_timeSinceLastJobSearch < TimeBetweenJobSearches)
             {
+                if (DebugAi) Debug.Log(this.Name + " Searched too soon, failing");
                 return BehaviourTreeStatus.Failure;
             }
 
             // Are we already in a valid room?
             if (CurrentTile != null && CurrentTile.Room != null)
             {
+                if (DebugAi) Debug.Log(this.Name + " Already in a room, success!");
                 return BehaviourTreeStatus.Success;
             }
 
             // Is the destination tile already a valid room?
             if (DestinationTile != null && DestinationTile.Room != null)
             {
+                if (DebugAi) Debug.Log(this.Name + " Already going to a room, success!");
                 return BehaviourTreeStatus.Success;
             }
 
@@ -262,13 +296,14 @@ namespace Assets.Scripts.Model
             var targetRoomTile = FindNearestRoom();
             if (targetRoomTile == null)
             {
-                // Debug.Log("Could not find a safe room!");
+                if (DebugAi) Debug.Log(this.Name + " Could not find a room. Failure!");
                 return BehaviourTreeStatus.Failure;
             }
 
             DestinationTile = targetRoomTile;
 
             // Find room
+            if (DebugAi) Debug.Log(this.Name + " found a new room.");
             return BehaviourTreeStatus.Success;
         }
 
@@ -279,18 +314,23 @@ namespace Assets.Scripts.Model
             _timeSinceLastJobSearch += deltaTime;
             if (_timeSinceLastJobSearch < TimeBetweenJobSearches)
             {
+                if (DebugAi) Debug.Log(Name + ": GetNextJob returning failure");
                 return BehaviourTreeStatus.Failure;
             }
 
+            // If there are no jobs, just fail.
             if (World.Instance.JobQueue.Count() == 0)
             {
+                if (DebugAi) Debug.Log(Name + ": GetNextJob returning failure");
                 return BehaviourTreeStatus.Failure;
             }
 
             CurrentJob = World.Instance.JobQueue.TakeFirstJobFromQueue();
 
+            // Try to get a job to do, if that fais, return a failure
             if (CurrentJob == null)
             {
+                if (DebugAi) Debug.Log(Name + ": GetNextJob returning failure");
                 return BehaviourTreeStatus.Failure;
             }
 
@@ -300,6 +340,7 @@ namespace Assets.Scripts.Model
                 CurrentJob.Furniture.WorkingCharacter = this;
             }
             CurrentJob.RegisterOnJobStoppedCallback(OnJobStopped);
+            if (DebugAi) Debug.Log(Name + ": GetNextJob returning success");
             return BehaviourTreeStatus.Success;
         }
 
@@ -598,6 +639,7 @@ namespace Assets.Scripts.Model
             // If there isn't a current job, that probably means while this step was running, the job was completed.
             if (CurrentJob == null)
             {
+                if (DebugAi) Debug.Log(Name + ": DoWork returning success");
                 return BehaviourTreeStatus.Success;
             }
 
@@ -619,6 +661,7 @@ namespace Assets.Scripts.Model
             // If we're too far from the job site, something went wrong.
             if (rangeToJob > CurrentJob.MinRange)
             {
+                if (DebugAi) Debug.Log(Name + ": DoWork returning failure");
                 return BehaviourTreeStatus.Failure;
             }
 
@@ -632,6 +675,7 @@ namespace Assets.Scripts.Model
 
             // Do some work.
             CurrentJob.DoWork(deltaTime);
+            if (DebugAi) Debug.Log(Name + ": DoWork returning running");
             return BehaviourTreeStatus.Running;
         }
 

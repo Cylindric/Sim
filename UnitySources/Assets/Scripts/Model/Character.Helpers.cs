@@ -84,6 +84,12 @@ namespace Assets.Scripts.Model
             return RoomIsSafe(tile.Room);
         }
 
+        private bool RoomIsInside(Room room)
+        {
+            if (room == null) return false;
+            return !room.IsOutsideRoom();
+        }
+
         private bool RoomIsSafe(Room room)
         {
             if (room == null) return false;
@@ -103,7 +109,7 @@ namespace Assets.Scripts.Model
         private Tile FindNearestRoom()
         {
             var rf = new RoomFinder();
-            var room = rf.FindClosestRoom(CurrentTile, f => (true));
+            var room = rf.FindClosestRoom(CurrentTile, RoomIsInside);
             return room;
         }
 
