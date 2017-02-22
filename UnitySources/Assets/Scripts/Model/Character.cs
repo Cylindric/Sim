@@ -115,10 +115,12 @@ namespace Assets.Scripts.Model
                     .End()
 
                     .Sequence("work-job")
-                        .Do("movesetup-move-to-jobsite", t => SetupMoveToJobSite_Action())
+                        .Do("movesetup-move-to-jsobsite", t => SetupMoveToJobSite_Action())
                         .Do("move-to-jobsite", t => MoveTowardsDestination_Action(t.deltaTime))
                         .Do("drop_stock", t => TransferStockToJob_Action())
                         .Do("do-work", t => DoWork_Action(t.deltaTime))
+                        .Do("clear-jobsite", t => FindNearestRoom_Action(t.deltaTime))
+                        .Do("move-to-room", t => MoveTowardsDestination_Action(t.deltaTime))
                     .End()
 
                 .End()
@@ -234,6 +236,40 @@ namespace Assets.Scripts.Model
                 }
             }
             return false;
+        }
+
+        private BehaviourTreeStatus FindNearestRoom_Action(float deltaTime)
+        {
+            _timeSinceLastJobSearch += deltaTime;
+            if (_timeSinceLastJobSearch < TimeBetweenJobSearches)
+            {
+                return BehaviourTreeStatus.Failure;
+            }
+
+            // Are we already in a valid room?
+            if (CurrentTile != null && CurrentTile.Room != null)
+            {
+                return BehaviourTreeStatus.Success;
+            }
+
+            // Is the destination tile already a valid room?
+            if (DestinationTile != null && DestinationTile.Room != null)
+            {
+                return BehaviourTreeStatus.Success;
+            }
+
+            // Look for a safe room nearby.
+            var targetRoomTile = FindNearestRoom();
+            if (targetRoomTile == null)
+            {
+                // Debug.Log("Could not find a safe room!");
+                return BehaviourTreeStatus.Failure;
+            }
+
+            DestinationTile = targetRoomTile;
+
+            // Find room
+            return BehaviourTreeStatus.Success;
         }
 
         private BehaviourTreeStatus GetNextJob_Action(float deltaTime)

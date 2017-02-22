@@ -100,6 +100,13 @@ namespace Assets.Scripts.Model
             return true;
         }
 
+        private Tile FindNearestRoom()
+        {
+            var rf = new RoomFinder();
+            var room = rf.FindClosestRoom(CurrentTile, f => (true));
+            return room;
+        }
+
         private Tile FindNearestSafeRoom()
         {
             var rf = new RoomFinder();

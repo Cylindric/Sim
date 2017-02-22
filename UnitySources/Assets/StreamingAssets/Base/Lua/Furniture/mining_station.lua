@@ -10,8 +10,8 @@ function OnUpdate_MiningDroneStation( furniture, deltaTime )
   local active = true
   
   -- If it's knackered, don't do any work
-  if(newCondition > 0.0) then
-    active = false
+  if(newCondition <= 0.0) then
+   active = false
   end
   
   if(active) then
