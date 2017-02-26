@@ -8,6 +8,16 @@ namespace Assets.Scripts.Pathfinding
 {
     public class Path_AStar {
 
+        public Path_AStar()
+        {
+        }
+
+        public Path_AStar(Path_AStar other)
+        {
+            this._path = other._path;
+            this._reachable = other._reachable;
+        }
+
         private LinkedList<Tile> _path;
 
         private bool _reachable;

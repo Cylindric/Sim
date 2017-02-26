@@ -49,7 +49,7 @@ namespace Assets.Scripts.Model
 
         private Tile _destinationTile;
 
-        private Tile DestinationTile
+        public Tile DestinationTile
         {
             get { return _destinationTile; }
             set
@@ -60,6 +60,11 @@ namespace Assets.Scripts.Model
                     _path = null;
                 }
             }
+        }
+
+        public Path_AStar Path
+        {
+            get { return _path; }
         }
 
         private Tile _nextTile;

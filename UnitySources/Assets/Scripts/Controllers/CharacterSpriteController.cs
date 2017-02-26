@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Assets.Scripts.Model;
+using Assets.Scripts.Pathfinding;
 using UnityEngine;
 
 namespace Assets.Scripts.Controllers
@@ -41,10 +42,12 @@ namespace Assets.Scripts.Controllers
             SetSpriteForCharacter(character, characterGo, "default", true);
             SetSpriteForCharacter(character, characterGo, "shield", false);
             SetSpriteForCharacter(character, characterGo, "working", false);
+            SetSpriteForCharacter(character, characterGo, "footstep", false);
 
             character.RegisterOnChangedCallback(OnCharacterChanged);
         }
 
+         
         private void OnCharacterChanged(Character character)
         {
             if (_characterGameObjectMap.ContainsKey(character) == false)
@@ -55,6 +58,28 @@ namespace Assets.Scripts.Controllers
 
             var charGo = _characterGameObjectMap[character];
             charGo.transform.position = new Vector3(character.X, character.Y, 0);
+
+            if (character.CurrentTile != null && character.Path != null && character.Path.Length() > 0)
+            {
+                var p = new Path_AStar(character.Path);
+                Tile t;
+                do
+                {
+                    t = p.Dequeue();
+                    if (t != null)
+                    {
+                        var go = new GameObject();
+                        go.name = "footstep";
+                        go.transform.position = new Vector3(t.X, t.Y, 0);
+                        var sprite = go.AddComponent<SpriteRenderer>();
+                        sprite.sprite = SpriteManager.Instance.GetSprite("colonist", "footstep");
+                        sprite.sortingLayerName = "Characters";
+                        sprite.enabled = true;
+                        Destroy(go, 1);
+                    }
+                } while (t != null);
+
+            }
 
             // Set the various subsprite visibility depending on what the situation is for this character.
             _characterSpriteParts[character]["working"].enabled = character.CurrentState == Character.State.WorkingJob;
