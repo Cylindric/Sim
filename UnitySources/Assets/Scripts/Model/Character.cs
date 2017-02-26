@@ -6,6 +6,7 @@ using Assets.Scripts.Utilities;
 using FluentBehaviourTree;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
+// ReSharper disable All
 
 namespace Assets.Scripts.Model
 {
@@ -106,18 +107,15 @@ namespace Assets.Scripts.Model
 
             // This Behaviour Tree specifies the process for getting a job, fetching any materials it needs, and then executing that job.
             var jobBehaviour = new BehaviourTreeBuilder()
-                .Selector()
-                    // Sequence fails for the first child node that fails. Moves to the next child when the current running child succeeds. Succeeds when all child nodes have succeeded.
+                .Succeeder()
                     .Sequence("work")
 
-                        // Selector runs until a child succeeds. For each child that fails, move to next child.
                         // Fails if there are no jobs.
                         .Selector("get_job")
                             .Condition("have_a_job", t => DoesCharacterHaveAJob_Condition())
                             .Do("get_next_job", t => GetNextJob_Action(t.deltaTime)) // Fails if there are no jobs.
                         .End()
 
-                        // Selector runs until a child succeeds. For each child that fails, move to next child.
                         // Fails if no materials available
                         .Selector("get_materials")
                             .Condition("job_has_materials", t => JobHasAllNeedMaterials_Condition())
@@ -127,37 +125,32 @@ namespace Assets.Scripts.Model
                             .Do("pickup_material", t => PickUpStock_Action())
                         .End()
 
-                        // Sequence fails for the first child node that fails. Moves to the next child when the current running child succeeds. 
-                        // Fails if too far from job site, succeeds when job complete
+                        // Succeeds when job complete
                         .Sequence("work_job")
                             .Do("movesetup_move_to_jobsite", t => SetupMoveToJobSite_Action())
                             .Do("move_to_jobsite", t => MoveTowardsDestination_Action(t.deltaTime))
                             .Do("drop_stock", t => TransferStockToJob_Action())
                             .Do("do_work", t => DoWork_Action(t.deltaTime))
                         .End()
-
                     .End()
-                    .Do("", t => { return BehaviourTreeStatus.Success; })
                 .End()
                 .Build();
 
             var idleBehaviour = new BehaviourTreeBuilder()
-                // Selector runs until a child succeeds. For each child that fails, move to next child.
                 .Selector("ensure_in_room")
-                    .Condition("is_in_room", t => IsInRoom_Condition())
-                    .Inverter().Do("find_nearrest_room", t => FindNearestRoom_Action(t.deltaTime)).End()
+                    .Condition("is_in_room", t => AmIndoors_Condition())
+                    .Inverter("").Do("find_nearrest_room", t => FindNearestRoom_Action(t.deltaTime)).End()
                     .Do("move_to_room", t => MoveTowardsDestination_Action(t.deltaTime))
                 .End()
                 .Build();
 
             // Combine all the BTs.
             _tree = new BehaviourTreeBuilder()
-                // Sequence fails for the first child node that fails.
                 .Sequence("worker")
                     .Do("drain_suit", t => DrainSuit_Action(t.deltaTime))
-                    .Splice(environmentBehaviour) // Selector runs until a child succeeds. For each child that fails, move to next child.
-                    .Splice(jobBehaviour) // Succeeds
-                    .Splice(idleBehaviour) // Selector runs until a child succeeds. For each child that fails, move to next child.
+                    .Splice(environmentBehaviour)
+                    .Splice(jobBehaviour)
+                    .Splice(idleBehaviour) 
                 .End()
                 .Build();
         }
@@ -241,22 +234,42 @@ namespace Assets.Scripts.Model
             return CurrentTile.Room.Atmosphere.IsBreathable();
         }
 
-        private bool IsInRoom_Condition()
+        private bool AmIndoors_Condition()
         {
-            if (DebugAi) Debug.Log(this.Name + ": checking if I am in a room");
-            if (CurrentTile == null) return false;
-            if (CurrentTile.Room == null) return false;
+            // If we're nowhere, we are not in a room
+            if (CurrentTile == null || CurrentTile.Room == null)
+            {
+                if (DebugAi) Debug.Log(this.Name + ": checking if I am in a room; not in any room");
+                return false;
+            }
+
+            // Is the room the default room?
+            if (CurrentTile.Room.IsOutsideRoom())
+            {
+                if (DebugAi) Debug.Log(this.Name + ": checking if I am in a room; no, is an outside area");
+                return false;
+            }
+
+            if (DebugAi) Debug.Log(this.Name + ": checking if I am in a room; yes");
             return true;
         }
 
         private bool DoesCharacterHaveAJob_Condition()
         {
+            if (DebugAi) Debug.Log(this.Name + ": checking if I have a job; " + (CurrentJob == null ? "nope" : "yes"));
             return CurrentJob != null;
         }
 
         private bool JobHasAllNeedMaterials_Condition()
         {
-            return CurrentJob.HasAllMaterial();
+            if (CurrentJob.HasAllMaterial())
+            {
+                if (DebugAi) Debug.Log(this.Name + ": job has all materials");
+                return true;
+            }
+
+            if (DebugAi) Debug.Log(this.Name + ": job need materials");
+            return false;
         }
 
         private bool IsCarryingMaterials_Condition()
@@ -266,9 +279,11 @@ namespace Assets.Scripts.Model
                 if (CurrentJob.NeedsMaterial(Inventory) > 0)
                 {
                     // We are carrying at least some of what the current job needs, so take it to the job site.
+                    if (DebugAi) Debug.Log(this.Name + ": I have the materials the job needs");
                     return true;
                 }
             }
+            if (DebugAi) Debug.Log(this.Name + ": I need materials for this job");
             return false;
         }
 
@@ -339,7 +354,7 @@ namespace Assets.Scripts.Model
                 return BehaviourTreeStatus.Failure;
             }
 
-            // Debug.LogFormat("GetNextJob_Action got new job {0} at [{1},{2}]", CurrentJob.Name, CurrentJob.Tile.X, CurrentJob.Tile.Y);
+            Debug.LogFormat("{0} got new job {1} at [{2},{3}]", Name, CurrentJob.Name, CurrentJob.Tile.X, CurrentJob.Tile.Y);
             if (CurrentJob.Furniture != null)
             {
                 CurrentJob.Furniture.WorkingCharacter = this;
@@ -438,7 +453,7 @@ namespace Assets.Scripts.Model
                 if (_path == null)
                 {
                     AbandonJob();
-                    // Debug.LogFormat("MoveTowardsDestination_Action: Could not find a route to the next tile!");
+                    Debug.LogFormat("MoveTowardsDestination_Action: Could not find a route to the next tile!");
                     return BehaviourTreeStatus.Failure;
                 }
 
@@ -470,7 +485,7 @@ namespace Assets.Scripts.Model
             {
                 _nextTile = null;
                 _path = null;
-                // Debug.LogFormat("MoveTowardsDestination_Action: failed trying to move into a blocked tile.");
+                Debug.LogFormat("MoveTowardsDestination_Action: failed trying to move into a blocked tile.");
                 return BehaviourTreeStatus.Failure;
             }
 
@@ -555,6 +570,7 @@ namespace Assets.Scripts.Model
 
             if (CurrentJob == null)
             {
+                Debug.LogFormat("{0}: SetupMoveToJobSite_Action returning failure due to no job", Name);
                 AbandonJob();
                 AbandonMove();
                 return BehaviourTreeStatus.Failure;
@@ -585,6 +601,7 @@ namespace Assets.Scripts.Model
             // If we still don't have a path, there is no path.
             if (_path.IsUnReachable)
             {
+                Debug.LogFormat("{0}: SetupMoveToJobSite_Action returning failure due to not being able to find a route", Name);
                 AbandonJob();
                 return BehaviourTreeStatus.Failure;
             }
@@ -770,6 +787,8 @@ namespace Assets.Scripts.Model
                 // Debug.Log("Could not find a safe room!");
                 return BehaviourTreeStatus.Failure;
             }
+
+            Debug.LogFormat("{0} finding safety", Name);
 
             DestinationTile = targetRoomTile;
             return BehaviourTreeStatus.Success;
