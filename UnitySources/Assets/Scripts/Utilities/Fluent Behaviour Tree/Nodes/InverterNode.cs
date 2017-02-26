@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace FluentBehaviourTree
 {
@@ -20,7 +23,7 @@ namespace FluentBehaviourTree
         /// </summary>
         private IBehaviourTreeNode childNode;
 
-        public InverterNode(string name = "inverter")
+        public InverterNode(string name)
         {
             this.name = name;
         }

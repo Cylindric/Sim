@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace FluentBehaviourTree
 {
@@ -20,7 +23,7 @@ namespace FluentBehaviourTree
         /// </summary>
         private List<IBehaviourTreeNode> children = new List<IBehaviourTreeNode>(); //todo: this could be optimized as a baked array.
 
-        public SequenceNode(string name = "sequence")
+        public SequenceNode(string name)
         {
             this.name = name;
         }

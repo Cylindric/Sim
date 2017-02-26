@@ -1,4 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using UnityEngine;
 
 namespace FluentBehaviourTree
 {
@@ -26,13 +30,11 @@ namespace FluentBehaviourTree
             this.fn=fn;
         }
 
-        public ActionNode(Func<TimeData, BehaviourTreeStatus> fn) : this("action", fn)
-        {
-        }
-
         public BehaviourTreeStatus Tick(TimeData time)
         {
-            return fn(time);
+            var result = fn(time);
+            //Debug.LogFormat("{0} returning {1}", name, result);
+            return result;
         }
     }
 }

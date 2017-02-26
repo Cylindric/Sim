@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace FluentBehaviourTree
 {
@@ -35,10 +38,6 @@ namespace FluentBehaviourTree
             this.name = name;
             this.numRequiredToFail = numRequiredToFail;
             this.numRequiredToSucceed = numRequiredToSucceed;
-        }
-
-        public ParallelNode(int numRequiredToFail, int numRequiredToSucceed) : this("parallel", numRequiredToFail, numRequiredToSucceed)
-        {
         }
 
         public BehaviourTreeStatus Tick(TimeData time)
