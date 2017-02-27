@@ -96,6 +96,8 @@ namespace Assets.Scripts.Controllers
 
             // Center the camera.
             Camera.main.transform.position = new Vector3(World.Width / 2f, World.Height / 2f, Camera.main.transform.position.z);
+
+            Debug.LogFormat("Loaded game from {0}", filename);
         }
 
         private void CreateEmptyWorld()
@@ -104,9 +106,9 @@ namespace Assets.Scripts.Controllers
             this.World = new World(20, 20);
 
             // Put some characters into the world
-            World.CreateCharacter(World.GetTileAt(World.Width / 2 - 1, World.Height / 2));
+            // World.CreateCharacter(World.GetTileAt(World.Width / 2 - 1, World.Height / 2));
             World.CreateCharacter(World.GetTileAt(World.Width / 2, World.Height / 2));
-            World.CreateCharacter(World.GetTileAt(World.Width / 2 + 1, World.Height / 2));
+            // BWorld.CreateCharacter(World.GetTileAt(World.Width / 2 + 1, World.Height / 2));
 
             Camera.main.transform.position = new Vector3(World.Width / 2f, World.Height / 2f, Camera.main.transform.position.z);
         }

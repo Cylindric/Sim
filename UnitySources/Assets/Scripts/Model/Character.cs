@@ -94,7 +94,7 @@ namespace Assets.Scripts.Model
                 .Selector("breathe_or_flee")
                     .Sequence("breathe")
                         .Condition("breathable", t => CanBreathe_Condition())
-                        // .Do("do_breathing", t => Breathe_Action(t.deltaTime))
+                        .Do("do_breathing", t => Breathe_Action(t.deltaTime))
                         .Do("replenish_suit", t => ReplenishSuit_Action(t.deltaTime))
                     .End()
                     .Do("breathe_suit", t => BreatheSuit_Action(t.deltaTime))

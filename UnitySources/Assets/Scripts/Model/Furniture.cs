@@ -28,6 +28,8 @@ namespace Assets.Scripts.Model
 
         private readonly Dictionary<string, float> _parameters;
 
+        private readonly List<string> _services; 
+
         private readonly List<Job> _jobs;
 
         private float _lastFrameChange = 0f;
@@ -50,7 +52,8 @@ namespace Assets.Scripts.Model
             IsRoomEnclosure = false;
             Width = 1;
             Height = 1;
-            _parameters = new Dictionary<string, float> {{"condition", 1f}};
+            _parameters = new Dictionary<string, float> {{"condition", 1f}, {"decayTime", 600f}};
+            _services = new List<string>();
             _jobs = new List<Job>();
             _cbUpdateActions = new List<string>();
             _cbIsEnterableAction = string.Empty;
@@ -78,6 +81,7 @@ namespace Assets.Scripts.Model
             this.JobSpotOffset = other.JobSpotOffset;
             this.JobSpawnOffset = other.JobSpawnOffset;
             this._parameters = new Dictionary<string, float>(other._parameters);
+            this._services = new List<string>(other._services);
             this._cbUpdateActions = new List<string>(other._cbUpdateActions);
             this._cbIsEnterableAction = other._cbIsEnterableAction;
             this.Width = other.Width;
@@ -370,6 +374,8 @@ namespace Assets.Scripts.Model
             }
             _lastFrameChange += deltaTime;
 
+            ApplyDecay(deltaTime);
+
             if (this._cbUpdateActions != null)
             {
                 FurnitureActions.CallFunctionsWithFurniture(_cbUpdateActions, this, deltaTime);
@@ -396,6 +402,54 @@ namespace Assets.Scripts.Model
         public void Door_UpdateAction(float deltaTime)
         {
             //this.OffsetParameter("openness", deltaTime);
+        }
+
+        private void ApplyDecay(float deltaTime)
+        {
+            var decayTime = GetParameter("decayTime");
+            float newCondition;
+
+            if (decayTime <= 0)
+            {
+                newCondition = GetParameter("condition");
+            }
+            else { 
+                newCondition = OffsetParameter("condition", -(1/decayTime)*deltaTime, 0, 1);
+            }
+
+            // Need repair?
+            if (newCondition < 0.1f)
+            {
+                StartNewRepairJob();
+            }
+
+            //if (newCondition < 1f)
+            //{
+            //    Debug.LogFormat("{0} decayed to {1}", Name, newCondition);
+            //}
+        }
+
+        private void StartNewRepairJob()
+        {
+            var j = new Job(
+                tile: this.Tile,
+                jobObjectType: null,
+                cbJobComplete: null,
+                jobTime: 10,
+                inventoryRequirements: null,
+                jobRepeats: false
+                );
+            j.RegisterOnJobCompletedCallback(OnRepairComplete);
+            AddJob(j);
+        }
+
+        private void OnRepairComplete(Job j)
+        {
+            var newCondition = OffsetParameter("condition", 0.1f);
+            if (newCondition < 1f)
+            {
+                StartNewRepairJob();
+            }
         }
 
         public void ReadXml(XmlElement element)

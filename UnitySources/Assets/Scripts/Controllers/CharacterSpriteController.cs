@@ -59,6 +59,7 @@ namespace Assets.Scripts.Controllers
             var charGo = _characterGameObjectMap[character];
             charGo.transform.position = new Vector3(character.X, character.Y, 0);
 
+            // Draw 'footsteps' for any current path on this character
             if (character.CurrentTile != null && character.Path != null && character.Path.Length() > 0)
             {
                 var p = new Path_AStar(character.Path);

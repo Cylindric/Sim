@@ -1,16 +1,9 @@
--- Time (in seconds) it takes to go from 100% to 0% condition.
-local wearRate = 600
-
-
-
 function OnUpdate_MiningDroneStation( furniture, deltaTime )
  
- -- First we see if we need to damage this object a little bit.
-  local newCondition = furniture.OffsetParameter("condition", -(1/wearRate) * deltaTime, 0, 1);
   local active = true
   
   -- If it's knackered, don't do any work
-  if(newCondition <= 0.0) then
+  if(furniture.GetParameter("condition") <= 0.0) then
    active = false
   end
   
@@ -39,15 +32,14 @@ function OnUpdate_MiningDroneStation( furniture, deltaTime )
   
   -- If we get here, we need to CREATE a new job.
   if(active) then
-    local jobSpot = furniture.GetJobSpotTile()
 
     j = Job.__new(
-      jobSpot,
-      nil,
-      nil,
-      1,
-      nil,
-      true	-- This job repeats until the destination tile is full.
+      furniture.GetJobSpotTile(), -- Tile
+      nil, -- JobObjectType
+      nil, -- cbJobComplete
+      1, -- jobTime
+      nil, -- inventoryRequirements
+      true	-- jobRepeats: This job repeats until the destination tile is full.
     )
     j.Name = "replicating_iron"
     j.Description = "Replicating iron"

@@ -9,6 +9,9 @@
 		<BuildingJob time="1">
 			<Inventory objectType="steel_plate" amount="5" />
 		</BuildingJob>
+		<Params>
+			<Param name="decayTime">-1</Param>
+		</Params>	
 	</Furniture>
 	
 	<Furniture objectType="furn_door">
@@ -57,6 +60,7 @@
 		<OnUpdate>OnUpdate_GasGenerator</OnUpdate>
 		<Params>
 			<Param name="gas_generator">1</Param>
+			<Param name="condition">0.11</Param>
 		</Params>	
 	</Furniture>
 
@@ -70,6 +74,9 @@
 		<JobSpawnOffset>0,-1</JobSpawnOffset>
 		<BuildingJob time="1" />
 		<OnUpdate>OnUpdate_MiningDroneStation</OnUpdate>
+		<Params>
+			<Param name="decayTime">-1</Param>
+		</Params>	
 	</Furniture>
 			
 </Furnitures>

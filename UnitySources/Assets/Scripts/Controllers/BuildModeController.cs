@@ -31,8 +31,8 @@ namespace Assets.Scripts.Controllers
         void Awake()
         {
             //#if UNITY_EDITOR
-            //QualitySettings.vSyncCount = 0;  // VSync must be disabled
-            //Application.targetFrameRate = 10;
+            // QualitySettings.vSyncCount = 0;  // VSync must be disabled
+            // Application.targetFrameRate = 10;
             //#endif
         }
 
