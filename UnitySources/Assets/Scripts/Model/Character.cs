@@ -57,6 +57,7 @@ namespace Assets.Scripts.Model
             {
                 if (_destinationTile != value)
                 {
+                    // Debug.LogFormat("{0} changed destination from {1} to {2}", Name, _destinationTile, value);
                     _destinationTile = value;
                     _path = null;
                 }
@@ -430,8 +431,6 @@ namespace Assets.Scripts.Model
 
         private BehaviourTreeStatus MoveTowardsDestination_Action(float deltaTime)
         {
-            // Debug.Log("MoveTowardsDestination_Action");
-
             // If we've already arrived at our destination, just continue.
             if (CurrentTile == _destinationTile)
             {
@@ -445,8 +444,13 @@ namespace Assets.Scripts.Model
                 // If we don't have a route to the current destination, plan one.
                 if (_path == null || _path.Length() == 0 || _path.EndTile() != DestinationTile)
                 {
-                    // Debug.LogFormat("MoveTowardsDestination_Action: calculating new path from [{0},{1}] to [{2},{3}]", CurrentTile.X, CurrentTile.Y, DestinationTile.X, DestinationTile.Y);
-                    _path = new Path_AStar(World.Instance, CurrentTile, DestinationTile);
+                    _path = new Path_AStar()
+                    {
+                        World = World.Instance,
+                        Start = CurrentTile,
+                        End = DestinationTile
+                    };
+                    _path.Calculate();
                 }
 
                 // If Path is still null, we were not able to find a route to our goal
@@ -457,8 +461,21 @@ namespace Assets.Scripts.Model
                     return BehaviourTreeStatus.Failure;
                 }
 
+                // See if we're "close enough" to the job.
+                // _path.Debug();
+                if ((_path.Length()) <= CurrentJob.MinRange)
+                {
+                    Debug.LogFormat("{0}: Close enough to job (is {1} needs to be <= {2})", Name, (_path.Length()), CurrentJob.MinRange);
+                    // Set dest to current, just in case it was the proximity-check that got us here
+                    DestinationTile = CurrentTile;
+                    return BehaviourTreeStatus.Success;
+                }
+                else
+                {
+                    Debug.LogFormat("{0}: Distance to job is {1}, needs to be <={2}", Name, (_path.Length()), CurrentJob.MinRange);
+                }
+
                 _nextTile = _path.Dequeue();
-                // Debug.LogFormat("MoveTowardsDestination_Action: moving to next adjacent tile from [{0},{1}] to [{2},{3}]", CurrentTile.X, CurrentTile.Y, _nextTile.X, _nextTile.Y);
             }
 
             if (_nextTile == null)
@@ -485,7 +502,7 @@ namespace Assets.Scripts.Model
             {
                 _nextTile = null;
                 _path = null;
-                Debug.LogFormat("MoveTowardsDestination_Action: failed trying to move into a blocked tile.");
+                Debug.LogFormat("{0}: MoveTowardsDestination_Action failed trying to move into a blocked tile.", Name);
                 return BehaviourTreeStatus.Failure;
             }
 
@@ -566,8 +583,6 @@ namespace Assets.Scripts.Model
 
         private BehaviourTreeStatus SetupMoveToJobSite_Action()
         {
-            //Debug.Log("SetupMoveToJobSite_Action");
-
             if (CurrentJob == null)
             {
                 Debug.LogFormat("{0}: SetupMoveToJobSite_Action returning failure due to no job", Name);
@@ -584,18 +599,24 @@ namespace Assets.Scripts.Model
 
             // Make sure we're heading for the site.
             DestinationTile = CurrentJob.Tile;
-            // Debug.LogFormat("SetupMoveToJobSite_Action moving to [{0},{1}] ", DestinationTile.X, DestinationTile.Y);
 
             // See if we're already stood on the tile.
             if (CurrentTile == DestinationTile)
             {
+                Debug.LogFormat("{0}: SetupMoveToJobSite_Action returning success due to being at the job", Name);
                 return BehaviourTreeStatus.Success;
             }
 
             // Make sure we have a route to the job.
             if (_path == null || _path.EndTile() != DestinationTile)
             {
-                _path = new Path_AStar(World.Instance, CurrentTile, DestinationTile);
+                _path = new Path_AStar()
+                {
+                    World = World.Instance,
+                    Start = CurrentTile,
+                    End = DestinationTile
+                };
+                _path.Calculate();
             }
 
             // If we still don't have a path, there is no path.
@@ -607,11 +628,17 @@ namespace Assets.Scripts.Model
             }
 
             // See if we're "close enough" to the job.
-            if (_path.Length() <= CurrentJob.MinRange)
+            // _path.Debug();
+            if ((_path.Length()) <= CurrentJob.MinRange)
             {
+                // Debug.LogFormat("{0}: Close enough to job (is {1} needs to be <= {2})", Name, (_path.Length()), CurrentJob.MinRange);
                 // Set dest to current, just in case it was the proximity-check that got us here
                 DestinationTile = CurrentTile;
                 return BehaviourTreeStatus.Success;
+            }
+            else
+            {
+                Debug.LogFormat("{0}: Distance to job is {1}, needs to be <={2}", Name, (_path.Length()), CurrentJob.MinRange);
             }
 
             // At this point we should have a valid _nextTile to move to.

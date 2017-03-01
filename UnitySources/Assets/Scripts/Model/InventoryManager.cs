@@ -140,7 +140,14 @@ namespace Assets.Scripts.Model
                 return null;
             }
 
-            var path = new Path_AStar(World.Instance, t, null, objectType, true);
+            var path = new Path_AStar()
+            {
+                World = World.Instance,
+                Start = t,
+                ObjectType = objectType,
+                CanTakeFromStockpile = true
+            };
+            path.Calculate();
             return path;
         }
     }

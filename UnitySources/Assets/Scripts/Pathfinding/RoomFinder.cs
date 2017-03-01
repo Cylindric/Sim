@@ -32,7 +32,7 @@ namespace Assets.Scripts.Pathfinding
             }
 
             // A dictionary of all valid, walkable nodes.
-            var nodes = World.Instance.TileGraph.nodes;
+            var nodes = World.Instance.TileGraph.Nodes;
 
             var start = nodes[startTile];
 

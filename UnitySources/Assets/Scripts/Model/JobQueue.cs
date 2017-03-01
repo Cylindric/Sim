@@ -53,7 +53,14 @@ namespace Assets.Scripts.Model
 
             foreach (var job in _jobQueue)
             {
-                var route = new Path_AStar(World.Instance, t, job.Tile);
+                var route = new Path_AStar()
+                {
+                    World = World.Instance,
+                    Start = t,
+                    End = job.Tile
+                };
+                route.Calculate();
+
                 if (found == null || route.Length() < distance)
                 {
                     found = job;

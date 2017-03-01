@@ -60,7 +60,7 @@
 		<OnUpdate>OnUpdate_GasGenerator</OnUpdate>
 		<Params>
 			<Param name="gas_generator">1</Param>
-			<Param name="condition">0.11</Param>
+			<Param name="condition">1</Param>
 		</Params>	
 	</Furniture>
 
