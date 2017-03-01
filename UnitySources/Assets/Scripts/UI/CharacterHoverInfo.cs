@@ -48,6 +48,10 @@ namespace Assets.Scripts.UI
                         label.text = this.Character.GetCondition("health").ToString("P0");
                         break;
 
+                    case "Character.SuitAir":
+                        label.text = this.Character.GetCondition("suit_air").ToString("P0");
+                        break;
+
                     case "Character.Job":
                         if (this.Character.CurrentJob == null)
                         {

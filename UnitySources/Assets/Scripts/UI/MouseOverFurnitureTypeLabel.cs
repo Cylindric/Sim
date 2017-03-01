@@ -30,7 +30,7 @@ namespace Assets.Scripts.UI
                 return;
             }
 
-            _myText.text = "Furniture: " + t.Furniture.Name;
+            _myText.text = string.Format("Furniture: {0} ({1:P1})", t.Furniture.Name, t.Furniture.GetParameter("condition"));
         }
         
     }

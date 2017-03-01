@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Xml;
+using System.Xml.Xsl;
 using MoonSharp.Interpreter;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
+using Random = UnityEngine.Random;
 
 namespace Assets.Scripts.Model
 {
@@ -27,7 +29,11 @@ namespace Assets.Scripts.Model
 
         private readonly Dictionary<string, float> _parameters;
 
+        private readonly List<string> _services; 
+
         private readonly List<Job> _jobs;
+
+        private float _lastFrameChange = 0f;
 
         /* #################################################################### */
         /* #                        CONSTRUCTORS                              # */
@@ -38,20 +44,24 @@ namespace Assets.Scripts.Model
         /// </summary>
         public Furniture()
         {
-            this.Name = string.Empty;
-            this.LinksToNeighbour = false;
-            this.Tint = Color.white;
-            this.JobSpotOffset = Vector2.zero;
-            this.JobSpawnOffset = Vector2.zero;
-            this.MovementCost = 1f;
-            this.IsRoomEnclosure = false;
-            this.Width = 1;
-            this.Height = 1;
-            this._parameters = new Dictionary<string, float>();
-            this._jobs = new List<Job>();
-            this._cbUpdateActions = new List<string>();
-            this._cbIsEnterableAction = string.Empty;
-            this.GasParticlesEnabled = false;
+            Name = string.Empty;
+            LinksToNeighbour = false;
+            Tint = Color.white;
+            JobSpotOffset = Vector2.zero;
+            JobSpawnOffset = Vector2.zero;
+            MovementCost = 1f;
+            IsRoomEnclosure = false;
+            Width = 1;
+            Height = 1;
+            _parameters = new Dictionary<string, float> {{"condition", 1f}, {"decayTime", 1200f}};
+            _services = new List<string>();
+            _jobs = new List<Job>();
+            _cbUpdateActions = new List<string>();
+            _cbIsEnterableAction = string.Empty;
+            GasParticlesEnabled = false;
+            WorkingCharacter = null;
+            IdleSprites = 0;
+            _lastFrameChange = Random.Range(0f, 1f);
         }
 
         /// <summary>
@@ -72,11 +82,14 @@ namespace Assets.Scripts.Model
             this.JobSpotOffset = other.JobSpotOffset;
             this.JobSpawnOffset = other.JobSpawnOffset;
             this._parameters = new Dictionary<string, float>(other._parameters);
+            this._services = new List<string>(other._services);
             this._cbUpdateActions = new List<string>(other._cbUpdateActions);
             this._cbIsEnterableAction = other._cbIsEnterableAction;
             this.Width = other.Width;
             this.Height = other.Height;
             this.GasParticlesEnabled = other.GasParticlesEnabled;
+            this.WorkingCharacter = other.WorkingCharacter;
+            this.IdleSprites = other.IdleSprites;
 
             if (other._funcPositionValidation != null)
             {
@@ -182,6 +195,12 @@ namespace Assets.Scripts.Model
 
         public bool GasParticlesEnabled { get; set; }
 
+        public Character WorkingCharacter { get; set; }
+
+        public int IdleSprites { get; set; }
+
+        public int CurrentIdleFrame { get; set; }
+
         /* #################################################################### */
         /* #                           METHODS                                # */
         /* #################################################################### */
@@ -226,13 +245,41 @@ namespace Assets.Scripts.Model
         /// </summary>
         /// <param name="key">Key</param>
         /// <param name="value">Delta value</param>
-        public void OffsetParameter(string key, float value)
+        public float OffsetParameter(string key, float value)
         {
             if (_parameters.ContainsKey(key) == false)
             {
                 _parameters[key] = value;
             }
             _parameters[key] += value;
+
+            return _parameters[key];
+        }
+
+        /// <summary>
+        /// Returns a list of all tiles under this piece of furniture.
+        /// </summary>
+        /// <returns>The Tiles under this Furniture.</returns>
+        public List<Tile> GetTilesUnderFurniture()
+        {
+            var list = new List<Tile>();
+            for (var x = this.Tile.X; x <= this.Tile.X + this.Width; x++)
+            {
+                for (var y = this.Tile.Y; y <= this.Tile.Y + this.Height; x++)
+                {
+                    list.Add(World.Instance.GetTileAt(x, y));
+                }
+            }
+
+            return list;
+        } 
+
+        public float OffsetParameter(string key, float value, float clampMin, float clampMax)
+        {
+            OffsetParameter(key, value);
+            _parameters[key] = Mathf.Max(_parameters[key], clampMin);
+            _parameters[key] = Mathf.Min(_parameters[key], clampMax);
+            return _parameters[key];
         }
 
         /// <summary>
@@ -247,7 +294,6 @@ namespace Assets.Scripts.Model
         /// <summary>
         /// Unregisters a function that has been added with <see cref="RegisterIsEnterableAction"/>.
         /// </summary>
-        /// <param name="fname">Action to remove.</param>
         public void UnregisterIsEnterableAction()
         {
             _cbIsEnterableAction = string.Empty;
@@ -339,6 +385,16 @@ namespace Assets.Scripts.Model
         /// <param name="deltaTime">The amount of time that has passed since the last tick.</param>
         public void Update(float deltaTime)
         {
+            if (_lastFrameChange > 1f)
+            {
+                CurrentIdleFrame++;
+                CurrentIdleFrame = IdleSprites == 0 ? 0 : CurrentIdleFrame % IdleSprites;
+                _lastFrameChange = 0;
+            }
+            _lastFrameChange += deltaTime;
+
+            ApplyDecay(deltaTime);
+
             if (this._cbUpdateActions != null)
             {
                 FurnitureActions.CallFunctionsWithFurniture(_cbUpdateActions, this, deltaTime);
@@ -365,6 +421,55 @@ namespace Assets.Scripts.Model
         public void Door_UpdateAction(float deltaTime)
         {
             //this.OffsetParameter("openness", deltaTime);
+        }
+
+        private void ApplyDecay(float deltaTime)
+        {
+            var decayTime = GetParameter("decayTime");
+            float newCondition;
+
+            if (decayTime <= 0)
+            {
+                newCondition = GetParameter("condition");
+            }
+            else { 
+                newCondition = OffsetParameter("condition", -(1/decayTime)*deltaTime, 0, 1);
+            }
+
+            // Need repair?
+            if (newCondition < 0.1f)
+            {
+                StartNewRepairJob();
+            }
+
+            //if (newCondition < 1f)
+            //{
+            //    Debug.LogFormat("{0} decayed to {1}", Name, newCondition);
+            //}
+        }
+
+        private void StartNewRepairJob()
+        {
+            var j = new Job(
+                tile: this.Tile,
+                jobObjectType: null,
+                cbJobComplete: null,
+                jobTime: 5,
+                inventoryRequirements: null,
+                jobRepeats: false
+                );
+            j.MinRange = 1;
+            j.RegisterOnJobCompletedCallback(OnRepairComplete);
+            AddJob(j);
+        }
+
+        private void OnRepairComplete(Job j)
+        {
+            var newCondition = OffsetParameter("condition", 0.1f);
+            if (newCondition < 0.95f)
+            {
+                StartNewRepairJob();
+            }
         }
 
         public void ReadXml(XmlElement element)
@@ -398,12 +503,19 @@ namespace Assets.Scripts.Model
                 var paramElement = xml.CreateElement("Parameters");
                 foreach (var k in _parameters)
                 {
+                    if (k.Key == "condition" && Mathf.Approximately(k.Value, 1f))
+                    {
+                        continue;
+                    }
                     var p = xml.CreateElement("Param");
                     p.SetAttribute("name", k.Key);
                     p.InnerText = k.Value.ToString(CultureInfo.InvariantCulture);
                     paramElement.AppendChild(p);
                 }
-                furniture.AppendChild(paramElement);
+                if (paramElement.ChildNodes.Count > 0)
+                {
+                    furniture.AppendChild(paramElement);
+                }
             }
 
             return furniture;
@@ -439,14 +551,6 @@ namespace Assets.Scripts.Model
             }
 
             return true;
-        }
-
-        private void ClearJobs()
-        {
-            foreach (var j in _jobs.ToArray())
-            {
-                RemoveJob(j);
-            }
         }
 
         public void AddJob(Job job)
@@ -489,7 +593,7 @@ namespace Assets.Scripts.Model
 
         public void Deconstruct()
         {
-            Debug.Log("Deconstructing...");
+            // Debug.Log("Deconstructing...");
 
             Tile.UnplaceFurniture();
 

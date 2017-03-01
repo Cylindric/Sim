@@ -102,7 +102,7 @@ namespace Assets.Scripts.Model
         {
             if (r == GetOutsideRoom())
             {
-                Debug.LogError("Tried to delete the outside room!");
+                // Debug.LogError("Tried to delete the outside room!");
                 return;
             }
 
@@ -512,6 +512,7 @@ namespace Assets.Scripts.Model
                     linksToNeighbour: XmlParser.ParseBool(furniture, ".//LinksToNeighbours", false),
                     isRoomEnclosure: XmlParser.ParseBool(furniture, ".//EnclosesRoom", false)
                     );
+                furn.IdleSprites = XmlParser.ParseInt(furniture, ".//IdleSprites", 0);
                 furn.Name = XmlParser.ParseString(furniture, ".//Name");
                 furn.JobSpotOffset = XmlParser.ParseVector2(furniture, ".//JobSpotOffset");
                 furn.JobSpawnOffset = XmlParser.ParseVector2(furniture, ".//JobSpawnOffset");

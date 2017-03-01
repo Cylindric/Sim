@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Assets.Scripts.Model;
 using UnityEngine;
+using Sprite = UnityEngine.Sprite;
 
 namespace Assets.Scripts.Controllers
 {
@@ -95,13 +96,13 @@ namespace Assets.Scripts.Controllers
 
         public Sprite GetSpriteForFurniture(Furniture furn)
         {
-            var spriteName = furn.ObjectType;
+            var spriteName = "";
             var x = furn.Tile.X;
             var y = furn.Tile.Y;
 
             if (furn.LinksToNeighbour == true)
             {
-                spriteName = spriteName + "_";
+                // spriteName = spriteName + "_";
 
                 // check for neighbours NESW
 
@@ -110,29 +111,29 @@ namespace Assets.Scripts.Controllers
                 t = World.GetTileAt(x, y + 1);
                 if (t != null && t.Furniture != null && t.Furniture.ObjectType == furn.ObjectType)
                 {
-                    spriteName += "N";
+                    spriteName += "n";
                 }
                 t = World.GetTileAt(x + 1, y);
                 if (t != null && t.Furniture != null && t.Furniture.ObjectType == furn.ObjectType)
                 {
-                    spriteName += "E";
+                    spriteName += "e";
                 }
                 t = World.GetTileAt(x, y - 1);
                 if (t != null && t.Furniture != null && t.Furniture.ObjectType == furn.ObjectType)
                 {
-                    spriteName += "S";
+                    spriteName += "s";
                 }
                 t = World.GetTileAt(x - 1, y);
                 if (t != null && t.Furniture != null && t.Furniture.ObjectType == furn.ObjectType)
                 {
-                    spriteName += "W";
+                    spriteName += "w";
                 }
             }
 
             // If it's a door, check openness and update the sprite accordingly.
             if (furn.GetParameter("openness", -1) >= 0)
             {
-                spriteName += "_";
+                spriteName += "openness_";
 
                 if (furn.GetParameter("openness") <= 0.1)
                 {
@@ -165,8 +166,29 @@ namespace Assets.Scripts.Controllers
                 spriteName = spriteName.Substring(0, spriteName.LastIndexOf("_", StringComparison.Ordinal));
             }
 
-            var sprite = SpriteManager.Instance.GetSprite(spriteName);
+            if (Mathf.Approximately(furn.GetParameter("condition"), 0))
+            {
+                spriteName = "damaged";
+            }
 
+            // If we don't have a sprite name yet, we're idle.
+            if (string.IsNullOrEmpty(spriteName))
+            {
+                if (furn.IdleSprites == 0)
+                {
+                    spriteName = "default";
+                }
+                else
+                {
+                    spriteName = "idle_" + furn.CurrentIdleFrame;
+                }
+            }
+
+            var sprite = SpriteManager.Instance.GetSprite(furn.ObjectType, spriteName);
+            if (sprite == null)
+            {
+                sprite = GetSpriteForFurniture(furn.ObjectType);
+            }
 
             if (Mathf.Approximately(furn.GetParameter("gas_generator"), 1f))
             {
@@ -182,7 +204,8 @@ namespace Assets.Scripts.Controllers
 
         public Sprite GetSpriteForFurniture(string objectType)
         {
-            return SpriteManager.Instance.GetSprite(objectType);
+            
+            return SpriteManager.Instance.GetSprite(objectType, "default");
         }
 
         private void Start()

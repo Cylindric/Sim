@@ -85,7 +85,7 @@ namespace Assets.Scripts.Model
                 // Create a new Room on each side of the selected Furniture.
                 foreach (var t in sourceTile.GetNeighbours())
                 {
-                    if (t.Room != null && (onlyIfOutside == false || t.Room.IsOutsideRoom()))
+                    if (t != null && t.Room != null && (onlyIfOutside == false || t.Room.IsOutsideRoom()))
                     {
                         FloodFill(t, oldRoom);
                     }

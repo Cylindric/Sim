@@ -47,7 +47,6 @@ local function EqualizeGasses(furniture, deltaTime)
       end
     end
   end
-
 end
 
 function OnUpdate_Door(furniture, deltaTime)
@@ -81,3 +80,4 @@ function IsEnterable_Door(furniture)
 
   return 2 -- Enterability.Soon
 end
+

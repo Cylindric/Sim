@@ -1,5 +1,6 @@
 /[Ll]ibrary/
-/[Tt]ools/
+/[Tt]ools/*.zip
+/[Tt]ools/Installers
 
 
 /[Bb]uild/PC
@@ -10,3 +11,5 @@
 # OS Files
 [Tt]humbs.db
 [Tt]humbs.db.meta
+
+Build/Linux64/

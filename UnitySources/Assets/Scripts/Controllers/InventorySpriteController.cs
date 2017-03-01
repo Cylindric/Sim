@@ -2,6 +2,7 @@
 using Assets.Scripts.Model;
 using UnityEngine;
 using UnityEngine.UI;
+using Sprite = UnityEngine.Sprite;
 
 namespace Assets.Scripts.Controllers
 {
@@ -93,7 +94,7 @@ namespace Assets.Scripts.Controllers
 
         public Sprite GetSpriteForInventory(Inventory obj)
         {
-            return SpriteManager.Instance.GetSprite("inventory_" + obj.ObjectType);
+            return SpriteManager.Instance.GetSprite("inventory_" + obj.ObjectType, "default");
         }
     }
 }

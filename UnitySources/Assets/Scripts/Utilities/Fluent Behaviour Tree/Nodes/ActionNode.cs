@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using UnityEngine;
 
 namespace FluentBehaviourTree
 {
@@ -13,7 +14,9 @@ namespace FluentBehaviourTree
         /// <summary>
         /// The name of the node.
         /// </summary>
+#pragma warning disable 0414
         private string name;
+#pragma warning restore 0414
 
         /// <summary>
         /// Function to invoke for the action.
@@ -27,13 +30,11 @@ namespace FluentBehaviourTree
             this.fn=fn;
         }
 
-        public ActionNode(Func<TimeData, BehaviourTreeStatus> fn) : this("action", fn)
-        {
-        }
-
         public BehaviourTreeStatus Tick(TimeData time)
         {
-            return fn(time);
+            var result = fn(time);
+            //Debug.LogFormat("{0} returning {1}", name, result);
+            return result;
         }
     }
 }

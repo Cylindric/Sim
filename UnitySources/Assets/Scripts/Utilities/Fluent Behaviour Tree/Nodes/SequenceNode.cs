@@ -13,14 +13,17 @@ namespace FluentBehaviourTree
         /// <summary>
         /// Name of the node.
         /// </summary>
+#pragma warning disable 0414
         private string name;
+#pragma warning restore 0414
+
 
         /// <summary>
         /// List of child nodes.
         /// </summary>
         private List<IBehaviourTreeNode> children = new List<IBehaviourTreeNode>(); //todo: this could be optimized as a baked array.
 
-        public SequenceNode(string name = "sequence")
+        public SequenceNode(string name)
         {
             this.name = name;
         }

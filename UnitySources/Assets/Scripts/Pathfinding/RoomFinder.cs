@@ -16,6 +16,15 @@ namespace Assets.Scripts.Pathfinding
                 return null;
             }
 
+            return FindClosestTile(startTile, t =>
+            {
+                if (t.Room == null) return false;
+                return isValid(t.Room);
+            });
+        }
+
+        public Tile FindClosestTile(Tile startTile, Func<Tile, bool> isValid)
+        {
             // Check to see if we have a valid Tile graph
             if (World.Instance.TileGraph == null)
             {
@@ -23,7 +32,7 @@ namespace Assets.Scripts.Pathfinding
             }
 
             // A dictionary of all valid, walkable nodes.
-            var nodes = World.Instance.TileGraph.nodes;
+            var nodes = World.Instance.TileGraph.Nodes;
 
             var start = nodes[startTile];
 
@@ -36,12 +45,14 @@ namespace Assets.Scripts.Pathfinding
 
             Path_Node<Tile> current = null;
 
+            var found = false;
             while (frontier.Count > 0)
             {
                 current = frontier.Dequeue();
 
-                if (isValid(current.data.Room))
+                if (isValid(current.data))
                 {
+                    found = true;
                     break;
                 }
 
@@ -59,7 +70,7 @@ namespace Assets.Scripts.Pathfinding
                 }
             }
 
-            if (current == null) return null;
+            if (found == false || current == null) return null;
 
             return current.data;
         }

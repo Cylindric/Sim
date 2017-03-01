@@ -13,7 +13,10 @@ namespace FluentBehaviourTree
         /// <summary>
         /// Name of the node.
         /// </summary>
+#pragma warning disable 0414
         private string name;
+#pragma warning restore 0414
+
 
         /// <summary>
         /// List of child nodes.
@@ -35,10 +38,6 @@ namespace FluentBehaviourTree
             this.name = name;
             this.numRequiredToFail = numRequiredToFail;
             this.numRequiredToSucceed = numRequiredToSucceed;
-        }
-
-        public ParallelNode(int numRequiredToFail, int numRequiredToSucceed) : this("parallel", numRequiredToFail, numRequiredToSucceed)
-        {
         }
 
         public BehaviourTreeStatus Tick(TimeData time)

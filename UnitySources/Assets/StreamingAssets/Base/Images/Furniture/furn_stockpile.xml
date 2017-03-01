@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-16"?>
-<Sprites xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <Sprite name="furn_stockpile" pixelsPerUnit="64"><Rect x="0" y="0" width="64" height="64" /><Pivot x="0.5" y="0.5" /></Sprite>
-</Sprites>
+<?xml version="1.0" encoding="UTF-8"?>
+<TextureAtlas imagePath="furn_stockpile.png" width="64" height="64">
+    <sprite n="default" x="0" y="0" w="64" h="64" pX="0.5" pY="0.5"/>
+</TextureAtlas>

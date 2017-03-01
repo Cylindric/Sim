@@ -13,14 +13,17 @@ namespace FluentBehaviourTree
         /// <summary>
         /// Name of the node.
         /// </summary>
+#pragma warning disable 0414
         private string name;
+#pragma warning restore 0414
+
 
         /// <summary>
         /// The child to be inverted.
         /// </summary>
         private IBehaviourTreeNode childNode;
 
-        public InverterNode(string name = "inverter")
+        public InverterNode(string name)
         {
             this.name = name;
         }
