@@ -355,7 +355,7 @@ namespace Assets.Scripts.Model
                 return BehaviourTreeStatus.Failure;
             }
 
-            Debug.LogFormat("{0} got new job {1} at [{2},{3}]", Name, CurrentJob.Name, CurrentJob.Tile.X, CurrentJob.Tile.Y);
+            if (DebugAi) Debug.LogFormat("{0} got new job {1} at [{2},{3}]", Name, CurrentJob.Name, CurrentJob.Tile.X, CurrentJob.Tile.Y);
             if (CurrentJob.Furniture != null)
             {
                 CurrentJob.Furniture.WorkingCharacter = this;
@@ -465,14 +465,14 @@ namespace Assets.Scripts.Model
                 // _path.Debug();
                 if ((_path.Length()) <= CurrentJob.MinRange)
                 {
-                    Debug.LogFormat("{0}: Close enough to job (is {1} needs to be <= {2})", Name, (_path.Length()), CurrentJob.MinRange);
+                    // Debug.LogFormat("{0}: Close enough to job (is {1} needs to be <= {2})", Name, (_path.Length()), CurrentJob.MinRange);
                     // Set dest to current, just in case it was the proximity-check that got us here
                     DestinationTile = CurrentTile;
                     return BehaviourTreeStatus.Success;
                 }
                 else
                 {
-                    Debug.LogFormat("{0}: Distance to job is {1}, needs to be <={2}", Name, (_path.Length()), CurrentJob.MinRange);
+                    // Debug.LogFormat("{0}: Distance to job is {1}, needs to be <={2}", Name, (_path.Length()), CurrentJob.MinRange);
                 }
 
                 _nextTile = _path.Dequeue();
@@ -585,7 +585,7 @@ namespace Assets.Scripts.Model
         {
             if (CurrentJob == null)
             {
-                Debug.LogFormat("{0}: SetupMoveToJobSite_Action returning failure due to no job", Name);
+                if (DebugAi) Debug.LogFormat("{0}: SetupMoveToJobSite_Action returning failure due to no job", Name);
                 AbandonJob();
                 AbandonMove();
                 return BehaviourTreeStatus.Failure;
@@ -638,7 +638,7 @@ namespace Assets.Scripts.Model
             }
             else
             {
-                Debug.LogFormat("{0}: Distance to job is {1}, needs to be <={2}", Name, (_path.Length()), CurrentJob.MinRange);
+                // Debug.LogFormat("{0}: Distance to job is {1}, needs to be <={2}", Name, (_path.Length()), CurrentJob.MinRange);
             }
 
             // At this point we should have a valid _nextTile to move to.

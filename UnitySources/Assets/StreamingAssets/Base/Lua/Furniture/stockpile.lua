@@ -1,4 +1,4 @@
-function tockpile_GetItemsFromFilter()
+function Stockpile_GetItemsFromFilter()
 	-- TODO: This should be reading from some kind of UI for this
 	-- particular stockpile
 
@@ -26,6 +26,9 @@ function OnUpdate_Stockpile( furniture, deltaTime )
 	--		-- A good gets picked up (at which point we reset the job)
 	--		-- The UI's filter of allowed items gets changed
 
+  if( furniture.Tile == nil) then
+    return "This furniture has not Tile!"
+  end
 
 	if( furniture.Tile.Inventory != nil and furniture.Tile.Inventory.StackSize >= furniture.Tile.Inventory.MaxStackSize ) then
 		-- We are full!

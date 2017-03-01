@@ -14,6 +14,7 @@ namespace Assets.Scripts.Model
         private Script myLuaScript;
 
         private RemoteDebuggerService remoteDebugger;
+        private static bool _enableRemoteLuaDebugger = false;
 
         private void ActivateRemoteDebugger(Script script)
         {
@@ -22,15 +23,15 @@ namespace Assets.Scripts.Model
                 remoteDebugger = new RemoteDebuggerService(new RemoteDebuggerOptions()
                 {
                     NetworkOptions = Utf8TcpServerOptions.LocalHostOnly | Utf8TcpServerOptions.SingleClientOnly,
-                    // SingleScriptMode = true,
+                    SingleScriptMode = true,
                     HttpPort = 2705,
                     RpcPortBase = 2006,
                 });
                 remoteDebugger.Attach(script, "FurnitureActions", true);
             }
+
             Process.Start(remoteDebugger.HttpUrlStringLocalHost);
         }
-
 
         static FurnitureActions()
         {
@@ -41,7 +42,11 @@ namespace Assets.Scripts.Model
             _instance.myLuaScript.Globals["Inventory"] = typeof(Inventory);
             _instance.myLuaScript.Globals["Job"] = typeof(Job);
             _instance.myLuaScript.Globals["World"] = typeof(World);
-            //_instance.ActivateRemoteDebugger(_instance.myLuaScript);
+
+            if (_enableRemoteLuaDebugger)
+            {
+                _instance.ActivateRemoteDebugger(_instance.myLuaScript);
+            }
         }
 
         public static void LoadLua(string rawLuaCode)
