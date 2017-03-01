@@ -70,7 +70,10 @@ namespace Assets.Scripts.Controllers
             if (tileData.Type == TileType.Floor)
             {
                 var sr = tileGo.GetComponent<SpriteRenderer>();
-                sr.sprite = SpriteManager.Instance.GetSprite("floor", "default");
+                var x = tileData.X % 3;
+                var y = x + tileData.Y % 3;
+                var tile = (x + y) % 3;
+                sr.sprite = SpriteManager.Instance.GetSprite("tile_floor", string.Format("floor_{0}", tile));
                 sr.enabled = true;
             }
             else if (tileData.Type == TileType.Empty)
@@ -84,6 +87,5 @@ namespace Assets.Scripts.Controllers
                 Debug.LogError("OnTileChanged - Unrecognised Tile type");
             }
         }
-
     }
 }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with TexturePacker http://www.codeandweb.com/texturepacker-->
-<!-- $TexturePacker:SmartUpdate:24a2798494c0a1e7ba49b7806fffdef7:d49b70ed70f58e559f6d6b484a597009:95ac41fa94ad6007b697a223f12e20cf$ -->
+<!-- $TexturePacker:SmartUpdate:505d79237f0ad677571f771359630b4a:e68f15d586c03ea166d649192296cedf:b758437051d98155b40150557a9524c4$ -->
 <!--Format:
 n  => name of the sprite
 x  => sprite x pos in texture
@@ -19,6 +19,8 @@ vertices   => points in sprite coordinate system (x0,y0,x1,y1,x2,y2, ...)
 verticesUV => points in sheet coordinate system (x0,y0,x1,y1,x2,y2, ...)
 triangles  => sprite triangulation, 3 vertex indices per triangle
 -->
-<TextureAtlas imagePath="tile_floor.png" width="64" height="64">
-    <sprite n="tile_floor" x="0" y="0" w="64" h="64" pX="0.5" pY="0.5"/>
+<TextureAtlas imagePath="tile_floor.png" width="192" height="64">
+    <sprite n="floor_0" x="0" y="0" w="64" h="64" pX="0.5" pY="0.5"/>
+    <sprite n="floor_1" x="64" y="0" w="64" h="64" pX="0.5" pY="0.5"/>
+    <sprite n="floor_2" x="128" y="0" w="64" h="64" pX="0.5" pY="0.5"/>
 </TextureAtlas>
