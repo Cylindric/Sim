@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Xml;
+using System.Xml.Xsl;
 using MoonSharp.Interpreter;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
@@ -52,7 +53,7 @@ namespace Assets.Scripts.Model
             IsRoomEnclosure = false;
             Width = 1;
             Height = 1;
-            _parameters = new Dictionary<string, float> {{"condition", 1f}, {"decayTime", 600f}};
+            _parameters = new Dictionary<string, float> {{"condition", 1f}, {"decayTime", 1200f}};
             _services = new List<string>();
             _jobs = new List<Job>();
             _cbUpdateActions = new List<string>();
@@ -255,6 +256,24 @@ namespace Assets.Scripts.Model
             return _parameters[key];
         }
 
+        /// <summary>
+        /// Returns a list of all tiles under this piece of furniture.
+        /// </summary>
+        /// <returns>The Tiles under this Furniture.</returns>
+        public List<Tile> GetTilesUnderFurniture()
+        {
+            var list = new List<Tile>();
+            for (var x = this.Tile.X; x <= this.Tile.X + this.Width; x++)
+            {
+                for (var y = this.Tile.Y; y <= this.Tile.Y + this.Height; x++)
+                {
+                    list.Add(World.Instance.GetTileAt(x, y));
+                }
+            }
+
+            return list;
+        } 
+
         public float OffsetParameter(string key, float value, float clampMin, float clampMax)
         {
             OffsetParameter(key, value);
@@ -435,10 +454,11 @@ namespace Assets.Scripts.Model
                 tile: this.Tile,
                 jobObjectType: null,
                 cbJobComplete: null,
-                jobTime: 10,
+                jobTime: 5,
                 inventoryRequirements: null,
                 jobRepeats: false
                 );
+            j.MinRange = 1;
             j.RegisterOnJobCompletedCallback(OnRepairComplete);
             AddJob(j);
         }
@@ -446,7 +466,7 @@ namespace Assets.Scripts.Model
         private void OnRepairComplete(Job j)
         {
             var newCondition = OffsetParameter("condition", 0.1f);
-            if (newCondition < 1f)
+            if (newCondition < 0.95f)
             {
                 StartNewRepairJob();
             }

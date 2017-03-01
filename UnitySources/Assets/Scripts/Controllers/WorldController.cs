@@ -137,6 +137,11 @@ namespace Assets.Scripts.Controllers
             {
                 Camera.main.transform.position += Vector3.down * Time.deltaTime * scrollSpeed;
             }
+
+            if (World.TileGraph != null)
+            {
+                World.TileGraph.DebugVis();
+            }
         }
 
     }
