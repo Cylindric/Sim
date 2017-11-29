@@ -2,10 +2,12 @@
 using System.Globalization;
 using System.Xml;
 using MoonSharp.Interpreter;
+using System.Diagnostics;
 
 namespace Assets.Scripts.Model
 {
     [MoonSharpUserData]
+    [DebuggerDisplay("Inventory {Name} ({StackSize}/{MaxStackSize})")]
     public class Inventory
     {
         /* #################################################################### */

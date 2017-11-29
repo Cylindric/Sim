@@ -14,6 +14,19 @@
 		</Params>	
 	</Furniture>
 	
+	<Furniture objectType="furn_bed">
+		<Name>Bed</Name>
+		<MovementCost>0</MovementCost>
+		<Width>2</Width>
+		<BuildingJob time="1">
+			<Inventory objectType="steel_plate" amount="5" />
+		</BuildingJob>
+		<Params>
+			<Param name="decayTime">-1</Param>
+		</Params>	
+		<OnUpdate>OnUpdate_Bed</OnUpdate>
+	</Furniture>
+	
 	<Furniture objectType="furn_door">
 		<Name>Door</Name>
 		<EnclosesRoom>False</EnclosesRoom>

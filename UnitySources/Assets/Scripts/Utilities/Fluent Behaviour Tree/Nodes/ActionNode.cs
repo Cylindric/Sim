@@ -1,8 +1,8 @@
 ﻿using System;
+using Debug = UnityEngine.Debug;
+using System.Timers;
+using System.Diagnostics;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
 
 namespace FluentBehaviourTree
 {
@@ -18,6 +18,8 @@ namespace FluentBehaviourTree
         private string name;
 #pragma warning restore 0414
 
+        private Stopwatch timer = new Stopwatch();
+
         /// <summary>
         /// Function to invoke for the action.
         /// </summary>
@@ -30,9 +32,21 @@ namespace FluentBehaviourTree
             this.fn=fn;
         }
 
+        public void GetTimes(Dictionary<string, long> times)
+        {
+            times.Add(name, timer.ElapsedMilliseconds);
+            //if (timer.ElapsedMilliseconds > 0)
+            //{
+            //    Debug.LogFormat("{0}: {1}ms", name, timer.ElapsedMilliseconds);
+            //}
+        }
+
         public BehaviourTreeStatus Tick(TimeData time)
         {
+            timer.Start();
             var result = fn(time);
+            timer.Stop();
+
             //Debug.LogFormat("{0} returning {1}", name, result);
             return result;
         }

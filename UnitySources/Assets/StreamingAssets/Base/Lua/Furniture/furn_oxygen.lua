@@ -42,7 +42,7 @@ function OnUpdate_GasGenerator(furniture, deltaTime)
   end
 
   if (furniture.Tile == nil) then
-    return "Furn Tile is null!"
+    return "Furn Tile is nil!"
   end
 
   if (furniture.Tile.Room == nil) then

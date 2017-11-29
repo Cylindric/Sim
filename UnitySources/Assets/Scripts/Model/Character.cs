@@ -6,6 +6,7 @@ using Assets.Scripts.Utilities;
 using FluentBehaviourTree;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
+using System.Linq;
 // ReSharper disable All
 
 namespace Assets.Scripts.Model
@@ -20,7 +21,8 @@ namespace Assets.Scripts.Model
             FetchingStock,
             WorkingJob,
             MovingToJobsite,
-            WaitingForAccess
+            WaitingForAccess,
+            CoolingDown
         }
 
         private const float TimeBetweenJobSearches = 3f;
@@ -87,6 +89,7 @@ namespace Assets.Scripts.Model
             this._speed = BaseMovementSpeed;
             this.Name = MarkovNameGenerator.GetNextName("male") + ' ' + MarkovNameGenerator.GetNextName("last");
             this.CurrentState = State.Idle;
+
             _conditions = new Dictionary<string, float> {{"energy", 1f}, {"health", 1f}, {"suit_air", 1f} };
             _timeSinceLastJobSearch = TimeBetweenJobSearches;
 
@@ -463,7 +466,7 @@ namespace Assets.Scripts.Model
 
                 // See if we're "close enough" to the job.
                 // _path.Debug();
-                if ((_path.Length()) <= CurrentJob.MinRange)
+                if (CurrentJob == null || (_path.Length()) <= CurrentJob.MinRange)
                 {
                     // Debug.LogFormat("{0}: Close enough to job (is {1} needs to be <= {2})", Name, (_path.Length()), CurrentJob.MinRange);
                     // Set dest to current, just in case it was the proximity-check that got us here
@@ -838,6 +841,18 @@ namespace Assets.Scripts.Model
         public void Update(float deltaTime)
         {
             _tree.Tick(new TimeData(deltaTime));
+
+            var times = new Dictionary<string, long>();
+            _tree.GetTimes(times);
+            var tstring = this.Name;
+            foreach(var t in times.Where(o => o.Value > 0).OrderByDescending(o => o.Value).Take(10))
+            {
+                tstring = tstring + "; " + t.Key + ':' + t.Value;
+            }
+            if (tstring != this.Name)
+            {
+                Debug.Log(tstring);
+            }   
 
             // Hack in some environmental effects.
             // Currently breathability is all that affects if the shield is up or not.

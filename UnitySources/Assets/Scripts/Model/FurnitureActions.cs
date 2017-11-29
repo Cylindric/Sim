@@ -2,9 +2,10 @@
 using System.Diagnostics;
 using Assets.Scripts.Controllers;
 using MoonSharp.Interpreter;
-using MoonSharp.RemoteDebugger;
-using MoonSharp.RemoteDebugger.Network;
+//using MoonSharp.RemoteDebugger;
+//using MoonSharp.RemoteDebugger.Network;
 using Debug = UnityEngine.Debug;
+using MoonSharp.VsCodeDebugger;
 
 namespace Assets.Scripts.Model
 {
@@ -13,25 +14,28 @@ namespace Assets.Scripts.Model
         private static FurnitureActions _instance;
         private Script myLuaScript;
 
-        private RemoteDebuggerService remoteDebugger;
-        private static bool _enableRemoteLuaDebugger = false;
+        private static MoonSharpVsCodeDebugServer _server = new MoonSharpVsCodeDebugServer();
+        
 
-        private void ActivateRemoteDebugger(Script script)
-        {
-            if (remoteDebugger == null)
-            {
-                remoteDebugger = new RemoteDebuggerService(new RemoteDebuggerOptions()
-                {
-                    NetworkOptions = Utf8TcpServerOptions.LocalHostOnly | Utf8TcpServerOptions.SingleClientOnly,
-                    SingleScriptMode = true,
-                    HttpPort = 2705,
-                    RpcPortBase = 2006,
-                });
-                remoteDebugger.Attach(script, "FurnitureActions", true);
-            }
+        //private RemoteDebuggerService remoteDebugger;
+        //private static bool _enableRemoteLuaDebugger = false;
 
-            Process.Start(remoteDebugger.HttpUrlStringLocalHost);
-        }
+        //private void ActivateRemoteDebugger(Script script)
+        //{
+        //    if (remoteDebugger == null)
+        //    {
+        //        remoteDebugger = new RemoteDebuggerService(new RemoteDebuggerOptions()
+        //        {
+        //            NetworkOptions = Utf8TcpServerOptions.LocalHostOnly | Utf8TcpServerOptions.SingleClientOnly,
+        //            SingleScriptMode = true,
+        //            HttpPort = 2705,
+        //            RpcPortBase = 2006,
+        //        });
+        //        remoteDebugger.Attach(script, "FurnitureActions", true);
+        //    }
+
+        //    Process.Start(remoteDebugger.HttpUrlStringLocalHost);
+        //}
 
         static FurnitureActions()
         {
@@ -43,10 +47,12 @@ namespace Assets.Scripts.Model
             _instance.myLuaScript.Globals["Job"] = typeof(Job);
             _instance.myLuaScript.Globals["World"] = typeof(World);
 
-            if (_enableRemoteLuaDebugger)
-            {
-                _instance.ActivateRemoteDebugger(_instance.myLuaScript);
-            }
+            //if (_enableRemoteLuaDebugger)
+            //{
+            _server.Start();
+            _server.AttachToScript(_instance.myLuaScript, "FurnitureActionsScript");
+            //    _instance.ActivateRemoteDebugger(_instance.myLuaScript);
+            //}
         }
 
         public static void LoadLua(string rawLuaCode)

@@ -3,10 +3,11 @@ using System.Xml;
 using System.Xml.Serialization;
 using Assets.Scripts.Model;
 using Assets.Scripts.Utilities;
-using MoonSharp.RemoteDebugger;
+//using MoonSharp.RemoteDebugger;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Debug = UnityEngine.Debug;
+using System;
 
 namespace Assets.Scripts.Controllers
 {
@@ -70,6 +71,8 @@ namespace Assets.Scripts.Controllers
                 Debug.LogError("There shouldn't be an instance already!");
             }
             Instance = this;
+
+            var args = Environment.GetCommandLineArgs();
 
             if (_loadWorld)
             {

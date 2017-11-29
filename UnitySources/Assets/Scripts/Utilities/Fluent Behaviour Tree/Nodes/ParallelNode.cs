@@ -72,5 +72,13 @@ namespace FluentBehaviourTree
         {
             children.Add(child);
         }
+
+        public void GetTimes(Dictionary<string, long> times)
+        {
+            foreach (var child in children)
+            {
+                child.GetTimes(times);
+            }
+        }
     }
 }

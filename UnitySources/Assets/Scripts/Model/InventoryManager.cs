@@ -2,6 +2,7 @@
 using Assets.Scripts.Pathfinding;
 using MoonSharp.Interpreter;
 using UnityEngine;
+using System.Linq;
 
 namespace Assets.Scripts.Model
 {
@@ -135,7 +136,14 @@ namespace Assets.Scripts.Model
 
         public Path_AStar GetClosestPathToInventoryOfType(string objectType, Tile t, int desiredQty, bool searchInStockpiles)
         {
+            // If we've never seen any of this object type before, there aren't any.
             if (Inventories.ContainsKey(objectType) == false)
+            {
+                return null;
+            }
+
+            // If there aren't any stacks with items actually in them, give up
+            if(Inventories.Where(o => o.Key == objectType && o.Value.Count > 0).Any() == false)
             {
                 return null;
             }

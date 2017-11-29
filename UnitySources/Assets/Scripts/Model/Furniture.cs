@@ -18,6 +18,8 @@ namespace Assets.Scripts.Model
     [MoonSharpUserData]
     public class Furniture 
     {
+        private const float _repairStartThreshold = 0.1f;
+
         /* #################################################################### */
         /* #                           FIELDS                                 # */
         /* #################################################################### */
@@ -437,7 +439,7 @@ namespace Assets.Scripts.Model
             }
 
             // Need repair?
-            if (newCondition < 0.1f)
+            if (newCondition < _repairStartThreshold)
             {
                 StartNewRepairJob();
             }
@@ -458,6 +460,7 @@ namespace Assets.Scripts.Model
                 inventoryRequirements: null,
                 jobRepeats: false
                 );
+            j.Name = "Repairing";
             j.MinRange = 1;
             j.RegisterOnJobCompletedCallback(OnRepairComplete);
             AddJob(j);

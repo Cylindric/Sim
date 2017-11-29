@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace FluentBehaviourTree
 {
@@ -14,5 +11,6 @@ namespace FluentBehaviourTree
         /// Update the time of the behaviour tree.
         /// </summary>
         BehaviourTreeStatus Tick(TimeData time);
+        void GetTimes(Dictionary<string, long> times);
     }
 }

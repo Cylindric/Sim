@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace FluentBehaviourTree
 {
@@ -50,6 +51,14 @@ namespace FluentBehaviourTree
             }
 
             this.childNode = child;
+        }
+
+        public void GetTimes(Dictionary<string, long> times)
+        {
+            if (childNode != null)
+            {
+                childNode.GetTimes(times);
+            }
         }
     }
 }
