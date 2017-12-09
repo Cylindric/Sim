@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <RunConfiguration>
+    <TargetPlatform>x64</TargetPlatform>
+  </RunConfiguration>
+  <MSTest>
+    <AssemblyResolution>
+      <Directory path="C:\Users\passp\Documents\Dev\CylSimSDL\src\lib" includeSubDirectories="true" />
+    </AssemblyResolution>
+  </MSTest>
+</RunSettings>
