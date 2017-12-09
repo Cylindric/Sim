@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using Assets.Scripts.Model;
-using UnityEngine;
+using Engine.Models;
+// using UnityEngine;
 using Sprite = UnityEngine.Sprite;
 
-namespace Assets.Scripts.Controllers
+namespace Engine.Controllers
 {
-    public class FurnitureSpriteController : MonoBehaviour
+    public class FurnitureSpriteController// : MonoBehaviour
     {
         /* #################################################################### */
         /* #                           FIELDS                                 # */

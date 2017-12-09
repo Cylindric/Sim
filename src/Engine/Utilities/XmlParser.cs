@@ -4,9 +4,9 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Xml;
-using UnityEngine;
+// using UnityEngine;
 
-namespace Assets.Scripts.Utilities
+namespace Engine.Utilities
 {
     public static class XmlParser
     {

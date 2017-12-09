@@ -1,9 +1,9 @@
-﻿using Assets.Scripts.Model;
-using UnityEngine;
+﻿using Engine.Models;
+// using UnityEngine;
 
-namespace Assets.Scripts.Controllers
+namespace Engine.Controllers
 {
-    public class SoundController : MonoBehaviour
+    public class SoundController// : MonoBehaviour
     {
         private float _soundCooldown = 0f;
         private AudioClip _tileChangeAudioClip;

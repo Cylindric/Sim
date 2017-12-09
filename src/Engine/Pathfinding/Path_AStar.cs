@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Resources;
-using Assets.Scripts.Model;
+using Engine.Models;
 using Priority_Queue;
-using UnityEngine;
+// using UnityEngine;
 
-namespace Assets.Scripts.Pathfinding
+namespace Engine.Pathfinding
 {
     public class Path_AStar
     {

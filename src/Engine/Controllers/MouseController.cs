@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
-using Assets.Scripts.Model;
-using Assets.Scripts.Utilities;
-using UnityEngine;
+using Engine.Models;
+using Engine.Utilities;
+// using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace Assets.Scripts.Controllers
+namespace Engine.Controllers
 {
-    public class MouseController : MonoBehaviour
+    public class MouseController// : MonoBehaviour
     {
         /* #################################################################### */
         /* #                         CONSTANT FIELDS                          # */

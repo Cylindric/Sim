@@ -1,7 +1,7 @@
-﻿using UnityEngine;
+﻿// using UnityEngine;
 using System.Collections;
 
-public class SetSortingLayer : MonoBehaviour
+public class SetSortingLayer// : MonoBehaviour
 {
     public string sortingLayerName = "default";
 

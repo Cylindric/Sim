@@ -5,9 +5,9 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Xml;
 using MoonSharp.Interpreter;
-using UnityEngine;
+// using UnityEngine;
 
-namespace Assets.Scripts.Model
+namespace Engine.Models
 {
     /// <summary>
     /// The AtmosphereManager can be used to track and modify the composition of the atmoshpere in a room.

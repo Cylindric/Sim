@@ -1,17 +1,17 @@
 ﻿using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
-using Assets.Scripts.Model;
-using Assets.Scripts.Utilities;
+using Engine.Models;
+using Engine.Utilities;
 //using MoonSharp.RemoteDebugger;
-using UnityEngine;
+// using UnityEngine;
 using UnityEngine.SceneManagement;
 using Debug = UnityEngine.Debug;
 using System;
 
-namespace Assets.Scripts.Controllers
+namespace Engine.Controllers
 {
-    public class WorldController : MonoBehaviour
+    public class WorldController// : MonoBehaviour
     {
         public static WorldController Instance { get; protected set; }
 

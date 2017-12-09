@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Assets.Scripts.Pathfinding;
-using Assets.Scripts.Utilities;
+using Engine.Pathfinding;
+using Engine.Utilities;
 using FluentBehaviourTree;
-using UnityEngine;
+// using UnityEngine;
 using Debug = UnityEngine.Debug;
 using System.Linq;
 // ReSharper disable All
 
-namespace Assets.Scripts.Model
+namespace Engine.Model
 {
     [DebuggerDisplay("Character {Name} at [{X}, {Y}]")]
     public partial class Character

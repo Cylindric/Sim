@@ -1,10 +1,10 @@
-﻿using Assets.Scripts.Model;
-using Assets.Scripts.UI;
-using UnityEngine;
+﻿using Engine.Models;
+// using Engine.UI;
+// using UnityEngine;
 
-namespace Assets.Scripts.Controllers
+namespace Engine.Controllers
 {
-    public class CharacterCollider : MonoBehaviour
+    public class CharacterCollider// : MonoBehaviour
     {
         public Character Character;
         private CharacterHoverInfo _info;

@@ -5,11 +5,11 @@ using System.Globalization;
 using System.Xml;
 using System.Xml.Xsl;
 using MoonSharp.Interpreter;
-using UnityEngine;
+// using UnityEngine;
 using Debug = UnityEngine.Debug;
 using Random = UnityEngine.Random;
 
-namespace Assets.Scripts.Model
+namespace Engine.Model
 {
     /// <summary>
     /// Furniture represents an object that is 'permanently' installed on a <see cref="Tile"/>.

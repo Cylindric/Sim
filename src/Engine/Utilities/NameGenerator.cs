@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using UnityEngine;
+// using UnityEngine;
 using Random = System.Random;
 
-namespace Assets.Scripts.Utilities
+namespace Engine.Utilities
 {
     //Generates random names based on the statistical weight of letter sequences
     //in a collection of sample names

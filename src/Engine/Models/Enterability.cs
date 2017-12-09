@@ -1,4 +1,4 @@
-﻿namespace Assets.Scripts.Model
+﻿namespace Engine.Model
 {
     public enum Enterability
     {

@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Assets.Scripts.Model;
-using UnityEngine;
+using Engine.Models;
+// using UnityEngine;
 
-namespace Assets.Scripts.Controllers
+namespace Engine.Controllers
 {
-    public class TileSpriteController : MonoBehaviour
+    public class TileSpriteController// : MonoBehaviour
     {
         private readonly Dictionary<Tile, GameObject> _tileGameObjectMap = new Dictionary<Tile, GameObject>();
 

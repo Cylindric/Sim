@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Globalization;
 using System.Xml;
-using Assets.Scripts.Pathfinding;
-using UnityEngine;
+using Engine.Pathfinding;
+// using UnityEngine;
 
-namespace Assets.Scripts.Model
+namespace Engine.Model
 {
     public partial class Character
     {

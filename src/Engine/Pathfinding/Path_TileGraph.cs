@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
-using Assets.Scripts.Model;
-using UnityEngine;
+using Engine.Models;
+// using UnityEngine;
 
-namespace Assets.Scripts.Pathfinding
+namespace Engine.Pathfinding
 {
     public class Path_TileGraph {
 

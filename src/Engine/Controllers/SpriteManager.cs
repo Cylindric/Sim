@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
-using Assets.Scripts.Model;
-using Assets.Scripts.Model.Import;
-using UnityEngine;
+using Engine.Models;
+using Engine.Model.Import;
+// using UnityEngine;
 using Debug = UnityEngine.Debug;
 
-namespace Assets.Scripts.Controllers
+namespace Engine.Controllers
 {
-    public class SpriteManager : MonoBehaviour
+    public class SpriteManager// : MonoBehaviour
     {
         public static SpriteManager Instance;
 

@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
-using Assets.Scripts.Model;
-using UnityEngine;
+using Engine.Models;
+// using UnityEngine;
 
-namespace Assets.Scripts.Controllers
+namespace Engine.Controllers
 {
-    public class JobSpriteController : MonoBehaviour
+    public class JobSpriteController// : MonoBehaviour
     {
         /* #################################################################### */
         /* #                           FIELDS                                 # */

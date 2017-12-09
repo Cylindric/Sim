@@ -1,4 +1,4 @@
-﻿namespace Assets.Scripts.Pathfinding
+﻿namespace Engine.Pathfinding
 {
     public class Path_Edge<T> {
 

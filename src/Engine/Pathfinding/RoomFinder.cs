@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using Assets.Scripts.Model;
+using Engine.Models;
 using Priority_Queue;
 
-namespace Assets.Scripts.Pathfinding
+namespace Engine.Pathfinding
 {
     public class RoomFinder
     {

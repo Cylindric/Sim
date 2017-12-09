@@ -32,6 +32,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="MoonSharp.Interpreter, Version=2.0.0.0, Culture=neutral, PublicKeyToken=921e73ce94aa17f8, processorArchitecture=MSIL">
+      <HintPath>..\packages\MoonSharp.2.0.0.0\lib\net40-client\MoonSharp.Interpreter.dll</HintPath>
+    </Reference>
+    <Reference Include="MoonSharp.RemoteDebugger, Version=2.0.0.0, Culture=neutral, PublicKeyToken=921e73ce94aa17f8, processorArchitecture=MSIL">
+      <HintPath>..\packages\MoonSharp.Debugger.2.0.0.0\lib\net40-client\MoonSharp.RemoteDebugger.dll</HintPath>
+    </Reference>
     <Reference Include="Priority Queue, Version=4.1.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\OptimizedPriorityQueue.4.1.1\lib\net45\Priority Queue.dll</HintPath>
     </Reference>
@@ -107,10 +113,6 @@
     <Compile Include="Utilities\Log.cs" />
     <Compile Include="Utilities\Mathf.cs" />
     <Compile Include="Utilities\NameGenerator.cs" />
-    <Compile Include="Utilities\Priority Queue\FastPriorityQueue.cs" />
-    <Compile Include="Utilities\Priority Queue\FastPriorityQueueNode.cs" />
-    <Compile Include="Utilities\Priority Queue\IPriorityQueue.cs" />
-    <Compile Include="Utilities\Priority Queue\SimplePriorityQueue.cs" />
     <Compile Include="Utilities\Random.cs" />
     <Compile Include="Utilities\SetSortingLayer.cs" />
     <Compile Include="Utilities\SimplePool.cs" />

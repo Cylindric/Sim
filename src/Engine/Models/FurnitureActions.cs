@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
-using Assets.Scripts.Controllers;
+using Engine.Controllers;
 using MoonSharp.Interpreter;
 //using MoonSharp.RemoteDebugger;
 //using MoonSharp.RemoteDebugger.Network;
 using Debug = UnityEngine.Debug;
 using MoonSharp.VsCodeDebugger;
 
-namespace Assets.Scripts.Model
+namespace Engine.Model
 {
     public class FurnitureActions
     {

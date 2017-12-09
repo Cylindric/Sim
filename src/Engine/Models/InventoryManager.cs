@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
-using Assets.Scripts.Pathfinding;
+using Engine.Pathfinding;
 using MoonSharp.Interpreter;
-using UnityEngine;
+// using UnityEngine;
 using System.Linq;
 
-namespace Assets.Scripts.Model
+namespace Engine.Model
 {
     [MoonSharpUserData]
     public class InventoryManager

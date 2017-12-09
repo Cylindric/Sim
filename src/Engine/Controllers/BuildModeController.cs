@@ -1,10 +1,10 @@
 ﻿using System.Security.Policy;
-using Assets.Scripts.Controllers;
-using Assets.Scripts.Model;
-using Assets.Scripts.Pathfinding;
-using UnityEngine;
+using Engine.Controllers;
+using Engine.Models;
+using Engine.Pathfinding;
+// using UnityEngine;
 
-namespace Assets.Scripts.Controllers
+namespace Engine.Controllers
 {
     public enum BuildMode
     {
@@ -14,7 +14,7 @@ namespace Assets.Scripts.Controllers
         Colonist
     }
 
-    public class BuildModeController : MonoBehaviour
+    public class BuildModeController// : MonoBehaviour
     {
         /* #################################################################### */
         /* #                              FIELDS                              # */

@@ -1,6 +1,6 @@
-﻿using UnityEngine;
+﻿// using UnityEngine;
 
-namespace Assets.Scripts.Model
+namespace Engine.Model
 {
     public class Sprite
     {

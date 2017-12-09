@@ -1,6 +1,6 @@
 ﻿using System.Xml.Serialization;
 
-namespace Assets.Scripts.Model.Import
+namespace Engine.Model.Import
 {
     [XmlRoot("sprite")]
     public class XmlSprite

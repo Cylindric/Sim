@@ -2,10 +2,10 @@
 using System.Diagnostics;
 using System.Xml;
 using MoonSharp.Interpreter;
-using UnityEngine;
+// using UnityEngine;
 using Debug = UnityEngine.Debug;
 
-namespace Assets.Scripts.Model
+namespace Engine.Model
 {
     [DebuggerDisplay("Tile [{X},{Y}]")]
     [MoonSharpUserData]

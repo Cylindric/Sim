@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Assets.Scripts.Pathfinding;
+using Engine.Pathfinding;
 
-namespace Assets.Scripts.Model
+namespace Engine.Model
 {
     public class JobQueue
     {

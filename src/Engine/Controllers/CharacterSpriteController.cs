@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
-using Assets.Scripts.Model;
-using Assets.Scripts.Pathfinding;
-using UnityEngine;
+using Engine.Models;
+using Engine.Pathfinding;
+// using UnityEngine;
 
-namespace Assets.Scripts.Controllers
+namespace Engine.Controllers
 {
-    class CharacterSpriteController : MonoBehaviour
+    class CharacterSpriteController// : MonoBehaviour
     {
 #pragma warning disable 0649
         public GameObject CharacterPrefab;

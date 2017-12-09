@@ -5,13 +5,13 @@ using System.IO;
 using System.Linq;
 using System.Xml;
 using System.Xml.Schema;
-using Assets.Scripts.Pathfinding;
-using Assets.Scripts.Utilities;
+using Engine.Pathfinding;
+using Engine.Utilities;
 using MoonSharp.Interpreter;
-using UnityEngine;
+// using UnityEngine;
 using Debug = UnityEngine.Debug;
 
-namespace Assets.Scripts.Model
+namespace Engine.Model
 {
     [MoonSharpUserData]
     public class World

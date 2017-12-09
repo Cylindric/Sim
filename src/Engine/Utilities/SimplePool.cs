@@ -29,9 +29,9 @@
 
 
 using System.Collections.Generic;
-using UnityEngine;
+// using UnityEngine;
 
-namespace Assets.Scripts.Utilities
+namespace Engine.Utilities
 {
     public static class SimplePool
     {
@@ -135,7 +135,7 @@ namespace Assets.Scripts.Utilities
         /// Added to freshly instantiated objects, so we can link back
         /// to the correct pool on despawn.
         /// </summary>
-        class PoolMember : MonoBehaviour
+        class PoolMember// : MonoBehaviour
         {
             public Pool myPool;
         }

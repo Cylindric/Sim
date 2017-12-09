@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
-using Assets.Scripts.Model;
-using UnityEngine;
+using Engine.Models;
+// using UnityEngine;
 using UnityEngine.UI;
 using Sprite = UnityEngine.Sprite;
 
-namespace Assets.Scripts.Controllers
+namespace Engine.Controllers
 {
-    class InventorySpriteController : MonoBehaviour
+    class InventorySpriteController// : MonoBehaviour
     {
 #pragma warning disable 0649
         public GameObject inventoryUIPrefab;
