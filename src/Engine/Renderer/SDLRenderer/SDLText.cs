@@ -5,7 +5,7 @@ using static SDL2.SDL;
 
 namespace Engine.Renderer.SDLRenderer
 {
-    internal class SDLText : IDisposable
+    public class SDLText : IDisposable
     {
         /* #################################################################### */
         /* #                         CONSTANT FIELDS                          # */
@@ -27,7 +27,7 @@ namespace Engine.Renderer.SDLRenderer
         /* #################################################################### */
         /* #                            PROPERTIES                            # */
         /* #################################################################### */
-        public Vector2<int> Position { get; set; }
+        public ScreenCoord Position { get; set; }
 
         /* #################################################################### */
         /* #                              METHODS                             # */
@@ -38,7 +38,7 @@ namespace Engine.Renderer.SDLRenderer
             var surface = SDL_ttf.TTF_RenderUTF8_Solid(SDLTtf.Instance.GetFont(font, size), text, colour);
             _texture.CreateFromSurface(surface);
             SDL.SDL_FreeSurface(surface);
-            Position = new Vector2<int>();
+            Position = new ScreenCoord();
         }
 
         public void Render()

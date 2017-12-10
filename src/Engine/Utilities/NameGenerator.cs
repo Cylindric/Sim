@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-// using UnityEngine;
-using Random = System.Random;
 
 namespace Engine.Utilities
 {
@@ -12,13 +10,11 @@ namespace Engine.Utilities
     {
         private static Dictionary<string, MarkovNameGenerator> _generators;
 
-        public static void Initialise()
+        public static void Start()
         {
             _generators = new Dictionary<string, MarkovNameGenerator>();
             
-            var filepath = Application.streamingAssetsPath;
-            filepath = Path.Combine(filepath, "Base");
-            filepath = Path.Combine(filepath, "Data");
+            var filepath = Engine.Instance.Path("assets", "base", "data");
             foreach (var file in Directory.GetFiles(filepath, "names_*.txt", SearchOption.AllDirectories))
             {
                 var names = File.ReadAllLines(file);

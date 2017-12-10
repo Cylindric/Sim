@@ -1,17 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Xml;
-using System.Xml.Schema;
 using Engine.Pathfinding;
 using Engine.Utilities;
 using MoonSharp.Interpreter;
-// using UnityEngine;
-using Debug = UnityEngine.Debug;
+using Debug = Engine.Utilities.Debug;
 
-namespace Engine.Model
+namespace Engine.Models
 {
     [MoonSharpUserData]
     public class World
@@ -41,8 +38,10 @@ namespace Engine.Model
             this.Furnitures = new List<Furniture>();
             this.InventoryManager = new InventoryManager();
 
-            this.Rooms = new List<Room>();
-            this.Rooms.Add(new Room()); // Add the default 'outside' room.
+            this.Rooms = new List<Room>
+            {
+                new Room() // Add the default 'outside' room.
+            };
         }
 
         public World(int width, int height) : this()
@@ -86,10 +85,8 @@ namespace Engine.Model
         public Character CreateCharacter(Tile t)
         {
             var c = new Character(t);
-            this.Characters.Add(c);
-
-            if (this._cbCharacterCreated != null) this._cbCharacterCreated(c);
-
+            Characters.Add(c);
+            _cbCharacterCreated?.Invoke(c);
             return c;
         }
 
@@ -469,14 +466,17 @@ namespace Engine.Model
 
         public void LoadFurnitureLua()
         {
-            var filepath = Application.streamingAssetsPath;
-            filepath = Path.Combine(filepath, "Base");
-            filepath = Path.Combine(filepath, "LUA");
-            filepath = Path.Combine(filepath, "Furniture");
+            var filepath = Engine.Instance.Path("assets", "base", "scripts", "furniture");
+            if (!Directory.Exists(filepath))
+            {
+                Debug.LogError("Furniture LUA path does not exist!");
+                return;
+            }
+
             foreach (var filename in Directory.GetFiles(filepath, "*.lua"))
             {
                 // Debug.Log("Loading LUA file " + filename);
-                var myLuaCode = System.IO.File.ReadAllText(filename);
+                var myLuaCode = File.ReadAllText(filename);
 
                 FurnitureActions.LoadLua(myLuaCode);
             }
@@ -489,10 +489,12 @@ namespace Engine.Model
             this.FurniturePrototypes = new Dictionary<string, Furniture>();
             this.FurnitureJobPrototypes = new Dictionary<string, Job>();
 
-            var filepath = Application.streamingAssetsPath;
-            filepath = Path.Combine(filepath, "Base");
-            filepath = Path.Combine(filepath, "Data");
-            filepath = Path.Combine(filepath, "Furniture.xml");
+            var filepath = Engine.Instance.Path("assets", "base", "data", "furniture.xml");
+            if (!File.Exists(filepath))
+            {
+                Debug.LogError("Furniture definition file does not exist!");
+                return;
+            }
 
             var furnText = System.IO.File.ReadAllText(filepath);
 
@@ -511,11 +513,13 @@ namespace Engine.Model
                     height: XmlParser.ParseInt(furniture, ".//Height", 1),
                     linksToNeighbour: XmlParser.ParseBool(furniture, ".//LinksToNeighbours", false),
                     isRoomEnclosure: XmlParser.ParseBool(furniture, ".//EnclosesRoom", false)
-                    );
-                furn.IdleSprites = XmlParser.ParseInt(furniture, ".//IdleSprites", 0);
-                furn.Name = XmlParser.ParseString(furniture, ".//Name");
-                furn.JobSpotOffset = XmlParser.ParseVector2(furniture, ".//JobSpotOffset");
-                furn.JobSpawnOffset = XmlParser.ParseVector2(furniture, ".//JobSpawnOffset");
+                    )
+                {
+                    IdleSprites = XmlParser.ParseInt(furniture, ".//IdleSprites", 0),
+                    Name = XmlParser.ParseString(furniture, ".//Name"),
+                    JobSpotOffset = XmlParser.ParseVector2(furniture, ".//JobSpotOffset"),
+                    JobSpawnOffset = XmlParser.ParseVector2(furniture, ".//JobSpawnOffset")
+                };
 
                 // Debug.Log("Adding Furniture Prototype " + objectType);
                 this.FurniturePrototypes.Add(objectType, furn);
@@ -542,7 +546,6 @@ namespace Engine.Model
                         furn.RegisterUpdateAction(name);
                     }
                 }
-
 
                 callbacks = furniture.SelectNodes(".//IsEnterable");
                 if (callbacks != null)
@@ -623,13 +626,13 @@ namespace Engine.Model
 
         private void OnTileChanged(Tile t)
         {
-            if (this._cbTileChanged != null) this._cbTileChanged(t);
+            this._cbTileChanged?.Invoke(t);
             this.InvalidateTileGraph();
         }
 
         public void OnInventoryCreated(Inventory inv)
         {
-            if (_cbInventoryCreated != null) _cbInventoryCreated(inv);
+            _cbInventoryCreated?.Invoke(inv);
         }
 
         public void OnFurnitureRemoved(Furniture furn)

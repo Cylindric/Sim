@@ -2,9 +2,9 @@
 using System.Globalization;
 using System.Xml;
 using Engine.Pathfinding;
-// using UnityEngine;
+using Engine.Utilities;
 
-namespace Engine.Model
+namespace Engine.Models
 {
     public partial class Character
     {

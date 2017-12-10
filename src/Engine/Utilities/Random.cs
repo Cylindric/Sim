@@ -4,7 +4,7 @@
     {
         private static System.Random _random = new System.Random();
 
-        internal static float Range(float v1, float v2)
+        public static float Range(float v1, float v2)
         {
             return (float)_random.NextDouble() * (v2 - v1) + v1;
         }

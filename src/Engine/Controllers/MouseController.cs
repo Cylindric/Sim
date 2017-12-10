@@ -1,13 +1,23 @@
 ﻿using System.Collections.Generic;
 using Engine.Models;
 using Engine.Utilities;
-// using UnityEngine;
-using UnityEngine.EventSystems;
+using System;
+using Engine.Renderer.SDLRenderer;
 
 namespace Engine.Controllers
 {
-    public class MouseController// : MonoBehaviour
+    public class MouseController : IController
     {
+        #region Singleton
+        private static readonly Lazy<MouseController> _instance = new Lazy<MouseController>(() => new MouseController());
+
+        public static MouseController Instance { get { return _instance.Value; } }
+
+        private MouseController()
+        {
+        }
+        #endregion
+
         /* #################################################################### */
         /* #                         CONSTANT FIELDS                          # */
         /* #################################################################### */
@@ -22,9 +32,9 @@ namespace Engine.Controllers
         /* #                              FIELDS                              # */
         /* #################################################################### */
         public GameObject CircleCursorPrefab;
-        private Vector3 _lastFramePosition;
-        private Vector3 _currentFramePosition;
-        private Vector3 _dragStartPosition;
+        private WorldCoord _lastFramePosition;
+        private WorldCoord _currentFramePosition;
+        private WorldCoord _dragStartPosition;
         private List<GameObject> _dragPreviewGameObjects;
         private BuildModeController _bmc;
         private FurnitureSpriteController _fsc;
@@ -61,7 +71,7 @@ namespace Engine.Controllers
         /// Gets the current mouse position, in World-space coordinates.
         /// </summary>
         /// <returns></returns>
-        public Vector3 GetMousePosition()
+        public WorldCoord GetMousePosition()
         {
             return _currentFramePosition;
         }
@@ -74,42 +84,41 @@ namespace Engine.Controllers
         private void ShowFurnitureSpriteAtTile(string furnType, Tile t)
         {
             var go = new GameObject();
-            go.transform.SetParent(this.transform, true);
+            // go.transform.SetParent(this.transform, true);
             _dragPreviewGameObjects.Add(go);
 
-            var sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = _fsc.GetSpriteForFurniture(furnType);
+            go.Sprite = _fsc.GetSpriteForFurniture(furnType);
 
             if (WorldController.Instance.World.IsFurniturePlacementValid(furnType, t))
             {
-                sr.color = new Color(0.5f, 1f, 0.5f, 0.25f);
+                go.Sprite.Colour = new Colour(0.5f, 1f, 0.5f, 0.25f);
             }
             else
             {
-                sr.color = new Color(1f, 0.5f, 0.5f, 1f);
+                go.Sprite.Colour = new Colour(1f, 0.5f, 0.5f, 1f);
             }
 
-            sr.sortingLayerName = "Jobs";
+            go.SortingLayerName = "Jobs";
 
             var proto = World.Instance.FurniturePrototypes[furnType];
             var posOffset = new Vector3((float) (proto.Width - 1)/2, (float) (proto.Height - 1)/2, 0);
-            go.transform.position = new Vector3(t.X, t.Y, 0) + posOffset;
+            go.Position = new WorldCoord(t.X + posOffset.X, t.Y + posOffset.Y);
         }
 
         // Use this for initialization
-        private void Start()
+        public void Start()
         {
-            _fsc = GameObject.FindObjectOfType<FurnitureSpriteController>();
-            _bmc = GameObject.FindObjectOfType<BuildModeController>();
+            _fsc = FurnitureSpriteController.Instance;
+            _bmc = BuildModeController.Instance;
             _dragPreviewGameObjects = new List<GameObject>();
         }
 
         // Update is called once per frame
-        private void Update()
+        public void Update()
         {
-            _currentFramePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            _currentFramePosition = CameraController.Instance.ScreenToWorldPoint(SDLEvent.MousePosition);
 
-            if (Input.GetKeyUp(KeyCode.Escape))
+            if (SDLEvent.KeyUp(SDL2.SDL.SDL_Keycode.SDLK_ESCAPE))
             {
                 if (_mode == MouseMode.Build)
                 {
@@ -124,30 +133,32 @@ namespace Engine.Controllers
             UpdateDragging();
             UpdateCameraMovement();
 
-            _lastFramePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            _lastFramePosition = CameraController.Instance.ScreenToWorldPoint(SDLEvent.MousePosition);
         }
+
+        public void Render() {}
 
         private void UpdateCameraMovement()
         {
             // Handle screen dragging
-            if (Input.GetMouseButton(2)) // 2:Middle Mouse Button
+            if (SDLEvent.MouseButtonIsDown(SDL2.SDL.SDL_BUTTON_MIDDLE))
             {
                 var diff = _lastFramePosition - _currentFramePosition;
-                Camera.main.transform.Translate(diff);
+                CameraController.Instance.Position += diff;
             }
 
             // Zooming
-            Camera.main.orthographicSize -= Camera.main.orthographicSize*Input.GetAxis("Mouse ScrollWheel")*2f;
-            Camera.main.orthographicSize = Mathf.Clamp(Camera.main.orthographicSize, 3f, 50f);
+            //Camera.main.orthographicSize -= Camera.main.orthographicSize*Input.GetAxis("Mouse ScrollWheel")*2f;
+            //Camera.main.orthographicSize = Mathf.Clamp(Camera.main.orthographicSize, 3f, 50f);
         }
 
         private void UpdateDragging()
         {
             // If over UI, do nothing
-            if (EventSystem.current.IsPointerOverGameObject())
-            {
-                return;
-            }
+            //if (EventSystem.current.IsPointerOverGameObject())
+            //{
+            //    return;
+            //}
 
             // Clear the drag-area markers
             while (_dragPreviewGameObjects.Count > 0)
@@ -163,7 +174,7 @@ namespace Engine.Controllers
             }
 
             // Start Drag
-            if (Input.GetMouseButtonDown(0))
+            if (SDLEvent.MouseButtonIsDown(SDL2.SDL.SDL_BUTTON_LEFT))
             {
                 _dragStartPosition = _currentFramePosition;
                 _isDragging = true;
@@ -173,7 +184,7 @@ namespace Engine.Controllers
                 _dragStartPosition = _currentFramePosition;
             }
 
-            if (Input.GetMouseButtonUp(1) || Input.GetKeyUp(KeyCode.Escape))
+            if (SDLEvent.MouseButtonWentUp(SDL2.SDL.SDL_BUTTON_RIGHT) || SDLEvent.KeyUp(SDL2.SDL.SDL_Keycode.SDLK_ESCAPE))
             {
                 // The RIGHT mouse button came up or ESC was pressed, so cancel any dragging.
                 _isDragging = false;
@@ -184,10 +195,10 @@ namespace Engine.Controllers
                 _dragStartPosition = _currentFramePosition;
             }
 
-            var startX = Mathf.FloorToInt(_dragStartPosition.x + 0.5f);
-            var endX = Mathf.FloorToInt(_currentFramePosition.x + 0.5f);
-            var startY = Mathf.FloorToInt(_dragStartPosition.y + 0.5f);
-            var endY = Mathf.FloorToInt(_currentFramePosition.y + 0.5f);
+            var startX = Mathf.FloorToInt(_dragStartPosition.X + 0.5f);
+            var endX = Mathf.FloorToInt(_currentFramePosition.X + 0.5f);
+            var startY = Mathf.FloorToInt(_dragStartPosition.Y + 0.5f);
+            var endY = Mathf.FloorToInt(_currentFramePosition.Y + 0.5f);
 
             if (endX < startX)
             {
@@ -214,7 +225,7 @@ namespace Engine.Controllers
                         var actionTile = true;
 
                         // If shift is being held, just action the perimeter
-                        if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+                        if (SDLEvent.KeyState(SDL2.SDL.SDL_Keycode.SDLK_LSHIFT) || SDLEvent.KeyState(SDL2.SDL.SDL_Keycode.SDLK_RSHIFT))
                         {
                             actionTile = (x == startX || x == endX || y == startY || y == endY);
                         }
@@ -227,9 +238,8 @@ namespace Engine.Controllers
                             }
                             else
                             {
-                                var go = SimplePool.Spawn(CircleCursorPrefab, new Vector3(x, y, 0),
-                                    Quaternion.identity);
-                                go.transform.SetParent(this.transform, true);
+                                var go = SimplePool.Spawn(CircleCursorPrefab, new WorldCoord(x, y));
+                                // go.transform.SetParent(this.transform, true);
                                 _dragPreviewGameObjects.Add(go);
                             }
                         }
@@ -238,7 +248,7 @@ namespace Engine.Controllers
             }
 
             // End Drag
-            if (_isDragging && Input.GetMouseButtonUp(0))
+            if (_isDragging && SDLEvent.MouseButtonWentUp(SDL2.SDL.SDL_BUTTON_LEFT))
             {
                 _isDragging = false;
                 for (var x = startX; x <= endX; x++)
@@ -248,7 +258,7 @@ namespace Engine.Controllers
                         var actionTile = true;
 
                         // If shift is being held, just action the perimeter
-                        if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+                        if (SDLEvent.KeyState(SDL2.SDL.SDL_Keycode.SDLK_LSHIFT) || SDLEvent.KeyState(SDL2.SDL.SDL_Keycode.SDLK_RSHIFT))
                         {
                             actionTile = (x == startX || x == endX || y == startY || y == endY);
                         }

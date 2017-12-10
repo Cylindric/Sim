@@ -52,16 +52,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controllers\BuildModeController.cs" />
-    <Compile Include="Controllers\CharacterCollider.cs" />
+    <Compile Include="Controllers\CameraController.cs" />
     <Compile Include="Controllers\CharacterSpriteController.cs" />
     <Compile Include="Controllers\FurnitureSpriteController.cs" />
+    <Compile Include="Controllers\IController.cs" />
     <Compile Include="Controllers\InventorySpriteController.cs" />
     <Compile Include="Controllers\JobSpriteController.cs" />
     <Compile Include="Controllers\MouseController.cs" />
     <Compile Include="Controllers\SoundController.cs" />
     <Compile Include="Controllers\SpriteManager.cs" />
+    <Compile Include="Enums\BuildMode.cs" />
     <Compile Include="Models\AtmosphereManager.cs" />
     <Compile Include="Models\Character.Helpers.cs" />
+    <Compile Include="Models\GameObject.cs" />
     <Compile Include="Models\Import\XmlSprite.cs" />
     <Compile Include="Models\Import\XmlTextureAtlas.cs" />
     <Compile Include="Models\Inventory.cs" />
@@ -71,14 +74,14 @@
     <Compile Include="Controllers\WorldController.cs" />
     <Compile Include="Engine.cs" />
     <Compile Include="Models\Character.cs" />
-    <Compile Include="Models\Enterability.cs" />
+    <Compile Include="Enums\Enterability.cs" />
     <Compile Include="Models\Furniture.cs" />
     <Compile Include="Models\FurnitureActions.cs" />
     <Compile Include="Models\Job.cs" />
     <Compile Include="Models\JobQueue.cs" />
     <Compile Include="Models\Room.cs" />
     <Compile Include="Models\Tile.cs" />
-    <Compile Include="Models\TileType.cs" />
+    <Compile Include="Enums\TileType.cs" />
     <Compile Include="Models\World.cs" />
     <Compile Include="Pathfinding\Path_AStar.cs" />
     <Compile Include="Pathfinding\Path_Edge.cs" />
@@ -110,15 +113,18 @@
     <Compile Include="Utilities\Fluent Behaviour Tree\Nodes\SequenceNode.cs" />
     <Compile Include="Utilities\Fluent Behaviour Tree\Nodes\SucceederNode.cs" />
     <Compile Include="Utilities\Fluent Behaviour Tree\TimeData.cs" />
-    <Compile Include="Utilities\Log.cs" />
+    <Compile Include="Utilities\Debug.cs" />
     <Compile Include="Utilities\Mathf.cs" />
     <Compile Include="Utilities\NameGenerator.cs" />
     <Compile Include="Utilities\Random.cs" />
-    <Compile Include="Utilities\SetSortingLayer.cs" />
+    <Compile Include="Utilities\Rect.cs" />
+    <Compile Include="Utilities\ScreenCoord.cs" />
     <Compile Include="Utilities\SimplePool.cs" />
     <Compile Include="Utilities\SpriteClip.cs" />
+    <Compile Include="Controllers\TimeController.cs" />
     <Compile Include="Utilities\Vector2.cs" />
     <Compile Include="Utilities\Vector3.cs" />
+    <Compile Include="Utilities\WorldCoord.cs" />
     <Compile Include="Utilities\XmlParser.cs" />
   </ItemGroup>
   <ItemGroup>

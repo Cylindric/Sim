@@ -1,26 +1,44 @@
 ﻿using System.Collections.Generic;
 using Engine.Models;
 using Engine.Pathfinding;
-// using UnityEngine;
+using Debug = Engine.Utilities.Debug;
+using Engine.Utilities;
+using System;
 
 namespace Engine.Controllers
 {
-    class CharacterSpriteController// : MonoBehaviour
+    class CharacterSpriteController : IController
     {
-#pragma warning disable 0649
-        public GameObject CharacterPrefab;
-#pragma warning restore 0649
+        #region Singleton
+        private static readonly Lazy<CharacterSpriteController> _instance = new Lazy<CharacterSpriteController>(() => new CharacterSpriteController());
 
+        public static CharacterSpriteController Instance { get { return _instance.Value; } }
+
+        private CharacterSpriteController()
+        {
+        }
+        #endregion
+
+        public GameObject CharacterPrefab;
         private readonly Dictionary<Character, GameObject> _characterGameObjectMap = new Dictionary<Character, GameObject>();
-        private readonly Dictionary<Character, Dictionary<string, SpriteRenderer>> _characterSpriteParts = new Dictionary<Character, Dictionary<string, SpriteRenderer>>();
+        private readonly Dictionary<Character, Dictionary<string, GameObject>> _characterSpriteParts = new Dictionary<Character, Dictionary<string, GameObject>>();
 
         /// <summary>
         /// This is just a helper property to make it easier to access World.
         /// </summary>
         private static World World { get { return WorldController.Instance.World; } }
 
-        private void Start()
+        public void Start()
         {
+            CharacterPrefab = new GameObject()
+            {
+                Name = "Default",
+                Sprite = SpriteManager.Instance.GetSprite("colonist", "default"),
+                ActiveSprite = SpriteManager.Instance.GetSprite("colonist", "default"),
+                IsActive = true,
+                SortingLayerName = "characters"
+            };
+
             World.RegisterCharacterCreatedCb(OnCharacterCreated);
 
             foreach (var c in World.Characters)
@@ -29,15 +47,15 @@ namespace Engine.Controllers
             }
         }
 
+        public void Update() { }
+        public void Render() { }
+
         public void OnCharacterCreated(Character character)
         {
-            var characterGo = Instantiate(CharacterPrefab);
-            characterGo.name = "Character " + character.Name;
+            var characterGo = GameObject.Instantiate(CharacterPrefab);
+            characterGo.Name = "Character " + character.Name;
             _characterGameObjectMap.Add(character, characterGo);
-            characterGo.transform.SetParent(this.transform, true);
-
-            var script = (CharacterCollider)characterGo.GetComponentInChildren<MonoBehaviour>();
-            script.Character = character;
+            // characterGo.transform.SetParent(this.transform, true);
 
             SetSpriteForCharacter(character, characterGo, "default", true);
             SetSpriteForCharacter(character, characterGo, "shield", false);
@@ -57,7 +75,7 @@ namespace Engine.Controllers
             }
 
             var charGo = _characterGameObjectMap[character];
-            charGo.transform.position = new Vector3(character.X, character.Y, 0);
+            charGo.Position = new WorldCoord(character.X, character.Y);
 
             // Draw 'footsteps' for any current path on this character
             if (character.CurrentTile != null && character.Path != null && character.Path.Length() > 0)
@@ -69,41 +87,44 @@ namespace Engine.Controllers
                     t = p.Dequeue();
                     if (t != null)
                     {
-                        var go = new GameObject();
-                        go.name = "footstep";
-                        go.transform.position = new Vector3(t.X, t.Y, 0);
-                        var sprite = go.AddComponent<SpriteRenderer>();
-                        sprite.sprite = SpriteManager.Instance.GetSprite("colonist", "footstep");
-                        sprite.sortingLayerName = "Characters";
-                        sprite.enabled = true;
-                        Destroy(go, 1);
+                        var go = new GameObject
+                        {
+                            Name = "footstep",
+                            Position = new WorldCoord(t.X, t.Y),
+                            Sprite = SpriteManager.Instance.GetSprite("colonist", "footstep"),
+                            // go.Sprite.sortingLayerName = "Characters";
+                            IsActive = true
+                        };
+                        // Destroy(go, 1);
                     }
                 } while (t != null);
 
             }
 
             // Set the various subsprite visibility depending on what the situation is for this character.
-            _characterSpriteParts[character]["working"].enabled = character.CurrentState == Character.State.WorkingJob;
-            _characterSpriteParts[character]["shield"].enabled = character.ShieldStatus;
+            _characterSpriteParts[character]["working"].IsActive = character.CurrentState == Character.State.WorkingJob;
+            _characterSpriteParts[character]["shield"].IsActive = character.ShieldStatus;
         }
 
         public void SetSpriteForCharacter(Character character, GameObject go, string part, bool visible = true)
         {
-            var subpartGo = new GameObject();
-            subpartGo.name = part;
-            subpartGo.transform.SetParent(go.transform, false);
+            var subpartGo = new GameObject
+            {
+                Name = part,
+                Sprite = SpriteManager.Instance.GetSprite("colonist", part)
+            };
 
-            var sprite = subpartGo.AddComponent<SpriteRenderer>();
-            sprite.sprite = SpriteManager.Instance.GetSprite("colonist", part);
-            sprite.sortingLayerName = "Characters";
-            sprite.enabled = visible;
+            //subpartGo.SpriteRenderer = new SpriteRenderer();
+            //subpartGo.SpriteRenderer.sprite = SpriteManager.Instance.GetSprite("colonist", part);
+            //subpartGo.SpriteRenderer.sortingLayerName = "Characters";
+            //subpartGo.SpriteRenderer.enabled = visible;
 
             if (_characterSpriteParts.ContainsKey(character) == false)
             {
-                _characterSpriteParts.Add(character, new Dictionary<string, SpriteRenderer>());
+                _characterSpriteParts.Add(character, new Dictionary<string, GameObject>());
             }
 
-            _characterSpriteParts[character].Add(part, sprite);
+            _characterSpriteParts[character].Add(part, subpartGo);
         }
     }
 }

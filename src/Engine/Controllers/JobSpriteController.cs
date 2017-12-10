@@ -1,16 +1,15 @@
 ﻿using System.Collections.Generic;
 using Engine.Models;
-// using UnityEngine;
+using Engine.Utilities;
 
 namespace Engine.Controllers
 {
-    public class JobSpriteController// : MonoBehaviour
+    public class JobSpriteController
     {
         /* #################################################################### */
         /* #                           FIELDS                                 # */
         /* #################################################################### */
 
-        private FurnitureSpriteController fsc;
         private Dictionary<Job, GameObject> _jobGameObjectMap;
 
         /* #################################################################### */
@@ -20,7 +19,6 @@ namespace Engine.Controllers
         private void Start()
         {
             _jobGameObjectMap = new Dictionary<Job, GameObject>();
-            fsc = GameObject.FindObjectOfType<FurnitureSpriteController>();
             WorldController.Instance.World.JobQueue.RegisterJobCreationCallback(OnJobCreated);
         }
 
@@ -47,16 +45,13 @@ namespace Engine.Controllers
 
             _jobGameObjectMap.Add(job, jobGo);
 
-            jobGo.name = "JOB_" + job.JobObjectType + "_" + job.Tile.X + "_" + job.Tile.Y;
+            jobGo.Name = "JOB_" + job.JobObjectType + "_" + job.Tile.X + "_" + job.Tile.Y;
 
-            var posOffset = new Vector3((float)(job.FurniturePrototype.Width - 1) / 2, (float)(job.FurniturePrototype.Height - 1) / 2, 0);
-            jobGo.transform.position = new Vector3(job.Tile.X, job.Tile.Y, 0) + posOffset;
-            jobGo.transform.SetParent(this.transform, true);
-
-            var sr = jobGo.AddComponent<SpriteRenderer>();
-            sr.sprite = fsc.GetSpriteForFurniture(job.JobObjectType);
-            sr.color = new Color(0.5f, 1f, 0.5f, 0.25f);
-            sr.sortingLayerName = "Jobs";
+            var posOffset = new Vector2<float>((float)(job.FurniturePrototype.Width - 1) / 2, (float)(job.FurniturePrototype.Height - 1) / 2);
+            jobGo.Position = new WorldCoord(job.Tile.X + posOffset.X, job.Tile.Y + posOffset.Y);
+            jobGo.Sprite = FurnitureSpriteController.Instance.GetSpriteForFurniture(job.JobObjectType);
+            jobGo.Sprite.Colour = new Colour(0.5f, 1f, 0.5f, 0.25f);
+            jobGo.SortingLayerName = "Jobs";
 
             job.RegisterOnJobCompletedCallback(OnJobEnded);
             job.RegisterOnJobStoppedCallback(OnJobEnded);
@@ -67,7 +62,6 @@ namespace Engine.Controllers
             var jobGo = _jobGameObjectMap[job];
             job.UnregisterOnJobStoppedCallback(OnJobEnded);
             job.UnregisterOnJobCompletedCallback(OnJobEnded);
-            Destroy(jobGo);
         }
     }
 }

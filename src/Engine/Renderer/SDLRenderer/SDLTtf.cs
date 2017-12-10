@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Engine.Renderer.SDLRenderer
 {
-    internal class SDLTtf
+    public class SDLTtf
     {
         #region Singleton
         private static readonly Lazy<SDLTtf> _instance = new Lazy<SDLTtf>(() => new SDLTtf());

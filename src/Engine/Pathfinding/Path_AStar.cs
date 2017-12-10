@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Resources;
 using Engine.Models;
 using Priority_Queue;
-// using UnityEngine;
+using Engine.Utilities;
+using Debug = Engine.Utilities.Debug;
+
 
 namespace Engine.Pathfinding
 {
@@ -67,13 +68,13 @@ namespace Engine.Pathfinding
 
             if (_debugVis && End != null)
             {
-                UnityEngine.Debug.DrawLine(new Vector3(Start.X, Start.Y, -2), new Vector3(End.X, End.Y, -2), Color.red, Time.deltaTime * 5, false);
+                // UnityEngine.Debug.DrawLine(new Vector3(Start.X, Start.Y, -2), new Vector3(End.X, End.Y, -2), Colour.Red, TimeController.Instance.DeltaTime * 5, false);
                 this.World.TileGraph.DebugVis();
             }
 
             // Make sure our start/end tiles are in the list of nodes!
             if (nodes.ContainsKey(Start) == false) {
-                UnityEngine.Debug.LogError("Path_AStar: The starting Tile isn't in the list of nodes!");
+                Debug.LogError("Path_AStar: The starting Tile isn't in the list of nodes!");
                 _reachable = false;
                 return;
             }
@@ -85,7 +86,7 @@ namespace Engine.Pathfinding
             {
                 if (nodes.ContainsKey(End) == false)
                 {
-                    UnityEngine.Debug.LogError("Path_AStar: The ending Tile isn't in the list of nodes!");
+                    Debug.LogError("Path_AStar: The ending Tile isn't in the list of nodes!");
                     _reachable = false;
                     return;
                 }
@@ -218,12 +219,12 @@ namespace Engine.Pathfinding
             return _path.Last();
         }
 
-        public void Debug()
+        public void DumpDebugInfo()
         {
-            UnityEngine.Debug.LogFormat("Dumping path with {0} nodes from [{1},{2}] to [{3}{4}].", _path.Count, Start.X, Start.Y, End == null ? -1 : End.X, End == null ? -1 : End.Y);
+            Debug.LogFormat("Dumping path with {0} nodes from [{1},{2}] to [{3}{4}].", _path.Count, Start.X, Start.Y, End == null ? -1 : End.X, End == null ? -1 : End.Y);
             foreach (var n in _path)
             {
-                UnityEngine.Debug.LogFormat("[{0},{1},{2}]", n.X, n.Y, n.MovementCost);
+                Debug.LogFormat("[{0},{1},{2}]", n.X, n.Y, n.MovementCost);
             }
         }
 
@@ -236,9 +237,9 @@ namespace Engine.Pathfinding
                 return 0f;
             }
 
-            return Mathf.Sqrt(
-                Mathf.Pow(a.data.X - b.data.X, 2) +
-                Mathf.Pow(a.data.Y - b.data.Y, 2)
+            return (float)Math.Sqrt(
+                Math.Pow(a.data.X - b.data.X, 2) +
+                Math.Pow(a.data.Y - b.data.Y, 2)
                 );
 
         }
@@ -249,21 +250,21 @@ namespace Engine.Pathfinding
             // on a grid at this point.
 
             // Hori/Vert neighbours have a distance of 1
-            if (Mathf.Abs(a.data.X - b.data.X) + Mathf.Abs(a.data.Y - b.data.Y) == 1)
+            if (Math.Abs(a.data.X - b.data.X) + Math.Abs(a.data.Y - b.data.Y) == 1)
             {
                 return 1f;
             }
 
             // Diag neighbours have a distance of 1.41421356237	
-            if (Mathf.Abs(a.data.X - b.data.X) == 1 && Mathf.Abs(a.data.Y - b.data.Y) == 1)
+            if (Math.Abs(a.data.X - b.data.X) == 1 && Math.Abs(a.data.Y - b.data.Y) == 1)
             {
                 return 1.41421356237f;
             }
 
             // Otherwise, do the actual math.
-            return Mathf.Sqrt(
-                Mathf.Pow(a.data.X - b.data.X, 2) +
-                Mathf.Pow(a.data.Y - b.data.Y, 2)
+            return (float)Math.Sqrt(
+                Math.Pow(a.data.X - b.data.X, 2) +
+                Math.Pow(a.data.Y - b.data.Y, 2)
                 );
         }
 
@@ -281,7 +282,7 @@ namespace Engine.Pathfinding
                 // Came_From is a map, where the
                 //    key => value relation is real saying
                 //    some_node => we_got_there_from_this_node
-                if (_debugVis) UnityEngine.Debug.DrawLine(new Vector3(current.data.X, current.data.Y, -2), new Vector3(cameFrom[current].data.X, cameFrom[current].data.Y, -2), Color.green, 3f);
+                // if (_debugVis) UnityEngine.Debug.DrawLine(new Vector3(current.data.X, current.data.Y, -2), new Vector3(cameFrom[current].data.X, cameFrom[current].data.Y, -2), Color.green, 3f);
 
                 current = cameFrom[current];
                 totalPath.AddLast(current.data);

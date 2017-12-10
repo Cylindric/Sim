@@ -4,7 +4,7 @@ using System.Xml;
 using MoonSharp.Interpreter;
 using System.Diagnostics;
 
-namespace Engine.Model
+namespace Engine.Models
 {
     [MoonSharpUserData]
     [DebuggerDisplay("Inventory {Name} ({StackSize}/{MaxStackSize})")]

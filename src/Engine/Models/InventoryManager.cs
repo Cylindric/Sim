@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
 using Engine.Pathfinding;
 using MoonSharp.Interpreter;
-// using UnityEngine;
 using System.Linq;
+using Debug = Engine.Utilities.Debug;
+using System;
 
-namespace Engine.Model
+namespace Engine.Models
 {
     [MoonSharpUserData]
     public class InventoryManager
@@ -101,7 +102,7 @@ namespace Engine.Model
             }
             
             // If the qty is greater than what's available, limit it to what is available
-            qty = Mathf.Min(qty, source.StackSize);
+            qty = Math.Min(qty, source.StackSize);
 
             if (character.Inventory == null)
             {
@@ -116,7 +117,7 @@ namespace Engine.Model
             }
 
             // If the Qty is greater than the Character's capacity, limit to capacity
-            qty = Mathf.Min(character.Inventory.Space, qty);
+            qty = Math.Min(character.Inventory.Space, qty);
             
             // Transfer the items from the source to the Character
             character.Inventory.StackSize += qty;

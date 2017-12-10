@@ -63,18 +63,18 @@ namespace SDL2
 		/* malloc/free are used by the marshaler! -flibit */
 
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern IntPtr SDL_malloc(IntPtr size);
+		public static extern IntPtr SDL_malloc(IntPtr size);
 
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern void SDL_free(IntPtr memblock);
+		public static extern void SDL_free(IntPtr memblock);
 
 		#endregion
 
 		#region SDL_rwops.h
 
-		/* Note about SDL2# and Internal RWops:
+		/* Note about SDL2# and public RWops:
 		 * These functions are currently not supported for public use.
-		 * They are only meant to be used internally in functions marked with
+		 * They are only meant to be used publicly in functions marked with
 		 * the phrase "THIS IS AN RWops FUNCTION!"
 		 */
 
@@ -85,7 +85,7 @@ namespace SDL2
 		/// <param name="mode">an ASCII string representing the mode to be used for opening the file; see Remarks for details</param>
 		/// <returns>Returns a pointer to the SDL_RWops structure that is created, or NULL on failure; call SDL_GetError() for more information.</returns>
 		[DllImport(nativeLibName, EntryPoint = "SDL_RWFromFile", CallingConvention = CallingConvention.Cdecl)]
-		internal static extern IntPtr INTERNAL_SDL_RWFromFile(
+		public static extern IntPtr public_SDL_RWFromFile(
 			[In()] [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(LPUtf8StrMarshaler))]
 				string file,
 			[In()] [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(LPUtf8StrMarshaler))]
@@ -653,7 +653,7 @@ namespace SDL2
 		}
 
 		[StructLayout(LayoutKind.Sequential)]
-		private struct INTERNAL_SDL_MessageBoxButtonData
+		private struct public_SDL_MessageBoxButtonData
 		{
 			public SDL_MessageBoxButtonFlags flags;
 			public int buttonid;
@@ -692,7 +692,7 @@ namespace SDL2
 		}
 
 		[StructLayout(LayoutKind.Sequential)]
-		private struct INTERNAL_SDL_MessageBoxData
+		private struct public_SDL_MessageBoxData
 		{
 			public SDL_MessageBoxFlags flags;
 			public IntPtr window;				/* Parent window, can be NULL */
@@ -722,7 +722,7 @@ namespace SDL2
 		/// <param name="buttonid"></param>
 		/// <returns></returns>
 		[DllImport(nativeLibName, EntryPoint = "SDL_ShowMessageBox", CallingConvention = CallingConvention.Cdecl)]
-		private static extern int INTERNAL_SDL_ShowMessageBox([In()] ref INTERNAL_SDL_MessageBoxData messageboxdata, out int buttonid);
+		private static extern int public_SDL_ShowMessageBox([In()] ref public_SDL_MessageBoxData messageboxdata, out int buttonid);
 
 		/// <summary>
 		///
@@ -734,7 +734,7 @@ namespace SDL2
 		{
 			var utf8 = LPUtf8StrMarshaler.GetInstance(null);
 
-			var data = new INTERNAL_SDL_MessageBoxData()
+			var data = new public_SDL_MessageBoxData()
 			{
 				flags = messageboxdata.flags,
 				window = messageboxdata.window,
@@ -743,10 +743,10 @@ namespace SDL2
 				numbuttons = messageboxdata.numbuttons,
 			};
 
-			var buttons = new INTERNAL_SDL_MessageBoxButtonData[messageboxdata.numbuttons];
+			var buttons = new public_SDL_MessageBoxButtonData[messageboxdata.numbuttons];
 			for (int i = 0; i < messageboxdata.numbuttons; i++)
 			{
-				buttons[i] = new INTERNAL_SDL_MessageBoxButtonData()
+				buttons[i] = new public_SDL_MessageBoxButtonData()
 				{
 					flags = messageboxdata.buttons[i].flags,
 					buttonid = messageboxdata.buttons[i].buttonid,
@@ -761,10 +761,10 @@ namespace SDL2
 			}
 
 			int result;
-			fixed (INTERNAL_SDL_MessageBoxButtonData* buttonsPtr = &buttons[0])
+			fixed (public_SDL_MessageBoxButtonData* buttonsPtr = &buttons[0])
 			{
 				data.buttons = (IntPtr)buttonsPtr;
-				result = INTERNAL_SDL_ShowMessageBox(ref data, out buttonid);
+				result = public_SDL_ShowMessageBox(ref data, out buttonid);
 			}
 
 			Marshal.FreeHGlobal(data.colorScheme);
@@ -1856,7 +1856,7 @@ namespace SDL2
 		);
 
 		/* renderer refers to an SDL_Renderer*, texture to an SDL_Texture*.
-		 * Internally, this function contains logic to use default values when
+		 * publicly, this function contains logic to use default values when
 		 * source and destination rectangles are passed as NULL.
 		 * This overload allows for IntPtr.Zero (null) to be passed for srcrect.
 		 */
@@ -1869,7 +1869,7 @@ namespace SDL2
 		);
 
 		/* renderer refers to an SDL_Renderer*, texture to an SDL_Texture*.
-		 * Internally, this function contains logic to use default values when
+		 * publicly, this function contains logic to use default values when
 		 * source and destination rectangles are passed as NULL.
 		 * This overload allows for IntPtr.Zero (null) to be passed for dstrect.
 		 */
@@ -1882,7 +1882,7 @@ namespace SDL2
 		);
 
 		/* renderer refers to an SDL_Renderer*, texture to an SDL_Texture*.
-		 * Internally, this function contains logic to use default values when
+		 * publicly, this function contains logic to use default values when
 		 * source and destination rectangles are passed as NULL.
 		 * This overload allows for IntPtr.Zero (null) to be passed for both SDL_Rects.
 		 */
@@ -2794,7 +2794,7 @@ namespace SDL2
 		);
 
 		/* src and dst refer to an SDL_Surface*
-		 * Internally, this function contains logic to use default values when
+		 * publicly, this function contains logic to use default values when
 		 * source and destination rectangles are passed as NULL.
 		 * This overload allows for IntPtr.Zero (null) to be passed for srcrect.
 		 */
@@ -2807,7 +2807,7 @@ namespace SDL2
 		);
 
 		/* src and dst refer to an SDL_Surface*
-		 * Internally, this function contains logic to use default values when
+		 * publicly, this function contains logic to use default values when
 		 * source and destination rectangles are passed as NULL.
 		 * This overload allows for IntPtr.Zero (null) to be passed for dstrect.
 		 */
@@ -2820,7 +2820,7 @@ namespace SDL2
 		);
 
 		/* src and dst refer to an SDL_Surface*
-		 * Internally, this function contains logic to use default values when
+		 * publicly, this function contains logic to use default values when
 		 * source and destination rectangles are passed as NULL.
 		 * This overload allows for IntPtr.Zero (null) to be passed for both SDL_Rects.
 		 */
@@ -2842,7 +2842,7 @@ namespace SDL2
 		);
 
 		/* src and dst refer to an SDL_Surface*
-		 * Internally, this function contains logic to use default values when
+		 * publicly, this function contains logic to use default values when
 		 * source and destination rectangles are passed as NULL.
 		 * This overload allows for IntPtr.Zero (null) to be passed for srcrect.
 		 */
@@ -2855,7 +2855,7 @@ namespace SDL2
 		);
 
 		/* src and dst refer to an SDL_Surface*
-		 * Internally, this function contains logic to use default values when
+		 * publicly, this function contains logic to use default values when
 		 * source and destination rectangles are passed as NULL.
 		 * This overload allows for IntPtr.Zero (null) to be passed for dstrect.
 		 */
@@ -2868,7 +2868,7 @@ namespace SDL2
 		);
 
 		/* src and dst refer to an SDL_Surface*
-		 * Internally, this function contains logic to use default values when
+		 * publicly, this function contains logic to use default values when
 		 * source and destination rectangles are passed as NULL.
 		 * This overload allows for IntPtr.Zero (null) to be passed for both SDL_Rects.
 		 */
@@ -3002,14 +3002,14 @@ namespace SDL2
 		/* IntPtr refers to an SDL_Surface* */
 		/* THIS IS AN RWops FUNCTION! */
 		[DllImport(nativeLibName, EntryPoint = "SDL_LoadBMP_RW", CallingConvention = CallingConvention.Cdecl)]
-		private static extern IntPtr INTERNAL_SDL_LoadBMP_RW(
+		private static extern IntPtr public_SDL_LoadBMP_RW(
 			IntPtr src,
 			int freesrc
 		);
 		public static IntPtr SDL_LoadBMP(string file)
 		{
-			IntPtr rwops = INTERNAL_SDL_RWFromFile(file, "rb");
-			return INTERNAL_SDL_LoadBMP_RW(rwops, 1);
+			IntPtr rwops = public_SDL_RWFromFile(file, "rb");
+			return public_SDL_LoadBMP_RW(rwops, 1);
 		}
 
 		/* surface refers to an SDL_Surface* */
@@ -3038,15 +3038,15 @@ namespace SDL2
 		/* IntPtr refers to an SDL_Surface* */
 		/* THIS IS AN RWops FUNCTION! */
 		[DllImport(nativeLibName, EntryPoint = "SDL_SaveBMP_RW", CallingConvention = CallingConvention.Cdecl)]
-		private static extern int INTERNAL_SDL_SaveBMP_RW(
+		private static extern int public_SDL_SaveBMP_RW(
 			IntPtr surface,
 			IntPtr src,
 			int freesrc
 		);
 		public static int SDL_SaveBMP(IntPtr surface, string file)
 		{
-			IntPtr rwops = INTERNAL_SDL_RWFromFile(file, "wb");
-			return INTERNAL_SDL_SaveBMP_RW(surface, rwops, 1);
+			IntPtr rwops = public_SDL_RWFromFile(file, "wb");
+			return public_SDL_SaveBMP_RW(surface, rwops, 1);
 		}
 
 		/* surface refers to an SDL_Surface* */
@@ -4736,7 +4736,7 @@ namespace SDL2
 
 		// FIXME: I'd rather this somehow be private...
 		[StructLayout(LayoutKind.Sequential)]
-		public struct INTERNAL_GameControllerButtonBind_hat
+		public struct public_GameControllerButtonBind_hat
 		{
 			public int hat;
 			public int hat_mask;
@@ -4754,7 +4754,7 @@ namespace SDL2
 			[FieldOffset(4)]
 			public int axis;
 			[FieldOffset(4)]
-			public INTERNAL_GameControllerButtonBind_hat hat;
+			public public_GameControllerButtonBind_hat hat;
 		}
 
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
@@ -4765,14 +4765,14 @@ namespace SDL2
 
 		/* THIS IS AN RWops FUNCTION! */
 		[DllImport(nativeLibName, EntryPoint = "SDL_GameControllerAddMappingsFromRW", CallingConvention = CallingConvention.Cdecl)]
-		private static extern int INTERNAL_SDL_GameControllerAddMappingsFromRW(
+		private static extern int public_SDL_GameControllerAddMappingsFromRW(
 			IntPtr rw,
 			int freerw
 		);
 		public static int SDL_GameControllerAddMappingsFromFile(string file)
 		{
-			IntPtr rwops = INTERNAL_SDL_RWFromFile(file, "rb");
-			return INTERNAL_SDL_GameControllerAddMappingsFromRW(rwops, 1);
+			IntPtr rwops = public_SDL_RWFromFile(file, "rb");
+			return public_SDL_GameControllerAddMappingsFromRW(rwops, 1);
 		}
 
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
@@ -5382,7 +5382,7 @@ namespace SDL2
 		/* audio_buf will refer to a malloc()'d byte buffer */
 		/* THIS IS AN RWops FUNCTION! */
 		[DllImport(nativeLibName, EntryPoint = "SDL_LoadWAV_RW", CallingConvention = CallingConvention.Cdecl)]
-		private static extern IntPtr INTERNAL_SDL_LoadWAV_RW(
+		private static extern IntPtr public_SDL_LoadWAV_RW(
 			IntPtr src,
 			int freesrc,
 			ref SDL_AudioSpec spec,
@@ -5396,8 +5396,8 @@ namespace SDL2
 			out uint audio_len
 		) {
 			SDL_AudioSpec result;
-			IntPtr rwops = INTERNAL_SDL_RWFromFile(file, "rb");
-			IntPtr result_ptr = INTERNAL_SDL_LoadWAV_RW(
+			IntPtr rwops = public_SDL_RWFromFile(file, "rb");
+			IntPtr result_ptr = public_SDL_LoadWAV_RW(
 				rwops,
 				1,
 				ref spec,
@@ -5537,20 +5537,20 @@ namespace SDL2
 
 		// FIXME: I wish these weren't public...
 		[StructLayout(LayoutKind.Sequential)]
-		public struct INTERNAL_windows_wminfo
+		public struct public_windows_wminfo
 		{
 			public IntPtr window; // Refers to an HWND
 		}
 
 		[StructLayout(LayoutKind.Sequential)]
-		public struct INTERNAL_x11_wminfo
+		public struct public_x11_wminfo
 		{
 			public IntPtr display; // Refers to a Display*
 			public IntPtr window; // Refers to a Window (XID, use ToInt64!)
 		}
 
 		[StructLayout(LayoutKind.Sequential)]
-		public struct INTERNAL_directfb_wminfo
+		public struct public_directfb_wminfo
 		{
 			public IntPtr dfb; // Refers to an IDirectFB*
 			public IntPtr window; // Refers to an IDirectFBWindow*
@@ -5558,30 +5558,30 @@ namespace SDL2
 		}
 
 		[StructLayout(LayoutKind.Sequential)]
-		public struct INTERNAL_cocoa_wminfo
+		public struct public_cocoa_wminfo
 		{
 			public IntPtr window; // Refers to an NSWindow*
 		}
 
 		[StructLayout(LayoutKind.Sequential)]
-		public struct INTERNAL_uikit_wminfo
+		public struct public_uikit_wminfo
 		{
 			public IntPtr window; // Refers to a UIWindow*
 		}
 
 		[StructLayout(LayoutKind.Explicit)]
-		public struct INTERNAL_SysWMDriverUnion
+		public struct public_SysWMDriverUnion
 		{
 			[FieldOffset(0)]
-			public INTERNAL_windows_wminfo win;
+			public public_windows_wminfo win;
 			[FieldOffset(0)]
-			public INTERNAL_x11_wminfo x11;
+			public public_x11_wminfo x11;
 			[FieldOffset(0)]
-			public INTERNAL_directfb_wminfo dfb;
+			public public_directfb_wminfo dfb;
 			[FieldOffset(0)]
-			public INTERNAL_cocoa_wminfo cocoa;
+			public public_cocoa_wminfo cocoa;
 			[FieldOffset(0)]
-			public INTERNAL_uikit_wminfo uikit;
+			public public_uikit_wminfo uikit;
 			// private int dummy;
 		}
 
@@ -5590,7 +5590,7 @@ namespace SDL2
 		{
 			public SDL_version version;
 			public SDL_SYSWM_TYPE subsystem;
-			public INTERNAL_SysWMDriverUnion info;
+			public public_SysWMDriverUnion info;
 		}
 
 		/* window refers to an SDL_Window* */

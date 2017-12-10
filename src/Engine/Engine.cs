@@ -1,7 +1,7 @@
 ﻿using Engine.Controllers;
-using Engine.Models;
 using Engine.Renderer.SDLRenderer;
 using System;
+using System.Collections.Generic;
 
 namespace Engine
 {
@@ -20,6 +20,8 @@ namespace Engine
         /* #################################################################### */
         /* #                         CONSTANT FIELDS                          # */
         /* #################################################################### */
+
+        public const int GRID_SIZE = 64;
 
         /* #################################################################### */
         /* #                              FIELDS                              # */
@@ -41,28 +43,51 @@ namespace Engine
             get { return AppDomain.CurrentDomain.BaseDirectory; }
         }
 
+        public string SavePath
+        {
+            get { return System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "save"); }
+        }
+
         /* #################################################################### */
         /* #                              METHODS                             # */
         /* #################################################################### */
 
         public void Run()
         {
+            var controllers = new List<IController>
+            {
+                TimeController.Instance,
+                MouseController.Instance,
+                CameraController.Instance,
+                SpriteManager.Instance,
+                WorldController.Instance,
+                TileSpriteController.Instance,
+                CharacterSpriteController.Instance
+            };
+
             SDLWindow.Instance.Start();
             SDLRenderer.Instance.Start();
+
+            foreach(var c in controllers)
+            {
+                c.Start();
+            }
 
             bool keepRunning = true;
             while (keepRunning)
             {
-                Time.Update();
                 SDLEvent.Update(); // This should be updated early, to make sure inputs are available to later activities.
-                SDLWindow.Instance.Update(); // This needs to be called before anything that might draw anything, as it clears the backbuffer.
-                MouseController.Instance.Update();
-                CameraController.Instance.Update();
-                WorldController.Instance.Update();
+                SDLWindow.Instance.Update();
 
-                WorldController.Instance.Render();
-                MouseController.Instance.Render();
-                CameraController.Instance.Render();
+                foreach (var c in controllers)
+                {
+                    c.Update();
+                }
+
+                foreach (var c in controllers)
+                {
+                    c.Render();
+                }
 
                 SDLWindow.Instance.Present();
 

@@ -2,7 +2,7 @@
 
 namespace Engine.Utilities
 {
-    [DebuggerDisplay("Vector3 [{X},{Y},{Z}]")]
+    [DebuggerDisplay("[{X},{Y},{Z}]")]
     public struct Vector3
     {
         public float X { get; set; }
@@ -28,6 +28,17 @@ namespace Engine.Utilities
         }
 
         /// <summary>
+        /// Subtracts the terms of the second vector from the first and returns the result.
+        /// </summary>
+        /// <param name="v1"></param>
+        /// <param name="v2"></param>
+        /// <returns>The difference of the two vectors.</returns>
+        public static Vector3 operator -(Vector3 v1, Vector3 v2)
+        {
+            return new Vector3(v1.X - v2.X, v1.Y - v2.Y, v1.Z - v2.Z);
+        }
+
+        /// <summary>
         /// Multiplies the terms of the vector v by f and returns the result.
         /// </summary>
         /// <param name="v">The vector</param>
@@ -36,6 +47,11 @@ namespace Engine.Utilities
         public static Vector3 operator *(Vector3 v, float f)
         {
             return new Vector3(v.X * f, v.Y * f, v.Z * f);
+        }
+
+        public static Vector3 operator /(Vector3 v, int i)
+        {
+            return new Vector3(v.X / i, v.Y / i, v.Z / i);
         }
 
         /// <summary>

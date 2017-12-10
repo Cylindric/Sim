@@ -1,12 +1,11 @@
 ﻿using Engine.Utilities;
 using SDL2;
-using System;
 using System.Collections.Generic;
 using static SDL2.SDL;
 
 namespace Engine.Renderer.SDLRenderer
 {
-    internal static class SDLEvent
+    public static class SDLEvent
     {
         static SDLEvent()
         {
@@ -15,7 +14,7 @@ namespace Engine.Renderer.SDLRenderer
             _events = new List<SDL.SDL_Event>();
             _downKeys = new List<SDL_Keycode>();
             _mouseButtonStates = new Dictionary<uint, bool>();
-            MousePosition = new Vector2<int>();
+            MousePosition = new ScreenCoord();
             Quit = false;
         }
 
@@ -52,7 +51,7 @@ namespace Engine.Renderer.SDLRenderer
         /// <summary>
         /// The last seen position of the mouse.
         /// </summary>
-        public static Vector2<int> MousePosition { get; private set; }
+        public static ScreenCoord MousePosition { get; private set; }
 
         /* #################################################################### */
         /* #                              METHODS                             # */
@@ -91,7 +90,7 @@ namespace Engine.Renderer.SDLRenderer
                 {
                     //Get mouse position
                     SDL_GetMouseState(out int x, out int y);
-                    MousePosition = new Vector2<int>(x, y);
+                    MousePosition = new ScreenCoord(x, y);
                     _mouseEvents.Add(e);
                 }
                 else if (e.type == SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN)

@@ -28,6 +28,7 @@
 /// 
 
 
+using Engine.Models;
 using System.Collections.Generic;
 // using UnityEngine;
 
@@ -36,7 +37,7 @@ namespace Engine.Utilities
     public static class SimplePool
     {
 
-        // You can avoid resizing of the Stack's internal array by
+        // You can avoid resizing of the Stack's public array by
         // setting this to a number equal to or greater to what you
         // expect most of your pool sizes to be.
         // Note, you can also use Preload() to set the initial size
@@ -47,7 +48,7 @@ namespace Engine.Utilities
         /// <summary>
         /// The Pool class represents the pool for a particular prefab.
         /// </summary>
-        class Pool
+        public class Pool
         {
             // We append an id to the name of anything we instantiate.
             // This is purely cosmetic.
@@ -68,26 +69,26 @@ namespace Engine.Utilities
             {
                 this.prefab = prefab;
 
-                // If Stack uses a linked list internally, then this
+                // If Stack uses a linked list publicly, then this
                 // whole initialQty thing is a placebo that we could
                 // strip out for more minimal code.
                 inactive = new Stack<GameObject>(initialQty);
             }
 
             // Spawn an object from our pool
-            public GameObject Spawn(Vector3 pos, Quaternion rot)
+            public GameObject Spawn(WorldCoord pos, float rot = 0f)
             {
                 GameObject obj;
                 if (inactive.Count == 0)
                 {
                     // We don't have an object in our pool, so we
                     // instantiate a whole new object.
-                    obj = (GameObject)GameObject.Instantiate(prefab, pos, rot);
-                    obj.name = prefab.name + " (" + (nextId++) + ")";
+                    obj = GameObject.Instantiate(prefab, pos, rot);
+                    obj.Name = prefab.Name + " (" + (nextId++) + ")";
 
                     // Add a PoolMember component so we know what pool
                     // we belong to.
-                    obj.AddComponent<PoolMember>().myPool = this;
+                    obj.Pool = this;
                 }
                 else
                 {
@@ -108,9 +109,9 @@ namespace Engine.Utilities
                     }
                 }
 
-                obj.transform.position = pos;
-                obj.transform.rotation = rot;
-                obj.SetActive(true);
+                obj.Position = pos;
+                obj.Rotation = rot;
+                obj.IsActive = true;
                 return obj;
 
             }
@@ -118,26 +119,16 @@ namespace Engine.Utilities
             // Return an object to the inactive pool.
             public void Despawn(GameObject obj)
             {
-                obj.SetActive(false);
+                obj.IsActive = false;
 
                 // Since Stack doesn't have a Capacity member, we can't control
-                // the growth factor if it does have to expand an internal array.
+                // the growth factor if it does have to expand an public array.
                 // On the other hand, it might simply be using a linked list 
-                // internally.  But then, why does it allow us to specificy a size
+                // publicly.  But then, why does it allow us to specificy a size
                 // in the constructor? Stack is weird.
                 inactive.Push(obj);
             }
 
-        }
-
-
-        /// <summary>
-        /// Added to freshly instantiated objects, so we can link back
-        /// to the correct pool on despawn.
-        /// </summary>
-        class PoolMember// : MonoBehaviour
-        {
-            public Pool myPool;
         }
 
         // All of our pools
@@ -174,7 +165,7 @@ namespace Engine.Utilities
             GameObject[] obs = new GameObject[qty];
             for (int i = 0; i < qty; i++)
             {
-                obs[i] = Spawn(prefab, Vector3.zero, Quaternion.identity);
+                obs[i] = Spawn(prefab, WorldCoord.Zero);
             }
 
             // Now despawn them all.
@@ -186,12 +177,8 @@ namespace Engine.Utilities
 
         /// <summary>
         /// Spawns a copy of the specified prefab (instantiating one if required).
-        /// NOTE: Remember that Awake() or Start() will only run on the very first
-        /// spawn and that member variables won't get reset.  OnEnable will run
-        /// after spawning -- but remember that toggling IsActive will also
-        /// call that function.
         /// </summary>
-        static public GameObject Spawn(GameObject prefab, Vector3 pos, Quaternion rot)
+        static public GameObject Spawn(GameObject prefab, WorldCoord pos, float rot = 0f)
         {
             Init(prefab);
 
@@ -203,15 +190,14 @@ namespace Engine.Utilities
         /// </summary>
         static public void Despawn(GameObject obj)
         {
-            PoolMember pm = obj.GetComponent<PoolMember>();
-            if (pm == null)
+            if (obj.Pool == null)
             {
                 //Debug.Log("Object '" + obj.name + "' wasn't spawned from a pool. Destroying it instead.");
-                GameObject.Destroy(obj);
+                //GameObject.Destroy(obj);
             }
             else
             {
-                pm.myPool.Despawn(obj);
+                obj.Pool.Despawn(obj);
             }
         }
 

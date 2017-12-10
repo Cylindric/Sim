@@ -1,19 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
 using Engine.Models;
-// using UnityEngine;
-using Sprite = UnityEngine.Sprite;
+using Engine.Utilities;
 
 namespace Engine.Controllers
 {
-    public class FurnitureSpriteController// : MonoBehaviour
+    public class FurnitureSpriteController
     {
+        #region Singleton
+        private static readonly Lazy<FurnitureSpriteController> _instance = new Lazy<FurnitureSpriteController>(() => new FurnitureSpriteController());
+
+        public static FurnitureSpriteController Instance { get { return _instance.Value; } }
+
+        private FurnitureSpriteController()
+        {
+        }
+        #endregion
+
         /* #################################################################### */
         /* #                           FIELDS                                 # */
         /* #################################################################### */
 
         private readonly Dictionary<Furniture, GameObject> _furnitureGameObjectMap = new Dictionary<Furniture, GameObject>();
-        private readonly Dictionary<Furniture, ParticleSystem> _furnitureParticleSystemMap = new Dictionary<Furniture, ParticleSystem>();
+        //private readonly Dictionary<Furniture, ParticleSystem> _furnitureParticleSystemMap = new Dictionary<Furniture, ParticleSystem>();
 
         /* #################################################################### */
         /* #                         PROPERTIES                               # */
@@ -27,42 +36,40 @@ namespace Engine.Controllers
         /* #################################################################### */
         /* #                           METHODS                                # */
         /* #################################################################### */
-        public ParticleSystem GasParticles;
+        //public ParticleSystem GasParticles;
 
         public void OnFurnitureCreated(Furniture furn)
         {
             var furnGo = new GameObject();
             _furnitureGameObjectMap.Add(furn, furnGo);
 
-            furnGo.name = furn.ObjectType + "_" + furn.Tile.X + "_" + furn.Tile.Y;
-            furnGo.transform.localScale = new Vector3(1.001f, 1.001f); // little bit of extra size to help prevent gaps between tiles. TODO: must be a cleverer way of doing this ;)
+            furnGo.Name = furn.ObjectType + "_" + furn.Tile.X + "_" + furn.Tile.Y;
 
-            var posOffset = new Vector3((float)(furn.Width - 1) / 2, (float)(furn.Height - 1) / 2, 0);
+            var posOffset = new Vector2<float>((float)(furn.Width - 1) / 2, (float)(furn.Height - 1) / 2);
 
-            furnGo.transform.position = new Vector3(furn.Tile.X, furn.Tile.Y, 0) + posOffset;
-            furnGo.transform.SetParent(this.transform, true);
+            furnGo.Position = new WorldCoord(furn.Tile.X, furn.Tile.Y) + posOffset;
+            // furnGo.transform.SetParent(this.transform, true);
 
-            var sr = furnGo.AddComponent<SpriteRenderer>();
-            sr.sprite = GetSpriteForFurniture(furn);
-            sr.color = furn.Tint;
-            sr.sortingLayerName = "Furniture";
+            furnGo.Sprite = GetSpriteForFurniture(furn);
+            furnGo.Sprite.Colour = furn.Tint;
+            furnGo.SortingLayerName = "Furniture";
 
             if (furn.GetParameter("openness", -1f) >= 0f)
             {
                 var t = furn.Tile.NorthNeighbour();
                 if (t != null && t.Furniture != null && t.Furniture.ObjectType == "furn_wall_steel")
                 {
-                    sr.transform.Rotate(Vector3.forward, 90f);
+                    furnGo.Sprite.Rotate(90f);
                 }
             }
 
-            if(Mathf.Approximately(furn.GetParameter("gas_generator"), 1f))
-            {
-                _furnitureParticleSystemMap[furn] = Instantiate(GasParticles);
-                _furnitureParticleSystemMap[furn].transform.SetParent(furnGo.transform, false);
-                var em = _furnitureParticleSystemMap[furn].emission;
-                em.enabled = false;
-            }
+            //if(Mathf.Approximately(furn.GetParameter("gas_generator"), 1f))
+            //{
+            //    _furnitureParticleSystemMap[furn] = Instantiate(GasParticles);
+            //    _furnitureParticleSystemMap[furn].transform.SetParent(furnGo.transform, false);
+            //    var em = _furnitureParticleSystemMap[furn].emission;
+            //    em.enabled = false;
+            //}
 
             furn.RegisterOnChangedCallback(OnFurnitureChanged);
             furn.RegisterOnRemovedCallback(OnFurnitureRemoved);
@@ -77,8 +84,8 @@ namespace Engine.Controllers
             }
 
             var furnGo = _furnitureGameObjectMap[furn];
-            furnGo.GetComponent<SpriteRenderer>().sprite = GetSpriteForFurniture(furn);
-            furnGo.GetComponent<SpriteRenderer>().color = furn.Tint;
+            furnGo.Sprite = GetSpriteForFurniture(furn);
+            furnGo.Sprite.Colour = furn.Tint;
         }
 
         private void OnFurnitureRemoved(Furniture furn)
@@ -90,7 +97,6 @@ namespace Engine.Controllers
             }
 
             var furnGo = _furnitureGameObjectMap[furn];
-            Destroy(furnGo);
             _furnitureGameObjectMap.Remove(furn);
         }
 
@@ -192,11 +198,11 @@ namespace Engine.Controllers
 
             if (Mathf.Approximately(furn.GetParameter("gas_generator"), 1f))
             {
-                if (_furnitureParticleSystemMap.ContainsKey(furn))
-                {
-                    var part = _furnitureParticleSystemMap[furn].emission;
-                    part.enabled = furn.GasParticlesEnabled;
-                }
+                //if (_furnitureParticleSystemMap.ContainsKey(furn))
+                //{
+                //    var part = _furnitureParticleSystemMap[furn].emission;
+                //    part.enabled = furn.GasParticlesEnabled;
+                //}
             }
 
             return sprite;

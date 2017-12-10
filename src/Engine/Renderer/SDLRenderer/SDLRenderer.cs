@@ -1,13 +1,12 @@
-﻿using Engine.Utilities;
-using SDL2;
+﻿using SDL2;
 using System;
 using System.Diagnostics;
-using Engine.Models;
+using Debug = Engine.Utilities.Debug;
 
 namespace Engine.Renderer.SDLRenderer
 {
     [DebuggerDisplay("SDLRenderer [{ptr}]")]
-    internal class SDLRenderer : IDisposable
+    public class SDLRenderer : IDisposable
     {
         #region Singleton
         private static readonly Lazy<SDLRenderer> _instance = new Lazy<SDLRenderer>(() => new SDLRenderer());
@@ -48,7 +47,7 @@ namespace Engine.Renderer.SDLRenderer
             RenderPtr = SDL.SDL_CreateRenderer(SDLWindow.Instance.ptr, -1, 0);
             if (RenderPtr == null)
             {
-                Log.Instance.Debug($"Failed to create renderer! SDL error: {SDL.SDL_GetError()}");
+                Debug.Log($"Failed to create renderer! SDL error: {SDL.SDL_GetError()}");
                 throw new InvalidOperationException(SDL.SDL_GetError());
             }
         }

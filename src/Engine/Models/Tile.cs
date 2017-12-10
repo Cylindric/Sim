@@ -2,10 +2,10 @@
 using System.Diagnostics;
 using System.Xml;
 using MoonSharp.Interpreter;
-// using UnityEngine;
-using Debug = UnityEngine.Debug;
+using Debug = Engine.Utilities.Debug;
+using Engine.Utilities;
 
-namespace Engine.Model
+namespace Engine.Models
 {
     [DebuggerDisplay("Tile [{X},{Y}]")]
     [MoonSharpUserData]
@@ -229,24 +229,24 @@ namespace Engine.Model
         public bool IsNeighbour(Tile tile, bool allowDiagonal = false)
         {
             // If we're on the same X Column, see if we differ by excactly one Y row.
-            if (this.X == tile.X && Mathf.Abs(this.Y - tile.Y) == 1)
+            if (this.X == tile.X && Math.Abs(this.Y - tile.Y) == 1)
             {
                 return true;
             }
 
             // If we're on the same Y Row, see if we differ by just one X column.
-            if (this.Y == tile.Y && Mathf.Abs(this.X - tile.X) == 1)
+            if (this.Y == tile.Y && Math.Abs(this.X - tile.X) == 1)
             {
                 return true;
             }
 
             if (allowDiagonal)
             {
-                if (this.X == tile.X + 1 && Mathf.Abs(this.Y - tile.Y) == 1)
+                if (this.X == tile.X + 1 && Math.Abs(this.Y - tile.Y) == 1)
                 {
                     return true;
                 }
-                if (this.X == tile.X - 1 && Mathf.Abs(this.Y - tile.Y) == 1)
+                if (this.X == tile.X - 1 && Math.Abs(this.Y - tile.Y) == 1)
                 {
                     return true;
                 }

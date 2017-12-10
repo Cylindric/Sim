@@ -1,20 +1,16 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
 using Engine.Controllers;
 using MoonSharp.Interpreter;
-//using MoonSharp.RemoteDebugger;
-//using MoonSharp.RemoteDebugger.Network;
-using Debug = UnityEngine.Debug;
-using MoonSharp.VsCodeDebugger;
+using Debug = Engine.Utilities.Debug;
 
-namespace Engine.Model
+namespace Engine.Models
 {
     public class FurnitureActions
     {
         private static FurnitureActions _instance;
         private Script myLuaScript;
 
-        private static MoonSharpVsCodeDebugServer _server = new MoonSharpVsCodeDebugServer();
+        // private static MoonSharpVsCodeDebugServer _server = new MoonSharpVsCodeDebugServer();
         
 
         //private RemoteDebuggerService remoteDebugger;
@@ -49,8 +45,8 @@ namespace Engine.Model
 
             //if (_enableRemoteLuaDebugger)
             //{
-            _server.Start();
-            _server.AttachToScript(_instance.myLuaScript, "FurnitureActionsScript");
+            //_server.Start();
+            //_server.AttachToScript(_instance.myLuaScript, "FurnitureActionsScript");
             //    _instance.ActivateRemoteDebugger(_instance.myLuaScript);
             //}
         }

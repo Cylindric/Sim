@@ -3,9 +3,7 @@ using Engine.Renderer.SDLRenderer;
 using Engine.Models;
 using Engine.Utilities;
 using System.Linq;
-using System;
 using System.IO;
-using System.Threading;
 
 namespace EngineTests
 {
@@ -21,12 +19,14 @@ namespace EngineTests
             var spritesheet = new SpriteSheet();
             spritesheet.Load(Engine.Engine.Instance.Path("assets", "base", "tiles", "floor.xml"));
 
-            var go = new GameObject();
-            go.Name = "Test";
-            go.Position = new Vector2<float>(32, 32);
+            var go = new GameObject
+            {
+                Name = "Test",
+                Position = new WorldCoord(32, 32),
 
-            go.SpriteSheet = spritesheet;
-            go.Sprite = spritesheet._sprites.First().Value;
+                SpriteSheet = spritesheet,
+                Sprite = spritesheet._sprites.First().Value
+            };
             go.SpriteSheet.SortingLayer = "Tiles";
 
             SDLWindow.Instance.Update();

@@ -69,11 +69,11 @@ namespace SDL2
 		}
 
 		[DllImport(nativeLibName, EntryPoint = "IMG_LinkedVersion", CallingConvention = CallingConvention.Cdecl)]
-		private static extern IntPtr INTERNAL_IMG_LinkedVersion();
+		private static extern IntPtr public_IMG_LinkedVersion();
 		public static SDL.SDL_version IMG_LinkedVersion()
 		{
 			SDL.SDL_version result;
-			IntPtr result_ptr = INTERNAL_IMG_LinkedVersion();
+			IntPtr result_ptr = public_IMG_LinkedVersion();
 			result = (SDL.SDL_version) Marshal.PtrToStructure(
 				result_ptr,
 				typeof(SDL.SDL_version)

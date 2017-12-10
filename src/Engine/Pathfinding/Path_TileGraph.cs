@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using Engine.Models;
+using Engine.Utilities;
+using System;
 // using UnityEngine;
 
 namespace Engine.Pathfinding
@@ -81,13 +83,13 @@ namespace Engine.Pathfinding
                 {
                     var end = new Vector3(n2.node.data.X, n2.node.data.Y, -2);
                     var end2 = start + ((end - start)/3);
-                    end2.z = -2;
-                    var c = new Color(0f, 0f, 1f, 0.5f);
+                    end2.Z = -2;
+                    var c = new Colour(0f, 0f, 1f, 0.5f);
                     if (Mathf.Approximately(n2.cost, 0f))
                     {
-                        c = new Color(1f, 0f, 0f, 0.2f);
+                        c = new Colour(1f, 0f, 0f, 0.2f);
                     }
-                    Debug.DrawLine(start, end2, c);
+                    // Debug.DrawLine(start, end2, c);
                 }
             }
         }
@@ -109,7 +111,7 @@ namespace Engine.Pathfinding
         {
 
             // If the distance is not "2", then this can't be a clipping move
-            if (Mathf.Abs(curr.X - neigh.X) + Mathf.Abs(curr.Y - neigh.Y) != 2) return false;
+            if (Math.Abs(curr.X - neigh.X) + Math.Abs(curr.Y - neigh.Y) != 2) return false;
 
             // We are diagonal
             var dX = curr.X - neigh.X;

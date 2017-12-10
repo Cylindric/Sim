@@ -1,13 +1,13 @@
-﻿using Engine.Utilities;
-using SDL2;
+﻿using SDL2;
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using Debug = Engine.Utilities.Debug;
 
 namespace Engine.Renderer.SDLRenderer
 {
     [DebuggerDisplay("SDLWindow [{ptr}]")]
-    internal class SDLWindow : IDisposable
+    public class SDLWindow : IDisposable
     {
         #region Singleton
         private static readonly Lazy<SDLWindow> _instance = new Lazy<SDLWindow>(() => new SDLWindow());
@@ -40,13 +40,13 @@ namespace Engine.Renderer.SDLRenderer
 
             if(SDL.SDL_Init(SDL.SDL_INIT_EVERYTHING)  < 0)
             {
-                Log.Instance.Debug($"Failed to initialise SDL! SDL error: {SDL.SDL_GetError()}");
+                Debug.Log($"Failed to initialise SDL! SDL error: {SDL.SDL_GetError()}");
                 throw new InvalidOperationException(SDL.SDL_GetError());
             }
             ptr = SDL.SDL_CreateWindow("CylSim", _x, _y, _width, _height, SDL.SDL_WindowFlags.SDL_WINDOW_RESIZABLE | SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN);
             if(ptr == null)
             {
-                Log.Instance.Debug($"Failed to create window! SDL error: {SDL.SDL_GetError()}");
+                Debug.Log($"Failed to create window! SDL error: {SDL.SDL_GetError()}");
                 throw new InvalidOperationException(SDL.SDL_GetError());
             }
         }

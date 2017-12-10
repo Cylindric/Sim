@@ -74,11 +74,11 @@ namespace SDL2
 		}
 
 		[DllImport(nativeLibName, EntryPoint = "TTF_LinkedVersion", CallingConvention = CallingConvention.Cdecl)]
-		private static extern IntPtr INTERNAL_TTF_LinkedVersion();
+		private static extern IntPtr public_TTF_LinkedVersion();
 		public static SDL.SDL_version TTF_LinkedVersion()
 		{
 			SDL.SDL_version result;
-			IntPtr result_ptr = INTERNAL_TTF_LinkedVersion();
+			IntPtr result_ptr = public_TTF_LinkedVersion();
 			result = (SDL.SDL_version) Marshal.PtrToStructure(
 				result_ptr,
 				typeof(SDL.SDL_version)

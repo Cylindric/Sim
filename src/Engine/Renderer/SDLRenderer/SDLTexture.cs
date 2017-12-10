@@ -4,11 +4,12 @@ using SDL2;
 using System;
 using System.Diagnostics;
 using static SDL2.SDL;
+using Debug = Engine.Utilities.Debug;
 
 namespace Engine.Renderer.SDLRenderer
 {
-    [DebuggerDisplay("SDLTexture [{ptr}]")]
-    internal class SDLTexture
+    [DebuggerDisplay("SDLTexture [{_texturePtr}]")]
+    public class SDLTexture
     {
         /* #################################################################### */
         /* #                         CONSTANT FIELDS                          # */
@@ -41,6 +42,7 @@ namespace Engine.Renderer.SDLRenderer
         /* #################################################################### */
         /* #                              METHODS                             # */
         /* #################################################################### */
+
         public void CreateFromSurface(IntPtr surface)
         {
             if(_texturePtr != IntPtr.Zero)
@@ -56,7 +58,7 @@ namespace Engine.Renderer.SDLRenderer
             var surface = SDL_image.IMG_Load(filename);
             if(surface == null)
             {
-                Log.Instance.Debug($"Failed to load image! SDL error: {SDL.SDL_GetError()}");
+                Debug.Log($"Failed to load image! SDL error: {SDL.SDL_GetError()}");
                 throw new InvalidOperationException(SDL.SDL_GetError());
             }
 
@@ -65,12 +67,12 @@ namespace Engine.Renderer.SDLRenderer
 
             if(_texturePtr == null)
             {
-                Log.Instance.Debug($"Failed to create texture! SDL error: {SDL.SDL_GetError()}");
+                Debug.Log($"Failed to create texture! SDL error: {SDL.SDL_GetError()}");
                 throw new InvalidOperationException(SDL.SDL_GetError());
             }
         }
 
-        public void Render(Vector2<int> position)
+        public void Render(ScreenCoord position)
         {
             SDL_Rect srcrect = new SDL_Rect()
             {
@@ -82,15 +84,15 @@ namespace Engine.Renderer.SDLRenderer
 
             SDL_Rect dsrect = new SDL_Rect()
             {
-                x = position.X,
-                y = position.Y,
+                x = (int)position.X,
+                y = (int)position.Y,
                 w = _width,
                 h = _height
             };
 
             if (SDL.SDL_RenderCopy(SDLRenderer.Instance.RenderPtr, _texturePtr, ref srcrect, ref dsrect) < 0)
             {
-                Log.Instance.Debug($"Failed to render texture! SDL error: {SDL.SDL_GetError()}");
+                Debug.Log($"Failed to render texture! SDL error: {SDL.SDL_GetError()}");
                 throw new InvalidOperationException(SDL.SDL_GetError());
             }
         }
@@ -115,7 +117,7 @@ namespace Engine.Renderer.SDLRenderer
 
             if(SDL.SDL_RenderCopy(SDLRenderer.Instance.RenderPtr, _texturePtr, ref srcrect, ref dsrect) < 0)
             {
-                Log.Instance.Debug($"Failed to render texture! SDL error: {SDL.SDL_GetError()}");
+                Debug.Log($"Failed to render texture! SDL error: {SDL.SDL_GetError()}");
                 throw new InvalidOperationException(SDL.SDL_GetError());
             }
         }

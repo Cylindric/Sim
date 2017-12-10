@@ -2,9 +2,9 @@
 using System.Linq;
 using System.Xml;
 using MoonSharp.Interpreter;
-// using UnityEngine;
+using Debug = Engine.Utilities.Debug;
 
-namespace Engine.Model
+namespace Engine.Models
 {
     [MoonSharpUserData]
     public class Room

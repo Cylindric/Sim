@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Xml;
-using System.Xml.Xsl;
 using MoonSharp.Interpreter;
-// using UnityEngine;
-using Debug = UnityEngine.Debug;
-using Random = UnityEngine.Random;
+using Debug = Engine.Utilities.Debug;
+using Random = Engine.Utilities.Random;
+using Engine.Utilities;
 
-namespace Engine.Model
+namespace Engine.Models
 {
     /// <summary>
     /// Furniture represents an object that is 'permanently' installed on a <see cref="Tile"/>.
@@ -48,9 +47,9 @@ namespace Engine.Model
         {
             Name = string.Empty;
             LinksToNeighbour = false;
-            Tint = Color.white;
-            JobSpotOffset = Vector2.zero;
-            JobSpawnOffset = Vector2.zero;
+            Tint = Colour.White;
+            JobSpotOffset = Vector2<float>.Zero;
+            JobSpawnOffset = Vector2<float>.Zero;
             MovementCost = 1f;
             IsRoomEnclosure = false;
             Width = 1;
@@ -173,7 +172,7 @@ namespace Engine.Model
         /// </summary>
         public bool IsRoomEnclosure { get; private set; }
 
-        public Color Tint { get; set; }
+        public Colour Tint { get; set; }
 
         /// <summary>
         /// Width of the Object in Tiles.
@@ -188,12 +187,12 @@ namespace Engine.Model
         /// <summary>
         /// If this furniture gets worked by a person, where is the correct place to stand?
         /// </summary>
-        public Vector2 JobSpotOffset { get; set; }
+        public Vector2<float> JobSpotOffset { get; set; }
 
         /// <summary>
         /// If this furniture spawns anything, where does it appear?
         /// </summary>
-        public Vector2 JobSpawnOffset { get; set; }
+        public Vector2<float> JobSpawnOffset { get; set; }
 
         public bool GasParticlesEnabled { get; set; }
 
@@ -279,8 +278,8 @@ namespace Engine.Model
         public float OffsetParameter(string key, float value, float clampMin, float clampMax)
         {
             OffsetParameter(key, value);
-            _parameters[key] = Mathf.Max(_parameters[key], clampMin);
-            _parameters[key] = Mathf.Min(_parameters[key], clampMax);
+            _parameters[key] = Math.Max(_parameters[key], clampMin);
+            _parameters[key] = Math.Min(_parameters[key], clampMax);
             return _parameters[key];
         }
 
@@ -615,13 +614,13 @@ namespace Engine.Model
 
         public Tile GetJobSpotTile()
         {
-            var t = World.Instance.GetTileAt(Tile.X + (int)JobSpotOffset.x, Tile.Y + (int)JobSpotOffset.y);
+            var t = World.Instance.GetTileAt(Tile.X + (int)JobSpotOffset.X, Tile.Y + (int)JobSpotOffset.Y);
             return t;
         }
 
         public Tile GetSpawnSpotTile()
         {
-            return World.Instance.GetTileAt(Tile.X + (int)JobSpawnOffset.x, Tile.Y + (int)JobSpawnOffset.y);
+            return World.Instance.GetTileAt(Tile.X + (int)JobSpawnOffset.X, Tile.Y + (int)JobSpawnOffset.Y);
         }
     }
 }

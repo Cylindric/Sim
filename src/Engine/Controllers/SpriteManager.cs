@@ -1,47 +1,73 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Xml.Serialization;
 using Engine.Models;
-using Engine.Model.Import;
-// using UnityEngine;
-using Debug = UnityEngine.Debug;
+using Debug = Engine.Utilities.Debug;
+using System;
 
 namespace Engine.Controllers
 {
-    public class SpriteManager// : MonoBehaviour
+    public class SpriteManager : IController
     {
-        public static SpriteManager Instance;
+        #region Singleton
+        private static readonly Lazy<SpriteManager> _instance = new Lazy<SpriteManager>(() => new SpriteManager());
 
-        private const int PPU = 64;
+        public static SpriteManager Instance { get { return _instance.Value; } }
 
-        private readonly Dictionary<string, SpriteSheet> _sprites = new Dictionary<string, SpriteSheet>();
-
-        private void OnEnable ()
+        private SpriteManager()
         {
-            Instance = this; // TODO: Not sure why this gets called twice
-            LoadSprites();
         }
-	
-        public UnityEngine.Sprite GetSprite(string atlasName, string spriteName)
+        #endregion
+
+        /* #################################################################### */
+        /* #                         CONSTANT FIELDS                          # */
+        /* #################################################################### */
+
+        /* #################################################################### */
+        /* #                              FIELDS                              # */
+        /* #################################################################### */
+
+        private readonly Dictionary<string, SpriteSheet> _spritesheets = new Dictionary<string, SpriteSheet>();
+
+        /* #################################################################### */
+        /* #                           CONSTRUCTORS                           # */
+        /* #################################################################### */
+
+        /* #################################################################### */
+        /* #                             DELEGATES                            # */
+        /* #################################################################### */
+
+        /* #################################################################### */
+        /* #                            PROPERTIES                            # */
+        /* #################################################################### */
+
+        /* #################################################################### */
+        /* #                              METHODS                             # */
+        /* #################################################################### */
+
+        public void Start()
         {
-            if (_sprites.ContainsKey(atlasName) == false || _sprites[atlasName].Sprites.ContainsKey(spriteName) == false)
+            var filepath = Engine.Instance.Path("assets", "base", "images");
+            LoadSprites(filepath);
+        }
+
+        public void Update() { }
+        public void Render() { }
+	
+        public Sprite GetSprite(string atlasName, string spriteName)
+        {
+            if (_spritesheets.ContainsKey(atlasName) == false || _spritesheets[atlasName]._sprites.ContainsKey(spriteName) == false)
             {
                 Debug.LogErrorFormat("No sprite with name {0} in atlas {1}!", spriteName, atlasName);
                 return null;
             }
-            return _sprites[atlasName].Sprites[spriteName].GetSprite();
+            return _spritesheets[atlasName]._sprites[spriteName];
         }
 
-        private void LoadSprites()
-        {
-            var filepath = Application.streamingAssetsPath;
-            filepath = Path.Combine(filepath, "Base");
-            filepath = Path.Combine(filepath, "Images");
-            LoadSprites(filepath);
-        }
-
+        /// <summary>
+        /// Iterate through the entire directory tree looking for spritesheet XML files.
+        /// </summary>
+        /// <param name="filepath"></param>
         private void LoadSprites(string filepath)
         {
             foreach (var dir in Directory.GetDirectories(filepath))
@@ -51,47 +77,9 @@ namespace Engine.Controllers
 
             foreach (var file in Directory.GetFiles(filepath).Where(f => f.EndsWith(".xml")))
             {
-                LoadSpritesheet(file);
+                var spritesheet = new SpriteSheet().Load(file);
+                _spritesheets.Add(spritesheet.Name, spritesheet);
             }
-        }
-
-        private void LoadSpritesheet(string filepath)
-        {
-            // Debug.LogFormat("Loading Spritesheet {0}.", filepath);
-
-            // First get the data about the sprites
-            var filestream = new StreamReader(filepath);
-            var serializer = new XmlSerializer(typeof (XmlTextureAtlas));
-            var atlas = (XmlTextureAtlas) serializer.Deserialize(filestream);
-
-            // Full filename information
-            var imagefile = Path.Combine(Path.GetDirectoryName(filepath), atlas.imagePath);
-
-            // Now load the image itself
-            var bytes = File.ReadAllBytes(imagefile);
-            var texture = new Texture2D(1, 1);
-            texture.filterMode = FilterMode.Trilinear;
-            texture.LoadImage(bytes);
-
-            // Set up the basic SpriteSheet data.
-            var spritesheet = new SpriteSheet()
-            {
-                Name = Path.GetFileNameWithoutExtension(atlas.imagePath)
-            };
-
-            // Add each sprite-set to the sheet.
-            foreach (var data in atlas.Sprites)
-            {
-                data.y = atlas.height - data.y - data.height;
-
-                var sprite = new Model.Sprite(texture,
-                    new Rect(data.x, data.y, data.width, data.height),
-                    new Vector2(data.pivotX, data.pivotY), PPU);
-
-                spritesheet.Sprites.Add(data.name, sprite);
-            }
-
-            _sprites.Add(spritesheet.Name, spritesheet);
         }
     }
 }

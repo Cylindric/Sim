@@ -1,6 +1,9 @@
-﻿namespace Engine.Utilities
+﻿using System.Diagnostics;
+
+namespace Engine.Utilities
 {
-    internal class SpriteClip
+    [DebuggerDisplay("[{X},{Y}] [{Width},{Height}]")]
+    public class SpriteClip
     {
         public int X { get; set; }
         public int Y { get; set; }

@@ -1,17 +1,28 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Engine.Models;
-// using UnityEngine;
+using Engine.Utilities;
+using System;
 
 namespace Engine.Controllers
 {
-    public class TileSpriteController// : MonoBehaviour
+    public class TileSpriteController : IController
     {
+        #region Singleton
+        private static readonly Lazy<TileSpriteController> _instance = new Lazy<TileSpriteController>(() => new TileSpriteController());
+
+        public static TileSpriteController Instance { get { return _instance.Value; } }
+
+        private TileSpriteController()
+        {
+        }
+        #endregion
+
         private readonly Dictionary<Tile, GameObject> _tileGameObjectMap = new Dictionary<Tile, GameObject>();
 
         private World _world { get { return WorldController.Instance.World; } }
 
-        private void Start()
+        public void Start()
         {
             // Create a game object for every Tile.
             for (var x = 0; x < _world.Width; x++)
@@ -22,15 +33,13 @@ namespace Engine.Controllers
                     var tileGo = new GameObject();
                     _tileGameObjectMap.Add(tileData, tileGo);
 
-                    tileGo.name = "Tile_" + x + "_" + y;
-                    tileGo.transform.localScale = new Vector3(1.001f, 1.001f); // little bit of extra size to help prevent gaps between tiles. TODO: must be a cleverer way of doing this ;)
-                    tileGo.transform.position = new Vector3(tileData.X, tileData.Y, 0);
-                    tileGo.transform.SetParent(this.transform, true);
+                    tileGo.Name = "Tile_" + x + "_" + y;
+                    tileGo.Position = new WorldCoord(tileData.X, tileData.Y);
+                    //tileGo.transform.SetParent(this.transform, true);
 
-                    var sr = tileGo.AddComponent<SpriteRenderer>();
-                    sr.sprite = null;
-                    sr.enabled = false;
-                    sr.sortingLayerName = "Tiles";
+                    tileGo.Sprite = null;
+                    tileGo.IsActive = false;
+                    tileGo.SortingLayerName = "Tiles";
 
                     OnTileChanged(tileData);
                 }
@@ -47,7 +56,6 @@ namespace Engine.Controllers
                 var tileGo = _tileGameObjectMap[tileData];
                 _tileGameObjectMap.Remove(tileData);
                 tileData.UnRegisterTileTypeChangedCallback(OnTileChanged);
-                Destroy(tileGo);
             }
         }
 
@@ -69,22 +77,44 @@ namespace Engine.Controllers
 
             if (tileData.Type == TileType.Floor)
             {
-                var sr = tileGo.GetComponent<SpriteRenderer>();
                 var x = tileData.X % 3;
                 var y = x + tileData.Y % 3;
                 var tile = (x + y) % 3;
-                sr.sprite = SpriteManager.Instance.GetSprite("tile_floor", string.Format("floor_{0}", tile));
-                sr.enabled = true;
+                tileGo.Sprite = SpriteManager.Instance.GetSprite("floor", string.Format("floor_{0}", tile));
+                tileGo.IsActive = true;
             }
             else if (tileData.Type == TileType.Empty)
             {
-                var sr = tileGo.GetComponent<SpriteRenderer>();
-                sr.sprite = null;
-                sr.enabled = false;
+                tileGo.Sprite = null;
+                tileGo.IsActive = false;
             }
             else
             {
                 Debug.LogError("OnTileChanged - Unrecognised Tile type");
+            }
+        }
+
+        public void Update() { }
+
+        public void Render()
+        {
+            foreach (var t in _tileGameObjectMap)
+            {
+                var go = t.Value;
+
+                if (go.Sprite == null)
+                {
+                    continue;
+                }
+
+                var posX = go.Position.X * Engine.GRID_SIZE;
+                var posY = go.Position.Y * Engine.GRID_SIZE;
+
+                // offset render location by the camera movement
+                posX -= CameraController.Instance.Position.X;
+                posY += CameraController.Instance.Position.Y;
+
+                go.Sprite.Render((int)posX, (int)posY);
             }
         }
     }

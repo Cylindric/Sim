@@ -1,6 +1,4 @@
 ﻿using System;
-using Debug = UnityEngine.Debug;
-using System.Timers;
 using System.Diagnostics;
 using System.Collections.Generic;
 
@@ -14,9 +12,7 @@ namespace FluentBehaviourTree
         /// <summary>
         /// The name of the node.
         /// </summary>
-#pragma warning disable 0414
         private string name;
-#pragma warning restore 0414
 
         private Stopwatch timer = new Stopwatch();
 

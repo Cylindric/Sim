@@ -52,6 +52,7 @@
     <Compile Include="Controllers\CameraControllerTests.cs" />
     <Compile Include="UnitTest1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utilities\MathfTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

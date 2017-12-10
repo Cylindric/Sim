@@ -34,7 +34,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>CylSimSDL.Program</StartupObject>
+    <StartupObject>CylSim.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />

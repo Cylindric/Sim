@@ -1,4 +1,4 @@
-﻿namespace Engine.Model
+﻿namespace Engine
 {
     public enum Enterability
     {

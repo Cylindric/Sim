@@ -1,34 +1,76 @@
 ﻿using System.IO;
 using System.Xml;
-using System.Xml.Serialization;
 using Engine.Models;
 using Engine.Utilities;
-//using MoonSharp.RemoteDebugger;
-// using UnityEngine;
-using UnityEngine.SceneManagement;
-using Debug = UnityEngine.Debug;
 using System;
 
 namespace Engine.Controllers
 {
-    public class WorldController// : MonoBehaviour
+    public class WorldController : IController
     {
-        public static WorldController Instance { get; protected set; }
+        #region Singleton
+        private static readonly Lazy<WorldController> _instance = new Lazy<WorldController>(() => new WorldController());
 
-        public World World { get; protected set; }
+        public static WorldController Instance { get { return _instance.Value; } }
+
+        private WorldController()
+        {
+        }
+        #endregion
+
+        /* #################################################################### */
+        /* #                         CONSTANT FIELDS                          # */
+        /* #################################################################### */
+
+        /* #################################################################### */
+        /* #                              FIELDS                              # */
+        /* #################################################################### */
         private static bool _loadWorld = false;
+
+        /* #################################################################### */
+        /* #                           CONSTRUCTORS                           # */
+        /* #################################################################### */
+
+        /* #################################################################### */
+        /* #                             DELEGATES                            # */
+        /* #################################################################### */
+
+        /* #################################################################### */
+        /* #                            PROPERTIES                            # */
+        /* #################################################################### */
+        public World World { get; protected set; }
+
+        /* #################################################################### */
+        /* #                              METHODS                             # */
+        /* #################################################################### */
+
+        public void Start()
+        {
+            MarkovNameGenerator.Start();
+
+            var args = Environment.GetCommandLineArgs();
+
+            if (_loadWorld)
+            {
+                CreateWorldFromSave();
+            }
+            else
+            {
+                CreateEmptyWorld();
+            }
+        }
 
         public void NewWorld()
         {
             // Debug.Log("New World clicked.");
             _loadWorld = false;
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            //SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
 
         public void SaveWorld()
         {
             // Debug.Log("Save World clicked.");
-            var filename = Path.Combine(Application.persistentDataPath, "SaveGame000.xml");
+            var filename = Path.Combine(Engine.Instance.SavePath, "SaveGame000.xml");
 
             var xml = new XmlDocument();
             var xmlDeclaration = xml.CreateXmlDeclaration("1.0", "UTF-8", null);
@@ -45,49 +87,21 @@ namespace Engine.Controllers
         {
             // Debug.Log("Load World clicked.");
             _loadWorld = true;
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            //SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
 
-        public Tile GetTileAtWorldCoordinates(Vector3 coord)
+        public Tile GetTileAtWorldCoordinates(WorldCoord coord)
         {
-            var x = Mathf.FloorToInt(coord.x + 0.5f);
-            var y = Mathf.FloorToInt(coord.y + 0.5f);
+            var x = Mathf.FloorToInt(coord.X + 0.5f);
+            var y = Mathf.FloorToInt(coord.Y + 0.5f);
 
             return World.Instance.GetTileAt(x, y);
         }
 
-        // RemoteDebuggerService remoteDebugger;
-
-        /// <summary>
-        /// Called by Unity when the controller is created. 
-        /// We're using OnEnable() instead of Start() just to make sure it's ready before anything else.
-        /// </summary>
-        private void OnEnable()
-        {
-            MarkovNameGenerator.Initialise();
-
-            if (Instance != null)
-            {
-                Debug.LogError("There shouldn't be an instance already!");
-            }
-            Instance = this;
-
-            var args = Environment.GetCommandLineArgs();
-
-            if (_loadWorld)
-            {
-                CreateWorldFromSave();
-            }
-            else
-            {
-                CreateEmptyWorld();
-            }
-        }
-
         private void CreateWorldFromSave()
         {
-            // Debug.Log("Creating world from save.");
-            var filename = Path.Combine(Application.persistentDataPath, "SaveGame000.xml");
+            Debug.Log("Creating world from save.");
+            var filename = Path.Combine(Engine.Instance.SavePath, "SaveGame000.xml");
             if (File.Exists(filename) == false)
             {
                 return;
@@ -98,53 +112,38 @@ namespace Engine.Controllers
             this.World = World.ReadXml(xml);
 
             // Center the camera.
-            Camera.main.transform.position = new Vector3(World.Width / 2f, World.Height / 2f, Camera.main.transform.position.z);
+            CameraController.Instance.Position = new ScreenCoord(World.Width / 2f, World.Height / 2f);
 
             Debug.LogFormat("Loaded game from {0}", filename);
         }
 
         private void CreateEmptyWorld()
         {
-            // Debug.Log("Creating empty world.");
-            this.World = new World(20, 20);
+            Debug.Log("Creating empty world.");
+            World = new World(10, 10);
+            World.GetTileAt(World.Width / 2, World.Height / 2).Type = TileType.Floor;
 
             // Put some characters into the world
             // World.CreateCharacter(World.GetTileAt(World.Width / 2 - 1, World.Height / 2));
             World.CreateCharacter(World.GetTileAt(World.Width / 2, World.Height / 2));
             // BWorld.CreateCharacter(World.GetTileAt(World.Width / 2 + 1, World.Height / 2));
 
-            Camera.main.transform.position = new Vector3(World.Width / 2f, World.Height / 2f, Camera.main.transform.position.z);
+            CameraController.Instance.SetPosition(new ScreenCoord(World.Width / 2f, World.Height / 2f));
         }
 
-        /// <summary>
-        /// This is called by Unity before every frame renderered.
-        /// </summary>
-        private void Update()
+        public void Update()
         {
-            World.Update(Time.deltaTime);
-
-            var scrollSpeed = 4f;
-            if (Input.GetKey(KeyCode.A))
-            {
-                Camera.main.transform.position += Vector3.left * Time.deltaTime * scrollSpeed;
-            }
-            else if (Input.GetKey(KeyCode.D))
-            {
-                Camera.main.transform.position += Vector3.right * Time.deltaTime * scrollSpeed;
-            }
-            if (Input.GetKey(KeyCode.W))
-            {
-                Camera.main.transform.position += Vector3.up * Time.deltaTime * scrollSpeed;
-            }
-            else if (Input.GetKey(KeyCode.S))
-            {
-                Camera.main.transform.position += Vector3.down * Time.deltaTime * scrollSpeed;
-            }
+            World.Update(TimeController.Instance.DeltaTime);
 
             if (World.TileGraph != null)
             {
                 World.TileGraph.DebugVis();
             }
+        }
+
+        public void Render()
+        {
+            // throw new NotImplementedException();
         }
 
     }

@@ -1,21 +1,21 @@
-﻿using System.Security.Policy;
-using Engine.Controllers;
+﻿using Engine.Utilities;
 using Engine.Models;
-using Engine.Pathfinding;
-// using UnityEngine;
+using System;
 
 namespace Engine.Controllers
 {
-    public enum BuildMode
+    public class BuildModeController : IController
     {
-        Floor,
-        Furniture,
-        Deconstruct,
-        Colonist
-    }
+        #region Singleton
+        private static readonly Lazy<BuildModeController> _instance = new Lazy<BuildModeController>(() => new BuildModeController());
 
-    public class BuildModeController// : MonoBehaviour
-    {
+        public static BuildModeController Instance { get { return _instance.Value; } }
+
+        private BuildModeController()
+        {
+        }
+        #endregion
+
         /* #################################################################### */
         /* #                              FIELDS                              # */
         /* #################################################################### */
@@ -31,16 +31,20 @@ namespace Engine.Controllers
         void Awake()
         {
             //#if UNITY_EDITOR
-            QualitySettings.vSyncCount = 0;  // VSync must be disabled
-            Application.targetFrameRate = 10;
+            // QualitySettings.vSyncCount = 0;  // VSync must be disabled
+            // Application.targetFrameRate = 10;
             //#endif
         }
 
-        private void Start()
+        public void Start()
         {
         }
 
-        private void Update()
+        public void Update()
+        {
+        }
+
+        public void Render()
         {
         }
 
@@ -67,7 +71,7 @@ namespace Engine.Controllers
             BuildMode = BuildMode.Floor;
             _buildModeTileType = TileType.Floor;
 
-            GameObject.FindObjectOfType<MouseController>().StartBuildMode();
+            MouseController.Instance.StartBuildMode();
         }
 
         public void SetMode_Clear()
@@ -79,20 +83,20 @@ namespace Engine.Controllers
         public void SetMode_Deconstruct()
         {
             BuildMode = BuildMode.Deconstruct;
-            GameObject.FindObjectOfType<MouseController>().StartBuildMode();
+            MouseController.Instance.StartBuildMode();
         }
 
         public void SetMode_BuildInstalledObject(string type)
         {
             BuildModeObjectType = type;
             BuildMode = BuildMode.Furniture;
-            GameObject.FindObjectOfType<MouseController>().StartBuildMode();
+            MouseController.Instance.StartBuildMode();
         }
 
         public void SetMode_BuildColonist()
         {
             BuildMode = BuildMode.Colonist;
-            GameObject.FindObjectOfType<MouseController>().StartBuildMode();
+            MouseController.Instance.StartBuildMode();
         }
 
         public void DoBuild(Tile t)

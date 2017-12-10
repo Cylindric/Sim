@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Engine.Pathfinding;
 using Engine.Utilities;
 using FluentBehaviourTree;
-// using UnityEngine;
-using Debug = UnityEngine.Debug;
 using System.Linq;
-// ReSharper disable All
+using System.Diagnostics;
+using Debug = Engine.Utilities.Debug;
 
-namespace Engine.Model
+namespace Engine.Models
 {
     [DebuggerDisplay("Character {Name} at [{X}, {Y}]")]
     public partial class Character
@@ -28,7 +26,7 @@ namespace Engine.Model
         private const float TimeBetweenJobSearches = 3f;
         private const float BaseMovementSpeed = 5f;
 
-        // The internal magic fusion core mcguffin charges the character at this rate.
+        // The public magic fusion core mcguffin charges the character at this rate.
         private const float EnergyChargeRate = (1f/300);
 
         // The shield uses power at this rate - should be larger than EnergyChargeRate, otherwise it'll never run out.
@@ -493,9 +491,9 @@ namespace Engine.Model
             float distToTravel = 0;
             if (_nextTile != CurrentTile)
             {
-                distToTravel = Mathf.Sqrt(
-                    Mathf.Pow(CurrentTile.X - _nextTile.X, 2) +
-                    Mathf.Pow(CurrentTile.Y - _nextTile.Y, 2)
+                distToTravel = (float)Math.Sqrt(
+                    Math.Pow(CurrentTile.X - _nextTile.X, 2) +
+                    Math.Pow(CurrentTile.Y - _nextTile.Y, 2)
                     );
             }
 
@@ -818,7 +816,7 @@ namespace Engine.Model
                 return BehaviourTreeStatus.Failure;
             }
 
-            Debug.LogFormat("{0} finding safety", Name);
+            // Debug.LogFormat("{0} finding safety", Name);
 
             DestinationTile = targetRoomTile;
             return BehaviourTreeStatus.Success;
@@ -851,7 +849,7 @@ namespace Engine.Model
             }
             if (tstring != this.Name)
             {
-                Debug.Log(tstring);
+                // Debug.Log(tstring);
             }   
 
             // Hack in some environmental effects.
@@ -866,7 +864,7 @@ namespace Engine.Model
                 ShieldStatus = true;
             }
 
-            if (_cbCharacterChanged != null) _cbCharacterChanged(this);
+            _cbCharacterChanged?.Invoke(this);
         }
         
         private void OnJobStopped(Job j)

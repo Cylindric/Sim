@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Engine.Pathfinding;
 
-namespace Engine.Model
+namespace Engine.Models
 {
     public class JobQueue
     {

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Xml;
+﻿using System.Xml;
 // using UnityEngine;
 
 namespace Engine.Utilities
@@ -45,8 +40,7 @@ namespace Engine.Utilities
             var value = node.SelectSingleNode(xpath);
             if (value == null) return defaultValue;
 
-            int outVal;
-            if (int.TryParse(value.InnerText, out outVal))
+            if (int.TryParse(value.InnerText, out int outVal))
             {
                 return outVal;
             }
@@ -61,8 +55,7 @@ namespace Engine.Utilities
             var value = node.SelectSingleNode(xpath);
             if (value == null) return defaultValue;
 
-            float outVal;
-            if (float.TryParse(value.InnerText, out outVal))
+            if (float.TryParse(value.InnerText, out float outVal))
             {
                 return outVal;
             }
@@ -70,23 +63,23 @@ namespace Engine.Utilities
             return defaultValue;
         }
 
-        public static Vector2 ParseVector2(XmlNode node, string xpath)
+        public static Vector2<float> ParseVector2(XmlNode node, string xpath)
         {
-            if (node == null) return Vector2.zero;
+            if (node == null) return Vector2<float>.Zero;
 
             var value = node.SelectSingleNode(xpath);
             if (value == null)
             {
-                return Vector2.zero;
+                return Vector2<float>.Zero;
             }
 
             var parts = value.InnerText.Split(',');
             if (parts.Length < 2)
             {
-                return Vector2.zero;
+                return Vector2<float>.Zero;
             }
 
-            return new Vector2(
+            return new Vector2<float>(
                 int.Parse(parts[0]),
                 int.Parse(parts[1]));
         }

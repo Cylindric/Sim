@@ -2,7 +2,7 @@
 
 namespace Engine.Utilities
 {
-    [DebuggerDisplay("Vector2 [{X},{Y}]")]
+    [DebuggerDisplay("[{X},{Y}]")]
     public struct Vector2<T>
     {
         public T X { get; set; }
