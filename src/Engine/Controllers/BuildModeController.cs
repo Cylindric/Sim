@@ -1,6 +1,7 @@
 ﻿using Engine.Utilities;
 using Engine.Models;
 using System;
+using Engine.Renderer.SDLRenderer;
 
 namespace Engine.Controllers
 {
@@ -28,20 +29,16 @@ namespace Engine.Controllers
         /* #                              METHODS                             # */
         /* #################################################################### */
 
-        void Awake()
-        {
-            //#if UNITY_EDITOR
-            // QualitySettings.vSyncCount = 0;  // VSync must be disabled
-            // Application.targetFrameRate = 10;
-            //#endif
-        }
-
         public void Start()
         {
         }
 
         public void Update()
         {
+            if (SDLEvent.KeyUp(SDL2.SDL.SDL_Keycode.SDLK_f))
+            {
+                SetMode_BuildFloor();
+            }
         }
 
         public void Render()
@@ -126,8 +123,10 @@ namespace Engine.Controllers
                     else
                     {
                         Debug.LogError("There is no Furniture Job Prototype for '" + furnitureType + "'");
-                        j = new Job(t, furnitureType, FurnitureActions.JobComplete_FurnitureBuilding, 0.1f, null);
-                        j.Name = "BuildFurniture";
+                        j = new Job(t, furnitureType, FurnitureActions.JobComplete_FurnitureBuilding, 0.1f, null)
+                        {
+                            Name = "BuildFurniture"
+                        };
                     }
 
                     j.FurniturePrototype = WorldController.Instance.World.FurniturePrototypes[furnitureType];

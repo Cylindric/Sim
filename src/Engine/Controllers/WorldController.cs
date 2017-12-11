@@ -121,7 +121,21 @@ namespace Engine.Controllers
         {
             Debug.Log("Creating empty world.");
             World = new World(10, 10);
-            World.GetTileAt(World.Width / 2, World.Height / 2).Type = TileType.Floor;
+
+            var middleX = World.Width / 2;
+            var middleY = World.Height / 2;
+
+            World.GetTileAt(middleX - 1, middleY - 1).Type = TileType.Floor;
+            World.GetTileAt(middleX, middleY - 1).Type = TileType.Floor;
+            World.GetTileAt(middleX + 1, middleY - 1).Type = TileType.Floor;
+
+            World.GetTileAt(middleX - 1, middleY).Type = TileType.Floor;
+            World.GetTileAt(middleX, middleY).Type = TileType.Floor;
+            World.GetTileAt(middleX + 1, middleY).Type = TileType.Floor;
+
+            World.GetTileAt(middleX - 1, middleY + 1).Type = TileType.Floor;
+            World.GetTileAt(middleX, middleY + 1).Type = TileType.Floor;
+            World.GetTileAt(middleX + 1, middleY + 1).Type = TileType.Floor;
 
             // Put some characters into the world
             // World.CreateCharacter(World.GetTileAt(World.Width / 2 - 1, World.Height / 2));

@@ -53,6 +53,8 @@
     <Compile Include="UnitTest1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\MathfTests.cs" />
+    <Compile Include="Utilities\ScreenCoordTests.cs" />
+    <Compile Include="Utilities\WorldCoordTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

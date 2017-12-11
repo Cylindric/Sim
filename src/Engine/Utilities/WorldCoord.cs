@@ -25,8 +25,8 @@ namespace Engine.Utilities
 
         public WorldCoord(float x, float y)
         {
-            X = (int)x;
-            Y = (int)y;
+            X = x;
+            Y = y;
         }
 
         /* #################################################################### */
@@ -60,6 +60,11 @@ namespace Engine.Utilities
             {
                 return new WorldCoord(0, 0);
             }
+        }
+
+        public override string ToString()
+        {
+            return $"[{X},{Y}]";
         }
     }
 }

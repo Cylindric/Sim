@@ -105,11 +105,17 @@ namespace Engine.Utilities
         /// <seealso cref="https://stackoverflow.com/a/2021986"/>
         public static float Wrap(int value, int start, int end)
         {
-            int width = end - start;   // 
-            int offsetValue = value - start;   // value relative to 0
+            int newValue = value - start;
+            int newEnd = end - start;
 
-            return (offsetValue - ((offsetValue / width) * width)) + start;
-            // + start to reset back to start of original range
+            int result = newValue % newEnd;
+            if(result < 0)
+            {
+                result += newEnd;
+            }
+
+            result += start;
+            return result;
         }
     }
 }

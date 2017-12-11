@@ -32,9 +32,9 @@ namespace Engine.Controllers
         /* #                              FIELDS                              # */
         /* #################################################################### */
         public GameObject CircleCursorPrefab;
-        private WorldCoord _lastFramePosition;
-        private WorldCoord _currentFramePosition;
-        private WorldCoord _dragStartPosition;
+        private ScreenCoord _lastFramePosition;
+        private ScreenCoord _currentFramePosition;
+        private ScreenCoord _dragStartPosition;
         private List<GameObject> _dragPreviewGameObjects;
         private BuildModeController _bmc;
         private FurnitureSpriteController _fsc;
@@ -71,14 +71,14 @@ namespace Engine.Controllers
         /// Gets the current mouse position, in World-space coordinates.
         /// </summary>
         /// <returns></returns>
-        public WorldCoord GetMousePosition()
+        public ScreenCoord GetMousePosition()
         {
             return _currentFramePosition;
         }
 
         public Tile GetTileUnderMouse()
         {
-            return WorldController.Instance.GetTileAtWorldCoordinates(_currentFramePosition);
+            return WorldController.Instance.GetTileAtWorldCoordinates(_currentFramePosition.ToWorld());
         }
 
         private void ShowFurnitureSpriteAtTile(string furnType, Tile t)
@@ -116,7 +116,7 @@ namespace Engine.Controllers
         // Update is called once per frame
         public void Update()
         {
-            _currentFramePosition = CameraController.Instance.ScreenToWorldPoint(SDLEvent.MousePosition);
+            _currentFramePosition = SDLEvent.MousePosition;
 
             if (SDLEvent.KeyUp(SDL2.SDL.SDL_Keycode.SDLK_ESCAPE))
             {
@@ -133,7 +133,7 @@ namespace Engine.Controllers
             UpdateDragging();
             UpdateCameraMovement();
 
-            _lastFramePosition = CameraController.Instance.ScreenToWorldPoint(SDLEvent.MousePosition);
+            _lastFramePosition = SDLEvent.MousePosition;
         }
 
         public void Render() {}
@@ -144,7 +144,8 @@ namespace Engine.Controllers
             if (SDLEvent.MouseButtonIsDown(SDL2.SDL.SDL_BUTTON_MIDDLE))
             {
                 var diff = _lastFramePosition - _currentFramePosition;
-                CameraController.Instance.Position += diff;
+                CameraController.Instance.Position += diff.Flip();
+                Debug.Log($"Camera moved {diff} to {CameraController.Instance.Position}");
             }
 
             // Zooming
@@ -195,10 +196,13 @@ namespace Engine.Controllers
                 _dragStartPosition = _currentFramePosition;
             }
 
-            var startX = Mathf.FloorToInt(_dragStartPosition.X + 0.5f);
-            var endX = Mathf.FloorToInt(_currentFramePosition.X + 0.5f);
-            var startY = Mathf.FloorToInt(_dragStartPosition.Y + 0.5f);
-            var endY = Mathf.FloorToInt(_currentFramePosition.Y + 0.5f);
+            var start = _dragStartPosition.ToWorld();
+            var end = _dragStartPosition.ToWorld();
+
+            var startX = Mathf.FloorToInt(start.X + 0.5f);
+            var endX = Mathf.FloorToInt(end.X + 0.5f);
+            var startY = Mathf.FloorToInt(start.Y + 0.5f);
+            var endY = Mathf.FloorToInt(end.Y + 0.5f);
 
             if (endX < startX)
             {
