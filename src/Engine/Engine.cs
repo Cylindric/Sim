@@ -62,7 +62,8 @@ namespace Engine
                 SpriteManager.Instance,
                 WorldController.Instance,
                 TileSpriteController.Instance,
-                CharacterSpriteController.Instance
+                CharacterSpriteController.Instance,
+                BuildModeController.Instance
             };
 
             SDLWindow.Instance.Start();

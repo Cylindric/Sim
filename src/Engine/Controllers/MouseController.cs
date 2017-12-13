@@ -31,6 +31,7 @@ namespace Engine.Controllers
         /* #################################################################### */
         /* #                              FIELDS                              # */
         /* #################################################################### */
+
         public GameObject CircleCursorPrefab;
         private ScreenCoord _lastFramePosition;
         private ScreenCoord _currentFramePosition;
@@ -111,6 +112,15 @@ namespace Engine.Controllers
             _fsc = FurnitureSpriteController.Instance;
             _bmc = BuildModeController.Instance;
             _dragPreviewGameObjects = new List<GameObject>();
+
+            CircleCursorPrefab = new GameObject()
+            {
+                Name = "Cursor",
+                Sprite = SpriteManager.Instance.GetSprite("cursors", "cursor"),
+                ActiveSprite = SpriteManager.Instance.GetSprite("cursors", "cursor"),
+                IsActive = true,
+                SortingLayerName = "cursors"
+            };
         }
 
         // Update is called once per frame
@@ -145,7 +155,6 @@ namespace Engine.Controllers
             {
                 var diff = _lastFramePosition - _currentFramePosition;
                 CameraController.Instance.Position += diff.Flip();
-                Debug.Log($"Camera moved {diff} to {CameraController.Instance.Position}");
             }
 
             // Zooming

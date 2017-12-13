@@ -35,9 +35,13 @@ namespace Engine.Controllers
 
         public void Update()
         {
-            if (SDLEvent.KeyUp(SDL2.SDL.SDL_Keycode.SDLK_f))
+            if (SDLEvent.KeyUp(SDL2.SDL.SDL_Keycode.SDLK_1))
             {
                 SetMode_BuildFloor();
+            }
+            else if (SDLEvent.KeyUp(SDL2.SDL.SDL_Keycode.SDLK_2))
+            {
+                SetMode_BuildInstalledObject("steel_wall");
             }
         }
 
@@ -65,6 +69,7 @@ namespace Engine.Controllers
 
         public void SetMode_BuildFloor()
         {
+            Debug.Log("BMC Initiating floor building mode...");
             BuildMode = BuildMode.Floor;
             _buildModeTileType = TileType.Floor;
 
@@ -73,18 +78,21 @@ namespace Engine.Controllers
 
         public void SetMode_Clear()
         {
+            Debug.Log("BMC Initiating clear mode...");
             BuildMode = BuildMode.Floor;
             _buildModeTileType = TileType.Empty;
         }
 
         public void SetMode_Deconstruct()
         {
+            Debug.Log("BMC Initiating deconstruction mode...");
             BuildMode = BuildMode.Deconstruct;
             MouseController.Instance.StartBuildMode();
         }
 
         public void SetMode_BuildInstalledObject(string type)
         {
+            Debug.Log($"BMC Initiating {type} building mode...");
             BuildModeObjectType = type;
             BuildMode = BuildMode.Furniture;
             MouseController.Instance.StartBuildMode();
@@ -92,6 +100,7 @@ namespace Engine.Controllers
 
         public void SetMode_BuildColonist()
         {
+            Debug.Log("BMC Initiating colonist spawning mode...");
             BuildMode = BuildMode.Colonist;
             MouseController.Instance.StartBuildMode();
         }
