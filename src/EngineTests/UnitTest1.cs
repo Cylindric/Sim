@@ -17,7 +17,7 @@ namespace EngineTests
             SDLRenderer.Instance.Start();
 
             var spritesheet = new SpriteSheet();
-            spritesheet.Load(Engine.Engine.Instance.Path("assets", "base", "tiles", "floor.xml"));
+            spritesheet.Load(Engine.Engine.Instance.Path("assets", "base", "images", "tiles", "floor.xml"));
 
             var go = new GameObject
             {

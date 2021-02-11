@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<TextureAtlas imagePath="furn_stockpile.png" width="64" height="64">
-    <sprite n="default" x="0" y="0" w="64" h="64" pX="0.5" pY="0.5"/>
-</TextureAtlas>

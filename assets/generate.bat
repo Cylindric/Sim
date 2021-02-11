@@ -13,6 +13,7 @@ SET OPTIONS=%OPTIONS% --disable-rotation --size-constraints POT --force-word-ali
 ECHO ###########################################################################
 ECHO # Generating Assets
 ECHO ###########################################################################
+ECHO Currently in %CD%
 ECHO Generating into %BASEOUTPUTPATH%
 IF NOT EXIST "%BASEOUTPUTPATH%" MD %BASEOUTPUTPATH%
 ECHO.
