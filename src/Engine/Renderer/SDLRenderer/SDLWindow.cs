@@ -38,7 +38,14 @@ namespace Engine.Renderer.SDLRenderer
             _width = w;
             _height = h;
 
-            if(SDL.SDL_Init(SDL.SDL_INIT_EVERYTHING)  < 0)
+            /*
+             When running C# applications under the Visual Studio debugger, native code that
+            names threads with the 0x406D1388 exception will silently exit. To prevent this
+            exception from being thrown by SDL, add this line before your SDL_Init call:
+            */
+            SDL.SDL_SetHint(SDL.SDL_HINT_WINDOWS_DISABLE_THREAD_NAMING, "1");
+            
+            if (SDL.SDL_Init(SDL.SDL_INIT_EVERYTHING)  < 0)
             {
                 Debug.Log($"Failed to initialise SDL! SDL error: {SDL.SDL_GetError()}");
                 throw new InvalidOperationException(SDL.SDL_GetError());

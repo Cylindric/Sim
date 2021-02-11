@@ -9,3 +9,8 @@
 
 * Execute the assets/generate.bat script to convert all sources to sprites, specifying the build path.
   * `generate.bat D:\Dev\Sim\src\CylSim\bin\Debug`
+
+## Dependencies
+
+* [SDL 2.0.14 64-bit](https://www.libsdl.org/)
+* [SDL2 C# Bindings](https://github.com/flibitijibibo/SDL2-CS)

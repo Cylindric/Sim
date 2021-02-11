@@ -96,7 +96,6 @@
     <Compile Include="Renderer\SDLRenderer\SDLText.cs" />
     <Compile Include="Renderer\SDLRenderer\SDLTexture.cs" />
     <Compile Include="Renderer\SDLRenderer\SDLTtf.cs" />
-    <Compile Include="SDL2-CS\LPUtf8StrMarshaler.cs" />
     <Compile Include="SDL2-CS\SDL2.cs" />
     <Compile Include="SDL2-CS\SDL2_image.cs" />
     <Compile Include="SDL2-CS\SDL2_mixer.cs" />
