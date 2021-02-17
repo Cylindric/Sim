@@ -1,4 +1,5 @@
-﻿using Engine.Renderer.SDLRenderer;
+﻿using Engine.Models;
+using Engine.Renderer.SDLRenderer;
 using Engine.Utilities;
 using System;
 using static SDL2.SDL;
@@ -33,7 +34,7 @@ namespace Engine.Controllers
         /// </summary>
         private ScreenCoord _position = new ScreenCoord();
 
-        // private Text _text = new Text();
+        //private Text _text = new Text();
 
         /* #################################################################### */
         /* #                           CONSTRUCTORS                           # */
@@ -108,6 +109,7 @@ namespace Engine.Controllers
         public void Render()
         {
             // _text.Render();
+            //var t = SpriteManager.Instance.GetSprite();
         }
 
         internal WorldCoord ScreenToWorldPoint(ScreenCoord screenPosition)

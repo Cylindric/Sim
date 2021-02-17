@@ -81,6 +81,7 @@
     <Compile Include="Models\Job.cs" />
     <Compile Include="Models\JobQueue.cs" />
     <Compile Include="Models\Room.cs" />
+    <Compile Include="Models\Text.cs" />
     <Compile Include="Models\Tile.cs" />
     <Compile Include="Enums\TileType.cs" />
     <Compile Include="Models\World.cs" />
