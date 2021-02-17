@@ -48,7 +48,11 @@ namespace Engine.Renderer.SDLRenderer
             var key = $"{name}__{size}";
             if (!_fonts.ContainsKey(key))
             {
-                var font = SDL_ttf.TTF_OpenFont(Engine.Instance.Path("assets", "base", "fonts", $"{name}.ttf"), size);
+                var fontfile = Engine.Instance.Path("assets", "base", "fonts", $"{name}.ttf");
+                var font = SDL_ttf.TTF_OpenFont(fontfile, size);
+                if (font == IntPtr.Zero) {
+                    throw new InvalidProgramException($"The requested font ({fontfile}) could not be found!");
+                }
                 _fonts.Add(key, font);
             }
             return _fonts[key];

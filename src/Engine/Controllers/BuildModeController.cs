@@ -2,6 +2,7 @@
 using Engine.Models;
 using System;
 using Engine.Renderer.SDLRenderer;
+using static Engine.Engine;
 
 namespace Engine.Controllers
 {
@@ -45,7 +46,7 @@ namespace Engine.Controllers
             }
         }
 
-        public void Render()
+        public void Render(LAYER layer)
         {
         }
 

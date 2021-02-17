@@ -3,6 +3,7 @@ using System.Xml;
 using Engine.Models;
 using Engine.Utilities;
 using System;
+using static Engine.Engine;
 
 namespace Engine.Controllers
 {
@@ -47,8 +48,6 @@ namespace Engine.Controllers
         public void Start()
         {
             MarkovNameGenerator.Start();
-
-            var args = Environment.GetCommandLineArgs();
 
             if (_loadWorld)
             {
@@ -155,7 +154,7 @@ namespace Engine.Controllers
             }
         }
 
-        public void Render()
+        public void Render(LAYER layer)
         {
             // throw new NotImplementedException();
         }

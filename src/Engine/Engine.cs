@@ -23,6 +23,20 @@ namespace Engine
 
         public const int GRID_SIZE = 64;
 
+        /// <summary>
+        /// Draw layers. Sprites will be drawn from top to bottom, so the lowest
+        /// listed layer will be on top of everything else.
+        /// </summary>
+        public enum LAYER
+        {
+            FLOOR,
+            FURNITURE,
+            JOBS,
+            DEFAULT,
+            UI,
+            MOUSE
+        }
+
         /* #################################################################### */
         /* #                              FIELDS                              # */
         /* #################################################################### */
@@ -56,10 +70,10 @@ namespace Engine
         {
             var controllers = new List<IController>
             {
+                SpriteManager.Instance,
                 TimeController.Instance,
                 MouseController.Instance,
                 CameraController.Instance,
-                SpriteManager.Instance,
                 WorldController.Instance,
                 TileSpriteController.Instance,
                 CharacterSpriteController.Instance,
@@ -85,9 +99,12 @@ namespace Engine
                     c.Update();
                 }
 
-                foreach (var c in controllers)
+                foreach(LAYER layer in (LAYER[])Enum.GetValues(typeof(LAYER)))
                 {
-                    c.Render();
+                    foreach (var c in controllers)
+                    {
+                        c.Render(layer);
+                    }
                 }
 
                 SDLWindow.Instance.Present();

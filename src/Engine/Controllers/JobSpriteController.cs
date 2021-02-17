@@ -51,7 +51,7 @@ namespace Engine.Controllers
             jobGo.Position = new WorldCoord(job.Tile.X + posOffset.X, job.Tile.Y + posOffset.Y);
             jobGo.Sprite = FurnitureSpriteController.Instance.GetSpriteForFurniture(job.JobObjectType);
             jobGo.Sprite.Colour = new Colour(0.5f, 1f, 0.5f, 0.25f);
-            jobGo.SortingLayerName = "Jobs";
+            jobGo.SortingLayerName = Engine.LAYER.JOBS;
 
             job.RegisterOnJobCompletedCallback(OnJobEnded);
             job.RegisterOnJobStoppedCallback(OnJobEnded);

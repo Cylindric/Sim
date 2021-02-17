@@ -3,6 +3,7 @@ using Engine.Models;
 using Engine.Utilities;
 using System;
 using Engine.Renderer.SDLRenderer;
+using static Engine.Engine;
 
 namespace Engine.Controllers
 {
@@ -99,7 +100,7 @@ namespace Engine.Controllers
                 go.Sprite.Colour = new Colour(1f, 0.5f, 0.5f, 1f);
             }
 
-            go.SortingLayerName = "Jobs";
+            go.SortingLayerName = LAYER.JOBS;
 
             var proto = World.Instance.FurniturePrototypes[furnType];
             var posOffset = new Vector3((float) (proto.Width - 1)/2, (float) (proto.Height - 1)/2, 0);
@@ -119,8 +120,10 @@ namespace Engine.Controllers
                 Sprite = SpriteManager.Instance.GetSprite("cursors", "cursor"),
                 ActiveSprite = SpriteManager.Instance.GetSprite("cursors", "cursor"),
                 IsActive = true,
-                SortingLayerName = "cursors"
+                SortingLayerName = LAYER.MOUSE
             };
+
+            _text.Create("Hello, world!", "Robotica", 50, new SDL2.SDL.SDL_Color() { r = 255 });
         }
 
         // Update is called once per frame
@@ -146,7 +149,18 @@ namespace Engine.Controllers
             _lastFramePosition = SDLEvent.MousePosition;
         }
 
-        public void Render() {}
+        private SDLText _text = new SDLText();
+
+        public void Render(LAYER layer)
+        {
+            if (layer == LAYER.UI)
+            {
+                //_text.Position = GetMousePosition();
+                //_text.Render();
+                CircleCursorPrefab.Sprite.Centered = true;
+                CircleCursorPrefab.Sprite.Render((int)_currentFramePosition.X, (int)_currentFramePosition.Y);
+            }
+        }
 
         private void UpdateCameraMovement()
         {
@@ -164,12 +178,6 @@ namespace Engine.Controllers
 
         private void UpdateDragging()
         {
-            // If over UI, do nothing
-            //if (EventSystem.current.IsPointerOverGameObject())
-            //{
-            //    return;
-            //}
-
             // Clear the drag-area markers
             while (_dragPreviewGameObjects.Count > 0)
             {

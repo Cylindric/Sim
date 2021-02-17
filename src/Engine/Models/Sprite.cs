@@ -15,18 +15,18 @@ namespace Engine.Models
         /* #                              FIELDS                              # */
         /* #################################################################### */
         private SpriteClip _clip = new SpriteClip();
-        private SDLTexture _texture;
+        //private SDLTexture _texture;
 
         public Sprite(SDLTexture texture)
         {
-            _texture = texture;
+            Texture = texture;
         }
 
         /* #################################################################### */
         /* #                           CONSTRUCTORS                           # */
         /* #################################################################### */
 
-        public Sprite(SDLTexture texture, Rect rect, Vector2<float> pivot, int ppu)
+        public Sprite(SDLTexture texture, Rect rect, Vector2<float> pivot)
         {
             Texture = texture;
             _clip.X = rect.X;
@@ -118,16 +118,21 @@ namespace Engine.Models
         /* #                              METHODS                             # */
         /* #################################################################### */
 
+        /// <summary>
+        /// Draws the Sprite at the specified screen coordinates.
+        /// </summary>
+        /// <param name="x">x</param>
+        /// <param name="y">Y</param>
         public void Render(int x, int y)
         {
             if (Centered)
             {
-                x = x - (Width / 2);
-                y = y - (Width / 2);
+                x -= (Width / 2);
+                y -= (Width / 2);
             }
             int width = Width;
             int height = Height;
-            _texture.RenderSprite(this, x, y, width, height);
+            Texture.RenderSprite(this, x, y, width, height);
         }
 
         public void Rotate(float v)

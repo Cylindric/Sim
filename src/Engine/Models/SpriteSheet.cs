@@ -102,8 +102,8 @@ namespace Engine.Models
         {
             if (sprite.Centered)
             {
-                x = x - (sprite.Width / 2);
-                y = y - (sprite.Width / 2);
+                x -= (sprite.Width / 2);
+                y -= (sprite.Width / 2);
             }
             int width = sprite.Width;
             int height = sprite.Height;

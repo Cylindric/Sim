@@ -4,6 +4,7 @@ using System.Linq;
 using Engine.Models;
 using Debug = Engine.Utilities.Debug;
 using System;
+using static Engine.Engine;
 
 namespace Engine.Controllers
 {
@@ -52,7 +53,7 @@ namespace Engine.Controllers
         }
 
         public void Update() { }
-        public void Render() { }
+        public void Render(LAYER layer) { }
 	
         public Sprite GetSprite(string atlasName, string spriteName)
         {

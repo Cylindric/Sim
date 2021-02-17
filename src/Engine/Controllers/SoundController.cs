@@ -1,5 +1,6 @@
 ﻿using Engine.Models;
 using System;
+using static Engine.Engine;
 
 namespace Engine.Controllers
 {
@@ -49,7 +50,7 @@ namespace Engine.Controllers
             _soundCooldown = 0.5f;
         }
 
-        public void Render()
+        public void Render(LAYER layer)
         {
             throw new NotImplementedException();
         }

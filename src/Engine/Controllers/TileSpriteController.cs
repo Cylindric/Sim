@@ -3,6 +3,7 @@ using System.Linq;
 using Engine.Models;
 using Engine.Utilities;
 using System;
+using static Engine.Engine;
 
 namespace Engine.Controllers
 {
@@ -39,7 +40,7 @@ namespace Engine.Controllers
 
                     tileGo.Sprite = null;
                     tileGo.IsActive = false;
-                    tileGo.SortingLayerName = "Tiles";
+                    tileGo.SortingLayerName = LAYER.FLOOR;
 
                     OnTileChanged(tileData);
                 }
@@ -96,9 +97,9 @@ namespace Engine.Controllers
 
         public void Update() { }
 
-        public void Render()
+        public void Render(LAYER layer)
         {
-            foreach (var t in _tileGameObjectMap)
+            foreach (var t in _tileGameObjectMap.Where(x => x.Value.SortingLayerName == layer))
             {
                 var go = t.Value;
 

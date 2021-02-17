@@ -41,7 +41,7 @@ namespace Engine.Controllers
             invGo.Name = "Inv" + inv.ObjectType;
             invGo.Position = new WorldCoord(inv.Tile.X, inv.Tile.Y);
             invGo.Sprite = GetSpriteForInventory(inv);
-            invGo.SortingLayerName = "Inventory";
+            invGo.SortingLayerName = Engine.LAYER.DEFAULT;
 
             if (inv.MaxStackSize > 1)
             {

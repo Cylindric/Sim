@@ -1,4 +1,5 @@
 ﻿using System;
+using static Engine.Engine;
 
 namespace Engine.Controllers
 {
@@ -39,6 +40,6 @@ namespace Engine.Controllers
             _lastFrameTime = DateTime.Now;
         }
 
-        public void Render() {}
+        public void Render(LAYER layer) {}
     }
 }

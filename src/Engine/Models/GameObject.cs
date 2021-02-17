@@ -1,5 +1,6 @@
 ﻿using Engine.Utilities;
 using System.Diagnostics;
+using static Engine.Engine;
 
 namespace Engine.Models
 {
@@ -32,13 +33,12 @@ namespace Engine.Models
         /// The position of this GameObject in World coordinates (Tile XY)
         /// </summary>
         public WorldCoord Position { get; set; }
-
         public SpriteSheet SpriteSheet { get; set; }
         public Sprite ActiveSprite { get; set; }
         public float Rotation { get; set; }
         public bool IsActive { get; set; }
         public SimplePool.Pool Pool { get; set; }
-        public string SortingLayerName { get; internal set; }
+        public LAYER SortingLayerName { get; internal set; }
 
         /* #################################################################### */
         /* #                              METHODS                             # */

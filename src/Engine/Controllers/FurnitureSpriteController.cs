@@ -52,7 +52,7 @@ namespace Engine.Controllers
 
             furnGo.Sprite = GetSpriteForFurniture(furn);
             furnGo.Sprite.Colour = furn.Tint;
-            furnGo.SortingLayerName = "Furniture";
+            furnGo.SortingLayerName = Engine.LAYER.FURNITURE;
 
             if (furn.GetParameter("openness", -1f) >= 0f)
             {

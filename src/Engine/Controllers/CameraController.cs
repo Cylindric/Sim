@@ -2,6 +2,7 @@
 using Engine.Renderer.SDLRenderer;
 using Engine.Utilities;
 using System;
+using static Engine.Engine;
 using static SDL2.SDL;
 
 namespace Engine.Controllers
@@ -106,7 +107,7 @@ namespace Engine.Controllers
 
         }
 
-        public void Render()
+        public void Render(LAYER layer)
         {
             // _text.Render();
             //var t = SpriteManager.Instance.GetSprite();

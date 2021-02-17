@@ -97,6 +97,14 @@ namespace Engine.Renderer.SDLRenderer
             }
         }
 
+        /// <summary>
+        /// Draw the sprite at the specified position, at the specified size.
+        /// </summary>
+        /// <param name="sprite">The sprite</param>
+        /// <param name="x">Screen X</param>
+        /// <param name="y">Screen Y</param>
+        /// <param name="width">Draw width</param>
+        /// <param name="height">Draw height</param>
         public void RenderSprite(Sprite sprite, int x, int y, int width, int height)
         {
             SDL_Rect srcrect = new SDL_Rect()

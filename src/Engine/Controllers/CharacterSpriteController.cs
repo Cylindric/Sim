@@ -4,6 +4,7 @@ using Engine.Pathfinding;
 using Debug = Engine.Utilities.Debug;
 using Engine.Utilities;
 using System;
+using static Engine.Engine;
 
 namespace Engine.Controllers
 {
@@ -36,7 +37,7 @@ namespace Engine.Controllers
                 Sprite = SpriteManager.Instance.GetSprite("colonist", "default"),
                 ActiveSprite = SpriteManager.Instance.GetSprite("colonist", "default"),
                 IsActive = true,
-                SortingLayerName = "characters"
+                SortingLayerName = LAYER.DEFAULT
             };
 
             World.RegisterCharacterCreatedCb(OnCharacterCreated);
@@ -48,7 +49,7 @@ namespace Engine.Controllers
         }
 
         public void Update() { }
-        public void Render() { }
+        public void Render(LAYER layer) { }
 
         public void OnCharacterCreated(Character character)
         {
