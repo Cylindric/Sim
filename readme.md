@@ -1,5 +1,9 @@
 # Building
 
+## Useful Tools
+
+* [Piskel](https://www.piskelapp.com/) - an online sprite editor
+
 ## Pre-Requisites
 
 * [TexturePacker](https://www.codeandweb.com/texturepacker)

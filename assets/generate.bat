@@ -1,4 +1,6 @@
 @ECHO OFF
+if "%~1"=="" GOTO help
+
 CD %~dp0
 
 SET BUILDROOT=%1
@@ -57,6 +59,9 @@ SET OUTPUTPATH=%BASEOUTPUTPATH%\images\backgrounds
 IF NOT EXIST "%OUTPUTPATH%" MD %OUTPUTPATH%
 XCOPY /Y Backgrounds\starfield.jpg %OUTPUTPATH%
 
+SET OUTPUTPATH=%BASEOUTPUTPATH%\images\particles
+%TP% %OPTIONS% --data %OUTPUTPATH%\particles.xml --sheet %OUTPUTPATH%\particles.png particles\particle-assets
+
 SET OUTPUTPATH=%BASEOUTPUTPATH%\images\tiles
 IF NOT EXIST "%OUTPUTPATH%" MD %OUTPUTPATH%
 %TP% %OPTIONS% --data %OUTPUTPATH%\floor.xml --sheet %OUTPUTPATH%\floor.png Tiles\floor-assets
@@ -71,5 +76,14 @@ XCOPY /Y /I Fonts\*.ttf %OUTPUTPATH%
 ECHO.
 
 
+GOTO finish
+
+:help
+ECHO.
+ECHO Syntax:
+ECHO.
+ECHO generate.bat outputpath
+ECHO.
+GOTO finish
 
 :finish
